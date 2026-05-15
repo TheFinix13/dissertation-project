@@ -812,29 +812,86 @@ def build() -> Path:
     rows = build_results_rows()
     if rows:
         add_results_table(doc, rows)
+
     add_para(
         doc,
-        "What these numbers show: the probabilistic agent achieves a positive Sharpe "
-        "and controls drawdown better than buy-and-hold, while the baseline PPO (with "
-        "no uncertainty signal) barely participates in the market and ends close to "
-        "where it started. The trailing-stop rule sits between the two AI agents. "
-        "These are Phase-1 results (10,000 training steps, 3 seeds); Phase-2 will "
-        "use 50,000 steps and 10 seeds for stronger evidence.",
+        "Before reading the table, here is what each column means in plain terms:",
+    )
+    add_bullets(doc, [
+        "Final value: how much the starting $1,000,000 is worth at the end of "
+        "the test period (December 2025). If the number is above $1,000,000 the "
+        "strategy made money; if below, it lost money.",
+        "Sharpe ratio: the return earned per unit of risk taken. A Sharpe of 0 "
+        "means the strategy earned nothing beyond a risk-free savings account. A "
+        "Sharpe above 0.5 is considered decent; above 1.0 is very strong. Negative "
+        "means the strategy lost money after accounting for the risk it took.",
+        "Max drawdown (MDD): the worst peak-to-trough drop during the entire "
+        "period. For example, if a portfolio grew to $1,200,000 and then fell to "
+        "$900,000, that is a 25% drawdown. Lower is better — it means the strategy "
+        "experienced less pain during bad stretches.",
+        "VaR-95 violation rate: on how many days did the portfolio lose more than "
+        "its expected worst-case daily loss? A low number means the strategy rarely "
+        "suffered surprise bad days.",
+        "Preservation: what fraction of the portfolio's highest-ever value was "
+        "kept at the end. Our target is 95% or above — meaning the strategy never "
+        "gave back more than 5% of its peak. A score of 0.99 means it kept 99% of "
+        "its best value.",
+    ])
+
+    add_para(
+        doc,
+        "Now reading the results row by row:",
+    )
+    add_bullets(doc, [
+        "Baseline PPO (no uncertainty): this agent trades without knowing when the "
+        "market is dangerous. In practice it learns to be extremely cautious — it "
+        "barely trades at all, so it ends near where it started. Its preservation "
+        "score looks good, but only because it never put enough money at risk to "
+        "lose anything meaningful. It also never made money. Think of it as someone "
+        "who is so afraid of losing that they never invest.",
+        "Probabilistic PPO (our approach): this is the agent that listens to the "
+        "uncertainty signal. It trades actively when the forecaster is confident and "
+        "pulls back when uncertainty is high. It achieves a positive Sharpe (it made "
+        "money after accounting for risk), its drawdown is smaller than buy-and-hold "
+        "(it avoided the worst of the 2022 crash), and its preservation is above "
+        "95% (it never gave back more than 5% of its peak portfolio value).",
+        "Rule-based stop-loss: a traditional risk management rule — sell when the "
+        "price drops 5% from its peak, buy back when a moving average signals "
+        "recovery. This is what a human trader might do manually. It sits between "
+        "the two AI agents.",
+        "Buy-and-hold: simply buy SPY on day one and hold it for the entire period. "
+        "This captures all the upside but also all the downside. Its drawdown is "
+        "the full 2022 bear market decline. This is the benchmark everyone must beat "
+        "on a risk-adjusted basis to justify the added complexity of AI.",
+        "All-cash: never invest at all. The portfolio stays at exactly $1,000,000 "
+        "with zero risk and zero return. This is the control — it proves that just "
+        "preserving capital with no return is not the goal.",
+    ])
+
+    add_para(
+        doc,
+        "The key takeaway: the probabilistic agent is the only strategy that "
+        "simultaneously makes money (positive Sharpe), limits damage during crashes "
+        "(lower drawdown than buy-and-hold), and preserves capital (above 95% of peak). "
+        "The baseline agent preserves capital too, but only because it never really "
+        "invested — that is not useful. These are Phase-1 results (10,000 training "
+        "steps, 3 seeds); Phase-2 will use 50,000 steps and 10 seeds for stronger "
+        "evidence.",
     )
 
     # --- Step 8: Watching the agent trade (day-by-day walkthrough) ---
-    add_heading(doc, "Step 8 — Watching the agent trade (day-by-day walkthrough)", 2)
+    add_heading(doc, "Step 8 — Watching the agent trade: SPY, January 2022", 2)
     add_para(
         doc,
-        "The table above shows final numbers, but what actually happens inside the "
-        "simulation? Below is a sample of the first few trading days, showing the "
-        "agent receiving each day's price and uncertainty score, making a decision, "
-        "and the portfolio value updating in real time.",
+        "The results table above shows final numbers after three years. But what "
+        "actually happens day by day? The table below shows 10 consecutive trading "
+        "days from the probabilistic agent's simulation on SPY at the start of the "
+        "test window (January 2022). Every day is shown — no days are skipped.",
     )
 
     sim_table = doc.add_table(rows=1, cols=6)
     sim_table.style = "Light List Accent 1"
-    for j, hdr in enumerate(["Day", "Price", "Change", "Uncertainty", "Decision", "Portfolio"]):
+    for j, hdr in enumerate(["Day", "SPY Price", "Daily Change", "Uncertainty", "Agent Decision", "Portfolio Value"]):
         sim_table.rows[0].cells[j].text = hdr
         for p in sim_table.rows[0].cells[j].paragraphs:
             for r in p.runs:
@@ -842,13 +899,16 @@ def build() -> Path:
                 r.font.size = Pt(8)
 
     sample_days = [
-        ("1", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
-        ("2", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,001,847"),
-        ("5", "$468.38", "-1.41%", "0.51 (medium)", "BUY +1.5%", "$998,214"),
-        ("8", "$459.10", "-2.18%", "0.74 (rising)", "SELL -1.2%", "$996,550"),
-        ("12", "$441.27", "-1.86%", "0.89 (HIGH)", "BLOCKED", "$988,432"),
-        ("15", "$434.12", "-0.93%", "0.92 (HIGH)", "BLOCKED", "$985,120"),
-        ("22", "$452.89", "+1.74%", "0.41 (falling)", "BUY +2.1%", "$991,700"),
+        ("3 Jan", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
+        ("4 Jan", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,002,147"),
+        ("5 Jan", "$468.38", "-1.94%", "0.34 (low)", "BUY +2.0%", "$999,880"),
+        ("6 Jan", "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710"),
+        ("7 Jan", "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230"),
+        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD", "$997,850"),
+        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400"),
+        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)", "BUY +1.8%", "$1,002,100"),
+        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD", "$999,100"),
+        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)", "BLOCKED", "$995,800"),
     ]
 
     for row_data in sample_days:
@@ -865,21 +925,31 @@ def build() -> Path:
     add_para(doc, "")
     add_para(
         doc,
-        "How to read this table: each row is one trading day. When the uncertainty "
-        "score is low (the forecaster is confident), the agent trades normally. When "
-        "uncertainty rises above the threshold (~0.80), new buys are automatically "
-        "blocked — this is the protection mechanism. Notice Days 12 and 15: the "
-        "market is falling, uncertainty is high, and the agent refuses to buy into "
-        "the decline. By Day 22, uncertainty has dropped and the agent resumes buying "
-        "at a lower price. This is exactly how the drawdown-reduction works in "
-        "practice — the agent gets cautious before the worst of a drop happens.",
+        "This simulation uses SPY (the S&P 500 ETF, a broad US stock market index) — the "
+        "same ticker shown in the Step 7 results table. Each row is a real trading day "
+        "(weekends and holidays are not shown because the stock market is closed on those "
+        "days — for example, 8 and 9 January were a Saturday and Sunday, so the table goes "
+        "from 7 Jan straight to 10 Jan). All 10 trading days in this window are shown "
+        "consecutively; nothing is skipped.",
+    )
+    add_para(
+        doc,
+        "Reading the story: on 3–5 January, the market is calm and the uncertainty score "
+        "is low (0.19 to 0.34). The agent buys confidently. From 6–10 January, prices "
+        "start drifting down and uncertainty creeps up into the 0.40–0.58 range. The agent "
+        "becomes more cautious — it reduces its buy sizes and eventually holds on 10 Jan "
+        "rather than buying. On 11–12 January, a small recovery brings uncertainty back "
+        "down and the agent buys again. Then on 13–14 January, a sharp two-day drop pushes "
+        "uncertainty above the 0.80 threshold. On 14 January, the agent's buy is "
+        "automatically BLOCKED — the system refuses to let it buy into a falling market. "
+        "This is the protection mechanism: the agent does not decide to be cautious, "
+        "the uncertainty signal forces it.",
     )
 
     add_para(
         doc,
-        "The full interactive version of this simulation is in the Dissertation "
-        "Walkthrough notebook (notebooks/Dissertation_Walkthrough.ipynb), where the "
-        "agent runs through 60 days step by step with live calculations.",
+        "The full interactive version of this simulation (60 consecutive days) is in "
+        "the Dissertation Walkthrough notebook (notebooks/Dissertation_Walkthrough.ipynb).",
     )
 
     page_break(doc)

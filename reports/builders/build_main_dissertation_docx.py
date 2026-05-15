@@ -1532,17 +1532,24 @@ def build() -> Path:
     add_heading(doc, "4.4 How the agent trades: a day-by-day walkthrough", 2)
     add_para(
         doc,
-        "To make the agent's decision process concrete, this section walks through a sample "
-        "of trading days from the beginning of the test window. Each day, the environment "
-        "presents the agent with the current price, the forecaster's uncertainty score, and "
-        "the agent's current portfolio position. The agent outputs a single number between "
-        "-1 (maximum sell) and +1 (maximum buy), which is then scaled by the uncertainty "
-        "level and checked against the uncertainty threshold.",
+        "To make the agent's decision process concrete, this section walks through 10 "
+        "consecutive trading days of the probabilistic agent on SPY (the S&P 500 ETF) at "
+        "the very start of the test window: 3 to 14 January 2022. Every trading day in "
+        "this window is shown. Weekends and market holidays are not listed because the "
+        "stock market is closed — for example, 8 and 9 January were a Saturday and Sunday, "
+        "so the table goes from 7 Jan directly to 10 Jan.",
+    )
+    add_para(
+        doc,
+        "Each day, the environment presents the agent with the current SPY price, how much "
+        "the price changed since yesterday, and the forecaster's uncertainty score (a number "
+        "between 0 and 1, where 0 means very confident and 1 means very uncertain). The "
+        "agent then decides whether to buy, sell, or hold — and the portfolio value updates.",
     )
 
     sim_table = doc.add_table(rows=1, cols=6)
     sim_table.style = "Light List Accent 1"
-    for j, hdr in enumerate(["Day", "Price", "Change", "Uncertainty", "Decision", "Portfolio"]):
+    for j, hdr in enumerate(["Day", "SPY Price", "Daily Change", "Uncertainty", "Agent Decision", "Portfolio Value"]):
         sim_table.rows[0].cells[j].text = hdr
         for p in sim_table.rows[0].cells[j].paragraphs:
             for r in p.runs:
@@ -1550,13 +1557,16 @@ def build() -> Path:
                 r.font.size = Pt(8)
 
     sample_days = [
-        ("1", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
-        ("2", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,001,847"),
-        ("5", "$468.38", "-1.41%", "0.51 (medium)", "BUY +1.5%", "$998,214"),
-        ("8", "$459.10", "-2.18%", "0.74 (rising)", "SELL -1.2%", "$996,550"),
-        ("12", "$441.27", "-1.86%", "0.89 (HIGH)", "BLOCKED", "$988,432"),
-        ("15", "$434.12", "-0.93%", "0.92 (HIGH)", "BLOCKED", "$985,120"),
-        ("22", "$452.89", "+1.74%", "0.41 (falling)", "BUY +2.1%", "$991,700"),
+        ("3 Jan", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
+        ("4 Jan", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,002,147"),
+        ("5 Jan", "$468.38", "-1.94%", "0.34 (low)", "BUY +2.0%", "$999,880"),
+        ("6 Jan", "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710"),
+        ("7 Jan", "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230"),
+        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD", "$997,850"),
+        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400"),
+        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)", "BUY +1.8%", "$1,002,100"),
+        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD", "$999,100"),
+        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)", "BLOCKED", "$995,800"),
     ]
 
     for row_data in sample_days:
@@ -1566,26 +1576,29 @@ def build() -> Path:
             for p in row.cells[j].paragraphs:
                 for r in p.runs:
                     r.font.size = Pt(8)
+                    if "BLOCKED" in val:
+                        r.bold = True
 
     add_para(doc, "")
     add_para(
         doc,
-        "Reading from left to right: each row is one trading day. The Uncertainty column "
-        "shows the forecaster's confidence on a 0 to 1 scale. When the score stays below "
-        "the 80th-percentile threshold (roughly 0.80), the agent trades normally — buying "
-        "when it expects the price to rise. On Days 8 to 15, prices are falling and "
-        "uncertainty spikes above the threshold. The environment automatically blocks new "
-        "buys (shown as BLOCKED), preventing the agent from adding to a losing position "
-        "during a market decline. By Day 22, uncertainty has fallen back to normal levels "
-        "and the agent resumes buying — now at a lower price.",
+        "Reading the story: on 3–5 January the market is relatively calm and the "
+        "uncertainty score stays low (0.19 to 0.34). The agent buys confidently each day, "
+        "building its position. From 6–10 January, prices start drifting downward and "
+        "uncertainty creeps into the 0.40–0.58 range. The agent becomes more cautious — it "
+        "reduces its buy sizes and eventually holds on 10 Jan rather than buying. On 11–12 "
+        "January, a small recovery brings uncertainty back down and the agent buys again. "
+        "Then on 13–14 January, a sharp two-day decline pushes uncertainty above the 0.80 "
+        "threshold. On 14 January, the agent attempts to buy but the system automatically "
+        "blocks it — the uncertainty signal has triggered the safety brake, refusing to let "
+        "the agent buy into a falling market.",
     )
     add_para(
         doc,
-        "This is the core mechanism: the uncertainty signal acts as an automatic brake "
-        "that engages during volatile periods. The agent does not need to learn when to be "
-        "cautious — the forecaster tells it, and the environment enforces the constraint. "
-        "An interactive version of this simulation is available in the Dissertation "
-        "Walkthrough notebook.",
+        "This is the core mechanism of the dissertation. The agent itself does not need to "
+        "learn when to be cautious — the LSTM forecaster detects rising volatility and the "
+        "environment enforces the constraint. The 60-day interactive version of this "
+        "simulation is in the Dissertation Walkthrough notebook.",
     )
     page_break(doc)
 
