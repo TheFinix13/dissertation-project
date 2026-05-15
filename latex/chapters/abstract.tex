@@ -1,0 +1,13 @@
+% Abstract — keep to ~250 words
+This dissertation investigates whether a deep reinforcement learning agent
+that conditions on its own forecaster's predictive uncertainty can achieve
+superior risk-adjusted returns compared to standard baselines. A Proximal
+Policy Optimization (PPO) agent is augmented with an LSTM-based probabilistic
+forecaster trained via Gaussian negative log-likelihood, injecting a real-time
+uncertainty signal into the trading environment's state space. The agent is
+evaluated on a 70-ticker diversified-equity universe over the 2022--2025 test
+window against passive buy-and-hold, a manually-tuned trailing stop-loss, and
+a baseline PPO with no uncertainty channel. Results show that the
+uncertainty-aware agent reduces maximum drawdown on 100\% of tickers versus
+buy-and-hold while maintaining competitive Sharpe ratios, demonstrating
+effective capital preservation under regime stress.

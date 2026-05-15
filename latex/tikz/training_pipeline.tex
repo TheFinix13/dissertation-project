@@ -1,0 +1,43 @@
+% Figure: End-to-end training pipeline
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum height=1.2cm,
+              text width=#1, align=center, font=\small},
+  arr/.style={-{Stealth[length=3mm]}, thick},
+]
+  % Row 1
+  \node[box=3cm, fill=gray!10] (prices)
+    {\textcircled{1} Prices\\Yahoo daily closes};
+  \node[box=3.5cm, fill=blue!10, right=0.5cm of prices] (lstm)
+    {\textcircled{2} LSTM forecaster\\Gaussian NLL loss\\$\to$ uncertainty $u_t$};
+  \node[box=4cm, fill=purple!10, right=0.5cm of lstm] (inject)
+    {\textcircled{3} Inject $u_t$ into\\StockEnv\\(baseline: $u_t = 0$)};
+
+  \draw[arr] (prices.east) -- (lstm.west);
+  \draw[arr] (lstm.east)   -- (inject.west);
+
+  % Row 2
+  \node[box=10cm, fill=yellow!8, below=1.2cm of lstm] (ppo)
+    {\textcircled{4} Train PPO (same settings both arms)\\
+     lr $3 \times 10^{-4}$ $\cdot$ n\_steps 512 $\cdot$ batch 64
+     $\cdot$ epochs 5\\
+     10\,000 steps $\times$ seeds \{7, 19, 42\}};
+
+  \draw[arr] (inject.south) -- ++(0,-0.4) -| (ppo.north);
+
+  % Row 3
+  \node[box=9cm, fill=green!10, below=1.2cm of ppo] (eval)
+    {\textcircled{5} Evaluate on test window\\
+     Replay policy $\to$ equity curve $\to$ Sharpe, MDD, preservation};
+
+  \draw[arr] (ppo.south) -- (eval.north);
+
+  % Note
+  \node[below=0.5cm of eval, font=\footnotesize\itshape]
+    {Baseline skips steps \textcircled{1}--\textcircled{3}:
+     same PPO, no uncertainty channel.};
+\end{tikzpicture}
+\caption{End-to-end training pipeline from raw prices to evaluation metrics.}
+\label{fig:pipeline}
+\end{figure}

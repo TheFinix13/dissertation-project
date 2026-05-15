@@ -1,0 +1,30 @@
+% Figure: RL training loop (one step)
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum height=1.3cm,
+              text width=#1, align=center, font=\small},
+  arr/.style={-{Stealth[length=3mm]}, thick},
+  lbl/.style={font=\scriptsize, text width=2.8cm, align=left},
+]
+  % Environment
+  \node[box=5cm, fill=blue!10] (env)
+    {Environment (\texttt{StockEnv})\\prices + portfolio + uncertainty};
+  % Policy
+  \node[box=5cm, fill=yellow!12, below=1.5cm of env] (pol)
+    {PPO Policy (neural network)\\maps state $\to$ action $a \in [-1, 1]$};
+  % Reward
+  \node[box=6cm, fill=green!10, below=1.5cm of pol] (rew)
+    {Reward and transition\\$r = 100 \cdot \ln(V_\text{next} / V_\text{now})$\\advance one day $\to$ new state};
+
+  % Arrows
+  \draw[arr] (env.south) -- node[right, lbl]
+    {\textcircled{1} observation\\(state $s_t$)} (pol.north);
+  \draw[arr] (pol.south) -- node[right, lbl]
+    {\textcircled{2} action $a_t$;\\trade executed} (rew.north);
+  \draw[arr] (rew.west) -- ++(-1.8,0) |- node[left, lbl, near start]
+    {\textcircled{3} PPO updates\\from rollouts;\\repeat} (env.west);
+\end{tikzpicture}
+\caption{One training step of the RL loop: observe, act, receive reward, update policy.}
+\label{fig:rl_loop}
+\end{figure}

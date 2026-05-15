@@ -1,0 +1,39 @@
+\chapter{Methodology}
+\label{ch:methodology}
+
+\section{Data}
+% Yahoo Finance daily adjusted closes, 70-ticker universe, chronological splits.
+
+\section{Trading Environment (StockEnv)}
+% State: 20-day log returns, position, uncertainty score.
+% Action: $a_t \in [-1, 1]$.
+% Reward: $r_t = 100 \cdot \ln(V_{t+1} / V_t)$.
+\input{tikz/rl_loop}
+
+\section{Probabilistic Forecaster}
+% Two-layer LSTM, Gaussian NLL loss, uncertainty score $u_t$.
+\begin{equation}\label{eq:gaussian_nll}
+  \mathcal{L}_{\text{NLL}}
+  = \frac{1}{N}\sum_{i=1}^{N}
+    \left[\frac{(y_i - \mu_i)^2}{2\sigma_i^2}
+    + \frac{1}{2}\ln\sigma_i^2\right]
+\end{equation}
+
+\section{PPO Training}
+% Hyperparameters: lr $3 \times 10^{-4}$, n\_steps 512, batch 64, epochs 5.
+% Seeds \{7, 19, 42\}. 10\,000 steps (Phase-1), 50\,000 (Phase-2).
+
+\section{Baselines}
+% Buy-and-hold, all-cash, baseline PPO (no uncertainty), rule-based trailing stop.
+
+\section{Evaluation Metrics}
+\begin{equation}\label{eq:sharpe}
+  \text{Sharpe} = \frac{\bar{r}_p - r_f}{\sigma_p}
+\end{equation}
+\begin{equation}\label{eq:mdd}
+  \text{MDD} = \max_{t \in [0,T]}
+    \frac{\max_{s \leq t} V_s - V_t}{\max_{s \leq t} V_s}
+\end{equation}
+
+\input{tikz/training_pipeline}
+\input{tikz/data_splits}

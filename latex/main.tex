@@ -1,0 +1,77 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ── Packages ──────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}                 % Palatino text + math
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}\onehalfspacing
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[style=authoryear,backend=biber,maxcitenames=2]{biblatex}
+\addbibresource{references.bib}
+
+% ── Custom commands ───────────────────────────────────────────
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\E}{\mathbb{E}}
+
+% ── Title page data ──────────────────────────────────────────
+\title{%
+  Probabilistic Deep Reinforcement Learning\\
+  for Portfolio Risk Analysis:\\
+  An Uncertainty-Aware Policy for\\
+  Capital Preservation Under Regime Stress%
+}
+\author{Fiyin Akano \\ URN: 6962514}
+\date{%
+  EEEM004 --- MSc Dissertation \\
+  Department of Electrical and Electronic Engineering \\
+  University of Surrey \\[1em]
+  Supervisor: Dr Cuong Nguyen \\[2em]
+  \today%
+}
+
+\begin{document}
+
+% ── Front matter ──────────────────────────────────────────────
+\maketitle
+\pagenumbering{roman}
+
+\begin{abstract}
+\input{chapters/abstract}
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+
+% ── Main chapters ─────────────────────────────────────────────
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_background}
+\input{chapters/ch3_methodology}
+\input{chapters/ch4_implementation}
+\input{chapters/ch5_results}
+\input{chapters/ch6_discussion}
+\input{chapters/ch7_conclusion}
+
+% ── Back matter ───────────────────────────────────────────────
+\printbibliography[heading=bibintoc]
+
+\appendix
+\input{chapters/appendix_a}
+\input{chapters/appendix_b}
+
+\end{document}

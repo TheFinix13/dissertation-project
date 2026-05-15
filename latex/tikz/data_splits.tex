@@ -1,0 +1,32 @@
+% Figure: Chronological data splits (no future leakage)
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum height=1.2cm,
+              text width=#1, align=center, font=\small},
+  arr/.style={-{Stealth[length=3mm]}, thick},
+]
+  % Train
+  \node[box=4cm, fill=blue!12] (train)
+    {Train\\2009--2018\\Forecaster learns patterns};
+  % Validation
+  \node[box=3cm, fill=orange!15, right=0.6cm of train] (val)
+    {Validation\\2019--2021\\Tune thresholds};
+  % Test
+  \node[box=3.5cm, fill=green!12, right=0.6cm of val] (test)
+    {Test\\2022--2025\\Final reported metrics};
+
+  % Arrows
+  \draw[arr] (train.east) -- (val.west);
+  \draw[arr] (val.east)   -- (test.west);
+
+  % Labels below
+  \node[below=0.8cm of val, text width=11cm, align=center, font=\footnotesize]
+    {\textcircled{1} Strictly chronological (no random shuffle).
+     \textcircled{2} Train: history for forecaster + RL simulation.\\
+     \textcircled{3} Validation: tune uncertainty threshold --- no final scores.
+     \textcircled{4} Test: headline Sharpe, drawdown, preservation.};
+\end{tikzpicture}
+\caption{Chronological data splits --- no future information leaks into training.}
+\label{fig:data_splits}
+\end{figure}
