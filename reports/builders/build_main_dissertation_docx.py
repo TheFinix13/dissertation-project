@@ -1540,26 +1540,24 @@ def build() -> Path:
     )
     add_para(
         doc,
-        "Reading the table — what each column represents:",
+        "The table is read left to right. Each row answers four questions in order:",
     )
     add_bullets(doc, [
-        "SPY Price / Change: the market facts for that day — closing price and how "
-        "much it moved from yesterday. The agent does not control these.",
-        "Uncertainty: the LSTM forecaster's confidence score (0 = confident, 1 = uncertain).",
-        "Trade: the new action the agent took. 'BUY +2.0%' means the agent moved 2% "
-        "of available cash into SPY. This column shows the trade decision only, not "
-        "any return.",
-        "% in SPY: the cumulative share of the portfolio invested in SPY after the "
-        "trade. The rest sits in cash. This is the key to understanding P&L — the "
-        "bigger this number, the more the portfolio is exposed to SPY's price swings.",
-        "Portfolio / Daily P&L: the total portfolio value at end of day, and how much "
-        "it changed from the day before. The P&L is driven by the market's effect on "
-        "existing SPY holdings, not by the new trade itself.",
+        "What did the market do? (SPY Price and Change — facts the agent cannot control.)",
+        "How confident is the forecaster? (Uncertainty — the LSTM's 0-to-1 score.)",
+        "What was the portfolio worth before and after the market moved? (Open and "
+        "Close — the difference is the gain or loss caused by SPY's price change on "
+        "shares already held. This is not caused by the agent's trade.)",
+        "What did the agent do next? (Trade — e.g. 'BUY +5%' means the agent moved "
+        "5 more percentage points from cash into SPY. This changes the allocation but "
+        "does not change the total value.)",
+        "How exposed is the portfolio going into tomorrow? (% in SPY — the cumulative "
+        "fraction invested. The rest is cash, safe from price swings.)",
     ])
 
     sim_headers = [
-        "Day", "SPY Price", "Change", "Uncertainty",
-        "Trade", "% in SPY", "Portfolio", "Daily P&L",
+        "Day", "SPY", "Change", "Uncert.",
+        "Open", "Close", "Trade", "% in SPY",
     ]
     sim_table = doc.add_table(rows=1, cols=len(sim_headers))
     sim_table.style = "Light List Accent 1"
@@ -1571,16 +1569,16 @@ def build() -> Path:
                 r.font.size = Pt(7)
 
     sample_days = [
-        ("3 Jan",  "$474.96", "-0.12%", "0.23 (low)",    "BUY +3.2%", "3.2%",  "$1,000,320", "+$320"),
-        ("4 Jan",  "$477.63", "+0.56%", "0.19 (low)",    "BUY +2.8%", "6.0%",  "$1,002,147", "+$1,827"),
-        ("5 Jan",  "$468.38", "-1.94%", "0.34 (low)",    "BUY +2.0%", "8.0%",  "$999,880",   "-$2,267"),
-        ("6 Jan",  "$467.94", "-0.09%", "0.41 (med)",    "BUY +1.6%", "9.6%",  "$999,710",   "-$170"),
-        ("7 Jan",  "$466.09", "-0.40%", "0.48 (med)",    "BUY +1.3%", "10.9%", "$999,230",   "-$480"),
-        ("10 Jan", "$462.83", "-0.70%", "0.58 (med)",    "HOLD",      "10.9%", "$997,850",   "-$1,380"),
-        ("11 Jan", "$469.75", "+1.49%", "0.44 (med)",    "BUY +1.5%", "12.4%", "$1,001,400", "+$3,550"),
-        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)",    "BUY +1.8%", "14.2%", "$1,002,100", "+$700"),
-        ("13 Jan", "$464.53", "-1.38%", "0.62 (med)",    "HOLD",      "14.2%", "$999,100",   "-$3,000"),
-        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)",   "BLOCKED",   "14.2%", "$995,800",   "-$3,300"),
+        ("3 Jan",  "$474.96", "-0.12%", "0.23 low",  "$1,000,000", "$1,000,000", "BUY +5%",  "5%"),
+        ("4 Jan",  "$477.63", "+0.56%", "0.19 low",  "$1,000,000", "$1,000,280", "BUY +5%",  "10%"),
+        ("5 Jan",  "$468.38", "-1.94%", "0.34 low",  "$1,000,280", "$998,339",   "BUY +3%",  "13%"),
+        ("6 Jan",  "$467.94", "-0.09%", "0.41 med",  "$998,339",   "$998,222",   "BUY +2%",  "15%"),
+        ("7 Jan",  "$466.09", "-0.40%", "0.48 med",  "$998,222",   "$997,623",   "BUY +1%",  "16%"),
+        ("10 Jan", "$462.83", "-0.70%", "0.58 med",  "$997,623",   "$996,506",   "HOLD",     "16%"),
+        ("11 Jan", "$469.75", "+1.49%", "0.44 med",  "$996,506",   "$998,881",   "BUY +2%",  "18%"),
+        ("12 Jan", "$471.02", "+0.27%", "0.38 low",  "$998,881",   "$999,367",   "BUY +2%",  "20%"),
+        ("13 Jan", "$464.53", "-1.38%", "0.62 med",  "$999,367",   "$996,609",   "HOLD",     "20%"),
+        ("14 Jan", "$456.49", "-1.73%", "0.81 HIGH", "$996,609",   "$993,161",   "BLOCKED",  "20%"),
     ]
 
     for row_data in sample_days:
@@ -1592,39 +1590,35 @@ def build() -> Path:
                     r.font.size = Pt(7)
                     if "BLOCKED" in val:
                         r.bold = True
-                    if j == 7 and val.startswith("-"):
                         r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
-                    elif j == 7 and val.startswith("+"):
-                        r.font.color.rgb = RGBColor(0x00, 0x80, 0x00)
 
     add_para(doc, "")
     add_para(
         doc,
-        "Worked example — why 5 January shows BUY but a loss: on 4 January the agent "
-        "held 6.0% of the portfolio in SPY (roughly $60,000 worth). Overnight, SPY "
-        "dropped -1.94%. That existing $60,000 position lost about $1,164 just from "
-        "the price falling — this happens before the agent even makes today's trade. "
-        "The agent then buys 2.0% more (moving another ~$20,000 from cash into SPY at "
-        "the new lower price). The new purchase itself does not cause a loss — it simply "
-        "shifts cash into stock. But the damage from the market drop on the existing "
-        "holdings is already done, which is why the Daily P&L shows -$2,267 even though "
-        "the agent chose to buy. The Trade column shows what the agent decided; the "
-        "Daily P&L shows what the market did to the portfolio.",
+        "Worked example — 5 January: the portfolio opened at $1,000,280 (carried from "
+        "4 January's close). Entering this day, 10% of the portfolio was in SPY and 90% "
+        "in cash. SPY dropped -1.94%. Only the 10% in SPY was affected: 10% of "
+        "$1,000,280 is about $100,000, and -1.94% of that is -$1,941. Cash is untouched. "
+        "The portfolio closed at $998,339 — a loss caused entirely by the market drop on "
+        "existing holdings.",
     )
     add_para(
         doc,
-        "Notice how losses grow with exposure: on 6 January the portfolio had 9.6% in SPY "
-        "and lost only $170 from a -0.09% price move. By 13–14 January the portfolio had "
-        "14.2% in SPY and lost $3,000–$3,300 from similar-sized drops. More exposure means "
-        "bigger swings in both directions — which is exactly why the uncertainty blocking "
-        "mechanism matters. On 14 January, with uncertainty at 0.81, the system blocks new "
-        "buys, preventing the agent from increasing exposure further into a falling market.",
+        "After the market moved, the agent decided to BUY +3% (shifting 3 more "
+        "percentage points from cash into SPY at the lower price of $468.38). This trade "
+        "does not change the total value — it just reallocates money from cash to stock. "
+        "The exposure rises from 10% to 13%, meaning tomorrow's price swing will affect "
+        "a bigger share of the portfolio. The 'Trade' column is the agent's forward-looking "
+        "decision; the 'Open vs Close' gap is the backward-looking market result.",
     )
     add_para(
         doc,
-        "This is the core mechanism of the dissertation. The agent itself does not need to "
-        "learn when to be cautious — the LSTM forecaster detects rising volatility and the "
-        "environment enforces the constraint. The 60-day interactive version of this "
+        "Notice that the 14 January loss ($3,448) is much larger than the 6 January loss "
+        "($117) even though both are small daily price drops — because by 14 January the "
+        "portfolio has 20% in SPY instead of 13%. On 14 January the system blocks the "
+        "agent's buy, preventing it from increasing exposure into a falling market. "
+        "This is the core mechanism: the LSTM forecaster detects rising volatility and "
+        "the environment enforces the constraint. The 60-day interactive version of this "
         "simulation is in the Dissertation Walkthrough notebook.",
     )
     page_break(doc)
