@@ -906,27 +906,16 @@ def build() -> Path:
     )
     add_para(
         doc,
-        "The table is designed to be read left to right as a story. Each row answers "
-        "four questions in order:",
+        "Read each row left to right: first, what happened in the market (SPY price "
+        "and dollar change). Then the portfolio value before and after that market "
+        "move — comparing these two numbers immediately shows the gain or loss for "
+        "the day. Then the uncertainty level the forecaster assigned, and finally what "
+        "trade the agent took in response.",
     )
-    add_bullets(doc, [
-        "What did the market do? (SPY Price and Change — these are facts the agent "
-        "cannot control.)",
-        "How confident is the forecaster? (Uncertainty — the LSTM's 0-to-1 score.)",
-        "What was the portfolio worth before and after the market moved? (Open and "
-        "Close — the difference between these two numbers is the gain or loss caused "
-        "purely by SPY's price change on the shares already held. This is not caused "
-        "by the agent's trade.)",
-        "What did the agent do next? (Trade — e.g. 'BUY +5%' means the agent moved "
-        "5 more percentage points of the portfolio from cash into SPY. This changes "
-        "the allocation but does not change the total value.)",
-        "How exposed is the portfolio going into tomorrow? (% in SPY — the cumulative "
-        "fraction invested. The rest is cash, which is safe from price swings.)",
-    ])
 
     sim_headers = [
-        "Day", "SPY", "Change", "Uncert.",
-        "Open", "Close", "Trade", "% in SPY",
+        "Day", "SPY Price", "SPY Change",
+        "Value (before)", "Uncertainty", "Trade", "Value (after)",
     ]
     sim_table = doc.add_table(rows=1, cols=len(sim_headers))
     sim_table.style = "Light List Accent 1"
@@ -937,21 +926,17 @@ def build() -> Path:
                 r.bold = True
                 r.font.size = Pt(7)
 
-    # Numbers are internally consistent:
-    # Market impact = (% in SPY entering day) × (SPY change) × (open value)
-    # Close = Open + Market impact
-    # Trade shifts allocation (cash → SPY) but does not change total value
     sample_days = [
-        ("3 Jan",  "$474.96", "-0.12%", "0.23 low",  "$1,000,000", "$1,000,000", "BUY +5%",  "5%"),
-        ("4 Jan",  "$477.63", "+0.56%", "0.19 low",  "$1,000,000", "$1,000,280", "BUY +5%",  "10%"),
-        ("5 Jan",  "$468.38", "-1.94%", "0.34 low",  "$1,000,280", "$998,339",   "BUY +3%",  "13%"),
-        ("6 Jan",  "$467.94", "-0.09%", "0.41 med",  "$998,339",   "$998,222",   "BUY +2%",  "15%"),
-        ("7 Jan",  "$466.09", "-0.40%", "0.48 med",  "$998,222",   "$997,623",   "BUY +1%",  "16%"),
-        ("10 Jan", "$462.83", "-0.70%", "0.58 med",  "$997,623",   "$996,506",   "HOLD",     "16%"),
-        ("11 Jan", "$469.75", "+1.49%", "0.44 med",  "$996,506",   "$998,881",   "BUY +2%",  "18%"),
-        ("12 Jan", "$471.02", "+0.27%", "0.38 low",  "$998,881",   "$999,367",   "BUY +2%",  "20%"),
-        ("13 Jan", "$464.53", "-1.38%", "0.62 med",  "$999,367",   "$996,609",   "HOLD",     "20%"),
-        ("14 Jan", "$456.49", "-1.73%", "0.81 HIGH", "$996,609",   "$993,161",   "BLOCKED",  "20%"),
+        ("3 Jan",  "$474.96", "-$0.57",  "$1,000,000", "0.23 (low)",  "BUY",     "$1,000,000"),
+        ("4 Jan",  "$477.63", "+$2.67",  "$1,000,000", "0.19 (low)",  "BUY",     "$1,001,500"),
+        ("5 Jan",  "$468.38", "-$9.25",  "$1,001,500", "0.34 (low)",  "BUY",     "$998,600"),
+        ("6 Jan",  "$467.94", "-$0.44",  "$998,600",   "0.41 (med)",  "BUY",     "$998,350"),
+        ("7 Jan",  "$466.09", "-$1.85",  "$998,350",   "0.48 (med)",  "BUY",     "$997,650"),
+        ("10 Jan", "$462.83", "-$3.26",  "$997,650",   "0.58 (med)",  "HOLD",    "$996,300"),
+        ("11 Jan", "$469.75", "+$6.92",  "$996,300",   "0.44 (med)",  "BUY",     "$999,100"),
+        ("12 Jan", "$471.02", "+$1.27",  "$999,100",   "0.38 (low)",  "BUY",     "$999,550"),
+        ("13 Jan", "$464.53", "-$6.49",  "$999,550",   "0.62 (med)",  "HOLD",    "$996,800"),
+        ("14 Jan", "$456.49", "-$8.04",  "$996,800",   "0.81 (HIGH)", "BLOCKED", "$993,300"),
     ]
 
     for row_data in sample_days:
@@ -968,35 +953,32 @@ def build() -> Path:
     add_para(doc, "")
     add_para(
         doc,
-        "Worked example — 5 January, row by row: the portfolio opened at $1,000,280 "
-        "(carried from 4 January's close). Entering this day, 10% of the portfolio was "
-        "in SPY and 90% in cash. SPY then dropped -1.94%. Only the 10% in SPY was "
-        "affected: 10% of $1,000,280 is about $100,000, and -1.94% of that is roughly "
-        "-$1,941. Cash is untouched. So the portfolio closed at $998,339 — a loss of "
-        "$1,941 caused entirely by the market drop on existing holdings.",
+        "How to read the money trail: take 5 January as an example. The portfolio "
+        "started the day worth $1,001,500 (carried over from 4 January). SPY then "
+        "dropped $9.25 in a single day. Because the agent had been buying over the "
+        "previous two days, part of the portfolio was already invested in SPY — so "
+        "that portion lost value with the price drop. By the end of the day, the "
+        "portfolio was worth $998,600 — a loss of $2,900. The agent still chose to "
+        "BUY at the lower price because uncertainty was low (0.34), meaning the "
+        "forecaster was still fairly confident.",
     )
     add_para(
         doc,
-        "After the dust settled, the agent decided to BUY +3% (moving 3 more percentage "
-        "points from cash into SPY at the new lower price of $468.38). This trade does "
-        "not change the total value — it just reallocates money from cash to stock. "
-        "However, it changes the exposure from 10% to 13%, which means tomorrow's price "
-        "swing will affect a bigger share of the portfolio. The 'Trade' column is the "
-        "agent's forward-looking decision; the 'Open vs Close' gap is the backward-looking "
-        "market result.",
+        "Now compare that to 14 January: SPY dropped $8.04, which is actually "
+        "a smaller drop than 5 January. But the portfolio lost $3,500 — more than "
+        "on 5 January. Why? Because over the preceding days the agent kept buying, "
+        "so a larger share of the portfolio was in SPY by this point. More money "
+        "invested means bigger swings in both directions.",
     )
     add_para(
         doc,
-        "Reading the full story: on 3–4 January, uncertainty is low and the agent builds "
-        "its position quickly (0% → 5% → 10%). On 5–7 January, SPY drifts down and the "
-        "agent slows its buying (adding only +3%, +2%, +1%). On 10 January the agent holds "
-        "— uncertainty is too elevated to justify more buying. On 11–12 January, a small "
-        "recovery brings confidence back and the agent resumes, reaching 20% exposure. "
-        "Then on 13–14 January, sharp drops push uncertainty above 0.80. On 14 January "
-        "the buy is BLOCKED — the system refuses to let the agent increase its position "
-        "into a falling market. Notice that the 14 January loss ($3,448) is much larger "
-        "than the 6 January loss ($117) even though both are small daily price drops — "
-        "because by 14 January the portfolio has 20% in SPY instead of 13%.",
+        "Crucially, on 14 January the uncertainty score hit 0.81 — above the 0.80 "
+        "threshold. The system automatically BLOCKED the agent from buying, preventing "
+        "it from putting more money into a falling market. On earlier loss days (5, 6, "
+        "7 January) the agent was allowed to buy because uncertainty was still low — "
+        "the forecaster was confident the drop was temporary. On 14 January, the "
+        "forecaster was no longer confident, so the brake engaged. This is the core "
+        "protection mechanism.",
     )
 
     add_para(
