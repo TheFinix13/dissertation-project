@@ -7,15 +7,15 @@ capital preservation under regime stress.
 
 * **Single-ticker walkthrough (CPU/Colab, narrative):** [`notebooks/Dissertation_Walkthrough.ipynb`](notebooks/Dissertation_Walkthrough.ipynb) — open in Colab and *Run all*. Loads the SPY test-window dataset, builds the DeepAR-style probabilistic forecaster, prints the uncertainty values, states the mathematics that differentiates the probabilistic agent from the baseline PPO, and renders the comparison tables and equity-curve plots. Ships with executed outputs so the notebook is readable without running anything.
 
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/portfolio-risk-drl/blob/main/Dissertation_Walkthrough.ipynb)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/dissertation-project/blob/main/Dissertation_Walkthrough.ipynb)
 
 * **Heavy experiments runner (Colab GPU only):** [`notebooks/extended_grid_colab.ipynb`](notebooks/extended_grid_colab.ipynb) — *Runtime → T4 GPU → Run all*. Clones the repo, smoke-tests the GPU, runs the full 70-ticker × 10-seed × 50 000-step extended grid + walk-forward folds + bootstrap, rebuilds the Word document with the new numbers, then offers a one-click zip download. ~5–7 hours on T4, ~2 hours on A100. *Do not run on a CPU laptop.*
 
 For a local run instead of Colab:
 
 ```bash
-git clone https://github.com/TheFinix13/portfolio-risk-drl.git
-cd portfolio-risk-drl
+git clone https://github.com/TheFinix13/dissertation-project.git
+cd dissertation-project
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 pip install jupyter
@@ -46,7 +46,7 @@ across all four folds, bootstrap-augmented training) live in
 ## Project Structure
 
 ```
-portfolio-risk-drl/
+dissertation-project/
 ├── experiments/
 │   ├── runners/             # CLI entry points (run_baseline.py, run_probabilistic_agent.py, ...)
 │   ├── common.py            # Shared library: env, metrics, data, training helpers

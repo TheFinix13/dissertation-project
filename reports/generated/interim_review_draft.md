@@ -336,7 +336,7 @@ python reports/builders/plot_dissertation_visuals.py
 ```
 
 Artifacts land in `experiments/results/` and `reports/generated/`. The full
-source is on GitHub at `TheFinix13/portfolio-risk-drl`, with the
+source is on GitHub at `TheFinix13/dissertation-project`, with the
 walkthrough notebook (`Dissertation_Walkthrough.ipynb`) as the single entry
 point for someone reading the project for the first time.
 
