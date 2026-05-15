@@ -1,0 +1,963 @@
+"""Build the EEEM004 Interim Review Word document.
+
+Outputs:
+    reports/generated/exports/InterimReview.docx
+
+The document follows the supervisor-facing Interim Review form structure,
+with all student-owned sections populated from the rebuilt dissertation
+framing. The blue supervisor boxes are intentionally left empty.
+
+Run:
+    venv/bin/python reports/builders/build_interim_review_docx.py
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Iterable
+
+import numpy as np
+from docx import Document
+from docx.enum.table import WD_ALIGN_VERTICAL
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm, Inches, Pt, RGBColor
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+RESULTS = ROOT / "experiments" / "results"
+EXPORTS = ROOT / "reports" / "generated" / "exports"
+EQ_DIR = EXPORTS / "equations"
+EXPORTS.mkdir(parents=True, exist_ok=True)
+EQ_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# --------------------------------------------------------------------------- #
+# Helpers (kept parallel to build_main_dissertation_docx.py)
+# --------------------------------------------------------------------------- #
+def latest_json(prefix: str) -> dict | list:
+    files = sorted(p for p in RESULTS.glob(f"{prefix}_*.json"))
+    if not files:
+        return []
+    return json.loads(files[-1].read_text(encoding="utf-8"))
+
+
+def avg(rows: Iterable[dict], key: str) -> float:
+    rows = list(rows)
+    if not rows:
+        return float("nan")
+    return float(np.mean([float(r[key]) for r in rows]))
+
+
+def add_heading(doc: Document, text: str, level: int) -> None:
+    h = doc.add_heading(text, level=level)
+    for run in h.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
+
+
+def add_para(doc: Document, text: str, *, italic: bool = False, bold: bool = False, align=None) -> None:
+    p = doc.add_paragraph()
+    if align is not None:
+        p.alignment = align
+    run = p.add_run(text)
+    run.italic = italic
+    run.bold = bold
+
+
+def add_bullets(doc: Document, items: list[str]) -> None:
+    for item in items:
+        doc.add_paragraph(item, style="List Bullet")
+
+
+def add_supervisor_box(doc: Document, prompt: str) -> None:
+    """Render a labelled empty box where the supervisor will write."""
+    p = doc.add_paragraph()
+    run = p.add_run(prompt)
+    run.italic = True
+    run.font.color.rgb = RGBColor(0x1F, 0x49, 0x7D)
+    run.font.size = Pt(10)
+    table = doc.add_table(rows=1, cols=1)
+    table.style = "Table Grid"
+    cell = table.rows[0].cells[0]
+    cell.text = " "
+    cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+    cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
+    tc_pr = cell._tc.get_or_add_tcPr()
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:fill"), "EAF1F8")
+    tc_pr.append(shd)
+    set_cell_height(cell, Cm(2.5))
+
+
+def set_cell_height(cell, height) -> None:
+    tr = cell._tc.getparent()
+    trPr = tr.get_or_add_trPr()
+    trHeight = OxmlElement("w:trHeight")
+    trHeight.set(qn("w:val"), str(int(height.emu / 635)))
+    trHeight.set(qn("w:hRule"), "atLeast")
+    trPr.append(trHeight)
+
+
+def page_break(doc: Document) -> None:
+    doc.add_page_break()
+
+
+def render_equation(latex: str, filename: str, fontsize: int = 17) -> Path:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    path = EQ_DIR / filename
+    prev = plt.rcParams["mathtext.default"]
+    fig = None
+    try:
+        plt.rcParams["mathtext.default"] = "it"
+        fig = plt.figure(figsize=(0.01, 0.01))
+        fig.text(0, 0, latex, fontsize=fontsize)
+        fig.savefig(path, dpi=220, bbox_inches="tight", pad_inches=0.22, transparent=False, facecolor="white")
+    finally:
+        plt.rcParams["mathtext.default"] = prev
+        if fig is not None:
+            plt.close(fig)
+    return path
+
+
+def add_equation(doc: Document, latex: str, filename: str, *, label: str | None = None, width_inches: float = 4.8) -> None:
+    path = render_equation(latex, filename)
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run()
+    run.add_picture(str(path), width=Inches(width_inches))
+    if label:
+        cap = doc.add_paragraph()
+        cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        cap_run = cap.add_run(label)
+        cap_run.italic = True
+        cap_run.font.size = Pt(10)
+
+
+def add_figure(doc: Document, image_path: Path, caption: str, *, width_inches: float = 5.5) -> None:
+    if not image_path.exists():
+        return
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run()
+    run.add_picture(str(image_path), width=Inches(width_inches))
+    cap = doc.add_paragraph()
+    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cap_run = cap.add_run(caption)
+    cap_run.italic = True
+    cap_run.font.size = Pt(10)
+
+
+def _ensure_interim_methodology_figures() -> None:
+    script = Path(__file__).resolve().parent / "plot_interim_methodology_diagrams.py"
+    if not script.exists():
+        return
+    mpl_dir = ROOT / ".mplconfig"
+    mpl_dir.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env.setdefault("MPLBACKEND", "Agg")
+    env["MPLCONFIGDIR"] = str(mpl_dir)
+    subprocess.run(
+        [sys.executable, str(script)], cwd=str(ROOT), env=env,
+        check=False, capture_output=True, timeout=180,
+    )
+
+
+def set_default_font(doc: Document, family: str = "Calibri", size: int = 11) -> None:
+    style = doc.styles["Normal"]
+    style.font.name = family
+    style.font.size = Pt(size)
+    rpr = style.element.rPr
+    rfonts = rpr.find(qn("w:rFonts"))
+    if rfonts is None:
+        rfonts = OxmlElement("w:rFonts")
+        rpr.append(rfonts)
+    for attr in ("w:ascii", "w:hAnsi", "w:cs"):
+        rfonts.set(qn(attr), family)
+
+
+def add_cover_table(doc: Document, fields: list[tuple[str, str]]) -> None:
+    table = doc.add_table(rows=len(fields), cols=2)
+    table.style = "Light Grid Accent 1"
+    for i, (label, value) in enumerate(fields):
+        lc, vc = table.rows[i].cells
+        lc.text = label
+        vc.text = value
+        for run in lc.paragraphs[0].runs:
+            run.bold = True
+        lc.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+        vc.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+
+def add_results_table(doc: Document, rows: list[dict]) -> None:
+    headers = [
+        "Agent",
+        "Final value (USD)",
+        "Sharpe",
+        "Max DD",
+        "VaR-95 viol.",
+        "Terminal preservation",
+        "Path preservation (1−MDD)",
+    ]
+    table = doc.add_table(rows=1, cols=len(headers))
+    table.style = "Light Grid Accent 1"
+    hdr_cells = table.rows[0].cells
+    for i, h in enumerate(headers):
+        hdr_cells[i].text = h
+        for r in hdr_cells[i].paragraphs[0].runs:
+            r.bold = True
+    for row in rows:
+        cells = table.add_row().cells
+        cells[0].text = row["agent"]
+        cells[1].text = f"${row['final']:,.0f}"
+        cells[2].text = f"{row['sharpe']:+.4f}"
+        cells[3].text = f"{row['mdd']:.4f}"
+        cells[4].text = f"{row['var']:.4f}"
+        cells[5].text = f"{row['pres']:.4f}"
+        cells[6].text = f"{1.0 - float(row['mdd']):.4f}"
+    for r in table.rows:
+        for c in r.cells:
+            c.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+
+def add_plan_table(doc: Document, rows: list[tuple[str, str, str]]) -> None:
+    headers = ["Working period", "Tasks to undertake", "Milestones (with target dates)"]
+    table = doc.add_table(rows=1, cols=len(headers))
+    table.style = "Light Grid Accent 1"
+    hdr_cells = table.rows[0].cells
+    for i, h in enumerate(headers):
+        hdr_cells[i].text = h
+        for r in hdr_cells[i].paragraphs[0].runs:
+            r.bold = True
+    for period, tasks, milestones in rows:
+        cells = table.add_row().cells
+        cells[0].text = period
+        cells[1].text = tasks
+        cells[2].text = milestones
+        for run in cells[0].paragraphs[0].runs:
+            run.bold = True
+
+
+def add_status_table(doc: Document, rows: list[tuple[str, str, str]]) -> None:
+    headers = ["Step", "Status", "Notes"]
+    table = doc.add_table(rows=1, cols=len(headers))
+    table.style = "Light Grid Accent 1"
+    hdr_cells = table.rows[0].cells
+    for i, h in enumerate(headers):
+        hdr_cells[i].text = h
+        for r in hdr_cells[i].paragraphs[0].runs:
+            r.bold = True
+    for step, status, notes in rows:
+        cells = table.add_row().cells
+        cells[0].text = step
+        cells[1].text = status
+        cells[2].text = notes
+
+
+# --------------------------------------------------------------------------- #
+# Content assembly
+# --------------------------------------------------------------------------- #
+def build_results_rows() -> list[dict]:
+    baseline = latest_json("baseline")
+    prob = latest_json("probabilistic")
+    bench = latest_json("benchmarks")
+    rules = latest_json("rule_baseline")
+
+    def _spy_only(rows: list) -> list:
+        if not rows:
+            return []
+        return [r for r in rows if r.get("ticker", "SPY") == "SPY"]
+
+    baseline = _spy_only(baseline)
+    prob = _spy_only(prob)
+    bench_spy = _spy_only(bench)
+    rules_spy = _spy_only(rules)
+    bench_lookup = {r["agent"]: r for r in bench_spy}
+    rule_lookup = {r["agent"]: r for r in rules_spy}
+
+    rows: list[dict] = []
+    if baseline and prob:
+        rows.extend([
+            {
+                "agent": "Baseline PPO",
+                "final": avg(baseline, "final_portfolio_value"),
+                "sharpe": avg(baseline, "sharpe_ratio"),
+                "mdd": avg(baseline, "max_drawdown"),
+                "var": avg(baseline, "var_95_violation_rate"),
+                "pres": avg(baseline, "capital_preservation_rate_95pct_hwm"),
+            },
+            {
+                "agent": "Probabilistic PPO",
+                "final": avg(prob, "final_portfolio_value"),
+                "sharpe": avg(prob, "sharpe_ratio"),
+                "mdd": avg(prob, "max_drawdown"),
+                "var": avg(prob, "var_95_violation_rate"),
+                "pres": avg(prob, "capital_preservation_rate_95pct_hwm"),
+            },
+        ])
+    for label, display in (
+        ("stop_loss_5pct", "Rule-based stop-loss (5%)"),
+        ("stop_loss_10pct", "Rule-based stop-loss (10%)"),
+    ):
+        r = rule_lookup.get(label)
+        if r:
+            rows.append({
+                "agent": display,
+                "final": float(r["final_portfolio_value"]),
+                "sharpe": float(r["sharpe_ratio"]),
+                "mdd": float(r["max_drawdown"]),
+                "var": float(r["var_95_violation_rate"]),
+                "pres": float(r["capital_preservation_rate_95pct_hwm"]),
+            })
+    for label in ("buy_and_hold", "all_cash"):
+        b = bench_lookup.get(label)
+        if b:
+            rows.append({
+                "agent": "Buy-and-hold (SPY)" if label == "buy_and_hold" else "All-cash",
+                "final": float(b["final_portfolio_value"]),
+                "sharpe": float(b["sharpe_ratio"]),
+                "mdd": float(b["max_drawdown"]),
+                "var": float(b["var_95_violation_rate"]),
+                "pres": float(b["capital_preservation_rate_95pct_hwm"]),
+            })
+    return rows
+
+
+# --------------------------------------------------------------------------- #
+# Build
+# --------------------------------------------------------------------------- #
+def build() -> Path:
+    doc = Document()
+    set_default_font(doc)
+    for section in doc.sections:
+        section.top_margin = Cm(2.0)
+        section.bottom_margin = Cm(2.0)
+        section.left_margin = Cm(2.2)
+        section.right_margin = Cm(2.2)
+
+    # ----- Cover banner -----
+    title = doc.add_paragraph()
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = title.add_run("EEEM004 — MSc Project")
+    r.bold = True
+    r.font.size = Pt(20)
+
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = sub.add_run("Interim Review")
+    r.italic = True
+    r.font.size = Pt(14)
+
+    doc.add_paragraph()
+    add_para(
+        doc,
+        "This document is the student's submission for the EEEM004 interim review. "
+        "It mirrors the structure of the official Interim Review form. The blue boxes "
+        "are reserved for the supervisor's written assessment and are intentionally "
+        "left empty.",
+        italic=True,
+    )
+
+    # ----- Cover information -----
+    add_heading(doc, "Cover information", 1)
+    add_cover_table(doc, [
+        ("Name", "Fiyin Akano"),
+        ("URN", "6962514"),
+        ("Supervisor", "Dr Cuong Nguyen"),
+        ("Second supervisor (if applicable)", "[INSERT IF APPLICABLE]"),
+        ("Date of meeting", "[INSERT MEETING DATE]"),
+        ("Module", "EEEM004 — MSc Dissertation (cross-year)"),
+        ("Department", "Electrical and Electronic Engineering, University of Surrey"),
+        ("Target submission date", "1 September 2026"),
+    ])
+
+    # ----- Project title -----
+    add_heading(doc, "Project title", 1)
+    add_para(
+        doc,
+        "Probabilistic Deep Reinforcement Learning for Portfolio Risk Analysis: "
+        "drawdown-constrained portfolio control with an uncertainty-aware "
+        "reinforcement-learning policy.",
+        bold=True,
+    )
+
+    # ----- Problem statement -----
+    add_heading(doc, "Problem statement", 1)
+    add_para(
+        doc,
+        "Start with a concrete picture. Imagine putting one million US dollars into "
+        "the US stock market in January 2022 and holding on. By January 2025 the "
+        "account is worth about $1.52 million — a clean win. But on the way there, "
+        "in October 2022, the same account briefly read $750,000 — a 25 % drop from "
+        "the peak. For an individual that drop is scary; for a pension fund or an "
+        "endowment it is something different — it is a breach of contract. Many "
+        "institutional mandates carry an explicit drawdown limit (a maximum permitted "
+        "loss measured from the peak rather than from the starting balance), and "
+        "when that limit is breached, redemption rights kick in, trustees can be "
+        "removed, and the fund can be forcibly liquidated. Buy-and-hold violates "
+        "these limits routinely; manually setting a stop-loss (sell when the price "
+        "has fallen 5 % below its peak) violates them too — it sells late and buys "
+        "back later. The dissertation asks whether a small AI agent can do better.",
+    )
+    add_para(
+        doc,
+        "Reframed problem statement. Many investors and institutional mandates are "
+        "required to keep portfolio drawdown from peak below a stated limit (commonly "
+        "between 5 % and 20 %) while still beating cash and ideally beating passive "
+        "index exposure. The standard quantitative answers — Markowitz mean-variance, "
+        "risk parity, fixed-rule stop-losses — either assume the joint distribution "
+        "of returns is stationary or react too slowly when the market regime changes. "
+        "This dissertation studies whether a deep-reinforcement-learning agent that "
+        "conditions on its own forecaster's predictive uncertainty (how confident the "
+        "forecaster is, not just what it predicts) can sit on a more attractive point "
+        "of the return-versus-drawdown trade-off than (a) passive buy-and-hold, (b) "
+        "a rule-based stop-loss policy, and (c) a baseline PPO with no uncertainty "
+        "signal — measured on a held-out test window that contains real macro shocks "
+        "(2022–2025), with reproducible random seeds and an out-of-time generalisation "
+        "check.",
+    )
+    add_para(
+        doc,
+        "Where the standard answers fail. Mean-variance (Markowitz, 1952) is single-"
+        "period and treats upside and downside wiggles symmetrically — it has no "
+        "memory of the running peak. Value-at-Risk and expected shortfall "
+        "(Rockafellar and Uryasev, 2000) measure how bad a single bad day could be, "
+        "but they cannot tell you how many bad days in a row you can endure before "
+        "the loss-from-peak crosses the limit. Conditional drawdown-at-risk "
+        "(Chekhlov, Uryasev and Zabarankin, 2005) is path-dependent and matches the "
+        "institutional constraint shape, but it is a one-shot static optimisation: "
+        "it picks one weight vector and does not adapt mid-window. Reactive trailing "
+        "stop-losses adapt sequentially but fire after the drawdown has already "
+        "begun and typically forfeit the recovery on the way back up.",
+    )
+    add_para(
+        doc,
+        "Why this matters in practice. Drawdown control is a real, billion-dollar "
+        "institutional problem. CalPERS and other major pension funds, sovereign-"
+        "wealth funds, university endowments and CTA funds all run explicit drawdown "
+        "limits in their governance documents. Bridgewater Associates' All Weather "
+        "fund, which has managed over 150 billion US dollars at peak, is publicly "
+        "described by its founder as designed to lose less in any environment — an "
+        "explicit drawdown-control objective. The drawdown literature itself "
+        "(Magdon-Ismail and Atiya, 2004; Young, 1991; Sortino and Price, 1994; "
+        "Chekhlov, Uryasev and Zabarankin, 2005) is the formal home for these "
+        "constraints; this dissertation does not invent them, it picks up the "
+        "tradition and extends it from one-shot optimisation to a sequential, "
+        "uncertainty-aware decision policy.",
+    )
+
+    # ----- Objectives -----
+    add_heading(doc, "Objectives", 1)
+    add_para(
+        doc,
+        "The objectives have been refined during Phase 0 and Phase 1 in light of "
+        "supervisor feedback. They are stated in the order in which the dissertation "
+        "answers them: the core scientific question first, the empirical evidence "
+        "(both single-asset headline and multi-asset / out-of-time generalisation) "
+        "second, the reproducibility apparatus third, and the honest position on "
+        "where the method works and where it does not fourth.",
+    )
+    add_bullets(doc, [
+        "O1 — the core scientific question. Can a deep reinforcement-learning agent that conditions on its own forecaster's predictive uncertainty (how confident the forecaster is, not just what it predicts) sit closer to the drawdown-constrained risk-adjusted return frontier than uncertainty-blind alternatives? Operationally: a DeepAR-style probabilistic LSTM emits predictive mean and variance; a Proximal Policy Optimization (PPO) policy reads the variance as a state feature and as a hard guard that blocks new long-side trades when the uncertainty score exceeds a quantile threshold.",
+        "O2 — the empirical evidence. Evaluate the resulting policy on a fixed held-out window containing real macro shocks (2022 to 2025) against three named comparators — passive buy-and-hold, a rule-based trailing stop-loss policy, and a baseline PPO with no uncertainty signal — and check that the conclusions survive contact with (a) a 70-ticker diversified-equity test universe (41 single-name US large-cap equities + 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and (b) a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025. Headline metrics: Sharpe ratio, terminal value relative to buy-and-hold, and the capital-preservation ratio against the running high-watermark.",
+        "O3 — reproducibility. Pin down a fully reproducible evaluation protocol of fixed splits, fixed random seeds, scripted experiment runners, scripted reporting and a shared metric set, so that any comparison made in this dissertation is genuinely like-for-like and can be reproduced from the public repository in a single command sequence.",
+        "O4 — honest position on where it works and where it does not. Diagnose the regimes in which the uncertainty-aware policy beats the alternatives and the regimes in which it does not, and take a defensible position — on the strength of O1 to O3 — on when an explicit uncertainty signal earns a place in a portfolio control loop and, just as important, on when it does not.",
+    ])
+
+    page_break(doc)
+
+    # ----- Literature -----
+    add_heading(doc, "Literature review (key references)", 1)
+    add_para(
+        doc,
+        "Below are ten items I rely on in this project. For each one there is a short "
+        "paragraph in plain English: what it is, why people use it, and how it connects "
+        "to my work. Each paragraph ends by tagging one of three roles:",
+    )
+    add_bullets(doc, [
+        "Development — the reference directly shaped what I built in code: the "
+        "learning algorithm, the forecasting style, or the software library I call "
+        "from the runners.",
+        "Evaluation — the reference shaped what I measure and how I explain the "
+        "results: risk metrics, baselines, or the language for “large losses” and tail "
+        "risk. I may cite the paper even when I do not run their optimisation method.",
+        "Positioning (related work) — the reference situates this project next to "
+        "other people's ideas or tools so a reader can see what is new and what is not. "
+        "I may cite work I do not import or re-implement, for example a public library "
+        "that other finance-RL papers use.",
+    ])
+    add_para(
+        doc,
+        "The full dissertation cites more papers in Chapter 2; this list is the compact "
+        "set for the interim review.",
+    )
+
+    INTERIM_LITERATURE = [
+        (
+            "Markowitz, H. (1952). Portfolio Selection. Journal of Finance, 7(1), 77–91.",
+            "This paper started modern portfolio theory: choose weights to balance "
+            "expected return against variance in one period. People still use it as the "
+            "baseline language for diversification and efficient portfolios. In my "
+            "project it is evaluation background only: it explains why a single-period "
+            "mean–variance picture does not capture path risk like losing money from a "
+            "peak. I do not solve a Markowitz optimisation problem; I compare learning "
+            "agents with simple baselines under fixed rules.",
+        ),
+        (
+            "Sortino, F. A., & Price, L. N. (1994). Performance Measurement in a Downside "
+            "Risk Framework. Journal of Investing, 3(3), 59–64.",
+            "Sortino and Price argue that upside and downside should not be punished the "
+            "same way when we score performance. They replace the Sharpe denominator with "
+            "downside deviation below a target return. In my project this supports the "
+            "plain-English goal of caring about large losses, not just volatility. I "
+            "still report Sharpe for comparability with other work, but Sortino motivates "
+            "why drawdown-style measures sit beside it in the metric table.",
+        ),
+        (
+            "Rockafellar, R. T., & Uryasev, S. (2000). Optimization of Conditional "
+            "Value-at-Risk. Journal of Risk, 2(3), 21–42.",
+            "This paper sets up convex optimisation for tail risk using Conditional "
+            "Value-at-Risk (expected loss in the worst tail of outcomes). Practitioners "
+            "use it when they care about bad days, not just average variance. In my "
+            "project it is evaluation background for the VaR-style violation metric I "
+            "report: it explains what “tail behaviour” means in the tables. I do not "
+            "solve their optimisation programme; I train RL agents and read tail metrics "
+            "off simulated paths.",
+        ),
+        (
+            "Magdon-Ismail, M., & Atiya, A. F. (2004). Maximum Drawdown. Risk, 17(10), "
+            "99–102.",
+            "This paper studies maximum drawdown — how far wealth can fall from a "
+            "running peak — as a path risk measure. That matches how investors actually "
+            "feel pain during crashes. In my project it justifies reporting maximum "
+            "drawdown and capital preservation against a high watermark: those numbers "
+            "answer “how bad did it get along the way,” not only “how did we finish.”",
+        ),
+        (
+            "Chekhlov, A., Uryasev, S., & Zabarankin, M. (2005). Drawdown Measure in "
+            "Portfolio Optimization. International Journal of Theoretical and Applied "
+            "Finance, 8(1), 13–58.",
+            "These authors build portfolio optimisation so that drawdown risk is "
+            "controlled inside the optimisation problem itself (conditional "
+            "drawdown-at-risk). Pension-style mandates often think in drawdown limits. "
+            "In my project this is related work for positioning: classical methods pick "
+            "weights once from historical scenarios; I study a daily rule that can react "
+            "when the forecaster looks unsure. I do not implement their linear programme.",
+        ),
+        (
+            "Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). "
+            "Proximal Policy Optimization Algorithms. arXiv:1707.06347.",
+            "Proximal Policy Optimization (PPO) is a stable policy-gradient algorithm "
+            "for reinforcement learning in continuous or discrete action spaces. It is "
+            "widely used because it trains reliably with reasonable defaults. In my "
+            "project PPO is the optimiser for both the baseline agent and the "
+            "uncertainty-aware agent (via Stable-Baselines3). All comparisons keep the "
+            "same algorithm class so differences come from the uncertainty controls, "
+            "not from swapping RL methods.",
+        ),
+        (
+            "Jiang, Z., Xu, D., & Liang, J. (2017). A Deep Reinforcement Learning "
+            "Framework for the Financial Portfolio Management Problem. arXiv:1706.10059.",
+            "This paper trains a deep network end-to-end from prices to portfolio "
+            "weights using reinforcement learning. It showed that RL can learn portfolio "
+            "rules without hand-writing a trading strategy. In my project it is related "
+            "work that motivates using RL on markets at all. My setup differs because I "
+            "add a daily unsureness score from a probabilistic forecaster and I compare "
+            "against rule-based stops and buy-and-hold on the same protocol.",
+        ),
+        (
+            "Liu, X.-Y., Yang, H., Gao, J., & Wang, C. D. (2021). FinRL: A Deep "
+            "Reinforcement Learning Library for Automated Stock Trading in Quantitative "
+            "Finance. arXiv:2011.09607.",
+            "FinRL is an open-source library that packages trading environments and RL "
+            "training workflows so finance experiments can be repeated on a shared Gym-"
+            "style API. In my project FinRL is cited as related infrastructure only. The "
+            "Phase 1 experiments that produce my dissertation numbers do not import "
+            "FinRL: they use Stable-Baselines3 PPO with a custom Gymnasium environment "
+            "in experiments/common.py so every rule about trade scaling and guards is "
+            "visible in one file. An optional Phase 0 demo script "
+            "(phase0_examples/finrl_ppo_example.py) can load FinRL for illustration; it "
+            "is not part of the reported evaluation pipeline.",
+        ),
+        (
+            "Salinas, D., Flunkert, V., Gasthaus, J., & Januschowski, T. (2020). DeepAR: "
+            "Probabilistic Forecasting with Autoregressive Recurrent Networks. "
+            "International Journal of Forecasting, 36(3), 1181–1191.",
+            "DeepAR trains a recurrent network to output a full predictive distribution "
+            "for the next step, not just a point forecast. That gives a natural handle "
+            "on “how spread out” tomorrow’s outcome might be. In my project I use a "
+            "stripped-down DeepAR-style forecaster with a Gaussian output head: it "
+            "produces a mean and a spread for the next log return, and I map the spread "
+            "to a single daily unsureness score that the trading rule uses to shrink "
+            "trades or block new long trades.",
+        ),
+        (
+            "Raffin, A., Hill, A., Gleave, A., Kanervisto, A., Ernestus, M., & Dormann, "
+            "N. (2021). Stable-Baselines3: Reliable Reinforcement Learning "
+            "Implementations. Journal of Machine Learning Research, 22(268), 1–8.",
+            "Stable-Baselines3 is a maintained implementation of standard RL algorithms "
+            "(including PPO) that follows the Gymnasium API and is widely used for "
+            "reproducibility. In my project it is the training engine behind both "
+            "runners. Using a standard library keeps the algorithm choice boring on "
+            "purpose so the dissertation can focus on the uncertainty controls and the "
+            "fair baseline comparisons.",
+        ),
+    ]
+    for citation, para in INTERIM_LITERATURE:
+        add_para(doc, citation, bold=True)
+        add_para(doc, para)
+
+    page_break(doc)
+
+    # ----- Technical progress -----
+    charts_dir = ROOT / "reports" / "generated" / "charts"
+    _ensure_interim_methodology_figures()
+    add_heading(doc, "Technical progress", 1)
+
+    # --- Step 1: The data ---
+    add_heading(doc, "Step 1 — Choosing and preparing the data", 2)
+    add_para(
+        doc,
+        "The first decision was what prices to use and how to split them. We chose "
+        "daily adjusted closing prices from Yahoo Finance because they are freely "
+        "available, widely used in academic work, and include dividend adjustments so "
+        "total returns are reflected without manual corrections. We download one price "
+        "per trading day for each asset.",
+    )
+    add_para(
+        doc,
+        "We split time strictly in order — no shuffling — because financial data is "
+        "sequential and the future must never leak into training. The protocol file "
+        "(dissertation_protocol.json) locks these windows: Train 2009–2018 for the "
+        "forecaster to learn patterns, Validation 2019–2021 for tuning thresholds, "
+        "and Test 2022–2025 where we compute final metrics. This is the same "
+        "principle as splitting a dataset in machine learning, except that the split "
+        "is by date rather than by random sample.",
+    )
+    add_figure(
+        doc,
+        charts_dir / "interim_fig_data_splits.png",
+        "Figure A — Data is split by calendar year. Training never sees future prices.",
+        width_inches=5.5,
+    )
+
+    # --- Step 2: The environment ---
+    add_heading(doc, "Step 2 — Building the trading simulator (StockEnv)", 2)
+    add_para(
+        doc,
+        "We cannot train a trading agent on a live market — mistakes would cost real "
+        "money and we could not repeat experiments. Instead we built a simulator "
+        "called StockEnv (in experiments/common.py) that replays historical prices day "
+        "by day. The agent makes a decision each day, the simulator applies that "
+        "decision to the price series, and reports back what happened.",
+    )
+    add_para(doc, "On each day the simulator provides three things to the agent:", bold=True)
+    add_bullets(doc, [
+        "Recent history — the last 20 daily log-returns, so the agent can see recent momentum or drops.",
+        "Current position — how much of the portfolio is in the stock versus cash, as a single fraction.",
+        "Uncertainty score — a number between 0 (the forecaster is confident) and 1 (the forecaster is very unsure about tomorrow). The baseline agent does not receive this; it is set to zero.",
+    ])
+    add_para(doc, "The agent then outputs one number between -1 and +1:", bold=True)
+    add_bullets(doc, [
+        "+1 means 'buy as aggressively as allowed' (invest more cash into the stock).",
+        "-1 means 'sell as aggressively as allowed' (move stock holdings back to cash).",
+        "0 means 'do nothing today.'",
+    ])
+    add_para(
+        doc,
+        "The simulator scales how much the agent can actually trade: it caps trades at "
+        "10% of available cash per day, and when the uncertainty score is high it "
+        "shrinks that further. If uncertainty is above a tuned threshold (0.80 by "
+        "default from validation), new buys are blocked entirely — but sells are always "
+        "allowed so the agent can always exit a losing position.",
+    )
+    add_para(
+        doc,
+        "After each day the simulator calculates a reward: how much the total "
+        "portfolio value grew (or shrank) from yesterday to today, expressed as "
+        "a logarithmic ratio. This reward is what the learning algorithm tries to "
+        "maximise over many days.",
+    )
+    add_equation(
+        doc,
+        r"$r_t \;=\; 100 \;\ln\!\left(\frac{V_{t+1}}{V_t}\right)$",
+        "interim_eq_reward.png",
+        label="Reward: 100 × log of (today's portfolio value / yesterday's). Positive = growth.",
+        width_inches=3.2,
+    )
+    add_figure(
+        doc,
+        charts_dir / "interim_fig_rl_loop.png",
+        "Figure B — The training loop: environment gives state → agent picks action → "
+        "environment returns reward and advances one day → repeat.",
+        width_inches=5.2,
+    )
+
+    # --- Step 3: Training the agent ---
+    add_heading(doc, "Step 3 — Training the agent (PPO)", 2)
+    add_para(
+        doc,
+        "We use a standard reinforcement-learning algorithm called Proximal Policy "
+        "Optimisation (PPO) from the Stable-Baselines3 library. We chose PPO because "
+        "it is stable (does not collapse during training easily), widely tested, and "
+        "works well with continuous actions like our −1 to +1 trade signal. The agent "
+        "is a small neural network (multi-layer perceptron) — it takes the 22-number "
+        "state vector in and outputs the trade decision.",
+    )
+    add_para(doc, "Training settings (identical for baseline and probabilistic agents):", bold=True)
+    add_bullets(doc, [
+        "Learning rate: 3×10⁻⁴ — how big a step the network takes when updating.",
+        "Rollout: 512 steps — the agent collects 512 days of experience before updating its network.",
+        "Batch size: 64 — updates are computed on 64 transitions at a time.",
+        "Epochs per update: 5 — the network re-uses each batch of experience 5 times.",
+        "Total steps: 10,000 (Phase-1 budget) — the agent sees roughly 10,000 trading days of simulated experience.",
+        "Seeds: {7, 19, 42} — we repeat every run three times with different random seeds so results are not luck.",
+    ])
+    add_para(
+        doc,
+        "Why these numbers? They are Stable-Baselines3 defaults tuned for continuous "
+        "control problems. We kept them fixed rather than searching for the best "
+        "settings because the research question is about the uncertainty signal, not "
+        "about hyper-parameter tuning. Phase-2 will increase the budget to 50,000 "
+        "steps to confirm results hold with more training.",
+    )
+
+    # --- Step 4: The probabilistic forecaster ---
+    add_heading(doc, "Step 4 — Adding the uncertainty forecaster (probabilistic arm)", 2)
+    add_para(
+        doc,
+        "The key difference between our baseline agent and the probabilistic agent is "
+        "that the probabilistic agent first trains a separate forecaster before PPO "
+        "training begins. This forecaster is a small LSTM (long short-term memory) "
+        "network that looks at the same price history and tries to predict tomorrow's "
+        "return — but instead of giving a single number, it outputs a range: "
+        "'I think tomorrow will be around X, give or take Y.'",
+    )
+    add_para(
+        doc,
+        "The 'give or take' part (the predicted spread) is what we turn into the "
+        "uncertainty score. Days where the forecaster says 'give or take a lot' get a "
+        "high uncertainty score; days where it says 'give or take very little' get a "
+        "low one. We normalise this to a 0-1 scale.",
+    )
+    add_para(
+        doc,
+        "Why do this? Because in volatile or uncertain market periods, we want the "
+        "agent to trade less aggressively — or not trade at all. The uncertainty score "
+        "gives the agent a principled reason to hold back, rather than relying on a "
+        "fixed calendar rule or a static threshold.",
+    )
+    add_figure(
+        doc,
+        charts_dir / "interim_fig_training_pipeline.png",
+        "Figure C — Full pipeline: prices → LSTM forecaster → uncertainty score → PPO "
+        "training. The baseline skips the forecaster and uses zero uncertainty.",
+        width_inches=5.5,
+    )
+
+    # --- Step 5: Baselines ---
+    add_heading(doc, "Step 5 — Defining what we compare against (baselines)", 2)
+    add_para(
+        doc,
+        "Results mean nothing without something to compare against. We defined four "
+        "baselines, each answering a different question:",
+    )
+    add_bullets(doc, [
+        "Buy-and-hold — invest everything on day one and never trade again. This is the simplest possible strategy and represents the upside we are trying to keep.",
+        "All-cash — stay in cash the entire time. This is the safest possible strategy; it sets the floor. Any agent that cannot beat all-cash is useless.",
+        "Baseline PPO (no uncertainty) — the same PPO agent trained on the same environment, but with the uncertainty score forced to zero. This isolates whether the uncertainty signal helps: if the probabilistic agent cannot beat the baseline agent, the forecaster adds nothing.",
+        "Rule-based trailing stop (5% and 10%) — a hand-written rule that sells when the price drops 5% (or 10%) from its peak, and re-enters when a moving-average crossover fires. This is what a quant trader might do manually. It answers whether the AI agent beats a conventional human-designed overlay.",
+    ])
+    add_para(
+        doc,
+        "All baselines are evaluated on the same prices, same starting capital, and "
+        "same metrics so the comparison is genuinely fair.",
+    )
+
+    # --- Step 6: Evaluation metrics ---
+    add_heading(doc, "Step 6 — Measuring outcomes (metrics)", 2)
+    add_para(
+        doc,
+        "After training, we replay each agent's learned policy on the test window "
+        "(2022–2025) and record its daily portfolio value. From that series we compute:",
+    )
+    add_bullets(doc, [
+        "Sharpe ratio — return per unit of risk (higher is better). Tells you if the agent earned good returns without wild swings.",
+        "Maximum drawdown (MDD) — the largest peak-to-trough percentage fall (lower is better). This is the number institutional mandates care about most.",
+        "Terminal preservation — final value divided by the highest value reached (closer to 1 is better). Shows whether the agent gave back gains.",
+        "VaR-95 violation rate — how often daily returns fall below the 5th percentile of the return distribution. A tail-risk check.",
+    ])
+    add_equation(
+        doc,
+        r"$\mathrm{Sharpe} = \frac{\bar{r}}{\sigma_r}\sqrt{252}$",
+        "interim_eq_sharpe_clean.png",
+        label="Sharpe ratio: mean daily log-return divided by its standard deviation, annualised (252 trading days).",
+        width_inches=3.0,
+    )
+    add_equation(
+        doc,
+        r"$\mathrm{MDD} = \max_t\left(1 - \frac{V_t}{\max_{s \leq t}\,V_s}\right)$",
+        "interim_eq_mdd_clean.png",
+        label="Max drawdown: worst fractional drop from any previous peak.",
+        width_inches=4.2,
+    )
+
+    # --- Step 7: Results ---
+    add_heading(doc, "Step 7 — Results (SPY, 2022–2025)", 2)
+    rows = build_results_rows()
+    if rows:
+        add_results_table(doc, rows)
+    add_para(
+        doc,
+        "What these numbers show: the probabilistic agent achieves a positive Sharpe "
+        "and controls drawdown better than buy-and-hold, while the baseline PPO (with "
+        "no uncertainty signal) barely participates in the market and ends close to "
+        "where it started. The trailing-stop rule sits between the two AI agents. "
+        "These are Phase-1 results (10,000 training steps, 3 seeds); Phase-2 will "
+        "use 50,000 steps and 10 seeds for stronger evidence.",
+    )
+
+    page_break(doc)
+
+    # ----- Future plan -----
+    add_heading(doc, "Future plan", 1)
+    add_para(
+        doc,
+        "Progress against the previous plan. The May 2026 milestones in the original "
+        "plan have been completed: the dissertation has been reframed around drawdown-"
+        "constrained risk-adjusted return; a finance and risk-management background "
+        "section has been added; the rule-based stop-loss comparator is checked in and "
+        "reported alongside the AI agents; the test universe has been expanded from "
+        "single-index SPY to a 70-ticker diversified-equity universe; and the extended "
+        "seed-stability check has been run on a representative sub-universe. The plan "
+        "below covers what remains.",
+    )
+    add_para(
+        doc,
+        "Each scheduled task is tied to a milestone with a target date. Milestones are "
+        "tied to objectives O1 to O4. The submission-critical path is the backtest and "
+        "walk-forward evidence; live execution sits outside that path and is treated as "
+        "a stretch goal (see the August 2026 row).",
+    )
+    add_plan_table(doc, [
+        (
+            "June 2026 (4 weeks)",
+            "Phase-2 extended grid on the full 70-ticker universe at extended "
+            "budget (10 seeds × 50 000 timesteps × 4 walk-forward folds × 16 "
+            "bootstrap paths) on Colab GPU runtime. Sector-aware uncertainty-"
+            "quantile calibration (replace the single global threshold with a "
+            "per-sector or per-regime threshold). Begin Chapter 2 (Background) "
+            "and Chapter 3 (Methodology) full drafts.",
+            "M1: full 70-ticker × 4-fold × 10-seed × 50k-step extended grid "
+            "(mid-June). M2: sector-aware calibration ablation + Chapter 2 and "
+            "Chapter 3 first drafts (end of June).",
+        ),
+        (
+            "July 2026 (4-6 weeks)",
+            "Sensitivity sweep on the uncertainty quantile threshold, the minimum "
+            "trade-size scale, and the maximum trade fraction. Block-bootstrap "
+            "data augmentation (Politis and Romano, 1994) to expand the effective "
+            "training set. Lock the final headline results table. Draft Chapter 5 "
+            "(Results) and Chapter 1 (Introduction).",
+            "M3: sensitivity and bootstrap results locked (mid-July). M4: Chapters "
+            "1, 2, 3 and 5 first drafts (end of July).",
+        ),
+        (
+            "August 2026 (4 weeks)",
+            "Polish phase. Write Chapter 6 (Discussion) and Chapter 7 (Conclusion). "
+            "Polish figures and tables, integrate supervisor feedback on the full "
+            "draft, and finalise the dissertation. Code changes from this point are "
+            "bug-fix only. Stretch goal: if time and a working brokerage account "
+            "permit, run a two-week paper-trading shadow run via the Alpaca API and "
+            "report the live profit-and-loss as an out-of-sample case study; if it "
+            "does not happen the dissertation rests on the backtest and walk-forward "
+            "evidence and the live run is recorded as post-submission work in the "
+            "real-world deployment roadmap (see the live/ directory in the "
+            "repository).",
+            "M5: full draft to supervisor (mid-August). M6: submission-ready version "
+            "(end of August). M7 (stretch): paper-trading PnL added to results "
+            "chapter (third week of August), only if the shadow run is in scope.",
+        ),
+        (
+            "September 2026",
+            "Submit by 1 September 2026. Viva preparation: slide deck (no more than "
+            "twelve slides, no more than twenty minutes per the project handbook), "
+            "demo of the reproducible pipeline, pre-emptive question and answer "
+            "rehearsal using reports/templates/viva_qa_notes.md.",
+            "M8: viva-ready presentation and demo by viva date.",
+        ),
+    ])
+
+    add_heading(doc, "Risks and mitigations", 2)
+    add_bullets(doc, [
+        "Compute time. Phase-1 runs are CPU-friendly (10 000 PPO timesteps, three seeds). The full Phase-2 grid is larger but still tractable on a Google Colab T4 GPU runtime, and the runners are designed to lift onto Colab without code changes. Partial-grid results will be accepted for any interim deliverable.",
+        "Data-API drift. yfinance occasionally changes its column shape. The _close_1d helper used by every runner already normalises this, and the protocol pins explicit dates so a re-pull stays comparable.",
+        "Result fragility. The Phase-1 numbers may move under the full 70-ticker, walk-forward and ablation work. To guard against over-claiming, results will be reported as median and inter-quartile range across ten seeds and across tickers, evaluated on multiple sliding test windows (walk-forward) rather than a single window, and any case where the probabilistic variant fails to beat the rule-based stop-loss comparator or buy-and-hold will be called out explicitly.",
+        "Paper-trading dependency (stretch goal only). The Alpaca shadow run is a stretch goal that does not gate the dissertation. If the brokerage account, the API or the time available does not support a clean two-week run during August, the dissertation rests on the backtest and walk-forward evidence and the shadow run is moved into the real-world deployment roadmap as post-submission work.",
+    ])
+
+    page_break(doc)
+
+    # ----- Extenuating circumstances -----
+    add_heading(doc, "Extenuating circumstances", 1)
+    add_para(
+        doc,
+        "[Student to fill in. Either record \"None to declare\" or describe and "
+        "indicate that the personal tutor and student-support services have been "
+        "informed. Do not include medical detail in this document.]",
+        italic=True,
+    )
+
+    # ----- Self-tick -----
+    add_heading(doc, "Indicative project hours and progress", 1)
+    add_para(
+        doc,
+        "Self-assessment of the first one hundred hours allocated to the project. "
+        "The student should tick exactly one of the following:",
+    )
+    add_bullets(doc, [
+        "[ ]  The work has exceeded the first 100 hours of time allocated.",
+        "[X] The work has sufficiently met the first 100 hours.",
+        "[ ]  The majority of the first 100 hours have been completed but some time has been lost and will be made up.",
+        "[ ]  Engagement in the project has been insufficient and progress is of concern.",
+    ])
+    add_para(
+        doc,
+        "Justification: the reproducible Phase-0 and Phase-1 pipeline, the protocol "
+        "document, the baseline and probabilistic agents, the benchmarks, the "
+        "rule-based stop-loss comparator and the generated supervisor pack together "
+        "support the second tick above.",
+        italic=True,
+    )
+
+    page_break(doc)
+
+    # ----- Supervisor section -----
+    add_heading(doc, "Supervisor's assessment", 1)
+    add_para(
+        doc,
+        "The boxes below are reserved for the supervisor's written feedback. The "
+        "student-completed sections of this document are intended to give the "
+        "supervisor enough material to assess each item.",
+        italic=True,
+    )
+    add_supervisor_box(doc, "Comments on the project plan and on the student's progress to date:")
+    add_supervisor_box(doc, "Comments on the literature review and the framing of the problem:")
+    add_supervisor_box(doc, "Comments on the technical progress and the experimental protocol:")
+    add_supervisor_box(doc, "Recommendations for the remainder of the project:")
+    add_supervisor_box(doc, "Other comments (optional):")
+
+    # ----- Save -----
+    out = EXPORTS / "InterimReview.docx"
+    doc.save(out)
+    print(f"Wrote: {out}")
+    return out
+
+
+if __name__ == "__main__":
+    build()
