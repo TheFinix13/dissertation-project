@@ -632,12 +632,12 @@ def build() -> Path:
     add_para(
         doc,
         "We split time strictly in order — no shuffling — because financial data is "
-        "sequential and the future must never leak into training. The protocol file "
-        "(dissertation_protocol.json) locks these windows: Train 2009–2018 for the "
-        "forecaster to learn patterns, Validation 2019–2021 for tuning thresholds, "
-        "and Test 2022–2025 where we compute final metrics. This is the same "
-        "principle as splitting a dataset in machine learning, except that the split "
-        "is by date rather than by random sample.",
+        "sequential and the future must never leak into training (de Prado, 2018). "
+        "The protocol file (dissertation_protocol.json) locks these windows: Train "
+        "2009–2018 for the forecaster to learn patterns, Validation 2019–2021 for "
+        "tuning thresholds, and Test 2022–2025 where we compute final metrics. This "
+        "is the same principle as splitting a dataset in machine learning, except "
+        "that the split is by date rather than by random sample.",
     )
     add_figure(
         doc,
@@ -680,8 +680,9 @@ def build() -> Path:
         doc,
         "After each day the simulator calculates a reward: how much the total "
         "portfolio value grew (or shrank) from yesterday to today, expressed as "
-        "a logarithmic ratio. This reward is what the learning algorithm tries to "
-        "maximise over many days.",
+        "a logarithmic ratio — the standard continuously-compounded return used in "
+        "quantitative finance (Hull, 2018). This reward is what the learning "
+        "algorithm tries to maximise over many days.",
     )
     add_equation(
         doc,
@@ -703,11 +704,12 @@ def build() -> Path:
     add_para(
         doc,
         "We use a standard reinforcement-learning algorithm called Proximal Policy "
-        "Optimisation (PPO) from the Stable-Baselines3 library. We chose PPO because "
-        "it is stable (does not collapse during training easily), widely tested, and "
-        "works well with continuous actions like our −1 to +1 trade signal. The agent "
-        "is a small neural network (multi-layer perceptron) — it takes the 22-number "
-        "state vector in and outputs the trade decision.",
+        "Optimisation, PPO (Schulman et al., 2017), from the Stable-Baselines3 library "
+        "(Raffin et al., 2021). We chose PPO because it is stable (does not collapse "
+        "during training easily), widely tested, and works well with continuous actions "
+        "like our −1 to +1 trade signal. The agent is a small neural network "
+        "(multi-layer perceptron) — it takes the 22-number state vector in and outputs "
+        "the trade decision.",
     )
     add_para(doc, "Training settings (identical for baseline and probabilistic agents):", bold=True)
     add_bullets(doc, [
@@ -733,17 +735,20 @@ def build() -> Path:
         doc,
         "The key difference between our baseline agent and the probabilistic agent is "
         "that the probabilistic agent first trains a separate forecaster before PPO "
-        "training begins. This forecaster is a small LSTM (long short-term memory) "
-        "network that looks at the same price history and tries to predict tomorrow's "
-        "return — but instead of giving a single number, it outputs a range: "
+        "training begins. This forecaster is a small LSTM — long short-term memory "
+        "(Hochreiter and Schmidhuber, 1997) — network that looks at the same price "
+        "history and tries to predict tomorrow's return — but instead of giving a "
+        "single number, it outputs a range: "
         "'I think tomorrow will be around X, give or take Y.'",
     )
     add_para(
         doc,
-        "The 'give or take' part (the predicted spread) is what we turn into the "
-        "uncertainty score. Days where the forecaster says 'give or take a lot' get a "
-        "high uncertainty score; days where it says 'give or take very little' get a "
-        "low one. We normalise this to a 0-1 scale.",
+        "The 'give or take' part (the predicted standard deviation) is what we turn "
+        "into the uncertainty score. The LSTM is trained with a Gaussian negative "
+        "log-likelihood loss (Nix and Weigend, 1994), which teaches it to output both "
+        "a mean and a spread for each prediction. Days where the forecaster says "
+        "'give or take a lot' get a high uncertainty score; days where it says 'give "
+        "or take very little' get a low one. We normalise this to a 0-1 scale.",
     )
     add_para(
         doc,
@@ -771,7 +776,7 @@ def build() -> Path:
         "Buy-and-hold — invest everything on day one and never trade again. This is the simplest possible strategy and represents the upside we are trying to keep.",
         "All-cash — stay in cash the entire time. This is the safest possible strategy; it sets the floor. Any agent that cannot beat all-cash is useless.",
         "Baseline PPO (no uncertainty) — the same PPO agent trained on the same environment, but with the uncertainty score forced to zero. This isolates whether the uncertainty signal helps: if the probabilistic agent cannot beat the baseline agent, the forecaster adds nothing.",
-        "Rule-based trailing stop (5% and 10%) — a hand-written rule that sells when the price drops 5% (or 10%) from its peak, and re-enters when a moving-average crossover fires. This is what a quant trader might do manually. It answers whether the AI agent beats a conventional human-designed overlay.",
+        "Rule-based trailing stop (5% and 10%) — a hand-written rule that sells when the price drops 5% (or 10%) from its peak, and re-enters when a moving-average crossover fires (Glabadanidis, 2015). This is what a quant trader might do manually. It answers whether the AI agent beats a conventional human-designed overlay.",
     ])
     add_para(
         doc,
@@ -784,13 +789,22 @@ def build() -> Path:
     add_para(
         doc,
         "After training, we replay each agent's learned policy on the test window "
-        "(2022–2025) and record its daily portfolio value. From that series we compute:",
+        "(2022–2025) and record its daily portfolio value. From that series we compute "
+        "four standard risk-adjusted performance measures drawn from the finance and "
+        "risk-management literature:",
     )
     add_bullets(doc, [
-        "Sharpe ratio — return per unit of risk (higher is better). Tells you if the agent earned good returns without wild swings.",
-        "Maximum drawdown (MDD) — the largest peak-to-trough percentage fall (lower is better). This is the number institutional mandates care about most.",
-        "Terminal preservation — final value divided by the highest value reached (closer to 1 is better). Shows whether the agent gave back gains.",
-        "VaR-95 violation rate — how often daily returns fall below the 5th percentile of the return distribution. A tail-risk check.",
+        "Sharpe ratio (Sharpe, 1994) — return per unit of risk (higher is better). "
+        "Tells you if the agent earned good returns without wild swings.",
+        "Maximum drawdown, MDD (Magdon-Ismail and Atiya, 2004) — the largest "
+        "peak-to-trough percentage fall (lower is better). This is the number "
+        "institutional mandates care about most.",
+        "Terminal preservation (Grossman and Zhou, 1993) — final value divided by "
+        "the highest value reached (closer to 1 is better). Shows whether the agent "
+        "gave back gains.",
+        "VaR-95 violation rate (Jorion, 2006) — how often daily returns fall below "
+        "the 5th percentile of the return distribution. A tail-risk check used in "
+        "Basel regulatory frameworks.",
     ])
     add_equation(
         doc,
@@ -889,9 +903,13 @@ def build() -> Path:
         "test window (January 2022). Every day is shown — no days are skipped.",
     )
 
-    sim_table = doc.add_table(rows=1, cols=6)
+    sim_headers = [
+        "Day", "SPY Price", "Daily Change", "Uncertainty",
+        "Agent Decision", "Portfolio Value", "Daily P&L",
+    ]
+    sim_table = doc.add_table(rows=1, cols=len(sim_headers))
     sim_table.style = "Light List Accent 1"
-    for j, hdr in enumerate(["Day", "SPY Price", "Daily Change", "Uncertainty", "Agent Decision", "Portfolio Value"]):
+    for j, hdr in enumerate(sim_headers):
         sim_table.rows[0].cells[j].text = hdr
         for p in sim_table.rows[0].cells[j].paragraphs:
             for r in p.runs:
@@ -899,16 +917,16 @@ def build() -> Path:
                 r.font.size = Pt(8)
 
     sample_days = [
-        ("3 Jan", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
-        ("4 Jan", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,002,147"),
-        ("5 Jan", "$468.38", "-1.94%", "0.34 (low)", "BUY +2.0%", "$999,880"),
-        ("6 Jan", "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710"),
-        ("7 Jan", "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230"),
-        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD", "$997,850"),
-        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400"),
-        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)", "BUY +1.8%", "$1,002,100"),
-        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD", "$999,100"),
-        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)", "BLOCKED", "$995,800"),
+        ("3 Jan",  "$474.96", "-0.12%", "0.23 (low)",    "BUY +3.2%", "$1,000,320", "+$320"),
+        ("4 Jan",  "$477.63", "+0.56%", "0.19 (low)",    "BUY +2.8%", "$1,002,147", "+$1,827"),
+        ("5 Jan",  "$468.38", "-1.94%", "0.34 (low)",    "BUY +2.0%", "$999,880",   "-$2,267"),
+        ("6 Jan",  "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710",   "-$170"),
+        ("7 Jan",  "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230",   "-$480"),
+        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD",      "$997,850",   "-$1,380"),
+        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400", "+$3,550"),
+        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)",    "BUY +1.8%", "$1,002,100", "+$700"),
+        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD",      "$999,100",   "-$3,000"),
+        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)",   "BLOCKED",   "$995,800",   "-$3,300"),
     ]
 
     for row_data in sample_days:
@@ -921,6 +939,10 @@ def build() -> Path:
                     if "BLOCKED" in val:
                         r.bold = True
                         r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+                    if j == 6 and val.startswith("-"):
+                        r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+                    elif j == 6 and val.startswith("+"):
+                        r.font.color.rgb = RGBColor(0x00, 0x80, 0x00)
 
     add_para(doc, "")
     add_para(
@@ -931,6 +953,18 @@ def build() -> Path:
         "days — for example, 8 and 9 January were a Saturday and Sunday, so the table goes "
         "from 7 Jan straight to 10 Jan). All 10 trading days in this window are shown "
         "consecutively; nothing is skipped.",
+    )
+    add_para(
+        doc,
+        "How the Daily P&L column works: this is simply how much money the portfolio "
+        "gained or lost that day compared to the day before. For example, on 4 January the "
+        "portfolio went from $1,000,320 to $1,002,147, a gain of +$1,827. On 5 January, "
+        "SPY dropped sharply (-1.94%) and the portfolio fell from $1,002,147 to $999,880, "
+        "a loss of -$2,267. The portfolio changes because the agent holds a position in "
+        "SPY — when SPY's price goes up, the value of those holdings goes up; when SPY "
+        "falls, the holdings lose value. The P&L column makes this trail visible so "
+        "every jump in the portfolio value can be traced back to the market move that "
+        "caused it.",
     )
     add_para(
         doc,

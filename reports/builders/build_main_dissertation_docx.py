@@ -1547,9 +1547,13 @@ def build() -> Path:
         "agent then decides whether to buy, sell, or hold — and the portfolio value updates.",
     )
 
-    sim_table = doc.add_table(rows=1, cols=6)
+    sim_headers = [
+        "Day", "SPY Price", "Daily Change", "Uncertainty",
+        "Agent Decision", "Portfolio Value", "Daily P&L",
+    ]
+    sim_table = doc.add_table(rows=1, cols=len(sim_headers))
     sim_table.style = "Light List Accent 1"
-    for j, hdr in enumerate(["Day", "SPY Price", "Daily Change", "Uncertainty", "Agent Decision", "Portfolio Value"]):
+    for j, hdr in enumerate(sim_headers):
         sim_table.rows[0].cells[j].text = hdr
         for p in sim_table.rows[0].cells[j].paragraphs:
             for r in p.runs:
@@ -1557,16 +1561,16 @@ def build() -> Path:
                 r.font.size = Pt(8)
 
     sample_days = [
-        ("3 Jan", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
-        ("4 Jan", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,002,147"),
-        ("5 Jan", "$468.38", "-1.94%", "0.34 (low)", "BUY +2.0%", "$999,880"),
-        ("6 Jan", "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710"),
-        ("7 Jan", "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230"),
-        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD", "$997,850"),
-        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400"),
-        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)", "BUY +1.8%", "$1,002,100"),
-        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD", "$999,100"),
-        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)", "BLOCKED", "$995,800"),
+        ("3 Jan",  "$474.96", "-0.12%", "0.23 (low)",    "BUY +3.2%", "$1,000,320", "+$320"),
+        ("4 Jan",  "$477.63", "+0.56%", "0.19 (low)",    "BUY +2.8%", "$1,002,147", "+$1,827"),
+        ("5 Jan",  "$468.38", "-1.94%", "0.34 (low)",    "BUY +2.0%", "$999,880",   "-$2,267"),
+        ("6 Jan",  "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710",   "-$170"),
+        ("7 Jan",  "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230",   "-$480"),
+        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD",      "$997,850",   "-$1,380"),
+        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400", "+$3,550"),
+        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)",    "BUY +1.8%", "$1,002,100", "+$700"),
+        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD",      "$999,100",   "-$3,000"),
+        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)",   "BLOCKED",   "$995,800",   "-$3,300"),
     ]
 
     for row_data in sample_days:
@@ -1578,8 +1582,20 @@ def build() -> Path:
                     r.font.size = Pt(8)
                     if "BLOCKED" in val:
                         r.bold = True
+                    if j == 6 and val.startswith("-"):
+                        r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+                    elif j == 6 and val.startswith("+"):
+                        r.font.color.rgb = RGBColor(0x00, 0x80, 0x00)
 
     add_para(doc, "")
+    add_para(
+        doc,
+        "The Daily P&L column shows how much the portfolio gained or lost compared to "
+        "the previous day. For example, on 5 January, SPY dropped -1.94% and the "
+        "portfolio fell from $1,002,147 to $999,880 — a loss of $2,267. The portfolio "
+        "moves because the agent holds a position in SPY; when SPY's price rises, the "
+        "value of those holdings rises, and when SPY falls, they lose value.",
+    )
     add_para(
         doc,
         "Reading the story: on 3–5 January the market is relatively calm and the "
