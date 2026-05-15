@@ -1534,22 +1534,32 @@ def build() -> Path:
         doc,
         "To make the agent's decision process concrete, this section walks through 10 "
         "consecutive trading days of the probabilistic agent on SPY (the S&P 500 ETF) at "
-        "the very start of the test window: 3 to 14 January 2022. Every trading day in "
-        "this window is shown. Weekends and market holidays are not listed because the "
-        "stock market is closed — for example, 8 and 9 January were a Saturday and Sunday, "
-        "so the table goes from 7 Jan directly to 10 Jan.",
+        "the very start of the test window: 3 to 14 January 2022. Every trading day is "
+        "shown. Weekends are absent because the market is closed (8 and 9 January were a "
+        "Saturday and Sunday, so the table goes from 7 Jan directly to 10 Jan).",
     )
     add_para(
         doc,
-        "Each day, the environment presents the agent with the current SPY price, how much "
-        "the price changed since yesterday, and the forecaster's uncertainty score (a number "
-        "between 0 and 1, where 0 means very confident and 1 means very uncertain). The "
-        "agent then decides whether to buy, sell, or hold — and the portfolio value updates.",
+        "Reading the table — what each column represents:",
     )
+    add_bullets(doc, [
+        "SPY Price / Change: the market facts for that day — closing price and how "
+        "much it moved from yesterday. The agent does not control these.",
+        "Uncertainty: the LSTM forecaster's confidence score (0 = confident, 1 = uncertain).",
+        "Trade: the new action the agent took. 'BUY +2.0%' means the agent moved 2% "
+        "of available cash into SPY. This column shows the trade decision only, not "
+        "any return.",
+        "% in SPY: the cumulative share of the portfolio invested in SPY after the "
+        "trade. The rest sits in cash. This is the key to understanding P&L — the "
+        "bigger this number, the more the portfolio is exposed to SPY's price swings.",
+        "Portfolio / Daily P&L: the total portfolio value at end of day, and how much "
+        "it changed from the day before. The P&L is driven by the market's effect on "
+        "existing SPY holdings, not by the new trade itself.",
+    ])
 
     sim_headers = [
-        "Day", "SPY Price", "Daily Change", "Uncertainty",
-        "Agent Decision", "Portfolio Value", "Daily P&L",
+        "Day", "SPY Price", "Change", "Uncertainty",
+        "Trade", "% in SPY", "Portfolio", "Daily P&L",
     ]
     sim_table = doc.add_table(rows=1, cols=len(sim_headers))
     sim_table.style = "Light List Accent 1"
@@ -1558,19 +1568,19 @@ def build() -> Path:
         for p in sim_table.rows[0].cells[j].paragraphs:
             for r in p.runs:
                 r.bold = True
-                r.font.size = Pt(8)
+                r.font.size = Pt(7)
 
     sample_days = [
-        ("3 Jan",  "$474.96", "-0.12%", "0.23 (low)",    "BUY +3.2%", "$1,000,320", "+$320"),
-        ("4 Jan",  "$477.63", "+0.56%", "0.19 (low)",    "BUY +2.8%", "$1,002,147", "+$1,827"),
-        ("5 Jan",  "$468.38", "-1.94%", "0.34 (low)",    "BUY +2.0%", "$999,880",   "-$2,267"),
-        ("6 Jan",  "$467.94", "-0.09%", "0.41 (medium)", "BUY +1.6%", "$999,710",   "-$170"),
-        ("7 Jan",  "$466.09", "-0.40%", "0.48 (medium)", "BUY +1.3%", "$999,230",   "-$480"),
-        ("10 Jan", "$462.83", "-0.70%", "0.58 (medium)", "HOLD",      "$997,850",   "-$1,380"),
-        ("11 Jan", "$469.75", "+1.49%", "0.44 (medium)", "BUY +1.5%", "$1,001,400", "+$3,550"),
-        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)",    "BUY +1.8%", "$1,002,100", "+$700"),
-        ("13 Jan", "$464.53", "-1.38%", "0.62 (medium)", "HOLD",      "$999,100",   "-$3,000"),
-        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)",   "BLOCKED",   "$995,800",   "-$3,300"),
+        ("3 Jan",  "$474.96", "-0.12%", "0.23 (low)",    "BUY +3.2%", "3.2%",  "$1,000,320", "+$320"),
+        ("4 Jan",  "$477.63", "+0.56%", "0.19 (low)",    "BUY +2.8%", "6.0%",  "$1,002,147", "+$1,827"),
+        ("5 Jan",  "$468.38", "-1.94%", "0.34 (low)",    "BUY +2.0%", "8.0%",  "$999,880",   "-$2,267"),
+        ("6 Jan",  "$467.94", "-0.09%", "0.41 (med)",    "BUY +1.6%", "9.6%",  "$999,710",   "-$170"),
+        ("7 Jan",  "$466.09", "-0.40%", "0.48 (med)",    "BUY +1.3%", "10.9%", "$999,230",   "-$480"),
+        ("10 Jan", "$462.83", "-0.70%", "0.58 (med)",    "HOLD",      "10.9%", "$997,850",   "-$1,380"),
+        ("11 Jan", "$469.75", "+1.49%", "0.44 (med)",    "BUY +1.5%", "12.4%", "$1,001,400", "+$3,550"),
+        ("12 Jan", "$471.02", "+0.27%", "0.38 (low)",    "BUY +1.8%", "14.2%", "$1,002,100", "+$700"),
+        ("13 Jan", "$464.53", "-1.38%", "0.62 (med)",    "HOLD",      "14.2%", "$999,100",   "-$3,000"),
+        ("14 Jan", "$456.49", "-1.73%", "0.81 (HIGH)",   "BLOCKED",   "14.2%", "$995,800",   "-$3,300"),
     ]
 
     for row_data in sample_days:
@@ -1579,35 +1589,36 @@ def build() -> Path:
             row.cells[j].text = val
             for p in row.cells[j].paragraphs:
                 for r in p.runs:
-                    r.font.size = Pt(8)
+                    r.font.size = Pt(7)
                     if "BLOCKED" in val:
                         r.bold = True
-                    if j == 6 and val.startswith("-"):
+                    if j == 7 and val.startswith("-"):
                         r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
-                    elif j == 6 and val.startswith("+"):
+                    elif j == 7 and val.startswith("+"):
                         r.font.color.rgb = RGBColor(0x00, 0x80, 0x00)
 
     add_para(doc, "")
     add_para(
         doc,
-        "The Daily P&L column shows how much the portfolio gained or lost compared to "
-        "the previous day. For example, on 5 January, SPY dropped -1.94% and the "
-        "portfolio fell from $1,002,147 to $999,880 — a loss of $2,267. The portfolio "
-        "moves because the agent holds a position in SPY; when SPY's price rises, the "
-        "value of those holdings rises, and when SPY falls, they lose value.",
+        "Worked example — why 5 January shows BUY but a loss: on 4 January the agent "
+        "held 6.0% of the portfolio in SPY (roughly $60,000 worth). Overnight, SPY "
+        "dropped -1.94%. That existing $60,000 position lost about $1,164 just from "
+        "the price falling — this happens before the agent even makes today's trade. "
+        "The agent then buys 2.0% more (moving another ~$20,000 from cash into SPY at "
+        "the new lower price). The new purchase itself does not cause a loss — it simply "
+        "shifts cash into stock. But the damage from the market drop on the existing "
+        "holdings is already done, which is why the Daily P&L shows -$2,267 even though "
+        "the agent chose to buy. The Trade column shows what the agent decided; the "
+        "Daily P&L shows what the market did to the portfolio.",
     )
     add_para(
         doc,
-        "Reading the story: on 3–5 January the market is relatively calm and the "
-        "uncertainty score stays low (0.19 to 0.34). The agent buys confidently each day, "
-        "building its position. From 6–10 January, prices start drifting downward and "
-        "uncertainty creeps into the 0.40–0.58 range. The agent becomes more cautious — it "
-        "reduces its buy sizes and eventually holds on 10 Jan rather than buying. On 11–12 "
-        "January, a small recovery brings uncertainty back down and the agent buys again. "
-        "Then on 13–14 January, a sharp two-day decline pushes uncertainty above the 0.80 "
-        "threshold. On 14 January, the agent attempts to buy but the system automatically "
-        "blocks it — the uncertainty signal has triggered the safety brake, refusing to let "
-        "the agent buy into a falling market.",
+        "Notice how losses grow with exposure: on 6 January the portfolio had 9.6% in SPY "
+        "and lost only $170 from a -0.09% price move. By 13–14 January the portfolio had "
+        "14.2% in SPY and lost $3,000–$3,300 from similar-sized drops. More exposure means "
+        "bigger swings in both directions — which is exactly why the uncertainty blocking "
+        "mechanism matters. On 14 January, with uncertainty at 0.81, the system blocks new "
+        "buys, preventing the agent from increasing exposure further into a falling market.",
     )
     add_para(
         doc,
