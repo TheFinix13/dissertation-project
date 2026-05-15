@@ -16,7 +16,7 @@
       "XLU": "Utilities sector SPDR (defensive)"
     },
     "named_groups": {
-      "broad_universe": [
+      "market_sample": [
         "AAPL", "AMAT", "AMD", "AMZN", "AVGO", "AXP", "BA", "BLK",
         "BRK-B", "C", "CAT", "COPX", "COST", "CRM", "DIA", "EEMX",
         "GLD", "GOOGL", "GS", "HSBC", "IAU", "IBB", "IBM", "IJR",
@@ -27,7 +27,7 @@
         "SPYX", "TAN", "TMUS", "TSLA", "TSM", "V", "VOO", "VTI",
         "VYM", "VYMI", "XLF", "XLI", "XLK", "XLU"
       ],
-      "broad_stocks": [
+      "market_sample_stocks": [
         "AAPL", "AMAT", "AMD", "AMZN", "AVGO", "AXP", "BA", "BLK",
         "BRK-B", "C", "CAT", "COST", "CRM", "GOOGL", "GS", "HSBC",
         "IBM", "JNJ", "JPM", "LLY", "MA", "MCD", "META", "MSFT",
@@ -35,7 +35,7 @@
         "RYTM", "SAP", "SCHW", "SNY", "SPOT", "TMUS", "TSLA", "TSM",
         "V"
       ],
-      "broad_etfs": [
+      "market_sample_etfs": [
         "COPX", "DIA", "EEMX", "GLD", "IAU", "IBB", "IJR", "PPLT",
         "QQQ", "SCHB", "SCHD", "SCHF", "SCHG", "SCHK", "SCHV", "SLV",
         "SPY", "SPYG", "SPYV", "SPYX", "TAN", "VOO", "VTI", "VYM",
@@ -43,9 +43,9 @@
       ]
     },
     "named_groups_notes": {
-      "broad_universe": "70-ticker diversified-equity test universe: 41 single-name US large-cap equities (technology, financials, healthcare, consumer, industrials) plus 29 ETFs (broad-market, sector, dividend, thematic, commodities).",
-      "broad_stocks": "The 41 single-name equities subset of broad_universe; useful for stock-only analyses.",
-      "broad_etfs": "The 29 ETF holdings subset of broad_universe; useful for ETF-only analyses.",
+      "market_sample": "70-ticker diversified-equity test universe: 41 single-name US large-cap equities (technology, financials, healthcare, consumer, industrials) plus 29 ETFs (broad-market, sector, dividend, thematic, commodities).",
+      "market_sample_stocks": "The 41 single-name equities subset of market_sample; useful for stock-only analyses.",
+      "market_sample_etfs": "The 29 ETF holdings subset of market_sample; useful for ETF-only analyses.",
       "ticker_normalisations": {
         "HSBC": "Listed as 'HSBS' in source; corrected.",
         "DIA": "Listed as 'DJI' in source; DJI is a non-tradable index, DIA is the corresponding SPDR Dow Jones Industrial Average ETF.",

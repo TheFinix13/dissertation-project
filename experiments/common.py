@@ -56,7 +56,7 @@ def _parse_tickers(value: str | None, protocol: dict) -> list[str]:
         - "basket"   : use protocol.data.ticker_basket (the eight-ticker formal basket).
         - "all"      : alias for 'basket'.
         - <named_group> : any key under protocol.data.named_groups, e.g.
-          "broad_universe", "broad_stocks", "broad_etfs".
+          "market_sample", "market_sample_stocks", "market_sample_etfs".
           Case-insensitive.
         - comma-separated list, e.g. "SPY,QQQ,XLK" : use exactly those tickers.
     """

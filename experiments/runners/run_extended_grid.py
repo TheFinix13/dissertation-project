@@ -13,7 +13,7 @@ Examples:
 
     # The full 70-ticker × 10-seed × 4-fold × 50k-step × 16-bootstrap-path grid
     python experiments/runners/run_extended_grid.py \\
-        --tickers broad_universe --seeds extended --folds all \\
+        --tickers market_sample --seeds extended --folds all \\
         --timesteps 50000 --bootstrap-paths 16 --tag colab_70_extended
 
     # A faster basket sanity check (8 tickers, 10 seeds, 50k steps, single fold)
@@ -59,7 +59,7 @@ def _run(label: str, argv: list[str]) -> tuple[int, float]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     # Forwarded to every underlying runner.
-    parser.add_argument("--tickers", default="broad_universe",
+    parser.add_argument("--tickers", default="market_sample",
                         help="Ticker spec (named group, comma-separated, or 'basket').")
     parser.add_argument("--seeds", default="extended",
                         help="Seed spec ('default', 'extended', or comma-separated).")

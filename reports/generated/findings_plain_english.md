@@ -30,7 +30,7 @@ Starting from $1,000,000:
 
 The AI made $100K more than buy-and-hold *and* took 7 percentage points less drawdown. The manual stop-loss rule made $290K *less* than buy-and-hold and didn't even reduce drawdown.
 
-### Result 2 — On a broad universe of 70 diversified stocks (the dissertation's headline)
+### Result 2 — On a market sample of 70 stocks (the dissertation's headline)
 
 Same test window. Mean across 70 diversified stocks — 41 single-name US large-cap stocks (technology, payments and financial services, healthcare, consumer, industrials) and 29 ETFs (broad-market, sector, dividend, thematic, commodities) — each starting from $1M:
 
@@ -71,17 +71,17 @@ Total parameter count is well under 50,000. A real production trading system wou
 
 - **This is not a complete trading system.** It is the risk-control layer of one. The stock-picking is assumed; the layer being studied is what to do with positions you've already chosen.
 - **The novelty is modest.** Probabilistic forecasting exists. Drawdown-constrained optimisation exists. RL-based trading exists. The contribution is putting the three together into one explicit, formal, reproducible pipeline and measuring the result. It is one paper's worth of contribution, not a thesis chapter's worth of breakthrough.
-- **2022–2025 is a 4-year test window.** A four-fold walk-forward grid on a four-ticker subset of the universe (96 trainings) has finished and shows the agent beats the baseline on all 16 (ticker, fold) cells out-of-time. The full broad-universe × 4-fold walk-forward grid is the GPU-only Phase-2 deliverable.
-- **Three random seeds is a small ensemble at the Phase-1 budget.** Extended 10-seed × 50 000-step runs on a representative eight-ticker sub-universe have finished on CPU and show inter-quartile range under 3% of starting capital on six of eight tickers. The full broad-universe × 10-seed extended grid is scheduled on Colab GPU in May–June.
+- **2022–2025 is a 4-year test window.** A four-fold walk-forward grid on a four-ticker subset of the universe (96 trainings) has finished and shows the agent beats the baseline on all 16 (ticker, fold) cells out-of-time. The full market-sample × 4-fold walk-forward grid is the GPU-only Phase-2 deliverable.
+- **Three random seeds is a small ensemble at the Phase-1 budget.** Extended 10-seed × 50 000-step runs on a representative eight-ticker sub-universe have finished on CPU and show inter-quartile range under 3% of starting capital on six of eight tickers. The full market-sample × 10-seed extended grid is scheduled on Colab GPU in May–June.
 - **Single-asset environment.** The agent runs on one ticker at a time. A true multi-asset version that watches the running peak of the *whole portfolio* is the natural next step and is in the future-work plan.
 
 ---
 
 ## What you can show Dr Nguyen, today
 
-- **`reports/generated/exports/Main_Dissertation_Draft.docx`** — the full dissertation. The sections that directly answer the supervisor's previous-meeting feedback are Section 1.2 (problem statement, now formal), Section 2.1 (finance background with notation), Section 3.1.5 (explicit objective function — this was missing before), Section 5.5 (broad-universe test-universe aggregate), Section 5.5.1 (extended-budget seed-stability check), Appendix B (full 70-row per-ticker table), Section 6.3 (honest discussion of where the agent fails), Section 6.4 (walk-forward out-of-time evidence).
+- **`reports/generated/exports/Main_Dissertation_Draft.docx`** — the full dissertation. The sections that directly answer the supervisor's previous-meeting feedback are Section 1.2 (problem statement, now formal), Section 2.1 (finance background with notation), Section 3.1.5 (explicit objective function — this was missing before), Section 5.5 (market-sample test-universe aggregate), Section 5.5.1 (extended-budget seed-stability check), Appendix B (full 70-row per-ticker table), Section 6.3 (honest discussion of where the agent fails), Section 6.4 (walk-forward out-of-time evidence).
 - **`reports/generated/exports/InterimReview.docx`** — the formal Interim Review document, ready to share.
-- **`reports/generated/charts/broad_universe_results.png`** — one image showing the per-ticker results across all 70 diversified stocks.
-- **`reports/generated/charts/broad_universe_winloss.png`** — one image showing where the agent wins and loses across 70 diversified stocks.
+- **`reports/generated/charts/market_sample_results.png`** — one image showing the per-ticker results across all 70 diversified stocks.
+- **`reports/generated/charts/market_sample_winloss.png`** — one image showing where the agent wins and loses across 70 diversified stocks.
 - **`reports/generated/findings_plain_english.md`** — this document.
 - **`reports/generated/supervisor_handout.md`** — a one-page meeting brief.

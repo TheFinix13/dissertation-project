@@ -9,7 +9,7 @@ capital preservation under regime stress.
 
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/dissertation-project/blob/main/Dissertation_Walkthrough.ipynb)
 
-* **Heavy experiments runner (Colab GPU only):** [`notebooks/Run_Full_Experiments.ipynb`](notebooks/Run_Full_Experiments.ipynb) — *Runtime → T4 GPU → Run all*. Clones the repo, smoke-tests the GPU, runs the full broad-universe × 10-seed × 50 000-step extended grid + walk-forward folds + bootstrap, rebuilds the Word document with the new numbers, then offers a one-click zip download. ~5–7 hours on T4, ~2 hours on A100. *Do not run on a CPU laptop.*
+* **Heavy experiments runner (Colab GPU only):** [`notebooks/Run_Full_Experiments.ipynb`](notebooks/Run_Full_Experiments.ipynb) — *Runtime → T4 GPU → Run all*. Clones the repo, smoke-tests the GPU, runs the full market-sample × 10-seed × 50 000-step extended grid + walk-forward folds + bootstrap, rebuilds the Word document with the new numbers, then offers a one-click zip download. ~5–7 hours on T4, ~2 hours on A100. *Do not run on a CPU laptop.*
 
 For a local run instead of Colab:
 
@@ -27,7 +27,7 @@ The interim review draft (Surrey form) lives at
 
 ## Generated artifacts (under `reports/generated/exports/`)
 
-- `Main_Dissertation_Draft.docx` — the **academic** Master's dissertation. Headline robustness evidence is the four-agent comparison on a broad universe of 70 diversified stocks (Section 5.5) with the full per-ticker table in Appendix B; supplementary studies are an extended seed-stability check on a representative eight-ticker sub-universe (Section 5.5.1) and a four-fold walk-forward grid on a four-ticker subset (Section 6.4). Title page, abstract, 7 chapters, references, two appendices.
+- `Main_Dissertation_Draft.docx` — the **academic** Master's dissertation. Headline robustness evidence is the four-agent comparison on a market sample of 70 stocks (Section 5.5) with the full per-ticker table in Appendix B; supplementary studies are an extended seed-stability check on a representative eight-ticker sub-universe (Section 5.5.1) and a four-fold walk-forward grid on a four-ticker subset (Section 6.4). Title page, abstract, 7 chapters, references, two appendices.
 - `InterimReview.docx` — the formal Surrey Interim Review form.
 - `equations/` — individual PNGs for every equation in the docx.
 
@@ -38,7 +38,7 @@ venv/bin/python reports/builders/build_main_dissertation_docx.py       # academi
 venv/bin/python reports/builders/build_interim_review_docx.py          # interim review form
 ```
 
-Heaviest experiments (broad-universe × 10-seed × 50k-step extended grid, walk-forward
+Heaviest experiments (market-sample × 10-seed × 50k-step extended grid, walk-forward
 across all four folds, bootstrap-augmented training) live in
 `notebooks/Run_Full_Experiments.ipynb` and run on a Colab T4/A100 GPU runtime — see
 "Phase-2 (Colab GPU) pipeline" below.
@@ -95,13 +95,13 @@ python reports/builders/build_interim_review_docx.py
 - Artifacts: `experiments/results/`
 - Report output: `reports/generated/dissertation_results.md`
 
-### Phase-1 — broad-universe run (CPU, ~25–35 min)
+### Phase-1 — market-sample run (CPU, ~25–35 min)
 
 ```bash
-python experiments/runners/run_benchmarks.py        --tickers broad_universe --tag broad
-python experiments/runners/run_rule_baselines.py    --tickers broad_universe --tag broad
-python experiments/runners/run_baseline.py          --tickers broad_universe --tag broad
-python experiments/runners/run_probabilistic_agent.py --tickers broad_universe --tag broad
+python experiments/runners/run_benchmarks.py        --tickers market_sample --tag broad
+python experiments/runners/run_rule_baselines.py    --tickers market_sample --tag broad
+python experiments/runners/run_baseline.py          --tickers market_sample --tag broad
+python experiments/runners/run_probabilistic_agent.py --tickers market_sample --tag broad
 
 # Walk-forward subset (96 trainings, ~6–8 hours CPU)
 python experiments/runners/run_walk_forward.py --tickers SPY,QQQ,XLK,XLF
@@ -118,14 +118,14 @@ python reports/builders/build_interim_review_docx.py
 
 Anything that takes more than ~1 hour on CPU lives in
 `notebooks/Run_Full_Experiments.ipynb`. Runtime preset: *T4 GPU* for the headline
-broad-universe grid (~5–7 h), *A100* if you also want the full broad-universe walk-forward
+market-sample grid (~5–7 h), *A100* if you also want the full market-sample walk-forward
 (~12–14 h on A100).
 
 Or to drive the same heavy run from the command line (e.g. on a leased GPU node):
 
 ```bash
 python experiments/runners/run_extended_grid.py \
-    --tickers broad_universe --seeds extended --folds all \
+    --tickers market_sample --seeds extended --folds all \
     --timesteps 50000 --bootstrap-paths 16 --tag colab_70_extended
 ```
 
@@ -133,7 +133,7 @@ python experiments/runners/run_extended_grid.py \
 
 | Flag | Default | Notes |
 |---|---|---|
-| `--tickers` | legacy single ticker | Comma-separated, a CLI alias such as `basket` (8-ticker sub-universe) or a named group from `data.named_groups` in the protocol — `broad_universe` (the broad test universe (70 stocks)), `broad_stocks` (41 single names) or `broad_etfs` (29 ETFs). |
+| `--tickers` | legacy single ticker | Comma-separated, a CLI alias such as `basket` (8-ticker sub-universe) or a named group from `data.named_groups` in the protocol — `market_sample` (the market sample (70 stocks)), `market_sample_stocks` (41 single names) or `market_sample_etfs` (29 ETFs). |
 | `--seeds` | `[7, 19, 42]` | Comma-separated, or `default` / `extended` (10 seeds). |
 | `--folds` | legacy single test window | Comma-separated fold ids from `walk_forward_folds`, or `all`. (Walk-forward runner only honours this.) |
 | `--timesteps` | from protocol | PPO training budget per cell. |

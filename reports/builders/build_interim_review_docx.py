@@ -464,7 +464,7 @@ def build() -> Path:
     )
     add_bullets(doc, [
         "O1 — the core scientific question. Can a deep reinforcement-learning agent that conditions on its own forecaster's predictive uncertainty (how confident the forecaster is, not just what it predicts) sit closer to the drawdown-constrained risk-adjusted return frontier than uncertainty-blind alternatives? Operationally: a DeepAR-style probabilistic LSTM emits predictive mean and variance; a Proximal Policy Optimization (PPO) policy reads the variance as a state feature and as a hard guard that blocks new long-side trades when the uncertainty score exceeds a quantile threshold.",
-        "O2 — the empirical evidence. Evaluate the resulting policy on a fixed held-out window containing real macro shocks (2022 to 2025) against three named comparators — passive buy-and-hold, a rule-based trailing stop-loss policy, and a baseline PPO with no uncertainty signal — and check that the conclusions survive contact with (a) a broad universe of 70 diversified stocks (41 single-name US large-cap equities + 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and (b) a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025. Headline metrics: Sharpe ratio, terminal value relative to buy-and-hold, and the capital-preservation ratio against the running high-watermark.",
+        "O2 — the empirical evidence. Evaluate the resulting policy on a fixed held-out window containing real macro shocks (2022 to 2025) against three named comparators — passive buy-and-hold, a rule-based trailing stop-loss policy, and a baseline PPO with no uncertainty signal — and check that the conclusions survive contact with (a) a market sample of 70 stocks (41 single-name US large-cap equities + 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and (b) a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025. Headline metrics: Sharpe ratio, terminal value relative to buy-and-hold, and the capital-preservation ratio against the running high-watermark.",
         "O3 — reproducibility. Pin down a fully reproducible evaluation protocol of fixed splits, fixed random seeds, scripted experiment runners, scripted reporting and a shared metric set, so that any comparison made in this dissertation is genuinely like-for-like and can be reproduced from the public repository in a single command sequence.",
         "O4 — honest position on where it works and where it does not. Diagnose the regimes in which the uncertainty-aware policy beats the alternatives and the regimes in which it does not, and take a defensible position — on the strength of O1 to O3 — on when an explicit uncertainty signal earns a place in a portfolio control loop and, just as important, on when it does not.",
     ])
@@ -893,7 +893,7 @@ def build() -> Path:
         "constrained risk-adjusted return; a finance and risk-management background "
         "section has been added; the rule-based stop-loss comparator is checked in and "
         "reported alongside the AI agents; the test universe has been expanded from "
-        "single-index SPY to a broad universe of 70 diversified stocks; and the extended "
+        "single-index SPY to a market sample of 70 stocks; and the extended "
         "seed-stability check has been run on a representative sub-universe. The plan "
         "below covers what remains.",
     )
@@ -907,13 +907,13 @@ def build() -> Path:
     add_plan_table(doc, [
         (
             "June 2026 (4 weeks)",
-            "Phase-2 extended grid on the full broad test universe at extended "
+            "Phase-2 extended grid on the full market sample at extended "
             "budget (10 seeds × 50 000 timesteps × 4 walk-forward folds × 16 "
             "bootstrap paths) on Colab GPU runtime. Sector-aware uncertainty-"
             "quantile calibration (replace the single global threshold with a "
             "per-sector or per-regime threshold). Begin Chapter 2 (Background) "
             "and Chapter 3 (Methodology) full drafts.",
-            "M1: full broad-universe × 4-fold × 10-seed × 50k-step extended grid "
+            "M1: full market-sample × 4-fold × 10-seed × 50k-step extended grid "
             "(mid-June). M2: sector-aware calibration ablation + Chapter 2 and "
             "Chapter 3 first drafts (end of June).",
         ),
@@ -957,7 +957,7 @@ def build() -> Path:
     add_bullets(doc, [
         "Compute time. Phase-1 runs are CPU-friendly (10 000 PPO timesteps, three seeds). The full Phase-2 grid is larger but still tractable on a Google Colab T4 GPU runtime, and the runners are designed to lift onto Colab without code changes. Partial-grid results will be accepted for any interim deliverable.",
         "Data-API drift. yfinance occasionally changes its column shape. The _close_1d helper used by every runner already normalises this, and the protocol pins explicit dates so a re-pull stays comparable.",
-        "Result fragility. The Phase-1 numbers may move under the full broad-universe, walk-forward and ablation work. To guard against over-claiming, results will be reported as median and inter-quartile range across ten seeds and across tickers, evaluated on multiple sliding test windows (walk-forward) rather than a single window, and any case where the probabilistic variant fails to beat the rule-based stop-loss comparator or buy-and-hold will be called out explicitly.",
+        "Result fragility. The Phase-1 numbers may move under the full market-sample, walk-forward and ablation work. To guard against over-claiming, results will be reported as median and inter-quartile range across ten seeds and across tickers, evaluated on multiple sliding test windows (walk-forward) rather than a single window, and any case where the probabilistic variant fails to beat the rule-based stop-loss comparator or buy-and-hold will be called out explicitly.",
         "Paper-trading dependency (stretch goal only). The Alpaca shadow run is a stretch goal that does not gate the dissertation. If the brokerage account, the API or the time available does not support a clean two-week run during August, the dissertation rests on the backtest and walk-forward evidence and the shadow run is moved into the real-world deployment roadmap as post-submission work.",
     ])
 
