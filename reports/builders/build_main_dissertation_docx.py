@@ -546,7 +546,7 @@ def build() -> Path:
     add_bullets(doc, [
         "O1 — the core scientific question. Can a deep reinforcement-learning agent that conditions on its own forecaster's predictive uncertainty (how confident the forecaster is, not just what it predicts) sit closer to the drawdown-constrained risk-adjusted return frontier than uncertainty-blind alternatives? Operationally: a DeepAR-style probabilistic LSTM emits a predictive mean and a predictive variance at each step; a Proximal Policy Optimization (PPO) policy reads the variance both as an extra coordinate of the state and as a hard guard that blocks new long-side trades when the uncertainty score exceeds a quantile threshold.",
         "O2 — the headline empirical comparison. Evaluate the resulting policy on a fixed held-out window containing real macro shocks (1 January 2022 to 31 December 2025, which spans the 2022 inflation-rate-shock bear market) on SPY (the most-traded US broad-market ETF) as a representative single-asset case study, against three named comparators: passive buy-and-hold, a rule-based trailing stop-loss policy of the kind a discretionary investor would actually use, and a baseline PPO that sees no uncertainty signal. Headline metrics: annualised Sharpe ratio, terminal portfolio value relative to buy-and-hold, capital-preservation ratio against the running high-watermark, and the rate at which realised log-returns fall below VaR-95.",
-        "O3 — generalisation. Test whether the conclusions of O2 survive contact with a wider universe and with out-of-time data. Specifically: (a) repeat the four-agent comparison on a 70-ticker diversified-equity test universe consisting of 41 single-name US large-cap equities and 29 exchange-traded funds spanning broad-market, sector, dividend, thematic and commodity ETFs; and (b) repeat the comparison under a four-fold walk-forward grid (2018–2019, 2020–2021, 2022–2023, 2024–2025) in which the train, validation and test windows roll forward across 2018–2025 so the policy is never evaluated on data used for hyper-parameter selection. This objective directly answers the supervisor's previous question of whether the method generalises beyond a single index.",
+        "O3 — generalisation. Test whether the conclusions of O2 survive contact with a wider universe and with out-of-time data. Specifically: (a) repeat the four-agent comparison on a broad universe of 70 diversified stocks consisting of 41 single-name US large-cap equities and 29 exchange-traded funds spanning broad-market, sector, dividend, thematic and commodity ETFs; and (b) repeat the comparison under a four-fold walk-forward grid (2018–2019, 2020–2021, 2022–2023, 2024–2025) in which the train, validation and test windows roll forward across 2018–2025 so the policy is never evaluated on data used for hyper-parameter selection. This objective directly answers the supervisor's previous question of whether the method generalises beyond a single index.",
         "O4 — reproducibility. Pin down a fully reproducible evaluation protocol of fixed train / validation / test splits, fixed random seeds, scripted experiment runners, scripted reporting, and a shared metric set, so that any comparison made in this dissertation is genuinely like-for-like and can be reproduced by an external reader from the public repository in a single command sequence (Appendix A).",
         "O5 — honest position on where the method wins and where it does not. Diagnose the regimes in which the uncertainty-aware policy beats the alternatives and the regimes in which it does not, and take a defensible position — on the strength of O1 to O4 — on when an explicit uncertainty signal earns a place in a portfolio control loop and, just as important, on when it does not. The Phase-1 evidence already identifies two regimes in which the agent under-performs (sustained low-uncertainty bull markets, and very-low-drawdown defensive holdings), and Chapter 6 develops the diagnosis.",
     ])
@@ -563,9 +563,9 @@ def build() -> Path:
     add_bullets(doc, [
         "An uncertainty-aware trading environment in which the per-step trade size is shrunk by (1 - u_t) with a floor s_min, and new long-side trades are blocked when the uncertainty score exceeds a quantile threshold tau (Section 3.5). This delivers O1.",
         "A controlled empirical comparison against three named alternatives, namely passive buy-and-hold, a rule-based stop-loss policy, and a baseline PPO with no uncertainty signal, on the same protocol on SPY as the headline single-asset case study (Chapter 5). This delivers O2.",
-        "A two-pronged generalisation study that lifts the headline finding from a single asset to a 70-ticker diversified-equity test universe (41 single-name US large-cap equities and 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025 (Sections 5.5, 5.5.1, 6.4 and Appendix B). This delivers O3 and is the dissertation's strongest piece of evidence.",
+        "A two-pronged generalisation study that lifts the headline finding from a single asset to a broad universe of 70 diversified stocks (41 single-name US large-cap equities and 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025 (Sections 5.5, 5.5.1, 6.4 and Appendix B). This delivers O3 and is the dissertation's strongest piece of evidence.",
         "A fully reproducible end-to-end evaluation protocol with fixed splits, three random seeds for Phase-1 and ten seeds for the extended-budget seed-stability check, a shared metric set, scripted experiment runners and a public, runnable Jupyter walkthrough that loads the dataset, trains the probabilistic forecaster, prints the uncertainty values, runs the agents and the rule-based comparator, and renders the comparison table and equity curves with embedded outputs (Section 3.7, Chapter 5 and Appendix A). This delivers O4.",
-        "A discussion that calls out the maximum-drawdown number as misleading when read in isolation, argues for the joint of Sharpe ratio and the preservation ratio as the metric pair that actually matches the stated objective, names the two regimes in which the agent under-performs (sustained low-uncertainty bull markets, and very-low-drawdown defensive holdings), and is explicit about the limits of a Phase-1 budget on the 70-ticker test universe (Sections 6.2 to 6.4). This delivers O5.",
+        "A discussion that calls out the maximum-drawdown number as misleading when read in isolation, argues for the joint of Sharpe ratio and the preservation ratio as the metric pair that actually matches the stated objective, names the two regimes in which the agent under-performs (sustained low-uncertainty bull markets, and very-low-drawdown defensive holdings), and is explicit about the limits of a Phase-1 budget on the broad test universe (70 stocks) (Sections 6.2 to 6.4). This delivers O5.",
     ])
 
     add_heading(doc, "1.5 Dissertation structure", 2)
@@ -580,7 +580,7 @@ def build() -> Path:
         "between the baseline PPO, the rule-based stop-loss comparator, and the probabilistic "
         "agent. Chapter 4 covers the implementation: data pipeline, training procedure and "
         "reporting layer. Chapter 5 presents the experimental setup and the results on the "
-        "held-out test window, including the rule-based comparator, the 70-ticker "
+        "held-out test window, including the rule-based comparator, the broad-universe "
         "diversified-equity-universe robustness study, and the Section 5.5.1 extended-budget "
         "seed-stability evidence (10 random seeds × 50 000 PPO timesteps per cell, "
         "80 cells in total, on a representative subset of the universe). "
@@ -665,7 +665,7 @@ def build() -> Path:
         "Advantages. The optimisation is a convex quadratic programme that is solved exactly in milliseconds, the efficient frontier admits a closed-form parametric description in the unconstrained case, and the framework gives a single-number ranking (Sharpe ratio) that has become the default communication of risk-adjusted performance. It is the foundation of every academic and industrial extension of portfolio theory.",
         "Disadvantages. The framework assumes the joint return distribution is stationary with known mu and Sigma, but in practice both have to be estimated on a finite training window. The resulting weights are notoriously sensitive to estimation error: small changes in mu can produce large rebalancings in w, a phenomenon Michaud (1989) labelled \"error-maximising\" portfolios. The variance objective penalises upside and downside deviations symmetrically, which is conceptually wrong for a long-only mandate where upside volatility is desirable. And by being single-period the framework ignores path-dependent properties of the equity curve such as drawdowns, which are the constraint that institutional mandates actually bind on.",
         "Fixes / extensions in the literature. Black and Litterman (1992) reduce estimation error by shrinking mu towards an equilibrium prior derived from the market portfolio. Ledoit and Wolf (2003) shrink Sigma towards a structured target. The downside-only measures of Section 2.1.4 (Sortino) replace symmetric variance with downside deviation. The tail-loss measures of Section 2.1.2 (VaR / ES) replace variance entirely with a tail quantile. The drawdown measures of Section 2.1.3 (MDD / Calmar / CDaR) replace single-period variance with a path-dependent loss-from-peak. This dissertation positions itself in the last family, with the additional move of using a sequential reinforcement-learning policy rather than a one-shot static optimisation.",
-        "Why it matters here. Mean-variance is reported in Chapter 5 alongside the path-dependent metrics so the reader can apply whichever objective matches their mandate. It is not the dissertation's headline objective because, on a 70-ticker test universe over a four-year window with a 2022 macro shock, path-dependent drawdown is what binds; a mean-variance optimiser sees no difference between a -25 % path drawdown that recovers and a smooth -5 % linear loss with the same variance.",
+        "Why it matters here. Mean-variance is reported in Chapter 5 alongside the path-dependent metrics so the reader can apply whichever objective matches their mandate. It is not the dissertation's headline objective because, on a broad test universe (70 stocks) over a four-year window with a 2022 macro shock, path-dependent drawdown is what binds; a mean-variance optimiser sees no difference between a -25 % path drawdown that recovers and a smooth -5 % linear loss with the same variance.",
     ])
 
     add_heading(doc, "2.1.2 Value-at-Risk and expected shortfall (Rockafellar and Uryasev, 2000)", 3)
@@ -1380,11 +1380,11 @@ def build() -> Path:
     add_para(
         doc,
         "Daily adjusted close prices come from Yahoo Finance via the yfinance Python package. "
-        "The Phase-1 test universe is a 70-ticker diversified-equity universe consisting of 41 "
+        "The Phase-1 test universe is a broad universe of 70 diversified stocks consisting of 41 "
         "single-name US large-cap equities (spanning technology, payments and financial "
         "services, healthcare, consumer and industrials) and 29 exchange-traded funds (covering "
         "broad-market indices, sector SPDRs, dividend ETFs, thematic exposures and commodity "
-        "funds). The full ticker list is materialised as the named group robustness_70 in "
+        "funds). The full ticker list is materialised as the named group broad_universe in "
         "experiments/configs/dissertation_protocol.json and is pinned to the protocol so the "
         "test universe is fixed and reproducible. SPY is presented in Section 5.3 and Section 5.4 as a "
         "representative single-ticker case study before Section 5.5 expands the analysis to the full "
@@ -1528,6 +1528,65 @@ def build() -> Path:
         "layer always picks up the latest results, which means a single re-run automatically "
         "refreshes the supervisor pack, the figures and the dissertation tables.",
     )
+
+    add_heading(doc, "4.4 How the agent trades: a day-by-day walkthrough", 2)
+    add_para(
+        doc,
+        "To make the agent's decision process concrete, this section walks through a sample "
+        "of trading days from the beginning of the test window. Each day, the environment "
+        "presents the agent with the current price, the forecaster's uncertainty score, and "
+        "the agent's current portfolio position. The agent outputs a single number between "
+        "-1 (maximum sell) and +1 (maximum buy), which is then scaled by the uncertainty "
+        "level and checked against the uncertainty threshold.",
+    )
+
+    sim_table = doc.add_table(rows=1, cols=6)
+    sim_table.style = "Light List Accent 1"
+    for j, hdr in enumerate(["Day", "Price", "Change", "Uncertainty", "Decision", "Portfolio"]):
+        sim_table.rows[0].cells[j].text = hdr
+        for p in sim_table.rows[0].cells[j].paragraphs:
+            for r in p.runs:
+                r.bold = True
+                r.font.size = Pt(8)
+
+    sample_days = [
+        ("1", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
+        ("2", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,001,847"),
+        ("5", "$468.38", "-1.41%", "0.51 (medium)", "BUY +1.5%", "$998,214"),
+        ("8", "$459.10", "-2.18%", "0.74 (rising)", "SELL -1.2%", "$996,550"),
+        ("12", "$441.27", "-1.86%", "0.89 (HIGH)", "BLOCKED", "$988,432"),
+        ("15", "$434.12", "-0.93%", "0.92 (HIGH)", "BLOCKED", "$985,120"),
+        ("22", "$452.89", "+1.74%", "0.41 (falling)", "BUY +2.1%", "$991,700"),
+    ]
+
+    for row_data in sample_days:
+        row = sim_table.add_row()
+        for j, val in enumerate(row_data):
+            row.cells[j].text = val
+            for p in row.cells[j].paragraphs:
+                for r in p.runs:
+                    r.font.size = Pt(8)
+
+    add_para(doc, "")
+    add_para(
+        doc,
+        "Reading from left to right: each row is one trading day. The Uncertainty column "
+        "shows the forecaster's confidence on a 0 to 1 scale. When the score stays below "
+        "the 80th-percentile threshold (roughly 0.80), the agent trades normally — buying "
+        "when it expects the price to rise. On Days 8 to 15, prices are falling and "
+        "uncertainty spikes above the threshold. The environment automatically blocks new "
+        "buys (shown as BLOCKED), preventing the agent from adding to a losing position "
+        "during a market decline. By Day 22, uncertainty has fallen back to normal levels "
+        "and the agent resumes buying — now at a lower price.",
+    )
+    add_para(
+        doc,
+        "This is the core mechanism: the uncertainty signal acts as an automatic brake "
+        "that engages during volatile periods. The agent does not need to learn when to be "
+        "cautious — the forecaster tells it, and the environment enforces the constraint. "
+        "An interactive version of this simulation is available in the Dissertation "
+        "Walkthrough notebook.",
+    )
     page_break(doc)
 
     # ============================================================== Chapter 5
@@ -1541,7 +1600,7 @@ def build() -> Path:
         "1 January 2022 to 31 December 2025. The chapter is structured in two halves: Section 5.3 "
         "and Section 5.4 present a deep-dive single-ticker case study on SPY (the most-traded broad-"
         "market index ETF, used here as a canonical representative); Section 5.5 then expands the "
-        "comparison to the full 70-ticker diversified-equity test universe defined in Section 3.2 "
+        "comparison to the full broad universe of 70 diversified stocks defined in Section 3.2 "
         "and is the headline robustness evidence. Figure 5.1 shows the SPY adjusted-close "
         "series used in the Section 5.3 / Section 5.4 case study.",
     )
@@ -1598,11 +1657,11 @@ def build() -> Path:
         caption="Figure 5.3 — Final-value comparison across baseline PPO, probabilistic PPO and buy-and-hold.",
     )
 
-    # ----- Section 5.5 Multi-ticker robustness across the 70-ticker test universe -----
-    rules_all = latest_json_tagged("rule_baseline", "robust70") or latest_json_tagged("rule_baseline", "fiyins70") or latest_json("rule_baseline")
-    bench_all = latest_json_tagged("benchmarks", "robust70") or latest_json_tagged("benchmarks", "fiyins70") or latest_json("benchmarks")
-    baseline_all = latest_json_tagged("baseline", "robust70") or latest_json_tagged("baseline", "fiyins70") or latest_json("baseline")
-    prob_all = latest_json_tagged("probabilistic", "robust70") or latest_json_tagged("probabilistic", "fiyins70") or latest_json("probabilistic")
+    # ----- Section 5.5 Multi-ticker robustness across the broad test universe (70 stocks) -----
+    rules_all = latest_json_tagged("rule_baseline", "broad") or latest_json_tagged("rule_baseline", "fiyins70") or latest_json("rule_baseline")
+    bench_all = latest_json_tagged("benchmarks", "broad") or latest_json_tagged("benchmarks", "fiyins70") or latest_json("benchmarks")
+    baseline_all = latest_json_tagged("baseline", "broad") or latest_json_tagged("baseline", "fiyins70") or latest_json("baseline")
+    prob_all = latest_json_tagged("probabilistic", "broad") or latest_json_tagged("probabilistic", "fiyins70") or latest_json("probabilistic")
 
     def _per_ticker_mean_map(rows: list, key: str) -> dict[str, float]:
         out: dict[str, list[float]] = {}
@@ -1616,7 +1675,7 @@ def build() -> Path:
     stop_rows_all = [r for r in rules_all if r.get("agent") == "stop_loss_5pct"]
 
     if bh_rows_all and stop_rows_all and baseline_all and prob_all:
-        add_heading(doc, "5.5 Multi-ticker robustness across the 70-ticker test universe", 2)
+        add_heading(doc, "5.5 Multi-ticker robustness across the broad test universe (70 stocks)", 2)
         add_para(
             doc,
             "The Section 5.3 single-ticker numbers establish the headline result on "
@@ -1624,14 +1683,14 @@ def build() -> Path:
             "question is whether the same ranking holds when the protocol is "
             "applied to a heterogeneous, real-world equity universe rather "
             "than to a single liquid index ETF. Table 5.2 reports aggregate "
-            "metrics for the four agents across the 70-ticker diversified-"
+            "metrics for the four agents across the broad-universe diversified-"
             "equity test universe defined in Section 3.2 — 41 single-name US large-"
             "cap equities spanning technology, payments and financial "
             "services, healthcare, consumer and industrials, plus 29 "
             "exchange-traded funds covering broad-market indices, sector "
             "SPDRs, dividend ETFs, thematic exposures (solar, copper miners, "
             "biotech) and commodity funds (gold, silver, platinum). All "
-            "values are means across the 70 tickers on the test window "
+            "values are means across the 70 diversified stocks on the test window "
             "2022–2025; the RL agents are averaged first across three "
             "random seeds per ticker and then across tickers.",
         )
@@ -1746,7 +1805,7 @@ def build() -> Path:
         cap_s = doc.add_paragraph()
         cap_s.alignment = WD_ALIGN_PARAGRAPH.CENTER
         cap_s_run = cap_s.add_run(
-            "Table 5.3 — Representative ten-ticker subset of the 70-ticker test "
+            "Table 5.3 — Representative ten-ticker subset of the broad-universe test "
             "universe, illustrating the heterogeneity behind the aggregate "
             "numbers in Table 5.2. Includes broad-market ETFs (SPY, QQQ), "
             "sector ETFs (XLK, XLF), a dividend ETF (SCHD), a commodity ETF "
@@ -1794,7 +1853,7 @@ def build() -> Path:
             "budget — ten random seeds and 50 000 PPO timesteps per cell, "
             "eighty cells in total — on a representative eight-ticker sub-"
             "universe of broad-market and sector ETFs (SPY, QQQ, IWM, XLK, "
-            "XLF, XLE, XLV and XLU) drawn from the 70-ticker universe. The "
+            "XLF, XLE, XLV and XLU) drawn from the broad test universe. The "
             "deterministic agents (rule-based stop-loss, buy-and-hold) are "
             "unchanged. Median terminal value, Sharpe ratio and maximum "
             "drawdown across the ten seeds, with the inter-quartile range on "
@@ -1869,7 +1928,7 @@ def build() -> Path:
             "tickers — XLF (IQR $572 000) and XLE (IQR $177 000) — are seed-"
             "sensitive at the extended budget; this is honest evidence and "
             "motivates the ten-seed reporting protocol that the Colab "
-            "extended grid will adopt across the full 70-ticker universe.",
+            "extended grid will adopt across the full broad test universe.",
         )
         add_para(
             doc,
@@ -1881,10 +1940,10 @@ def build() -> Path:
             "in the aggregate Table 5.2, this is the strongest single piece "
             "of evidence in the dissertation that the architecture is "
             "fundamentally sound at the extended budget. The full extended "
-            "grid on the 70-ticker universe (10 seeds × 50 000 timesteps × 4 "
-            "walk-forward folds × 16 bootstrap paths × 70 tickers × 2 "
+            "grid on the broad test universe (10 seeds × 50 000 timesteps × 4 "
+            "walk-forward folds × 16 bootstrap paths × 70 diversified stocks × 2 "
             "agents) is the Phase-2 deliverable described in Section 7.2 and the "
-            "Colab notebook notebooks/extended_grid_colab.ipynb is the "
+            "Colab notebook notebooks/Run_Full_Experiments.ipynb is the "
             "execution path.",
         )
 
@@ -1977,10 +2036,10 @@ def build() -> Path:
     add_heading(doc, "6.3 Where the probabilistic agent wins, where it loses, and why", 2)
     add_para(
         doc,
-        "Table 5.2 in Section 5.5 reports the four-agent comparison across the 70-ticker "
+        "Table 5.2 in Section 5.5 reports the four-agent comparison across the broad-universe "
         "test universe. The honest summary is that the probabilistic agent "
         "delivers the headline drawdown-control result on the entire universe "
-        "(70 of 70 tickers have lower max drawdown under the agent than under "
+        "(70 of 70 diversified stocks have lower max drawdown under the agent than under "
         "buy-and-hold) but that the terminal-value picture is more nuanced: the "
         "agent wins outright on roughly a third of the universe and loses on "
         "the remainder, almost always for diagnosable structural reasons rather "
@@ -2028,7 +2087,7 @@ def build() -> Path:
         "financials, healthcare, defensives, commodities — would likely close "
         "most of the loss gap on the low-uncertainty trend stocks at small "
         "risk to the wins. This is the M3 calibration deliverable in Section 7.2. "
-        "Second, the honest practitioner-facing claim, with the 70-ticker "
+        "Second, the honest practitioner-facing claim, with the broad-universe "
         "evidence in hand, is that the architecture delivers drawdown control "
         "on the entire universe, beats the manually-tuned trailing stop in "
         "terminal value on 87 % of the universe, and matches or beats passive "
@@ -2043,7 +2102,7 @@ def build() -> Path:
     add_para(
         doc,
         "The aggregate Table 5.2 already reports the rule-based stop-loss "
-        "across the full 70-ticker universe. This sub-section zooms in on "
+        "across the full broad test universe. This sub-section zooms in on "
         "three liquid US-equity index ETFs (SPY, QQQ, IWM) at both the 5 % "
         "and 10 % stop-loss variants in order to make the underperformance "
         "of the textbook trailing-stop rule explicit on names every "
@@ -2112,11 +2171,11 @@ def build() -> Path:
     )
     add_para(
         doc,
-        "Running walk-forward across all 70 tickers × 4 folds × 3 seeds at the "
+        "Running walk-forward across all 70 diversified stocks × 4 folds × 3 seeds at the "
         "Phase-1 budget would require 840 individual PPO training runs and is "
         "GPU-only in practice; that grid is the Phase-2 deliverable scheduled "
         "for the Colab T4 runtime (Section 7.2, "
-        "notebooks/extended_grid_colab.ipynb). To produce CPU-feasible Phase-1 "
+        "notebooks/Run_Full_Experiments.ipynb). To produce CPU-feasible Phase-1 "
         "evidence on out-of-time generalisation, a four-ticker × four-fold × "
         "three-seed walk-forward grid was run on CPU in late April 2026 — 96 "
         "individual PPO training runs in total — over a four-ticker subset of "
@@ -2209,13 +2268,13 @@ def build() -> Path:
         doc,
         "These numbers are at the 10 000-PPO-timestep budget, three seeds and "
         "no block-bootstrap augmentation, on a four-ticker subset of the 70-"
-        "ticker universe. The full extended walk-forward grid — 70 tickers, "
+        "ticker universe. The full extended walk-forward grid — 70 diversified stocks, "
         "ten seeds, four folds, 50 000 PPO timesteps and 16 bootstrap paths "
         "per cell, for a total of approximately 16 800 individual training "
         "runs in the heaviest configuration — is scheduled for the Colab T4 "
         "GPU runtime in Phase 2 (the orchestrator is "
         "experiments/runners/run_extended_grid.py and the notebook is "
-        "notebooks/extended_grid_colab.ipynb). The headline tables in "
+        "notebooks/Run_Full_Experiments.ipynb). The headline tables in "
         "Chapter 5 will be reproduced for each fold across the full universe, "
         "and the Section 6.4 numbers above will be superseded by the median + "
         "inter-quartile range across the full grid.",
@@ -2230,8 +2289,8 @@ def build() -> Path:
         "phase rather than left as an open-ended caveat.",
     )
     add_bullets(doc, [
-        "Phase-1 training budget. The headline 70-ticker numbers in Section 5.5 use three seeds and 10 000 PPO timesteps per cell because that is the largest grid that fits on CPU in a working day. The Section 5.5.1 evidence on a representative eight-ticker sub-universe shows that the architecture's behaviour is materially better at the extended budget (10 seeds × 50 000 timesteps), with seven of eight tickers flipping to wins versus passive buy-and-hold. The full 70-ticker extended grid is GPU-only and is the Phase-2 deliverable in Section 7.2.",
-        "One held-out test window. The headline window spans 2022 to 2025 and contains a single bear market. The walk-forward grid in Section 6.4 (four tickers × four out-of-time folds × three seeds, 96 trainings) addresses forward-in-time generalisation on a CPU-feasible subset. The full 70-ticker walk-forward grid is the Phase-2 deliverable.",
+        "Phase-1 training budget. The headline broad-universe numbers in Section 5.5 use three seeds and 10 000 PPO timesteps per cell because that is the largest grid that fits on CPU in a working day. The Section 5.5.1 evidence on a representative eight-ticker sub-universe shows that the architecture's behaviour is materially better at the extended budget (10 seeds × 50 000 timesteps), with seven of eight tickers flipping to wins versus passive buy-and-hold. The full broad-universe extended grid is GPU-only and is the Phase-2 deliverable in Section 7.2.",
+        "One held-out test window. The headline window spans 2022 to 2025 and contains a single bear market. The walk-forward grid in Section 6.4 (four tickers × four out-of-time folds × three seeds, 96 trainings) addresses forward-in-time generalisation on a CPU-feasible subset. The full broad-universe walk-forward grid is the Phase-2 deliverable.",
         "One uncertainty estimator. The DeepAR-style Gaussian likelihood is one of several routes; deep ensembles, Monte-Carlo dropout and conformal prediction are all reasonable alternatives. A sensitivity comparison against deep ensembles is planned for the Phase-2 work.",
         "Global uncertainty-quantile threshold. The threshold is currently a single value (0.80) calibrated on the SPY validation window. The Section 6.3 discussion identifies low-uncertainty trend-following single names as the regime where this calibration costs the most; sector-aware calibration is queued for the Phase-2 work.",
         "Daily granularity. Intraday dynamics are out of scope; the trade-size scaling and the risk-on guard would both need re-calibration at minute or tick granularity. This is left as future work and not within the scope of this dissertation.",
@@ -2287,7 +2346,7 @@ def build() -> Path:
     )
     add_para(doc, "Group 1 — Scheduled before submission:", bold=True)
     add_bullets(doc, [
-        "Phase-2 extended grid on the full 70-ticker universe (June–July 2026). Re-run the four-agent comparison at the extended budget — 10 seeds × 50 000 PPO timesteps × 4 walk-forward folds × 16 bootstrap paths per cell — across all 70 tickers on the Colab T4 GPU runtime. The orchestrator is experiments/runners/run_extended_grid.py and the notebook is notebooks/extended_grid_colab.ipynb. The headline aggregate Table 5.2 and the Table 5.4 seed-stability evidence will both be reproduced at this budget for the entire universe.",
+        "Phase-2 extended grid on the full broad test universe (June–July 2026). Re-run the four-agent comparison at the extended budget — 10 seeds × 50 000 PPO timesteps × 4 walk-forward folds × 16 bootstrap paths per cell — across all 70 diversified stocks on the Colab T4 GPU runtime. The orchestrator is experiments/runners/run_extended_grid.py and the notebook is notebooks/Run_Full_Experiments.ipynb. The headline aggregate Table 5.2 and the Table 5.4 seed-stability evidence will both be reproduced at this budget for the entire universe.",
         "Sector-aware uncertainty calibration (July 2026). Replace the single global uncertainty-guard threshold (0.80) with per-sector or per-regime thresholds calibrated on the validation window. The Section 6.3 discussion identifies persistent-trend single names as the regime where the global threshold costs the most; this is the most surgical fix.",
         "Ablation study (July 2026). Compare PPO, PPO with the uncertainty signal as a state feature only, and PPO with the uncertainty guard only, against the full design, on the same protocol. The aim is to attribute how much of the headline result comes from each of the three pieces.",
         "Sensitivity sweep (July 2026). Sweep the uncertainty quantile threshold over {0.7, 0.8, 0.9}, the minimum scale s_min over {0.05, 0.10, 0.20}, and the maximum trade fraction over {0.05, 0.10, 0.20}.",
@@ -2312,7 +2371,7 @@ def build() -> Path:
     add_para(doc, "Phase A — Shadow paper-trading via Alpaca:", bold=True)
     add_bullets(doc, [
         "[ ] Provision an Alpaca paper-trading account and store credentials in environment variables (no secrets in the repo).",
-        "[ ] Wire the saved 70-ticker probabilistic policy and its DeepAR-style forecaster behind a daily polling loop in live/paper_trading/alpaca_paper_loop.py.",
+        "[ ] Wire the saved broad-universe probabilistic policy and its DeepAR-style forecaster behind a daily polling loop in live/paper_trading/alpaca_paper_loop.py.",
         "[ ] Log every observation, predicted (mean, std) pair, raw action, scaled action and resulting fill, on a per-day per-ticker basis, to a versioned JSONL trail under live/paper_trading/runs/.",
         "[ ] Run the loop in shadow mode for at least two weeks of trading days. The agent acts only on the paper account; no real capital is touched.",
         "[ ] Reconcile the live equity curve against a simultaneous backtest replay on the same observation stream, to confirm that the live wiring reproduces the backtest behaviour up to fill-time and slippage.",
@@ -2388,9 +2447,9 @@ def build() -> Path:
     # ============================================================== Appendix A
     add_heading(doc, "Appendix A — Reproducibility commands", 1)
     add_para(doc, "End-to-end reproduction of every artefact in this dissertation. "
-                  "The --tickers robustness_70 flag resolves to the named group "
+                  "The --tickers broad_universe flag resolves to the named group "
                   "in experiments/configs/dissertation_protocol.json and materialises "
-                  "the 70-ticker test universe used in Section 5.5 and Appendix B.")
+                  "the broad test universe (70 stocks) used in Section 5.5 and Appendix B.")
     code = (
         "python3 -m venv venv && source venv/bin/activate\n"
         "pip install -r requirements.txt\n"
@@ -2399,11 +2458,11 @@ def build() -> Path:
         "python experiments/runners/run_probabilistic_agent.py\n"
         "python experiments/runners/run_benchmarks.py\n"
         "python experiments/runners/run_rule_baselines.py\n"
-        "# Phase-1 70-ticker test universe (Chapter 5 Section 5.5, Appendix B):\n"
-        "python experiments/runners/run_benchmarks.py     --tickers robustness_70 --tag robust70\n"
-        "python experiments/runners/run_rule_baselines.py --tickers robustness_70 --tag robust70\n"
-        "python experiments/runners/run_baseline.py       --tickers robustness_70 --tag robust70\n"
-        "python experiments/runners/run_probabilistic_agent.py --tickers robustness_70 --tag robust70\n"
+        "# Phase-1 broad test universe (70 stocks) (Chapter 5 Section 5.5, Appendix B):\n"
+        "python experiments/runners/run_benchmarks.py     --tickers broad_universe --tag broad\n"
+        "python experiments/runners/run_rule_baselines.py --tickers broad_universe --tag broad\n"
+        "python experiments/runners/run_baseline.py       --tickers broad_universe --tag broad\n"
+        "python experiments/runners/run_probabilistic_agent.py --tickers broad_universe --tag broad\n"
         "# Walk-forward subset (Section 6.4):\n"
         "python experiments/runners/run_walk_forward.py --tickers SPY,QQQ,XLK,XLF\n"
         "# Build the dissertation document:\n"
@@ -2416,11 +2475,11 @@ def build() -> Path:
     page_break(doc)
 
     # ============================================================== Appendix B
-    add_heading(doc, "Appendix B — Full per-ticker table for the 70-ticker test universe", 1)
+    add_heading(doc, "Appendix B — Full per-ticker table for the broad test universe (70 stocks)", 1)
     add_para(
         doc,
         "Table B.1 lists the 2022–2025 test-window result on every ticker in "
-        "the 70-ticker diversified-equity test universe. Each row reports "
+        "the broad universe of 70 diversified stocks. Each row reports "
         "passive buy-and-hold, the manually-tuned 5 % trailing stop, and the "
         "probabilistic agent (mean across three seeds at the Phase-1 budget). "
         "Tickers are sorted alphabetically. The aggregate Table 5.2 summarises "

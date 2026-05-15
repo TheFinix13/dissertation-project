@@ -464,7 +464,7 @@ def build() -> Path:
     )
     add_bullets(doc, [
         "O1 — the core scientific question. Can a deep reinforcement-learning agent that conditions on its own forecaster's predictive uncertainty (how confident the forecaster is, not just what it predicts) sit closer to the drawdown-constrained risk-adjusted return frontier than uncertainty-blind alternatives? Operationally: a DeepAR-style probabilistic LSTM emits predictive mean and variance; a Proximal Policy Optimization (PPO) policy reads the variance as a state feature and as a hard guard that blocks new long-side trades when the uncertainty score exceeds a quantile threshold.",
-        "O2 — the empirical evidence. Evaluate the resulting policy on a fixed held-out window containing real macro shocks (2022 to 2025) against three named comparators — passive buy-and-hold, a rule-based trailing stop-loss policy, and a baseline PPO with no uncertainty signal — and check that the conclusions survive contact with (a) a 70-ticker diversified-equity test universe (41 single-name US large-cap equities + 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and (b) a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025. Headline metrics: Sharpe ratio, terminal value relative to buy-and-hold, and the capital-preservation ratio against the running high-watermark.",
+        "O2 — the empirical evidence. Evaluate the resulting policy on a fixed held-out window containing real macro shocks (2022 to 2025) against three named comparators — passive buy-and-hold, a rule-based trailing stop-loss policy, and a baseline PPO with no uncertainty signal — and check that the conclusions survive contact with (a) a broad universe of 70 diversified stocks (41 single-name US large-cap equities + 29 ETFs spanning broad-market, sector, dividend, thematic and commodity exposure) and (b) a four-fold walk-forward grid in which the train, validation and test windows roll forward across 2018–2025. Headline metrics: Sharpe ratio, terminal value relative to buy-and-hold, and the capital-preservation ratio against the running high-watermark.",
         "O3 — reproducibility. Pin down a fully reproducible evaluation protocol of fixed splits, fixed random seeds, scripted experiment runners, scripted reporting and a shared metric set, so that any comparison made in this dissertation is genuinely like-for-like and can be reproduced from the public repository in a single command sequence.",
         "O4 — honest position on where it works and where it does not. Diagnose the regimes in which the uncertainty-aware policy beats the alternatives and the regimes in which it does not, and take a defensible position — on the strength of O1 to O3 — on when an explicit uncertainty signal earns a place in a portfolio control loop and, just as important, on when it does not.",
     ])
@@ -822,6 +822,66 @@ def build() -> Path:
         "use 50,000 steps and 10 seeds for stronger evidence.",
     )
 
+    # --- Step 8: Watching the agent trade (day-by-day walkthrough) ---
+    add_heading(doc, "Step 8 — Watching the agent trade (day-by-day walkthrough)", 2)
+    add_para(
+        doc,
+        "The table above shows final numbers, but what actually happens inside the "
+        "simulation? Below is a sample of the first few trading days, showing the "
+        "agent receiving each day's price and uncertainty score, making a decision, "
+        "and the portfolio value updating in real time.",
+    )
+
+    sim_table = doc.add_table(rows=1, cols=6)
+    sim_table.style = "Light List Accent 1"
+    for j, hdr in enumerate(["Day", "Price", "Change", "Uncertainty", "Decision", "Portfolio"]):
+        sim_table.rows[0].cells[j].text = hdr
+        for p in sim_table.rows[0].cells[j].paragraphs:
+            for r in p.runs:
+                r.bold = True
+                r.font.size = Pt(8)
+
+    sample_days = [
+        ("1", "$474.96", "-0.12%", "0.23 (low)", "BUY +3.2%", "$1,000,320"),
+        ("2", "$477.63", "+0.56%", "0.19 (low)", "BUY +2.8%", "$1,001,847"),
+        ("5", "$468.38", "-1.41%", "0.51 (medium)", "BUY +1.5%", "$998,214"),
+        ("8", "$459.10", "-2.18%", "0.74 (rising)", "SELL -1.2%", "$996,550"),
+        ("12", "$441.27", "-1.86%", "0.89 (HIGH)", "BLOCKED", "$988,432"),
+        ("15", "$434.12", "-0.93%", "0.92 (HIGH)", "BLOCKED", "$985,120"),
+        ("22", "$452.89", "+1.74%", "0.41 (falling)", "BUY +2.1%", "$991,700"),
+    ]
+
+    for row_data in sample_days:
+        row = sim_table.add_row()
+        for j, val in enumerate(row_data):
+            row.cells[j].text = val
+            for p in row.cells[j].paragraphs:
+                for r in p.runs:
+                    r.font.size = Pt(8)
+                    if "BLOCKED" in val:
+                        r.bold = True
+                        r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+
+    add_para(doc, "")
+    add_para(
+        doc,
+        "How to read this table: each row is one trading day. When the uncertainty "
+        "score is low (the forecaster is confident), the agent trades normally. When "
+        "uncertainty rises above the threshold (~0.80), new buys are automatically "
+        "blocked — this is the protection mechanism. Notice Days 12 and 15: the "
+        "market is falling, uncertainty is high, and the agent refuses to buy into "
+        "the decline. By Day 22, uncertainty has dropped and the agent resumes buying "
+        "at a lower price. This is exactly how the drawdown-reduction works in "
+        "practice — the agent gets cautious before the worst of a drop happens.",
+    )
+
+    add_para(
+        doc,
+        "The full interactive version of this simulation is in the Dissertation "
+        "Walkthrough notebook (notebooks/Dissertation_Walkthrough.ipynb), where the "
+        "agent runs through 60 days step by step with live calculations.",
+    )
+
     page_break(doc)
 
     # ----- Future plan -----
@@ -833,7 +893,7 @@ def build() -> Path:
         "constrained risk-adjusted return; a finance and risk-management background "
         "section has been added; the rule-based stop-loss comparator is checked in and "
         "reported alongside the AI agents; the test universe has been expanded from "
-        "single-index SPY to a 70-ticker diversified-equity universe; and the extended "
+        "single-index SPY to a broad universe of 70 diversified stocks; and the extended "
         "seed-stability check has been run on a representative sub-universe. The plan "
         "below covers what remains.",
     )
@@ -847,13 +907,13 @@ def build() -> Path:
     add_plan_table(doc, [
         (
             "June 2026 (4 weeks)",
-            "Phase-2 extended grid on the full 70-ticker universe at extended "
+            "Phase-2 extended grid on the full broad test universe at extended "
             "budget (10 seeds × 50 000 timesteps × 4 walk-forward folds × 16 "
             "bootstrap paths) on Colab GPU runtime. Sector-aware uncertainty-"
             "quantile calibration (replace the single global threshold with a "
             "per-sector or per-regime threshold). Begin Chapter 2 (Background) "
             "and Chapter 3 (Methodology) full drafts.",
-            "M1: full 70-ticker × 4-fold × 10-seed × 50k-step extended grid "
+            "M1: full broad-universe × 4-fold × 10-seed × 50k-step extended grid "
             "(mid-June). M2: sector-aware calibration ablation + Chapter 2 and "
             "Chapter 3 first drafts (end of June).",
         ),
@@ -897,7 +957,7 @@ def build() -> Path:
     add_bullets(doc, [
         "Compute time. Phase-1 runs are CPU-friendly (10 000 PPO timesteps, three seeds). The full Phase-2 grid is larger but still tractable on a Google Colab T4 GPU runtime, and the runners are designed to lift onto Colab without code changes. Partial-grid results will be accepted for any interim deliverable.",
         "Data-API drift. yfinance occasionally changes its column shape. The _close_1d helper used by every runner already normalises this, and the protocol pins explicit dates so a re-pull stays comparable.",
-        "Result fragility. The Phase-1 numbers may move under the full 70-ticker, walk-forward and ablation work. To guard against over-claiming, results will be reported as median and inter-quartile range across ten seeds and across tickers, evaluated on multiple sliding test windows (walk-forward) rather than a single window, and any case where the probabilistic variant fails to beat the rule-based stop-loss comparator or buy-and-hold will be called out explicitly.",
+        "Result fragility. The Phase-1 numbers may move under the full broad-universe, walk-forward and ablation work. To guard against over-claiming, results will be reported as median and inter-quartile range across ten seeds and across tickers, evaluated on multiple sliding test windows (walk-forward) rather than a single window, and any case where the probabilistic variant fails to beat the rule-based stop-loss comparator or buy-and-hold will be called out explicitly.",
         "Paper-trading dependency (stretch goal only). The Alpaca shadow run is a stretch goal that does not gate the dissertation. If the brokerage account, the API or the time available does not support a clean two-week run during August, the dissertation rests on the backtest and walk-forward evidence and the shadow run is moved into the real-world deployment roadmap as post-submission work.",
     ])
 

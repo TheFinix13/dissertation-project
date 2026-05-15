@@ -68,7 +68,7 @@ where the method works and where it does not fourth.
   held-out window containing real macro shocks (2022 to 2025) against three
   named comparators — passive buy-and-hold, a rule-based trailing stop-loss
   policy, and a baseline PPO with no uncertainty signal — and check that the
-  conclusions survive contact with (a) a 70-ticker diversified-equity test
+  conclusions survive contact with (a) a broad-universe diversified-equity test
   universe (41 single-name US large-cap equities + 29 ETFs spanning
   broad-market, sector, dividend, thematic and commodity exposure) and (b)
   a four-fold walk-forward grid in which the train, validation and test
@@ -263,9 +263,9 @@ The two new rule-based comparators (5 % and 10 % trailing stop-losses with a
 20/50-day moving-average crossover for re-entry) live in
 `experiments/runners/run_rule_baselines.py`.
 
-### 70-ticker test universe — Phase-1 robustness (Section 5.5)
+### broad test universe (70 stocks) — Phase-1 robustness (Section 5.5)
 
-The Phase-1 robustness study runs the same four-agent comparison on a 70-ticker
+The Phase-1 robustness study runs the same four-agent comparison on a broad-universe
 diversified-equity test universe — 41 single-name US large-cap equities (technology,
 payments and financial services, healthcare, consumer, industrials) and 29
 exchange-traded funds (broad-market indices, sector SPDRs, dividend ETFs,
@@ -279,12 +279,12 @@ with the same metric definitions and the same four-agent comparison set.
 | Manual 5 % trailing stop | $1,531,163 | +0.36 | 0.305 |
 | Passive buy-and-hold | $2,099,838 | +0.54 | 0.370 |
 
-Headline findings on the 70-ticker test universe:
+Headline findings on the broad test universe (70 stocks):
 
-- **Drawdown reduced versus passive buy-and-hold on 70 of 70 tickers (100 % of the universe)**, with an average reduction of 14.5 percentage points (mean drawdown cut from 37 % to 22.5 % — a 39 % relative reduction). This is the strongest single number in the dissertation.
-- **Probabilistic agent beat the manually-tuned 5 % trailing stop on 61 of 70 tickers (87 %)** in terminal value, and on essentially every ticker in Sharpe ratio — direct empirical answer to the previous-meeting question on whether the AI agent beats a manually-tuned stop-loss alternative.
+- **Drawdown reduced versus passive buy-and-hold on 70 of 70 diversified stocks (100 % of the universe)**, with an average reduction of 14.5 percentage points (mean drawdown cut from 37 % to 22.5 % — a 39 % relative reduction). This is the strongest single number in the dissertation.
+- **Probabilistic agent beat the manually-tuned 5 % trailing stop on 61 of 70 diversified stocks (87 %)** in terminal value, and on essentially every ticker in Sharpe ratio — direct empirical answer to the previous-meeting question on whether the AI agent beats a manually-tuned stop-loss alternative.
 - Cost in mean terminal value vs buy-and-hold: ≈ 5 % give-up in mean upside in exchange for ≈ 39 % reduction in mean drawdown. The trade institutional risk officers run.
-- Where the agent loses (45 of 70 tickers in terminal value, all winning on drawdown), the losses cluster in two diagnosable regimes: persistent low-uncertainty bull-market trends in single names (NVDA, AVGO, LLY) and very-low-drawdown defensives (JNJ, MCD, SCHD, GLD). Sector-aware uncertainty-quantile calibration is the targeted Phase-2 fix.
+- Where the agent loses (45 of 70 diversified stocks in terminal value, all winning on drawdown), the losses cluster in two diagnosable regimes: persistent low-uncertainty bull-market trends in single names (NVDA, AVGO, LLY) and very-low-drawdown defensives (JNJ, MCD, SCHD, GLD). Sector-aware uncertainty-quantile calibration is the targeted Phase-2 fix.
 - The full per-ticker table is in Appendix B of `Main_Dissertation_Draft.docx`.
 
 ### How to read these numbers
@@ -349,7 +349,7 @@ original plan have all been completed: the dissertation has been reframed
 around drawdown-constrained risk-adjusted return; a finance and
 risk-management background section has been added; the rule-based
 stop-loss comparator is checked in and reported alongside the AI agents;
-the test universe has been expanded from single-index SPY to a 70-ticker
+the test universe has been expanded from single-index SPY to a broad-universe
 diversified-equity universe; and the extended seed-stability check has
 been run on a representative sub-universe. The plan below covers what
 remains.
@@ -361,7 +361,7 @@ and is treated as a stretch goal (see the August 2026 row).
 
 | Working period | Tasks to undertake | Milestones to meet (with target dates) |
 |---|---|---|
-| **June 2026 (4 weeks)** | Phase-2 extended grid on the full 70-ticker universe at extended budget (10 seeds × 50 000 timesteps × 4 walk-forward folds × 16 bootstrap paths) on Colab GPU runtime. Sector-aware uncertainty-quantile calibration (replace the single global threshold with a per-sector or per-regime threshold). Begin Chapter 2 (Background) and Chapter 3 (Methodology) full drafts. | M1: full 70-ticker × 4-fold × 10-seed × 50k-step extended grid (mid-June). M2: sector-aware calibration ablation + Chapter 2 and Chapter 3 first drafts (end of June). |
+| **June 2026 (4 weeks)** | Phase-2 extended grid on the full broad test universe at extended budget (10 seeds × 50 000 timesteps × 4 walk-forward folds × 16 bootstrap paths) on Colab GPU runtime. Sector-aware uncertainty-quantile calibration (replace the single global threshold with a per-sector or per-regime threshold). Begin Chapter 2 (Background) and Chapter 3 (Methodology) full drafts. | M1: full broad-universe × 4-fold × 10-seed × 50k-step extended grid (mid-June). M2: sector-aware calibration ablation + Chapter 2 and Chapter 3 first drafts (end of June). |
 | **July 2026 (4–6 weeks)** | Sensitivity sweep on the uncertainty quantile threshold, the minimum trade-size scale, and the maximum trade fraction. Block-bootstrap data augmentation (Politis & Romano, 1994) to expand the effective training set. Lock the final headline results table. Draft Chapter 5 (Results) and Chapter 1 (Introduction). | M3: sensitivity and bootstrap results locked (mid-July). M4: Chapters 1, 2, 3 and 5 first drafts (end of July). |
 | **August 2026 (4 weeks)** | Polish phase. Write Chapter 6 (Discussion) and Chapter 7 (Conclusion). Polish figures and tables, integrate supervisor feedback on the full draft, and finalise the dissertation. Code changes from this point are bug-fix only. **Stretch goal:** if time and a working brokerage account permit, run a two-week paper-trading shadow run via the Alpaca API and report the live PnL as an out-of-sample case study; if it does not happen the dissertation rests on the backtest and walk-forward evidence and the live run is recorded as post-submission work in the real-world deployment roadmap (see the `live/` directory in the repository). | M5: full draft to supervisor (mid-August). M6: submission-ready version (end of August). M7 (stretch): paper-trading PnL added to results chapter (third week of August), only if the shadow run is in scope. |
 | **September 2026** | Submit by **1 September 2026**. Viva preparation: slide deck (≤12 slides, ≤20 minutes per the project handbook), demo of the reproducible pipeline, pre-emptive Q&A using `reports/templates/viva_qa_notes.md`. | M8: viva-ready presentation and demo by viva date. |
@@ -377,7 +377,7 @@ and is treated as a stretch goal (see the August 2026 row).
   The `_close_1d` helper used by every runner already normalises this,
   and the protocol pins explicit dates so a re-pull stays comparable.
 - **Result fragility.** The Phase-1 numbers may move under the full
-  70-ticker, walk-forward and ablation work. To guard against
+  broad-universe, walk-forward and ablation work. To guard against
   over-claiming, results will be reported as median and inter-quartile
   range across ten seeds and across tickers, evaluated on multiple
   sliding test windows (walk-forward) rather than a single window, and
