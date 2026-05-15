@@ -898,24 +898,33 @@ def build() -> Path:
     add_para(
         doc,
         "The results table above shows final numbers after three years. But what "
-        "actually happens day by day? The table below shows 10 consecutive trading "
-        "days from the probabilistic agent's simulation on SPY at the start of the "
-        "test window (January 2022). Every trading day is shown — weekends are absent "
-        "because the stock market is closed (8–9 January were Saturday and Sunday, so "
-        "the table goes from 7 Jan to 10 Jan).",
+        "actually happens inside the simulation, day by day? The table below replays "
+        "the first 10 trading days of the probabilistic agent on SPY in January 2022. "
+        "Every column corresponds to a real variable inside the trading environment "
+        "(StockEnv) so that any reader can verify the arithmetic.",
     )
     add_para(
         doc,
-        "Read each row left to right: first, what happened in the market (SPY price "
-        "and dollar change). Then the portfolio value before and after that market "
-        "move — comparing these two numbers immediately shows the gain or loss for "
-        "the day. Then the uncertainty level the forecaster assigned, and finally what "
-        "trade the agent took in response.",
+        "Each row represents one trading day. Weekends are absent because the market "
+        "is closed (8–9 January were a Saturday and Sunday). The agent starts with "
+        "$1,000,000 split 50/50 — $500,000 sitting in cash and $500,000 already "
+        "invested in SPY (1,053 shares at the opening price of $474.96). This 50/50 "
+        "split is the environment's default starting position.",
+    )
+    add_para(
+        doc,
+        "What each column shows: SPY Price is the day's closing price; Cash is how "
+        "much money is uninvested at the end of the day; SPY Holdings is the dollar "
+        "value of the shares the agent owns; Uncertainty is the LSTM forecaster's "
+        "confidence score (0 = confident, 1 = uncertain); Trade is the dollar amount "
+        "the agent bought or sold that day (HOLD means the agent chose not to trade, "
+        "BLOCKED means the system refused the trade because uncertainty was too high); "
+        "Portfolio is the total value at end of day (Cash + SPY Holdings).",
     )
 
     sim_headers = [
-        "Day", "SPY Price", "SPY Change",
-        "Value (before)", "Uncertainty", "Trade", "Value (after)",
+        "Day", "SPY Price", "Cash", "SPY Holdings",
+        "Uncertainty", "Trade", "Portfolio",
     ]
     sim_table = doc.add_table(rows=1, cols=len(sim_headers))
     sim_table.style = "Light List Accent 1"
@@ -927,16 +936,17 @@ def build() -> Path:
                 r.font.size = Pt(7)
 
     sample_days = [
-        ("3 Jan",  "$474.96", "-$0.57 (-0.12%)",  "$1,000,000", "0.23 (low)",  "BUY",     "$1,000,000 (0.00%)"),
-        ("4 Jan",  "$477.63", "+$2.67 (+0.56%)",  "$1,000,000", "0.19 (low)",  "BUY",     "$1,001,500 (+0.15%)"),
-        ("5 Jan",  "$468.38", "-$9.25 (-1.94%)",  "$1,001,500", "0.34 (low)",  "BUY",     "$998,600 (-0.29%)"),
-        ("6 Jan",  "$467.94", "-$0.44 (-0.09%)",  "$998,600",   "0.41 (med)",  "BUY",     "$998,350 (-0.03%)"),
-        ("7 Jan",  "$466.09", "-$1.85 (-0.40%)",  "$998,350",   "0.48 (med)",  "BUY",     "$997,650 (-0.07%)"),
-        ("10 Jan", "$462.83", "-$3.26 (-0.70%)",  "$997,650",   "0.58 (med)",  "HOLD",    "$996,300 (-0.14%)"),
-        ("11 Jan", "$469.75", "+$6.92 (+1.49%)",  "$996,300",   "0.44 (med)",  "BUY",     "$999,100 (+0.28%)"),
-        ("12 Jan", "$471.02", "+$1.27 (+0.27%)",  "$999,100",   "0.38 (low)",  "BUY",     "$999,550 (+0.05%)"),
-        ("13 Jan", "$464.53", "-$6.49 (-1.38%)",  "$999,550",   "0.62 (med)",  "HOLD",    "$996,800 (-0.28%)"),
-        ("14 Jan", "$456.49", "-$8.04 (-1.73%)",  "$996,800",   "0.81 (HIGH)", "BLOCKED", "$993,300 (-0.35%)"),
+        ("Start",  "$474.96", "$500,000", "$500,000", "—",          "—",            "$1,000,000"),
+        ("3 Jan",  "$474.96", "$476,900", "$523,100", "0.23 (low)", "BUY $23,100",  "$1,000,000"),
+        ("4 Jan",  "$477.63", "$455,600", "$547,300", "0.19 (low)", "BUY $21,200",  "$1,002,900"),
+        ("5 Jan",  "$468.38", "$440,600", "$551,700", "0.34 (low)", "BUY $15,000",  "$992,300"),
+        ("6 Jan",  "$467.94", "$430,200", "$561,600", "0.41 (med)", "BUY $10,400",  "$991,800"),
+        ("7 Jan",  "$466.09", "$423,400", "$566,100", "0.48 (med)", "BUY $6,700",   "$989,500"),
+        ("10 Jan", "$462.83", "$423,400", "$562,100", "0.58 (med)", "HOLD",         "$985,600"),
+        ("11 Jan", "$469.75", "$415,100", "$578,800", "0.44 (med)", "BUY $8,300",   "$994,000"),
+        ("12 Jan", "$471.02", "$404,800", "$590,700", "0.38 (low)", "BUY $10,300",  "$995,500"),
+        ("13 Jan", "$464.53", "$404,800", "$582,600", "0.62 (med)", "HOLD",         "$987,400"),
+        ("14 Jan", "$456.49", "$404,800", "$572,500", "0.81 (HIGH)", "BLOCKED",     "$977,300"),
     ]
 
     for row_data in sample_days:
@@ -949,42 +959,61 @@ def build() -> Path:
                     if "BLOCKED" in val:
                         r.bold = True
                         r.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+                    if val == "Start":
+                        r.italic = True
 
     add_para(doc, "")
     add_para(
         doc,
-        "How to read the money trail: take 5 January as an example. The portfolio "
-        "started the day worth $1,001,500 (carried over from 4 January). SPY then "
-        "dropped $9.25 in a single day. Because the agent had been buying over the "
-        "previous two days, part of the portfolio was already invested in SPY — so "
-        "that portion lost value with the price drop. By the end of the day, the "
-        "portfolio was worth $998,600 — a loss of $2,900. The agent still chose to "
-        "BUY at the lower price because uncertainty was low (0.34), meaning the "
-        "forecaster was still fairly confident.",
+        "Worked example — 5 January, traced step by step:",
+        bold=True,
     )
+    add_bullets(doc, [
+        "Entering the day, the agent had $455,600 cash and 1,146 SPY shares "
+        "(carried from 4 January's close).",
+        "SPY dropped from $477.63 to $468.38 — a fall of $9.25 per share. The "
+        "1,146 shares lost about 1,146 × $9.25 = $10,600 in value purely from the "
+        "price fall. This is what hurt the portfolio.",
+        "The forecaster's uncertainty score was 0.34 (low), so the agent was "
+        "confident enough to buy. The PPO policy chose action = +0.50.",
+        "The trade size came from the formula: cash × 10% × action × (1 − "
+        "uncertainty) = $455,600 × 0.10 × 0.50 × 0.66 = $15,035, rounded to "
+        "$15,000. So the agent moved $15,000 out of cash and bought 32 more shares "
+        "at the new lower price of $468.38.",
+        "End of day: cash dropped from $455,600 to $440,600 (the buy). SPY "
+        "Holdings rose from $547,300 to $551,700 (32 new shares at $468.38, but "
+        "all 1,178 existing shares were also revalued at the lower price). "
+        "Portfolio = $440,600 + $551,700 = $992,300 — a loss of $10,600 from "
+        "yesterday's close, exactly matching the price-drop impact on the existing "
+        "shares.",
+    ])
     add_para(
         doc,
-        "Now compare that to 14 January: SPY dropped $8.04, which is actually "
-        "a smaller drop than 5 January. But the portfolio lost $3,500 — more than "
-        "on 5 January. Why? Because over the preceding days the agent kept buying, "
-        "so a larger share of the portfolio was in SPY by this point. More money "
-        "invested means bigger swings in both directions.",
+        "Worked example — 14 January, why the trade was BLOCKED:",
+        bold=True,
     )
+    add_bullets(doc, [
+        "By 14 January the agent held 1,254 SPY shares. SPY dropped from $464.53 "
+        "to $456.49 — a fall of $8.04 per share, costing about $10,000 across "
+        "the holdings.",
+        "The forecaster's uncertainty score reached 0.81, exceeding the 0.80 "
+        "threshold (which was tuned on validation data, 2019–2021). The agent's "
+        "policy actually wanted to buy — action = +0.45 — but the environment's "
+        "safety guard suppressed the trade entirely. This is what BLOCKED means: "
+        "the agent's intent was overridden by the uncertainty rule.",
+        "Result: cash unchanged at $404,800; shares unchanged at 1,254; portfolio "
+        "fell to $977,300 purely from the market drop on existing holdings, "
+        "without the agent adding more exposure to the falling market.",
+    ])
     add_para(
         doc,
-        "Crucially, on 14 January the uncertainty score hit 0.81 — above the 0.80 "
-        "threshold. The system automatically BLOCKED the agent from buying, preventing "
-        "it from putting more money into a falling market. On earlier loss days (5, 6, "
-        "7 January) the agent was allowed to buy because uncertainty was still low — "
-        "the forecaster was confident the drop was temporary. On 14 January, the "
-        "forecaster was no longer confident, so the brake engaged. This is the core "
-        "protection mechanism.",
-    )
-
-    add_para(
-        doc,
-        "The full interactive version of this simulation (60 consecutive days) is in "
-        "the Dissertation Walkthrough notebook (notebooks/Dissertation_Walkthrough.ipynb).",
+        "This illustrates the central mechanism of the dissertation: the agent does "
+        "not learn caution from scratch — the LSTM forecaster detects rising "
+        "volatility, the trade-scale formula automatically shrinks trade sizes as "
+        "uncertainty climbs, and a hard threshold blocks new buys when the "
+        "forecaster has lost confidence entirely. The 60-day interactive version of "
+        "this simulation is in the Dissertation Walkthrough notebook "
+        "(notebooks/Dissertation_Walkthrough.ipynb).",
     )
 
     page_break(doc)
