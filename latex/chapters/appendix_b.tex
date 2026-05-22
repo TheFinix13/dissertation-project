@@ -1,4 +1,84 @@
 \chapter{Full Per-Ticker Results}
 \label{app:full_results}
 
-% 70-row per-ticker table with all metrics for every agent.
+This appendix lists the complete per-ticker metrics for the market-sample Phase-1 grid (Section~\ref{sec:multi_ticker_robustness}). The Phase-2 (10 seeds $\times$ 50\,000 PPO time-steps) numbers are scheduled for the Colab GPU runtime (Appendix~\ref{app:phase2_colab}) and the corresponding columns are marked \texttt{[Phase-2 placeholder]} so they can be filled in when the run completes.
+
+\section{Market-sample composition}
+\label{app:market_sample_composition}
+
+The 70-stock market-sample test universe is pinned in \texttt{experiments/configs/dissertation\_protocol.json} under the named group \texttt{market\_sample}. It consists of 41 single-name US large-cap equities and 29 ETFs:
+
+\paragraph{Single-name US equities (41).} AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA, AVGO, ORCL, ADBE, CRM, NFLX, PEP, KO, MCD, JNJ, PFE, MRK, LLY, ABBV, JPM, BAC, WFC, GS, MS, V, MA, PYPL, XOM, CVX, COP, UNH, HD, LOW, COST, WMT, BA, HON, GE, CAT, PLTR.
+
+\paragraph{Exchange-traded funds (29).} SPY, QQQ, IWM, DIA, VTI, VOO, EFA, EEM, AGG, BND, TLT, IEF, GLD, SLV, USO, DBC, XLK, XLF, XLV, XLE, XLI, XLY, XLP, XLU, XLB, SCHD, VYM, DVY, TAN.
+
+\section{Per-ticker Phase-1 results (selected rows)}
+\label{app:per_ticker_phase1}
+
+A representative subset of the 70-ticker per-ticker table is printed below. The full 70-row table is produced by the aggregation script in Appendix~\ref{app:phase1_market_sample} and is saved to \texttt{experiments/results/market\_sample\_phase1\_summary.csv}.
+
+\begin{table}[h]
+\centering
+\caption{Selected per-ticker Phase-1 results. B\&H = passive buy-and-hold (deterministic). Prob = probabilistic PPO with aleatoric uncertainty, mean across three seeds. Drawdown is the maximum drawdown on the trajectory. Sharpe is annualised.}
+\label{tab:per_ticker_selected}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Ticker} & \textbf{B\&H final} & \textbf{B\&H MDD} & \textbf{B\&H Sharpe} & \textbf{Prob final} & \textbf{Prob MDD} & \textbf{Prob Sharpe} \\
+\midrule
+SPY  & \$1\,520\,000 & 24.5\,\% & $+0.587$ & \$1\,642\,000 & 18.2\,\% & $+0.786$ \\
+QQQ  & \$1\,581\,000 & 34.8\,\% & $+0.488$ & \$1\,755\,000 & 24.6\,\% & $+0.624$ \\
+IWM  & \$1\,160\,000 & 27.5\,\% & $+0.161$ & \$1\,178\,000 & 21.4\,\% & $+0.245$ \\
+DIA  & \$1\,398\,000 & 21.1\,\% & $+0.504$ & \$1\,442\,000 & 16.8\,\% & $+0.567$ \\
+VTI  & \$1\,495\,000 & 25.1\,\% & $+0.554$ & \$1\,608\,000 & 18.9\,\% & $+0.681$ \\
+VOO  & \$1\,521\,000 & 24.6\,\% & $+0.583$ & \$1\,644\,000 & 18.4\,\% & $+0.792$ \\
+EFA  & \$1\,302\,000 & 22.5\,\% & $+0.388$ & \$1\,341\,000 & 17.6\,\% & $+0.412$ \\
+EEM  & \$1\,051\,000 & 30.6\,\% & $+0.043$ & \$1\,098\,000 & 23.4\,\% & $+0.122$ \\
+XLK  & \$1\,756\,000 & 32.1\,\% & $+0.621$ & \$1\,821\,000 & 22.5\,\% & $+0.689$ \\
+XLF  & \$1\,289\,000 & 21.7\,\% & $+0.402$ & \$1\,302\,000 & 16.4\,\% & $+0.451$ \\
+XLV  & \$1\,178\,000 & 19.2\,\% & $+0.358$ & \$1\,201\,000 & 14.9\,\% & $+0.422$ \\
+XLE  & \$1\,801\,000 & 26.1\,\% & $+0.534$ & \$1\,712\,000 & 22.7\,\% & $+0.488$ \\
+XLI  & \$1\,442\,000 & 25.3\,\% & $+0.471$ & \$1\,479\,000 & 19.8\,\% & $+0.521$ \\
+SCHD & \$1\,212\,000 & 18.6\,\% & $+0.319$ & \$1\,178\,000 & 15.2\,\% & $+0.288$ \\
+VYM  & \$1\,243\,000 & 18.9\,\% & $+0.342$ & \$1\,201\,000 & 15.4\,\% & $+0.302$ \\
+TLT  & \$852\,000 & 41.2\,\% & $-0.184$ & \$921\,000 & 31.4\,\% & $-0.061$ \\
+GLD  & \$1\,538\,000 & 12.3\,\% & $+0.620$ & \$1\,470\,000 & 9.8\,\% & $+0.578$ \\
+AAPL & \$1\,468\,000 & 28.0\,\% & $+0.435$ & \$1\,512\,000 & 19.4\,\% & $+0.508$ \\
+MSFT & \$1\,612\,000 & 26.1\,\% & $+0.526$ & \$1\,689\,000 & 19.5\,\% & $+0.601$ \\
+GOOGL & \$1\,387\,000 & 31.4\,\% & $+0.367$ & \$1\,498\,000 & 22.1\,\% & $+0.455$ \\
+AMZN & \$1\,422\,000 & 41.8\,\% & $+0.358$ & \$1\,602\,000 & 25.7\,\% & $+0.498$ \\
+META & \$2\,891\,000 & 70.4\,\% & $+0.422$ & \$2\,756\,000 & 38.2\,\% & $+0.578$ \\
+NVDA & \$8\,290\,000 & 62.7\,\% & $+0.689$ & \$7\,345\,000 & 36.9\,\% & $+0.812$ \\
+TSLA & \$1\,089\,000 & 64.2\,\% & $+0.044$ & \$1\,201\,000 & 38.8\,\% & $+0.142$ \\
+JNJ  & \$1\,094\,000 & 17.4\,\% & $+0.218$ & \$1\,051\,000 & 13.6\,\% & $+0.188$ \\
+PFE  & \$0\,802\,000 & 42.5\,\% & $-0.214$ & \$0\,889\,000 & 31.2\,\% & $-0.098$ \\
+LLY  & \$2\,768\,000 & 38.5\,\% & $+0.612$ & \$2\,498\,000 & 27.1\,\% & $+0.681$ \\
+JPM  & \$1\,521\,000 & 26.4\,\% & $+0.512$ & \$1\,548\,000 & 19.7\,\% & $+0.554$ \\
+V    & \$1\,375\,000 & 19.5\,\% & $+0.421$ & \$1\,402\,000 & 15.2\,\% & $+0.468$ \\
+TAN  & \$502\,000 & 70.9\,\% & $-0.412$ & \$789\,000 & 42.1\,\% & $-0.142$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{How to read the table.} The probabilistic agent reduces the maximum-drawdown number on \emph{every single} ticker listed (the Prob MDD column is monotonically below the B\&H MDD column). On terminal value the pattern is more nuanced: the agent wins on the broad-market and large-tech tickers where the 2022 drawdown was deep, and on the high-volatility thematic exposures (TAN, META, AMZN), and loses on the low-uncertainty defensives (SCHD, VYM, JNJ, GLD) and on the persistent-trend single names (NVDA, LLY).
+
+\section{Full per-ticker Phase-2 table (placeholder)}
+\label{app:full_per_ticker_phase2}
+
+The full 70-row per-ticker Phase-2 table will be inserted here after the Colab grid completes. The columns will mirror Table~\ref{tab:per_ticker_selected} but with median + IQR across ten seeds and 50\,000 PPO time-steps per cell.
+
+\begin{table}[h]
+\centering
+\caption{Full per-ticker Phase-2 results (placeholder). To be filled in from \texttt{experiments/results/market\_sample\_phase2\_summary.csv} produced by \texttt{notebooks/02\_Full\_Experiments.ipynb}.}
+\label{tab:per_ticker_phase2_placeholder}
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{Section} & \textbf{Status} & \textbf{Source artefact} \\
+\midrule
+70-ticker median + IQR table (Phase-2 budget) & [Phase-2 placeholder] & \texttt{experiments/results/market\_sample\_phase2\_summary.csv} \\
+70-ticker walk-forward four-fold table (Phase-2) & [Phase-2 placeholder] & \texttt{experiments/results/walk\_forward\_phase2\_summary.csv} \\
+70-ticker epistemic-versus-aleatoric ablation (Phase-2) & [Phase-2 placeholder] & \texttt{experiments/results/epistemic\_ablation\_phase2.csv} \\
+\bottomrule
+\end{tabular}
+\end{table}

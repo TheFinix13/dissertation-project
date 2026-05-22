@@ -1,4 +1,136 @@
 \chapter{Reproducibility Commands}
 \label{app:reproducibility}
 
-% End-to-end reproduction commands for every artefact.
+This appendix lists the exact command sequences that reproduce every table and figure in this dissertation. The commands assume a Python 3.11 environment with the dependencies in \texttt{requirements.txt} installed. The repository root is \texttt{portfolio-risk-drl/} and the active branch for the headline numbers is \texttt{epistemic-uncertainty}.
+
+\section{Environment setup}
+\label{app:env_setup}
+
+\begin{verbatim}
+git clone https://github.com/TheFinix13/dissertation-project.git
+cd dissertation-project
+git checkout epistemic-uncertainty
+python3.11 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+\end{verbatim}
+
+\section{Phase-1 SPY headline (Table~\ref{tab:headline_spy} and Figures~\ref{fig:equity_curves}, \ref{fig:final_value})}
+\label{app:phase1_spy}
+
+\begin{verbatim}
+# Buy-and-hold and all-cash benchmarks (deterministic)
+python experiments/runners/run_benchmarks.py --tickers SPY --tag spy_headline
+
+# Baseline PPO (Arm A) — 3 seeds, 10k timesteps
+python experiments/runners/run_baseline.py \
+    --tickers SPY --seeds default --timesteps 10000 --tag spy_headline
+
+# Probabilistic PPO with aleatoric uncertainty (Arm B)
+python experiments/runners/run_probabilistic_agent.py \
+    --tickers SPY --seeds default --timesteps 10000 \
+    --uncertainty-mode aleatoric --tag spy_aleatoric
+
+# Probabilistic PPO with epistemic uncertainty (Arm C)
+python experiments/runners/run_probabilistic_agent.py \
+    --tickers SPY --seeds default --timesteps 10000 \
+    --uncertainty-mode epistemic --mc-passes 20 --mc-dropout 0.1 \
+    --tag spy_epistemic
+
+# Trailing stop comparators (5% and 10%)
+python experiments/runners/run_trailing_stop.py \
+    --tickers SPY --stop-pct 0.05 --tag spy_trail_5
+python experiments/runners/run_trailing_stop.py \
+    --tickers SPY --stop-pct 0.10 --tag spy_trail_10
+
+# Aggregate into the headline table
+python experiments/aggregate_results.py --tag spy_headline
+\end{verbatim}
+
+\section{The runnable walkthrough notebook}
+\label{app:walkthrough_notebook}
+
+The fastest way to verify the Phase-1 SPY headline numbers without invoking the runners one at a time is to open \texttt{notebooks/01\_Project\_Walkthrough.ipynb} and execute every cell.
+
+\begin{verbatim}
+jupyter notebook notebooks/01_Project_Walkthrough.ipynb
+\end{verbatim}
+
+The notebook fetches the data, trains the probabilistic LSTM in both aleatoric and epistemic modes, trains all three RL arms, renders the comparison table and equity curves, and finishes with the day-by-day walkthrough of Section~\ref{sec:day_by_day_walkthrough}. Wall time on a single CPU core is about five minutes.
+
+\section{Phase-1 market-sample robustness (Table~\ref{tab:market_sample_aggregate})}
+\label{app:phase1_market_sample}
+
+\begin{verbatim}
+# Benchmarks for the market sample
+python experiments/runners/run_benchmarks.py \
+    --tickers market_sample --tag market_sample_phase1
+
+# Baseline PPO across the market sample (70 tickers x 3 seeds)
+python experiments/runners/run_baseline.py \
+    --tickers market_sample --seeds default --timesteps 10000 \
+    --tag market_sample_phase1
+
+# Probabilistic PPO (aleatoric) across the market sample
+python experiments/runners/run_probabilistic_agent.py \
+    --tickers market_sample --seeds default --timesteps 10000 \
+    --uncertainty-mode aleatoric --tag market_sample_phase1
+
+# Trailing stop across the market sample (5%)
+python experiments/runners/run_trailing_stop.py \
+    --tickers market_sample --stop-pct 0.05 --tag market_sample_trail_5
+
+# Aggregate
+python experiments/aggregate_results.py --tag market_sample_phase1
+\end{verbatim}
+
+\section{Extended-budget seed-stability (Table~\ref{tab:extended_seed_stability})}
+\label{app:extended_seed_stability}
+
+\begin{verbatim}
+python experiments/runners/run_probabilistic_agent.py \
+    --tickers eight_ticker_subset --seeds extended --timesteps 50000 \
+    --uncertainty-mode aleatoric --tag ext_seed_stability
+python experiments/aggregate_results.py --tag ext_seed_stability
+\end{verbatim}
+
+\section{Walk-forward grid (Table~\ref{tab:walk_forward})}
+\label{app:walk_forward}
+
+\begin{verbatim}
+python experiments/runners/run_walk_forward.py \
+    --tickers walk_forward_subset --seeds default --timesteps 10000 \
+    --tag walk_forward_phase1
+python experiments/aggregate_results.py --tag walk_forward_phase1
+\end{verbatim}
+
+\section{Phase-2 Colab grid}
+\label{app:phase2_colab}
+
+The Phase-2 grid is GPU-only. Open \texttt{notebooks/02\_Full\_Experiments.ipynb} in Google Colab with a T4 or A100 runtime and execute every cell. The notebook:
+\begin{enumerate}
+  \item Clones the repository at the \texttt{epistemic-uncertainty} branch and installs the dependencies.
+  \item Verifies the GPU is available.
+  \item Runs a five-minute smoke test on SPY in all three uncertainty modes.
+  \item Runs the Phase-2 grid (70 tickers $\times$ 10 seeds $\times$ 50\,000 PPO time-steps $\times$ 3 arms).
+  \item Runs the four-fold walk-forward grid at the extended budget.
+  \item Aggregates the per-cell JSON outputs into the headline tables.
+  \item Zips \texttt{experiments/results/} for download.
+\end{enumerate}
+
+Wall time on a T4 is approximately four to six hours. The downloaded results bundle replaces the \texttt{[Phase-2 placeholder]} entries in Tables~\ref{tab:market_sample_aggregate}, \ref{tab:extended_seed_stability}, \ref{tab:epistemic_ablation_phase2}, and \ref{tab:walk_forward}.
+
+\section{Rebuilding the documents}
+\label{app:rebuild_documents}
+
+\begin{verbatim}
+# Word document
+python reports/builders/build_main_dissertation_docx.py
+
+# LaTeX document (requires texlive)
+cd latex/
+pdflatex main.tex
+biber main
+pdflatex main.tex
+pdflatex main.tex
+\end{verbatim}
