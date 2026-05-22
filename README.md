@@ -5,11 +5,15 @@ capital preservation under regime stress.
 
 ## For supervisors — two notebooks
 
-* **Single-ticker walkthrough (CPU/Colab, narrative):** [`notebooks/Dissertation_Walkthrough.ipynb`](notebooks/Dissertation_Walkthrough.ipynb) — open in Colab and *Run all*. Loads the SPY test-window dataset, builds the DeepAR-style probabilistic forecaster, prints the uncertainty values, states the mathematics that differentiates the probabilistic agent from the baseline PPO, and renders the comparison tables and equity-curve plots. Ships with executed outputs so the notebook is readable without running anything.
+Both notebooks live in `notebooks/` and are designed to run top to bottom with one click.
 
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/dissertation-project/blob/main/Dissertation_Walkthrough.ipynb)
+* **`01_Project_Walkthrough.ipynb`** — Phase-1 demonstration, runs locally in ~5 minutes. Loads the SPY test-window data, trains the probabilistic LSTM forecaster in both *aleatoric* and *epistemic* modes, trains three PPO variants (baseline, aleatoric, epistemic), renders the headline comparison table and equity curves, and finishes with a day-by-day replay of the trained agent's decisions. Designed to be readable end-to-end without prior knowledge of the project. Ships with executed outputs.
 
-* **Heavy experiments runner (Colab GPU only):** [`notebooks/Run_Full_Experiments.ipynb`](notebooks/Run_Full_Experiments.ipynb) — *Runtime → T4 GPU → Run all*. Clones the repo, smoke-tests the GPU, runs the full market-sample × 10-seed × 50 000-step extended grid + walk-forward folds + bootstrap, rebuilds the Word document with the new numbers, then offers a one-click zip download. ~5–7 hours on T4, ~2 hours on A100. *Do not run on a CPU laptop.*
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/dissertation-project/blob/main/notebooks/01_Project_Walkthrough.ipynb)
+
+* **`02_Full_Experiments.ipynb`** — Phase-2 production grid, designed for Google Colab with GPU. *Runtime → T4 GPU → Run all*. Clones the repo, smoke-tests the GPU on SPY, then runs the full 70-stock × 10-seed × 50,000-step grid for all three agent variants, plus walk-forward folds and bootstrap augmentation. Aggregates everything into a single results CSV and zips it for download. ~3–6 hours on T4, ~1–2 hours on A100. *Do not run on a CPU laptop.*
+
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/dissertation-project/blob/main/notebooks/02_Full_Experiments.ipynb)
 
 For a local run instead of Colab:
 
@@ -19,7 +23,7 @@ cd dissertation-project
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 pip install jupyter
-jupyter notebook notebooks/Dissertation_Walkthrough.ipynb
+jupyter notebook notebooks/01_Project_Walkthrough.ipynb
 ```
 
 The interim review draft (Surrey form) lives at
@@ -40,7 +44,7 @@ venv/bin/python reports/builders/build_interim_review_docx.py          # interim
 
 Heaviest experiments (market-sample × 10-seed × 50k-step extended grid, walk-forward
 across all four folds, bootstrap-augmented training) live in
-`notebooks/Run_Full_Experiments.ipynb` and run on a Colab T4/A100 GPU runtime — see
+`notebooks/02_Full_Experiments.ipynb` and run on a Colab T4/A100 GPU runtime — see
 "Phase-2 (Colab GPU) pipeline" below.
 
 ## Project Structure
@@ -57,7 +61,7 @@ dissertation-project/
 │   ├── builders/            # All build_*.py / generate_*.py / plot_*.py scripts
 │   ├── generated/           # Outputs (markdown, charts/, exports/)
 │   └── templates/           # Markdown templates and viva notes
-├── notebooks/               # Dissertation_Walkthrough + Run_Full_Experiments
+├── notebooks/               # 01_Project_Walkthrough (local, 5 min) + 02_Full_Experiments (Colab GPU, 3–6 h)
 ├── requirements.txt
 └── README.md
 ```
@@ -117,7 +121,7 @@ python reports/builders/build_interim_review_docx.py
 ### Phase-2 (Colab GPU) — heavy lifting only
 
 Anything that takes more than ~1 hour on CPU lives in
-`notebooks/Run_Full_Experiments.ipynb`. Runtime preset: *T4 GPU* for the headline
+`notebooks/02_Full_Experiments.ipynb`. Runtime preset: *T4 GPU* for the headline
 market-sample grid (~5–7 h), *A100* if you also want the full market-sample walk-forward
 (~12–14 h on A100).
 

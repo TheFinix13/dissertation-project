@@ -1516,7 +1516,7 @@ def build() -> Path:
         "experiments/runners/run_baseline.py, run_probabilistic_agent.py, run_benchmarks.py: the three runners that produce the seeded artifacts.",
         "experiments/results/: the generated CSV and JSON metric files and the equity-curve series.",
         "reports/builders/build_supervisor_pack.py, generate_dissertation_report.py, plot_dissertation_visuals.py and build_main_dissertation_docx.py: the reporting layer.",
-        "Dissertation_Walkthrough.ipynb: a single-file end-to-end walkthrough that I prepared for supervisor review.",
+        "01_Project_Walkthrough.ipynb: a single-file end-to-end walkthrough that I prepared for supervisor review.",
     ])
 
     add_heading(doc, "4.3 Reproducibility", 2)
@@ -2002,7 +2002,7 @@ def build() -> Path:
             "grid on the market sample (10 seeds × 50 000 timesteps × 4 "
             "walk-forward folds × 16 bootstrap paths × 70 diversified stocks × 2 "
             "agents) is the Phase-2 deliverable described in Section 7.2 and the "
-            "Colab notebook notebooks/Run_Full_Experiments.ipynb is the "
+            "Colab notebook notebooks/02_Full_Experiments.ipynb is the "
             "execution path.",
         )
 
@@ -2234,7 +2234,7 @@ def build() -> Path:
         "Phase-1 budget would require 840 individual PPO training runs and is "
         "GPU-only in practice; that grid is the Phase-2 deliverable scheduled "
         "for the Colab T4 runtime (Section 7.2, "
-        "notebooks/Run_Full_Experiments.ipynb). To produce CPU-feasible Phase-1 "
+        "notebooks/02_Full_Experiments.ipynb). To produce CPU-feasible Phase-1 "
         "evidence on out-of-time generalisation, a four-ticker × four-fold × "
         "three-seed walk-forward grid was run on CPU in late April 2026 — 96 "
         "individual PPO training runs in total — over a four-ticker subset of "
@@ -2333,7 +2333,7 @@ def build() -> Path:
         "runs in the heaviest configuration — is scheduled for the Colab T4 "
         "GPU runtime in Phase 2 (the orchestrator is "
         "experiments/runners/run_extended_grid.py and the notebook is "
-        "notebooks/Run_Full_Experiments.ipynb). The headline tables in "
+        "notebooks/02_Full_Experiments.ipynb). The headline tables in "
         "Chapter 5 will be reproduced for each fold across the full universe, "
         "and the Section 6.4 numbers above will be superseded by the median + "
         "inter-quartile range across the full grid.",
@@ -2405,7 +2405,7 @@ def build() -> Path:
     )
     add_para(doc, "Group 1 — Scheduled before submission:", bold=True)
     add_bullets(doc, [
-        "Phase-2 extended grid on the full market sample (June–July 2026). Re-run the four-agent comparison at the extended budget — 10 seeds × 50 000 PPO timesteps × 4 walk-forward folds × 16 bootstrap paths per cell — across all 70 diversified stocks on the Colab T4 GPU runtime. The orchestrator is experiments/runners/run_extended_grid.py and the notebook is notebooks/Run_Full_Experiments.ipynb. The headline aggregate Table 5.2 and the Table 5.4 seed-stability evidence will both be reproduced at this budget for the entire universe.",
+        "Phase-2 extended grid on the full market sample (June–July 2026). Re-run the four-agent comparison at the extended budget — 10 seeds × 50 000 PPO timesteps × 4 walk-forward folds × 16 bootstrap paths per cell — across all 70 diversified stocks on the Colab T4 GPU runtime. The orchestrator is experiments/runners/run_extended_grid.py and the notebook is notebooks/02_Full_Experiments.ipynb. The headline aggregate Table 5.2 and the Table 5.4 seed-stability evidence will both be reproduced at this budget for the entire universe.",
         "Sector-aware uncertainty calibration (July 2026). Replace the single global uncertainty-guard threshold (0.80) with per-sector or per-regime thresholds calibrated on the validation window. The Section 6.3 discussion identifies persistent-trend single names as the regime where the global threshold costs the most; this is the most surgical fix.",
         "Ablation study (July 2026). Compare PPO, PPO with the uncertainty signal as a state feature only, and PPO with the uncertainty guard only, against the full design, on the same protocol. The aim is to attribute how much of the headline result comes from each of the three pieces.",
         "Sensitivity sweep (July 2026). Sweep the uncertainty quantile threshold over {0.7, 0.8, 0.9}, the minimum scale s_min over {0.05, 0.10, 0.20}, and the maximum trade fraction over {0.05, 0.10, 0.20}.",

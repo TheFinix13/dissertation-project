@@ -1013,7 +1013,7 @@ def build() -> Path:
         "uncertainty climbs, and a hard threshold blocks new buys when the "
         "forecaster has lost confidence entirely. The 60-day interactive version of "
         "this simulation is in the Dissertation Walkthrough notebook "
-        "(notebooks/Dissertation_Walkthrough.ipynb).",
+        "(notebooks/01_Project_Walkthrough.ipynb).",
     )
 
     page_break(doc)
