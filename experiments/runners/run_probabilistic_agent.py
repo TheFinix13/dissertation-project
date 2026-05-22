@@ -193,9 +193,11 @@ def main():
     )
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parent
-    protocol = load_protocol(root / "configs" / "dissertation_protocol.json")
-    out_dir = root / "results"
+    # The runner lives in experiments/runners/ but configs and results are
+    # one level up at experiments/. Resolve relative to the experiments root.
+    experiments_root = Path(__file__).resolve().parent.parent
+    protocol = load_protocol(experiments_root / "configs" / "dissertation_protocol.json")
+    out_dir = experiments_root / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     run_id = make_run_id(args.tag)
 
