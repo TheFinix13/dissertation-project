@@ -102,9 +102,9 @@ def main():
     )
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parent
-    protocol = load_protocol(root / "configs" / "dissertation_protocol.json")
-    out_dir = root / "results"
+    experiments_root = Path(__file__).resolve().parent.parent
+    protocol = load_protocol(experiments_root / "configs" / "dissertation_protocol.json")
+    out_dir = experiments_root / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     curves_dir = out_dir / "wf_curves"
     curves_dir.mkdir(parents=True, exist_ok=True)
