@@ -1,23 +1,142 @@
-\chapter{Background and Literature Review}
+\chapter{Background and Related Work}
 \label{ch:background}
 
-\section{Portfolio Theory and Risk Measures}
-% Markowitz mean-variance, Sharpe ratio, VaR, MDD, capital preservation.
+This chapter reviews the literature the dissertation builds on. It is organised in two halves: the first half (Sections~\ref{sec:risk_measures} through~\ref{sec:drl_for_finance}) covers the portfolio-management and reinforcement-learning traditions that the candidate of Chapter~\ref{ch:methodology} sits between, and the second half (Sections~\ref{sec:probabilistic_forecasting} and~\ref{sec:uncertainty_estimation}) covers the probabilistic-forecasting and uncertainty-quantification machinery the candidate uses. The closing section (Section~\ref{sec:gap_and_positioning}) states the gap that the dissertation closes and what it deliberately leaves to future work.
 
-\section{Reinforcement Learning Fundamentals}
-% MDP formulation, policy gradient, PPO \parencite{schulman2017ppo}.
+\section{Risk-management objectives in portfolio practice}
+\label{sec:risk_measures}
 
-\section{Deep Reinforcement Learning for Finance}
-% Survey of DRL-based trading: DQN \parencite{mnih2015dqn}, A2C, PPO in
-% portfolio management. FinRL ecosystem, Stable-Baselines3 \parencite{raffin2021sb3}.
+Most people think about investment risk as volatility --- how much a price wiggles up and down day to day. Institutions think about something different: \emph{drawdown}, the fractional fall in portfolio value from its running peak. Imagine a portfolio starts at one million dollars, climbs to 1.5 million, and then falls back to 1.2 million. Its drawdown at that point is twenty per cent, measured against the 1.5 million peak rather than against the starting balance. The distinction matters because institutional mandates are written in drawdown terms, not volatility terms~\parencite{calpers2022policy,dalio2017principles}, and the four families of risk measures reviewed below differ on whether they can express that constraint at all.
 
-\section{Probabilistic Forecasting}
-% DeepAR \parencite{salinas2020deepar}, LSTM \parencite{hochreiter1997lstm},
-% Gaussian NLL, uncertainty quantification.
+\subsection{Mean-variance optimisation}
+\label{sec:markowitz}
 
-\section{Uncertainty-Aware Decision Making}
-% Bayesian RL, distributional RL, ensemble methods, epistemic vs aleatoric.
+Mean-variance optimisation~\parencite{markowitz1952portfolio} formalises portfolio choice as a quadratic optimisation in the mean and variance of returns. Given $N$ assets with vector of expected returns $\boldsymbol{\mu} \in \mathbb{R}^N$ and return covariance matrix $\boldsymbol{\Sigma} \in \mathbb{R}^{N \times N}$, the minimum-variance portfolio for a target expected return $\mu^\star$ solves
+\begin{equation}
+  \label{eq:markowitz}
+  \min_{\vect{w}} \; \tfrac{1}{2} \vect{w}^\top \boldsymbol{\Sigma} \vect{w}
+  \quad \text{subject to} \quad
+  \vect{w}^\top \boldsymbol{\mu} = \mu^\star, \quad \vect{w}^\top \mathbf{1} = 1,
+\end{equation}
+where $\vect{w} \in \mathbb{R}^N$ is the vector of portfolio weights ($w_i$ is the fraction of wealth in asset $i$) and $\mathbf{1}$ is the vector of ones.
 
-\section{Summary and Research Gap}
-% What is missing: coupling probabilistic forecaster uncertainty directly
-% into the RL state for capital-preservation objectives.
+\paragraph{Advantages.} The optimisation is a convex quadratic programme that admits a closed-form efficient frontier in the unconstrained case, and the framework gives a single-number ranking --- the Sharpe ratio, defined in Equation~\ref{eq:sharpe} below --- that has become the default communication of risk-adjusted performance.
+
+\paragraph{Disadvantages.} The framework assumes the joint return distribution is stationary with known $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$. In practice both must be estimated on a finite training window, and the resulting weights are notoriously sensitive to estimation error~\parencite{michaud1989markowitz}. More fundamentally, mean-variance is single-period: it cannot tell the difference between a smooth ten per cent loss and a twenty-five per cent drawdown that recovers to a ten per cent loss by the rebalancing date, even though only the second breaches an institutional drawdown limit.
+
+\subsection{Value-at-Risk and expected shortfall}
+\label{sec:var_es}
+
+\textcite{rockafellar2000optimization} summarise risk not by the whole second moment but by the tail of the loss distribution. Value-at-Risk at confidence level $\alpha$ is the loss exceeded with probability at most $1 - \alpha$, and expected shortfall (also called conditional Value-at-Risk) is the average loss in that tail:
+\begin{equation}
+  \label{eq:var}
+  \mathrm{VaR}_\alpha(L) = \inf \{ \ell \in \mathbb{R} : P(L > \ell) \leq 1 - \alpha \},
+\end{equation}
+\begin{equation}
+  \label{eq:es}
+  \mathrm{ES}_\alpha(L) = \mathbb{E}[L \mid L \geq \mathrm{VaR}_\alpha(L)],
+\end{equation}
+where $L$ is the random portfolio loss over a fixed horizon.
+
+\paragraph{Advantages.} Expected shortfall is coherent in the sense of \textcite{artzner1999coherent}: it satisfies subadditivity, monotonicity, positive homogeneity, and translation invariance. It is also convex in the portfolio weights, which makes it directly compatible with constrained portfolio optimisation.
+
+\paragraph{Disadvantages.} Both measures are single-period. They describe the loss distribution over one fixed horizon and are silent on the path of the equity curve between rebalancing dates. The dissertation reports the VaR-95 violation rate as part of the standard metric set in Section~\ref{sec:evaluation_protocol} but its headline objective is path-dependent.
+
+\subsection{Drawdown-based measures}
+\label{sec:drawdown}
+
+The drawdown family of risk measures is the one that matches institutional mandates directly. The maximum drawdown (MDD) of a portfolio with value process $V_0, V_1, \ldots, V_T$ is the worst fractional loss from the running peak experienced anywhere in the trajectory:
+\begin{equation}
+  \label{eq:mdd}
+  \mathrm{MDD}_T = \max_{t \in [0, T]} \left( 1 - \frac{V_t}{\max_{s \leq t} V_s} \right).
+\end{equation}
+\textcite{magdon2004sample} derived a closed-form expression for the expected maximum drawdown of a Brownian-motion price model with drift $\mu$ and volatility $\sigma$, the analytical baseline against which empirical MDDs are read. \textcite{young1991calmar} introduced the Calmar ratio (annualised return divided by MDD) as the practitioner-facing return-per-unit-drawdown measure. \textcite{chekhlov2005drawdown} generalised MDD from a single-event statistic to a tail-expectation over the full drawdown distribution (Conditional Drawdown-at-Risk), the path-dependent analogue of expected shortfall.
+
+\paragraph{Why this family matters here.} The capital-preservation ratio used as the headline constraint in this dissertation (Equation~\ref{eq:preservation_ratio}) is a complement of one over the drawdown family. Section~\ref{sec:problem_formulation} states the constrained objective formally.
+
+\subsection{Downside deviation: the Sortino ratio}
+\label{sec:sortino}
+
+\textcite{sortino1994downside} replace the symmetric standard deviation in the Sharpe ratio's denominator with the downside deviation --- the root-mean-square of returns below a minimum acceptable return. The Sortino ratio addresses the criticism that mean-variance penalises upside variability as much as downside, but is still per-period and so does not bind a drawdown limit.
+
+\subsection{Synthesis: what the four families ask and where this dissertation sits}
+\label{sec:risk_synthesis}
+
+The four families differ on two axes. The first is whether the measure is single-period (mean-variance, VaR, ES, Sortino) or path-dependent (drawdown). The second is whether the resulting optimisation problem is static (mean-variance, ES) or dynamic (the path-dependent measures invite a sequential-decision formulation but do not provide one directly). This dissertation occupies the intersection: a path-dependent objective enforced through a dynamic policy. Section~\ref{sec:problem_formulation} states the constrained objective formally.
+
+\section{Reinforcement learning fundamentals}
+\label{sec:rl_fundamentals}
+
+Reinforcement learning is a branch of machine learning where an agent learns by interacting with a simulated environment. At each time step the agent observes the environment, picks an action, receives a reward, and updates its policy so that the next action is more likely to lead to a higher long-run reward.
+
+The standard formal frame is the Markov decision process (MDP), a five-tuple $\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$ where $\mathcal{S}$ is the set of possible states (snapshots of the environment), $\mathcal{A}$ is the set of available actions, $\mathcal{P}(s' \mid s, a)$ is the probability of moving to state $s'$ when action $a$ is taken in state $s$, $\mathcal{R}(s, a)$ is the reward received for that action, and $\gamma \in (0, 1]$ is a discount factor that down-weights future rewards relative to immediate ones. A policy $\pi(a \mid s)$ is a rule mapping states to a probability distribution over actions; the agent's job is to find a policy that maximises the expected discounted return.
+
+The two long-standing algorithm families are temporal-difference methods~\parencite{sutton1988td}, which learn a value function and act greedily with respect to it, and policy-gradient methods, which parameterise the policy directly and update its parameters along the gradient of the expected return. Modern deep reinforcement learning combines both ideas with neural-network function approximators, the headline early results being deep Q-networks on Atari~\parencite{mnih2015dqn}.
+
+\section{Policy-gradient methods and PPO}
+\label{sec:ppo}
+
+PPO~\parencite{schulman2017ppo} is the standard policy-gradient algorithm at the time of writing. Its core trick is to clip the policy update so that one bad update cannot destroy the policy it has built up. Concretely, PPO optimises a clipped surrogate of the policy ratio $\rho_t(\theta) = \pi_\theta(a_t \mid s_t) / \pi_{\theta_{\text{old}}}(a_t \mid s_t)$:
+\begin{equation}
+  \label{eq:ppo_clip}
+  \mathcal{L}^{\mathrm{CLIP}}(\theta) = \E_t \left[\min\left(\rho_t(\theta) \hat{A}_t, \; \mathrm{clip}(\rho_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t\right) \right],
+\end{equation}
+where $\hat{A}_t$ is an estimate of the advantage at step $t$ (how much better action $a_t$ was than the policy's average) and $\epsilon$ is a small clipping parameter (typically $0.2$).
+
+\paragraph{Advantages.} Forgiving with respect to hyper-parameter choice; first-order optimisation only; available in mature open-source form, notably Stable-Baselines3~\parencite{raffin2021sb3} which is the implementation used throughout this dissertation. PPO accommodates both discrete and continuous action spaces, which matters here because the action in the trading environment is a real number in $[-1, 1]$.
+
+\paragraph{Disadvantages.} The clipping is a heuristic with no formal trust-region guarantee; the ratio variable $\rho_t$ is unbounded above for low-probability historical actions, which can produce numerically unstable updates on rare events. None of the PPO variants in the recent literature are adopted here; the dissertation uses standard PPO from Stable-Baselines3 because the contribution lies in the state-augmentation and constraint-enforcement coupling of Equation~\ref{eq:probabilistic_trade_size}, not in the optimiser.
+
+\section{Deep reinforcement learning for portfolio management}
+\label{sec:drl_for_finance}
+
+Four references anchor the deep-reinforcement-learning-for-finance literature and the dissertation positions itself against each.
+
+\textcite{jiang2017deep} applied policy-gradient methods to cryptocurrency portfolio selection with a price-tensor end-to-end policy. The choice of cryptocurrency was deliberate: it was the market where rule-based baselines were weakest and end-to-end deep reinforcement learning had the most to prove. The contribution of the present dissertation differs in two ways. First, the asset class here is US equities and ETFs, where rule-based baselines are tougher competition. Second, the reward signal here is augmented with the predictive-uncertainty channel, which Jiang et al.\ do not consider.
+
+\textcite{yang2020deep} extended the framework to US equities with an algorithm-level ensemble across A2C, PPO and DDPG. The motivation was that any single policy-gradient algorithm is too noisy to trust on its own. The present dissertation does not pursue ensembling; the contribution sits orthogonal to it. Any of A2C, PPO or DDPG could in principle host the uncertainty-aware coupling of Section~\ref{sec:env_and_contribution}, and PPO is selected because of its stability and the maturity of its Stable-Baselines3 implementation.
+
+\textcite{liu2021finrl} contributed FinRL, an open-source library that bundles the trading environment, the data pipeline, the algorithm interface and the reporting layer into one Python package. The motivation was that by 2021 the field had reached a point where individual papers reported divergent results that were impossible to compare because the environments differed. The dissertation does not subclass FinRL; it implements its own environment in \texttt{experiments/common.py} so that the trade-scaling and entry-guard terms in Equation~\ref{eq:probabilistic_trade_size} can be inspected line by line.
+
+\textcite{schulman2017ppo} introduced PPO itself; see Section~\ref{sec:ppo}. PPO is the algorithm both the baseline and the probabilistic agent are built on.
+
+\paragraph{The common pattern.} Across the four references the policy state has grown richer (from raw prices to engineered indicators to a configurable observation space), the optimisation backbone has converged on PPO, and the reward has remained almost universally per-period portfolio return with risk entering only through reward shaping or post-hoc reporting. The dissertation's contribution closes the missing piece on the input side: an explicit, model-based uncertainty signal that goes into the policy state and acts as a hard guard on new long-side actions.
+
+\section{Probabilistic time-series forecasting}
+\label{sec:probabilistic_forecasting}
+
+DeepAR~\parencite{salinas2020deepar} is a probabilistic forecasting architecture from Amazon Research. Rather than predicting a single number for tomorrow, it predicts a distribution --- a mean and a spread. The backbone is a stacked LSTM~\parencite{hochreiter1997lstm}. With a Gaussian output the network emits a mean $\mu_i$ and a log-variance $\log \sigma_i^2$ at each time step, and is trained by maximum likelihood:
+\begin{equation}
+  \label{eq:gaussian_nll}
+  \mathcal{L}_{\mathrm{NLL}} = \frac{1}{N} \sum_{i=1}^{N} \left[ \frac{(y_i - \mu_i)^2}{2 \sigma_i^2} + \frac{1}{2} \ln \sigma_i^2 \right].
+\end{equation}
+
+\paragraph{Advantages.} The predictive variance is a first-class network output, calibrated by the same likelihood that trains the mean. The architecture pools statistical strength across related time series and trains with standard backpropagation and the Adam optimiser.
+
+\paragraph{Disadvantages.} The chosen output family is a parametric assumption. A Gaussian head imposes thin-tailed conditional residuals that financial returns are known to violate. For very short series the LSTM is over-parameterised relative to the data and can overfit. Predictive variances on out-of-sample regimes the network has not seen can be systematically miscalibrated.
+
+\paragraph{Why it matters here.} The probabilistic forecaster used in this dissertation is a stripped-down DeepAR with a Gaussian head: a two-layer LSTM with hidden dimension 32 and two linear heads emitting predictive mean and predictive log-variance. Its purpose is not to produce the most accurate possible forecast --- it is to supply a one-dimensional, model-based uncertainty signal that the PPO agent can condition on.
+
+\section{Uncertainty estimation in deep learning}
+\label{sec:uncertainty_estimation}
+
+Three families of techniques dominate the uncertainty-in-neural-networks literature, and they differ on what kind of uncertainty they quantify and how much computation they cost.
+
+\paragraph{The aleatoric--epistemic distinction.} \textcite{kendall2017uncertainties} formalised the distinction between two kinds of uncertainty in machine-learning predictions. \emph{Aleatoric} uncertainty arises from inherent noise in the data --- ``the market is choppy today, the next return could go either way''. \emph{Epistemic} uncertainty arises from the model itself --- ``today looks unfamiliar to my training data; I have not seen patterns like this before''. The two are conceptually orthogonal and can be measured independently.
+
+\paragraph{Likelihood-based methods (aleatoric).} The DeepAR approach of Section~\ref{sec:probabilistic_forecasting} captures aleatoric uncertainty directly: the predictive variance is part of the network's native output. This is what the Phase-1 headline experiments of this dissertation use.
+
+\paragraph{Monte-Carlo dropout (epistemic).} \textcite{gal2016dropout} treat dropout at inference time as a variational approximation to a Bayesian posterior over the network weights. Sampling several stochastic forward passes through the network gives an empirical distribution over predictions whose spread approximates the model's epistemic uncertainty. Compared to deep ensembles, the advantage is one trained network rather than $K$; the disadvantage is a less rich posterior approximation.
+
+\paragraph{Deep ensembles.} \textcite{lakshminarayanan2017simple} train several independent networks with different random initialisations and use their disagreement on a held-out point as the uncertainty proxy. The method is implementation-agnostic and captures both data-side and model-side uncertainty. The cost is $K$ times the training compute.
+
+\paragraph{Conformal prediction.} \textcite{vovk2005algorithmic} take a distribution-free, calibration-set-based route to uncertainty: a small held-out calibration set is used to map any model's outputs into prediction intervals with marginal coverage guarantees. Conformal methods sit outside the parametric-likelihood family and are mentioned here as the third reasonable route this dissertation does not pursue.
+
+\paragraph{What this dissertation uses.} The headline experiments use the aleatoric route (Equation~\ref{eq:gaussian_nll}). A third experimental arm, added in response to project-proposal feedback, adds Monte-Carlo dropout~\parencite{gal2016dropout} to the same LSTM to give an epistemic-uncertainty estimate that is combined with the aleatoric one. Section~\ref{sec:uncertainty_score} sets out the mathematical detail of both modes, and Section~\ref{sec:epistemic_ablation} reports the empirical comparison.
+
+\section{Gap and positioning}
+\label{sec:gap_and_positioning}
+
+The gap this dissertation closes is the absence, in prior deep-reinforcement-learning-for-finance work, of an explicit, model-based uncertainty signal that does two things at once: it goes into the policy state, and it acts as a hard guard on new long-side actions. Section~\ref{sec:env_and_contribution} sets out the mathematical difference from a standard PPO baseline.
+
+\paragraph{What this dissertation does not claim.} It does not claim a new reinforcement-learning algorithm; PPO is unchanged. It does not claim the probabilistic forecaster is novel; DeepAR is a 2020 idea and the LSTM is a 1997 idea. It does not claim multi-asset portfolio optimisation; the trading environment is single-asset and the multi-ticker robustness study runs one agent per ticker. It does not claim live-trading performance; all evidence is backtest evidence on adjusted-close daily data. The contribution is a controlled empirical study of one design choice on a reproducible protocol with named comparators.
