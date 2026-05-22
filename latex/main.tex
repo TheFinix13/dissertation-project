@@ -18,6 +18,8 @@
 \usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{url}
 \usepackage[style=authoryear,backend=biber,maxcitenames=2]{biblatex}
 \addbibresource{references.bib}
 
@@ -25,6 +27,10 @@
 \newcommand{\vect}[1]{\boldsymbol{#1}}
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\E}{\mathbb{E}}
+% Indicator function: \mathbb{} only covers letters in amssymb, so we provide
+% an explicit macro using \mathbf{1} which is portable across math fonts.
+\providecommand{\indicator}{\mathbf{1}}
+\renewcommand{\indicator}{\mathbf{1}}
 
 % ── Title page data ──────────────────────────────────────────
 \title{%
