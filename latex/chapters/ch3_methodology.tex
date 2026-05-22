@@ -1,39 +1,185 @@
 \chapter{Methodology}
 \label{ch:methodology}
 
-\section{Data}
-% Yahoo Finance daily adjusted closes, market sample, chronological splits.
+This chapter sets out the methodology in seven sections. Section~\ref{sec:methodology_overview} gives a plain-English on-ramp before any notation. Section~\ref{sec:problem_formulation} formalises the trading task as a Markov decision process and writes down the constrained objective. Section~\ref{sec:data_preprocessing} describes the data and preprocessing pipeline. Section~\ref{sec:probabilistic_forecaster} derives the probabilistic forecaster. Section~\ref{sec:uncertainty_score} defines the uncertainty score in both aleatoric and epistemic modes. Section~\ref{sec:env_and_contribution} states the trading environment and the one piece of mathematics that constitutes the dissertation's contribution. Section~\ref{sec:baseline_ppo} states what the baseline PPO does differently. Section~\ref{sec:evaluation_protocol} pins down the evaluation protocol.
 
-\section{Trading Environment (StockEnv)}
-% State: 20-day log returns, position, uncertainty score.
-% Action: $a_t \in [-1, 1]$.
-% Reward: $r_t = 100 \cdot \ln(V_{t+1} / V_t)$.
-\input{tikz/rl_loop}
+This chapter describes a single-asset trading environment. The multi-asset robustness study in Chapter~\ref{ch:results} runs one independent agent per ticker rather than one multi-asset agent across all tickers; this dissertation does not address joint multi-asset portfolio optimisation, and that is left as future work in Chapter~\ref{ch:conclusion}.
 
-\section{Probabilistic Forecaster}
-% Two-layer LSTM, Gaussian NLL loss, uncertainty score $u_t$.
-\begin{equation}\label{eq:gaussian_nll}
-  \mathcal{L}_{\text{NLL}}
-  = \frac{1}{N}\sum_{i=1}^{N}
-    \left[\frac{(y_i - \mu_i)^2}{2\sigma_i^2}
-    + \frac{1}{2}\ln\sigma_i^2\right]
+\section{Overview in plain English}
+\label{sec:methodology_overview}
+
+The trading task is set out as a sequential decision problem. Every day the agent observes a snapshot of the market and of its own portfolio, chooses how much to buy or sell, and is rewarded for growing the portfolio. Mathematically this is a Markov decision process, the standard frame for problems where today's action affects tomorrow's state (Section~\ref{sec:problem_formulation}).
+
+The agent is paired with a forecaster that emits both a prediction of tomorrow's return and a confidence interval around that prediction. The width of that confidence interval is what the dissertation calls the \emph{uncertainty score} (Section~\ref{sec:uncertainty_score}), and is what is fed back into the agent's decision-making (Section~\ref{sec:env_and_contribution}).
+
+The agent has been compared against three named alternatives on the same protocol. The exact mathematical difference between the candidate agent and the baseline PPO is two extra factors in the trade-size computation; everything else --- the state, the reward, the optimiser, the hyper-parameters --- is held constant so that the comparison is genuinely like-for-like.
+
+\section{Problem formulation}
+\label{sec:problem_formulation}
+
+The trading task is cast as a Markov decision process (MDP) with state space $\mathcal{S}$, action space $\mathcal{A}$, transition kernel $\mathcal{P}$, reward function $\mathcal{R}$, and discount factor $\gamma \in (0, 1]$. An MDP is the standard mathematical frame for sequential decision problems under uncertainty: at each time step the agent observes a state, chooses an action, receives a reward, and the environment transitions to a new state according to $\mathcal{P}$.
+
+\subsection{Decision variables}
+\label{sec:decision_variables}
+
+The asset is observed daily with adjusted close price $p_t$. The portfolio at the end of day $t$ holds a cash balance $B_t \geq 0$ and a non-negative number of shares $n_t$; its market value is $V_t = B_t + n_t p_t$. The agent transacts at the close.
+
+A scalar action $a_t \in [-1, 1]$ encodes the fraction of the cash balance to commit to a long-side trade (when $a_t > 0$) or the fraction of the existing position to liquidate (when $a_t < 0$). Per-step turnover is bounded by a maximum fraction $f_{\max} \in (0, 1]$ of cash. The realised gross trade value at step $t$ is denoted $v_t$, and trades incur a linear transaction cost $c \in [0, 1)$ on the gross notional.
+
+\subsection{State}
+\label{sec:state}
+
+The state observed by the policy at step $t$ is the concatenation of the last $L$ log-returns of the asset, the current normalised position size, and the uncertainty score $u_t$ supplied by the forecaster of Section~\ref{sec:probabilistic_forecaster}:
+\begin{equation}
+  \label{eq:state}
+  s_t = \bigl( r_{t-L+1}, r_{t-L+2}, \ldots, r_t, \; \pi_t, \; u_t \bigr),
+\end{equation}
+where $r_t = \log(p_t / p_{t-1})$ is the daily log-return, $L = 20$ is the lookback length used throughout, $\pi_t \in [0, \infty)$ is the position size as a multiple of the cash balance, and $u_t \in [0, 1]$ is the unit-interval uncertainty score from Section~\ref{sec:uncertainty_score}. For the baseline policy of Section~\ref{sec:baseline_ppo} the entry $u_t$ is replaced by a constant zero so that the two policies share an identical state-space dimension.
+
+\subsection{Per-step reward}
+\label{sec:reward}
+
+The reward is the scaled log-growth of portfolio value:
+\begin{equation}
+  \label{eq:reward}
+  r^{\mathrm{env}}_t = 100 \cdot \ln\!\left( \frac{V_{t+1}}{V_t} \right).
+\end{equation}
+The factor of 100 is a numerical convenience that puts daily log-growth into single-digit units; it does not change the optimal policy. Transaction costs enter through the cost-debited cash balance in $V_{t+1}$, so a trade that does not earn back its cost reduces the reward by construction; no separate cost-penalty term is needed in the reward.
+
+\subsection{Unconstrained MDP objective}
+\label{sec:unconstrained_objective}
+
+A policy $\pi_\theta$ parameterised by $\theta$ is judged on the expected discounted return:
+\begin{equation}
+  \label{eq:mdp_objective}
+  J(\theta) = \E_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^{T} \gamma^t r^{\mathrm{env}}_t \right],
+\end{equation}
+where $\tau = (s_0, a_0, s_1, a_1, \ldots, s_T)$ is a trajectory sampled by following $\pi_\theta$. With $\gamma = 0.99$ throughout, this is the quantity PPO directly optimises through the clipped surrogate of Equation~\ref{eq:ppo_clip}.
+
+\subsection{Constrained objective}
+\label{sec:constrained_objective}
+
+The objective this dissertation actually studies is constrained. The agent must earn risk-adjusted return on the test trajectory while keeping its loss from peak below a stated floor. Define the capital-preservation ratio of a trajectory as
+\begin{equation}
+  \label{eq:preservation_ratio}
+  \mathrm{Pres}(\tau) = \frac{V_T}{\max_{t \in [0, T]} V_t}.
+\end{equation}
+The constrained objective is then
+\begin{equation}
+  \label{eq:constrained_objective}
+  \max_\theta J(\theta) \quad \text{subject to} \quad \mathrm{Pres}(\tau) \geq \alpha, \quad |v_t| \leq f_{\max} B_t \;\; \forall t,
+\end{equation}
+where $\alpha \in (0, 1]$ is the preservation floor (taken as $\alpha = 0.95$ in the headline experiment).
+
+The headline empirical question of this dissertation is whether the policy of Section~\ref{sec:env_and_contribution} satisfies the preservation constraint on the held-out test window while improving $J(\theta)$ relative to passive buy-and-hold and the rule-based stop-loss comparator.
+
+\subsection{Soft enforcement of the preservation constraint}
+\label{sec:soft_enforcement}
+
+Imposing the preservation constraint as a Lagrangian penalty during training was experimented with in early prototypes and found to be unstable. The constraint is path-dependent: $\mathrm{Pres}(\tau)$ depends on the running future maximum of the trajectory, which the policy cannot observe in advance. When violations are penalised after the fact the gradient signal arrives too late to be useful for credit assignment (the standard reinforcement-learning term for matching observed rewards back to the actions that caused them), and PPO's clipped surrogate compounds the difficulty by limiting how aggressively the policy may move per update.
+
+The design adopted in this dissertation, set out in Section~\ref{sec:env_and_contribution}, instead enforces the constraint implicitly through two modifications of the realised trade size: a shrink by $(1 - u_t)$ with a floor $s_{\min}$, and a hard guard that zeros out new long-side trades when the uncertainty score exceeds a quantile threshold $\tau$. The hyper-parameters $s_{\min}$ and $\tau$ are chosen on the train and validation windows so that the preservation constraint is satisfied empirically. Constraint satisfaction on the held-out test window is then a post-hoc check that the implicit enforcement carries over to data the policy has not seen.
+
+\section{Data and preprocessing}
+\label{sec:data_preprocessing}
+
+Daily adjusted-close prices are downloaded from Yahoo Finance via the open-source Python library \texttt{yfinance}, which scrapes the public Yahoo Finance website. The market-sample test universe consists of 70 stocks: 41 single-name US large-cap equities spanning technology, payments and financial services, healthcare, consumer and industrials, plus 29 exchange-traded funds covering broad-market indices, sector SPDRs, dividend ETFs, thematic exposures and commodity funds. The full ticker list is materialised as the named group \texttt{market\_sample} in \texttt{experiments/configs/dissertation\_protocol.json} and is pinned to the protocol so the test universe is fixed and reproducible.
+
+SPY (an ETF that tracks the S\&P 500 index) is presented in Sections~\ref{sec:headline_aggregate} and~\ref{sec:equity_curves} as a representative single-ticker case study before Section~\ref{sec:multi_ticker_robustness} expands the analysis to the full universe.
+
+The data are split chronologically into three non-overlapping windows: a training window (1 January 2009 to 31 December 2018), a validation window (1 January 2019 to 31 December 2021), and a test window (1 January 2022 to 31 December 2025). The split is strict --- there is no random shuffling --- so that no information from the test window leaks into model selection.
+
+Each price series is converted to log-returns,
+\begin{equation}
+  \label{eq:log_returns}
+  r_t = \log\!\left( \frac{p_t}{p_{t-1}} \right),
+\end{equation}
+the natural logarithm of today's price divided by yesterday's. Log-returns are the standard representation in finance because they add up cleanly over multiple days. The LSTM forecaster sees supervised sequences of length $L = 20$.
+
+\section{Probabilistic forecaster}
+\label{sec:probabilistic_forecaster}
+
+The forecaster is a stripped-down DeepAR~\parencite{salinas2020deepar} with a Gaussian output head. The architecture is a two-layer LSTM with hidden dimension 32 (i.e.\ each LSTM layer has 32 internal memory cells; two layers are stacked so the second can refine the first's output), followed by two linear heads. One head emits the predictive mean $\hat{\mu}_t$, the other emits the predictive log-variance $\log \hat{\sigma}_t^2$:
+\begin{equation}
+  \label{eq:lstm_heads}
+  \mathbf{h}_t = \mathrm{LSTM}(r_{t-L+1:t}; \, \theta_{\mathrm{LSTM}}), \qquad
+  \hat{\mu}_t = W_\mu \mathbf{h}_t + b_\mu, \qquad
+  \log \hat{\sigma}_t^2 = W_\sigma \mathbf{h}_t + b_\sigma.
 \end{equation}
 
-\section{PPO Training}
-% Hyperparameters: lr $3 \times 10^{-4}$, n\_steps 512, batch 64, epochs 5.
-% Seeds \{7, 19, 42\}. 10\,000 steps (Phase-1), 50\,000 (Phase-2).
+Training uses the Gaussian negative log-likelihood loss of Equation~\ref{eq:gaussian_nll}, optimised with Adam at learning rate $1 \times 10^{-3}$ for 20 epochs. The forecaster is trained on the training window only; the validation window is used to set the uncertainty-score quantile threshold $\tau$, and the test window supplies the final reported numbers.
 
-\section{Baselines}
-% Buy-and-hold, all-cash, baseline PPO (no uncertainty), rule-based trailing stop.
+\section{Uncertainty score}
+\label{sec:uncertainty_score}
 
-\section{Evaluation Metrics}
-\begin{equation}\label{eq:sharpe}
-  \text{Sharpe} = \frac{\bar{r}_p - r_f}{\sigma_p}
+The uncertainty score is the dissertation's link between the forecaster and the policy. Two modes are evaluated: the headline aleatoric mode (the only mode in the original project proposal) and an epistemic mode added in response to project-proposal feedback.
+
+\subsection{Aleatoric mode (headline)}
+\label{sec:aleatoric_mode}
+
+At inference time the forecaster's predictive standard deviation $\hat{\sigma}_t$ at each step is collected over the entire evaluation window and min--max normalised into a unit-interval score:
+\begin{equation}
+  \label{eq:uncertainty_score}
+  u_t = \frac{\hat{\sigma}_t - \min_s \hat{\sigma}_s}{\max_s \hat{\sigma}_s - \min_s \hat{\sigma}_s} \in [0, 1].
 \end{equation}
-\begin{equation}\label{eq:mdd}
-  \text{MDD} = \max_{t \in [0,T]}
-    \frac{\max_{s \leq t} V_s - V_t}{\max_{s \leq t} V_s}
+This score captures the data-side uncertainty Kendall and Gal call aleatoric~\parencite{kendall2017uncertainties}: it answers the question ``how chaotic does the market look right now to a forecaster trained on the past?''.
+
+\subsection{Epistemic mode (Monte-Carlo dropout)}
+\label{sec:epistemic_mode}
+
+A dropout layer with probability $p_{\mathrm{drop}} = 0.1$ is inserted between the LSTM output and the two linear heads. At inference time the dropout is kept active (not switched off as in standard inference), and $K = 20$ forward passes are run per input. This gives $K$ samples of the predicted mean $\{ \hat{\mu}_t^{(k)} \}_{k=1}^{K}$ and $K$ samples of the predicted standard deviation $\{ \hat{\sigma}_t^{(k)} \}_{k=1}^{K}$.
+
+The combined epistemic + aleatoric uncertainty is the root-sum-of-squares of the spread of predicted means (epistemic) and the mean of predicted standard deviations (aleatoric):
+\begin{equation}
+  \label{eq:epistemic_uncertainty}
+  \tilde{\sigma}_t = \sqrt{
+    \underbrace{\mathrm{Var}_k\!\left[ \hat{\mu}_t^{(k)} \right]}_{\text{epistemic}}
+    + \underbrace{\mathbb{E}_k\!\left[ \hat{\sigma}_t^{(k)} \right]^2}_{\text{aleatoric}}
+  }.
+\end{equation}
+This combined quantity is then min--max normalised exactly as in Equation~\ref{eq:uncertainty_score} to produce the policy-facing uncertainty score. The epistemic mode is an experimental arm; the empirical comparison against the aleatoric mode is in Section~\ref{sec:epistemic_ablation}.
+
+\section{Trading environment and the contribution}
+\label{sec:env_and_contribution}
+
+Both agents share the same Gymnasium-compatible trading environment. The only mathematical difference between them is two extra terms in the trade-size computation that the probabilistic agent uses.
+
+With cash balance $B_t$, maximum trade fraction $f_{\max} = 0.10$, raw policy action $a_t \in [-1, 1]$, uncertainty score $u_t \in [0, 1]$, threshold $\tau$ set at the 80th percentile of $u_t$ on the validation window, and minimum scale $s_{\min} = 0.10$, the baseline trade size is
+\begin{equation}
+  \label{eq:baseline_trade_size}
+  v_t^{\mathrm{base}} = f_{\max} \cdot a_t \cdot B_t,
+\end{equation}
+and the probabilistic trade size is
+\begin{equation}
+  \label{eq:probabilistic_trade_size}
+  \boxed{
+    v_t^{\mathrm{prob}} = \underbrace{f_{\max} \cdot a_t \cdot B_t}_{\text{baseline trade}} \cdot \underbrace{\max\!\bigl( 1 - u_t, \, s_{\min} \bigr)}_{\text{trade-scaling factor}} \cdot \underbrace{\indicator\!\bigl( a_t \leq 0 \text{ or } u_t < \tau \bigr)}_{\text{risk-on guard}}.
+  }
 \end{equation}
 
-\input{tikz/training_pipeline}
-\input{tikz/data_splits}
+\paragraph{What the probabilistic agent's trade size means in words.} The probabilistic agent's trade size is the baseline trade size, shrunk by a factor that depends on the forecaster's uncertainty, and forced to zero on the buy side once uncertainty crosses the threshold. The first extra factor (the trade-scaling term) shrinks every trade in proportion to the current forecast uncertainty, with the floor $s_{\min}$ stopping the agent from being silenced entirely on a quiet day. The second factor (the risk-on guard) is binary: it is one for sells (which de-risk the portfolio and so should never be blocked) and one for buys when uncertainty is below the threshold, and zero for buys when uncertainty is above the threshold.
+
+\textbf{Equation~\ref{eq:probabilistic_trade_size} is the mathematical contribution of this dissertation.} Everything else in the environment --- the state of Equation~\ref{eq:state}, the reward of Equation~\ref{eq:reward}, the constrained objective of Equation~\ref{eq:constrained_objective} --- is shared between the baseline and the probabilistic agent.
+
+\section{Baseline PPO}
+\label{sec:baseline_ppo}
+
+The baseline agent is identical in every other respect. It uses the same observation window, the same reward of Equation~\ref{eq:reward}, the same Stable-Baselines3 PPO implementation with an MLP policy, and the same hyper-parameters: learning rate $3 \times 10^{-4}$, $n_{\mathrm{steps}} = 512$, batch size 64, $n_{\mathrm{epochs}} = 5$, and total time-steps 10\,000 in the Phase-1 budget. What it does not have is the uncertainty coordinate in the state of Equation~\ref{eq:state} (the entry $u_t$ is replaced by a constant zero) and the two extra factors of Equation~\ref{eq:probabilistic_trade_size}.
+
+\section{Evaluation protocol}
+\label{sec:evaluation_protocol}
+
+The protocol fixes the train, validation and test splits (Section~\ref{sec:data_preprocessing}). Three random seeds $\{7, 19, 42\}$ are used for both the baseline and the probabilistic agent in the Phase-1 budget; ten seeds are used in the extended-budget seed-stability check of Section~\ref{sec:extended_seed_stability}.
+
+\paragraph{Benchmarks.} Two non-RL benchmarks are reported alongside the seeded agents. The first is a passive buy-and-hold of the asset taken at the start of the test window and held to its end. The second is an all-cash position that earns no return but also takes no risk. A third comparator is the rule-based trailing stop-loss policy of Section~\ref{sec:rule_based_comparator} below.
+
+\paragraph{Metric set.} The reported metrics are: final portfolio value, annualised return and volatility, the Sharpe ratio
+\begin{equation}
+  \label{eq:sharpe}
+  \mathrm{Sharpe} = \frac{\bar{r} - r_f}{\sigma_r},
+\end{equation}
+where $\bar{r}$ is the realised mean return, $r_f$ is the risk-free rate (taken as zero on the test window) and $\sigma_r$ is the realised standard deviation; the maximum drawdown of Equation~\ref{eq:mdd}; the Value-at-Risk at 95\,\% confidence (Equation~\ref{eq:var}) and the rate at which the realised log-return falls below it; and the capital-preservation ratio of Equation~\ref{eq:preservation_ratio}.
+
+\paragraph{Cross-arm consistency.} For experiments that report all three reinforcement-learning arms (Arm~A --- baseline PPO; Arm~B --- probabilistic PPO with aleatoric uncertainty; Arm~C --- probabilistic PPO with epistemic uncertainty), the only thing that changes between the arms is which uncertainty mode is used. The PPO hyper-parameters, the training budget, the seeds, the data splits and the metric set are identical across all three arms. This is the controlled-comparison condition that supports the headline claim in Chapter~\ref{ch:results}.
+
+\paragraph{Rule-based comparator.} \label{sec:rule_based_comparator} The trailing stop-loss policy is a deterministic rule, not a learned policy. It begins fully invested, tracks the running peak of the portfolio value, and sells the entire position when the value falls more than $k$\,\% below the running peak. After the stop fires, the policy waits for the price to rise above its 20-day simple moving average before re-entering. Two variants are reported in Chapter~\ref{ch:results}: $k = 5$ (a tight stop) and $k = 10$ (a loose stop). The rule has no random component, so a single deterministic trajectory per ticker is reported.
