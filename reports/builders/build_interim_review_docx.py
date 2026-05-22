@@ -1022,108 +1022,112 @@ def build() -> Path:
     add_heading(doc, "Future plan", 1)
     add_para(
         doc,
-        "What has been completed so far (May 2026): the full trading simulation "
-        "environment is built and tested; the LSTM uncertainty forecaster is trained; "
-        "the PPO agent is trained in both configurations (with and without the "
-        "uncertainty signal); baselines including buy-and-hold, all-cash, and "
-        "rule-based trailing stop-loss are implemented and evaluated; Phase-1 results "
-        "(10,000 training steps, 3 seeds, SPY) demonstrate that the uncertainty "
-        "mechanism reduces drawdown compared to all alternatives; the test universe "
-        "has been expanded to a market sample of 70 stocks; and the reproducible "
-        "experiment pipeline runs end-to-end on both local machines and Google Colab.",
+        "What has been completed so far (May 2026): the trading simulation is fully "
+        "built and working; the AI agent has been trained in two versions — one that "
+        "listens to the uncertainty signal and one that does not; comparison strategies "
+        "(including simply buying and holding, doing nothing, and a traditional "
+        "stop-loss rule) have all been tested under the same conditions; and the early "
+        "results on the S&P 500 show that the uncertainty-aware agent experiences "
+        "smaller losses during market downturns than any of the alternatives. The "
+        "system has also been tested on a broader set of 70 different stocks and funds "
+        "to check that it is not just working on one specific asset.",
     )
     add_para(
         doc,
-        "What remains: the Phase-1 results need to be strengthened with longer "
-        "training and more seeds (Phase-2), tested on the broader 70-ticker universe, "
-        "and validated with walk-forward analysis. The dissertation itself needs to be "
-        "written. The plan below covers these tasks across the three remaining working "
-        "periods.",
+        "What remains: the early results are promising but based on limited training "
+        "and only a few experiment repetitions. The next phase will train the agent "
+        "for longer, repeat each experiment more times (to prove the results are not "
+        "luck), and test on the full 70-asset universe across multiple time windows. "
+        "The dissertation itself also needs to be written. The table below sets out "
+        "the plan.",
     )
     add_plan_table(doc, [
         (
             "June–July 2026\n(10–11 weeks)",
-            "1. Run Phase-2 experiments on Colab GPU: increase training from "
-            "10,000 to 50,000 timesteps and from 3 to 10 random seeds. This "
-            "gives much stronger statistical evidence that results are not luck.\n\n"
-            "2. Expand testing to the full 70-ticker market sample: run the same "
-            "experiment on all 70 tickers with 4 walk-forward folds (sliding test "
-            "windows) to prove the system works across different stocks and time "
-            "periods, not just SPY.\n\n"
-            "3. Sensitivity analysis: test what happens when we change the "
-            "uncertainty threshold (currently 0.80), the maximum trade size "
-            "(currently 10% of cash), and the minimum trade scale. This shows "
-            "the system is robust and not dependent on one magic number.\n\n"
-            "4. Begin writing Chapter 2 (Background and Literature Review) and "
-            "Chapter 3 (Methodology). These chapters explain the theory behind "
-            "the approach and describe how the system was built.",
-            "M1: Phase-2 full grid completed — 10 seeds × 50k steps × "
-            "70 tickers × 4 folds (mid-June).\n\n"
-            "M2: Sensitivity analysis results locked (end of June).\n\n"
-            "M3: Chapters 2 and 3 first drafts to supervisor (mid-July).\n\n"
-            "M4: Final headline results table locked — no more "
-            "experiment changes after this point (end of July).",
+            "1. Strengthen the evidence: train the agent for five times longer "
+            "(50,000 simulated trading days instead of 10,000) and repeat each "
+            "experiment 10 times with different random starting points. Running the "
+            "same experiment multiple times proves the results are consistent and "
+            "not a one-off coincidence.\n\n"
+            "2. Test on all 70 assets: run the full experiment on every stock and "
+            "fund in the sample, using four different time windows (for example, "
+            "testing on 2022, then 2023, then 2024, then 2022–2025). This proves "
+            "the system generalises — it works across different companies and "
+            "different market conditions, not just one scenario.\n\n"
+            "3. Stress-test the settings: vary the key parameters (how cautious "
+            "the system is, how much it trades per day, what uncertainty level "
+            "triggers the safety brake) to confirm the results hold even when "
+            "these numbers change. This proves the system is not fragile.\n\n"
+            "4. Begin writing the Background (Chapter 2) and Methodology "
+            "(Chapter 3) of the dissertation.",
+            "Mid-June: all extended experiments finished.\n\n"
+            "End of June: stress-test results confirmed.\n\n"
+            "Mid-July: Chapters 2 and 3 first drafts to supervisor.\n\n"
+            "End of July: final results locked — no more experiment "
+            "changes after this date.",
         ),
         (
             "August 2026\n(4 weeks)",
-            "1. Write remaining dissertation chapters: Chapter 1 (Introduction), "
-            "Chapter 5 (Results), Chapter 6 (Discussion), Chapter 7 (Conclusion).\n\n"
-            "2. Polish all figures, tables, and equations. Ensure every result in "
-            "the text matches the reproducible pipeline output.\n\n"
-            "3. Integrate supervisor feedback on the full draft. Code changes from "
-            "this point are bug-fix only.\n\n"
-            "4. Stretch goal (time permitting): run a two-week paper-trading "
-            "session using the Alpaca brokerage API to test the agent on live "
-            "market data. This is not required for submission — the dissertation "
-            "rests on the backtest and walk-forward evidence regardless.",
-            "M5: Full draft to supervisor for review (mid-August).\n\n"
-            "M6: Submission-ready version incorporating feedback "
-            "(end of August).",
+            "1. Write the remaining dissertation chapters: Introduction, Results, "
+            "Discussion, and Conclusion.\n\n"
+            "2. Polish all figures, tables, and diagrams. Make sure every number "
+            "in the text matches the actual experiment output.\n\n"
+            "3. Send the full draft to supervisor and incorporate feedback. No "
+            "new experiments from this point — writing and editing only.\n\n"
+            "4. If time allows: run the agent on live market data for two weeks "
+            "using a practice account (no real money) to see how it performs in "
+            "real time. This is a bonus — the dissertation does not depend on it.",
+            "Mid-August: full draft to supervisor for review.\n\n"
+            "End of August: final version ready for submission.",
         ),
         (
             "September 2026",
-            "1. Submit dissertation by 1 September 2026.\n\n"
-            "2. Prepare viva presentation: a concise slide deck covering the "
-            "research question, methodology, key results, and conclusions.\n\n"
-            "3. Prepare a live demo of the reproducible pipeline (running the "
-            "experiment end-to-end from the notebook).\n\n"
-            "4. Rehearse anticipated questions and answers.",
-            "M7: Dissertation submitted (1 September).\n\n"
-            "M8: Viva presentation and demo ready (by viva date).",
+            "1. Submit the dissertation by 1 September 2026.\n\n"
+            "2. Prepare the viva presentation: a short slide deck explaining the "
+            "research question, what was built, what the results show, and what "
+            "it means.\n\n"
+            "3. Prepare a live demonstration showing the experiment running "
+            "from start to finish.\n\n"
+            "4. Rehearse anticipated questions.",
+            "Dissertation submitted (1 September).\n\n"
+            "Presentation and demo ready by viva date.",
         ),
     ])
 
     add_heading(doc, "Further details on the project direction", 2)
     add_para(
         doc,
-        "The core research question will not change: does adding a probabilistic "
-        "uncertainty signal to a reinforcement learning agent reduce portfolio "
-        "drawdowns without sacrificing returns? The Phase-1 evidence says yes for "
-        "SPY; the remaining work strengthens this claim across more assets, more "
-        "seeds, and more time windows.",
+        "The core research question will not change: does giving a trading agent "
+        "advance warning about uncertain market conditions actually help it avoid "
+        "large losses? The early evidence says yes for the S&P 500. The remaining "
+        "work asks whether this still holds across 70 different assets, over multiple "
+        "time periods, and under different parameter settings.",
     )
     add_para(
         doc,
-        "If the Phase-2 results show that the uncertainty mechanism fails on certain "
-        "asset classes (for example, commodity ETFs or highly volatile tech stocks), "
-        "this will be reported honestly in the Results chapter as a limitation, not "
-        "hidden. The dissertation will discuss where and why the approach works "
-        "and where it does not.",
+        "If the extended results show that the approach fails on certain types of "
+        "assets (for example, highly volatile technology stocks or commodities), "
+        "this will be reported honestly as a limitation rather than hidden. The "
+        "dissertation will explain both where the system works well and where it "
+        "does not.",
     )
 
     add_heading(doc, "Risks and mitigations", 2)
     add_bullets(doc, [
-        "Compute time: Phase-2 experiments are larger (50,000 steps × 10 seeds × "
-        "70 tickers) but the Colab T4 GPU runtime handles one full seed in under "
-        "20 minutes. The experiment runner is designed to checkpoint progress so "
-        "interrupted runs can resume without losing work.",
-        "Result fragility: Phase-1 numbers may shift under Phase-2 conditions. "
-        "Results will be reported as median and interquartile range across seeds, "
-        "and any case where the probabilistic agent fails to beat a baseline will "
-        "be reported explicitly rather than omitted.",
-        "Live trading (stretch goal only): the paper-trading run with Alpaca is "
-        "not on the critical path. The dissertation's conclusions are based on "
-        "backtested evidence; the live run is a bonus validation if time permits.",
+        "Compute time: the extended experiments are larger but still manageable — "
+        "Google Colab's free GPU can process one full run in under 20 minutes. The "
+        "system is designed to save progress so that interrupted runs can pick up "
+        "where they left off.",
+        "Results may change: the early numbers might shift once the agent is "
+        "trained for longer and tested on more assets. To guard against "
+        "over-claiming, all results will be reported with a range showing the "
+        "best and worst outcomes across repetitions, and any case where the "
+        "uncertainty-aware agent fails to beat a simpler strategy will be "
+        "reported explicitly.",
+        "Live trading (bonus only): testing on live market data is not required "
+        "for the dissertation. The conclusions rest on the simulated evidence. "
+        "The live test is only attempted if time permits and would serve as "
+        "additional validation, not a core claim.",
     ])
 
     page_break(doc)
