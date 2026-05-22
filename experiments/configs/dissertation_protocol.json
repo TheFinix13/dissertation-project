@@ -136,6 +136,16 @@
     "model_name": "ppo_with_uncertainty_guard",
     "uncertainty_quantile_stop": 0.8,
     "position_scale_floor": 0.1,
-    "timesteps": 10000
+    "timesteps": 10000,
+    "uncertainty_mode": "aleatoric",
+    "uncertainty_mode_notes": {
+      "aleatoric": "Default. Single-pass Gaussian NLL — predicts the standard deviation of next-day log returns. Captures only the data noise (the 'irreducible' uncertainty).",
+      "epistemic": "MC Dropout (Gal & Ghahramani, 2016). 20 stochastic forward passes through the LSTM with dropout=0.1 active. Combines the mean predicted std (aleatoric) with the cross-pass std of predicted means (epistemic). Captures both data noise AND the model's own uncertainty in unfamiliar market regimes.",
+      "rationale": "Aleatoric mode preserves the Phase-1 results exactly. Epistemic mode is the third experimental arm (Arm C) added in response to the project-proposal feedback that aleatoric-only uncertainty may be insufficient."
+    },
+    "epistemic_config": {
+      "mc_passes": 20,
+      "mc_dropout": 0.1
+    }
   }
 }
