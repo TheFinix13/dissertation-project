@@ -1,13 +1,17 @@
-% Abstract — keep to ~250 words
-This dissertation investigates whether a deep reinforcement learning agent
-that conditions on its own forecaster's predictive uncertainty can achieve
-superior risk-adjusted returns compared to standard baselines. A Proximal
-Policy Optimization (PPO) agent is augmented with an LSTM-based probabilistic
-forecaster trained via Gaussian negative log-likelihood, injecting a real-time
-uncertainty signal into the trading environment's state space. The agent is
-evaluated on a market sample of 70 stocks over the 2022--2025 test
-window against passive buy-and-hold, a manually-tuned trailing stop-loss, and
-a baseline PPO with no uncertainty channel. Results show that the
-uncertainty-aware agent reduces maximum drawdown on 100\% of tickers versus
-buy-and-hold while maintaining competitive Sharpe ratios, demonstrating
-effective capital preservation under regime stress.
+% Abstract --- written under the seven writing rules in dissertation_v2/02_outline.md.
+% Target: 350--450 words across 6--7 short paragraphs. Every technical term
+% defined inline on first use. Headline numbers are flagged as Phase-1.
+
+A pension fund manager has two obligations at once. The first is to not lose more than a stated percentage of the fund's value from its recent peak; this is the drawdown limit written into the fund's mandate. The second is to earn a return above cash. Standard quantitative tools force a trade-off between the two. Mean-variance optimisation~\parencite{markowitz1952portfolio} is single-period and blind to the running peak. Trailing stop-losses fire only after the drawdown has already happened and often forfeit the subsequent recovery. Value-at-Risk~\parencite{rockafellar2000optimization} measures one bad day at a time and is silent on the path of the equity curve.
+
+This dissertation studies whether a small machine-learning agent can sit on a more attractive point of that trade-off. The agent is a Proximal Policy Optimization (PPO) policy~\parencite{schulman2017ppo} --- PPO is the standard policy-gradient algorithm for sequential decision problems where today's action affects tomorrow's state. The agent is paired with a separate forecaster: a probabilistic Long Short-Term Memory (LSTM) network~\parencite{hochreiter1997lstm,salinas2020deepar} that emits not just a prediction of tomorrow's return but a confidence interval around that prediction. The width of that interval is fed to the PPO agent as an uncertainty score.
+
+The uncertainty score enters the agent in two places. It is added as one coordinate of the agent's state so the policy can condition on it, and it is used as a hard guard so that new buys are blocked when the score exceeds a quantile threshold. The mathematical contribution is one extension to the standard trade-size computation in the trading environment; the formal statement is in Section~\ref{sec:env_and_contribution}.
+
+The agent is compared against three named alternatives on the same protocol: passive buy-and-hold of the underlying index, a manually-tuned trailing stop-loss rule, and a baseline PPO that sees no uncertainty signal. The protocol fixes the train, validation and test splits, the random seeds, and the metric set so that all four agents are evaluated like-for-like.
+
+The headline numbers in this abstract are at Phase-1 budget (three random starting points per agent and ten thousand training rounds each). On the held-out 2022--2025 test window the uncertainty-aware agent records a Sharpe ratio of $+0.79$, a final portfolio value of about \$1.64 million from a \$1 million starting capital, and a capital-preservation ratio of 99.6\,\%. The baseline PPO records a Sharpe ratio of $-0.43$. Passive buy-and-hold records a Sharpe of $+0.59$ with a 24.5\,\% maximum drawdown. The trailing-stop rule records a path drawdown larger than buy-and-hold's because the stop fires late and the re-entry rule sits in cash through the recovery.
+
+A third experimental arm was added in response to the project-proposal feedback: the probabilistic LSTM is also evaluated in an epistemic-uncertainty mode using Monte-Carlo dropout~\parencite{gal2016dropout}. At Phase-1 budget the epistemic arm is statistically indistinguishable from the aleatoric arm; it is reported as an honest ablation rather than as a positive headline result. The full Phase-2 budget (ten random starts, fifty thousand training rounds, the seventy-stock market sample, and a four-fold walk-forward grid) is scheduled for the Colab GPU runtime and is described in Chapter~\ref{ch:conclusion}.
+
+The contribution is a controlled empirical study, not a new algorithm. What is new is the four-agent comparison on a single reproducible protocol with the trailing-stop comparator that most of the deep-reinforcement-learning-for-finance literature leaves out, and the public, runnable end-to-end Jupyter walkthrough that reproduces it.
