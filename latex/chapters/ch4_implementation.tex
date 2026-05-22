@@ -1,20 +1,101 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
-\section{Software Stack}
-% Python, PyTorch, Stable-Baselines3, Gymnasium, yfinance.
+This chapter describes how the methodology of Chapter~\ref{ch:methodology} is implemented in code. It is organised as four work packages so that each piece of the pipeline has an explicit deliverable and an explicit code pointer. The chapter does not claim novelty in the implementation; the contribution is the design choice of Equation~\ref{eq:probabilistic_trade_size}, not the engineering around it.
 
-\section{Environment Implementation}
-% StockEnv: reset, step, observation/action spaces, normalisation.
+\section{Work-package summary}
+\label{sec:work_package_summary}
 
-\section{Forecaster Training Pipeline}
-% LSTM architecture, training loop, checkpointing.
+Table~\ref{tab:work_packages} maps the four work packages onto the source files in the public repository. Each task is something a reader can verify in the repository.
 
-\section{Agent Training Pipeline}
-% PPO via SB3, callback logging, seed control.
+\begin{table}[h]
+\centering
+\caption{Work-package structure of the implementation. Each task points to a specific file or notebook in the public repository.}
+\label{tab:work_packages}
+\small
+\begin{tabular}{p{2.8cm}p{4.5cm}p{6.5cm}}
+\toprule
+\textbf{Work package} & \textbf{What it does} & \textbf{Deliverable artefact} \\
+\midrule
+\textbf{WP1 — Data and forecaster} & Fetch daily adjusted-close prices for the market sample. Train the probabilistic LSTM in aleatoric and epistemic modes. & \texttt{experiments/common.py} (data and forecaster utilities); \texttt{experiments/runners/run\_probabilistic\_agent.py} (forecaster training and uncertainty estimation) \\
+\midrule
+\textbf{WP2 — Environment and policy} & Implement the Gymnasium-compatible trading environment. Train PPO under three uncertainty regimes (none, aleatoric, epistemic). & \texttt{experiments/common.py} (\texttt{StockEnv} class); \texttt{experiments/runners/run\_baseline.py} (Arm A); \texttt{experiments/runners/run\_probabilistic\_agent.py} (Arms B and C) \\
+\midrule
+\textbf{WP3 — Experimental grid} & Run the four-agent comparison on SPY and on the 70-stock market sample. Run the four-fold walk-forward grid. & \texttt{experiments/runners/run\_walk\_forward.py}; \texttt{experiments/runners/run\_extended\_grid.py}; \texttt{notebooks/02\_Full\_Experiments.ipynb} \\
+\midrule
+\textbf{WP4 — Evaluation and reporting} & Aggregate per-cell JSON results into median + IQR summaries. Render headline tables and equity curves. & \texttt{experiments/aggregate\_results.py}; \texttt{reports/builders/build\_main\_dissertation\_docx.py}; \texttt{notebooks/01\_Project\_Walkthrough.ipynb} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\section{Experiment Runners}
-% CLI interface, --tickers, --seeds, --tag, --timesteps flags.
+\section{Software stack}
+\label{sec:software_stack}
+
+The implementation is in Python 3.11. The core dependencies are PyTorch (the deep-learning library that hosts both the LSTM forecaster and the PPO policy network), Stable-Baselines3~\parencite{raffin2021sb3} (the reference PPO implementation), Gymnasium (the modern fork of OpenAI Gym, which defines the agent--environment interface), \texttt{yfinance} (Yahoo Finance data downloader), \texttt{numpy} and \texttt{pandas} for data handling, and \texttt{matplotlib} for plotting. Exact versions are pinned in \texttt{requirements.txt} at the repository root.
+
+\section{WP1 --- Data and forecaster}
+\label{sec:wp1}
+
+\paragraph{T1.1 --- Data pipeline.} The function \texttt{fetch\_close\_frame} in \texttt{experiments/common.py} downloads daily adjusted-close prices via \texttt{yfinance} for any ticker and date range. The function is cached on disk so that subsequent calls do not re-hit the network. The protocol file \texttt{experiments/configs/dissertation\_protocol.json} contains the named ticker groups (\texttt{market\_sample}, \texttt{market\_sample\_stocks}, \texttt{market\_sample\_etfs}) and the train, validation and test split dates.
+
+\paragraph{T1.2 --- Probabilistic LSTM.} The class \texttt{ProbabilisticLSTM} in \texttt{experiments/runners/run\_probabilistic\_agent.py} implements the architecture of Equation~\ref{eq:lstm_heads}: a two-layer LSTM with hidden dimension 32 and two linear heads. An optional dropout layer (probability $p_{\mathrm{drop}} = 0.1$) sits between the LSTM and the heads to support the epistemic mode of Section~\ref{sec:epistemic_mode}; in aleatoric mode the dropout probability is zero.
+
+\paragraph{T1.3 --- Forecaster training.} Training uses the Gaussian negative log-likelihood loss of Equation~\ref{eq:gaussian_nll} and the Adam optimiser at learning rate $10^{-3}$ for 20 epochs. The training is fast --- under a minute on a single CPU core for any one ticker --- which is why the same script runs locally without a GPU.
+
+\paragraph{T1.4 --- Uncertainty estimation.} The function \texttt{estimate\_uncertainty} produces the per-day uncertainty score $u_t$. The signature has an explicit \texttt{mode} argument that selects between aleatoric (Equation~\ref{eq:uncertainty_score}) and epistemic (Equation~\ref{eq:epistemic_uncertainty}), and a \texttt{mc\_passes} argument that controls the number of Monte-Carlo dropout passes in the epistemic mode (default 20). The returned array is min--max normalised to the unit interval.
+
+\section{WP2 --- Environment and policy}
+\label{sec:wp2}
+
+\paragraph{T2.1 --- The \texttt{StockEnv} class.} The trading environment is implemented as the class \texttt{StockEnv} in \texttt{experiments/common.py}, exposing the standard Gymnasium API: \texttt{reset} returns the initial observation, and \texttt{step(action)} returns the next observation, the reward, a done flag, a truncated flag, and an info dictionary. The observation space is a flat float32 vector of dimension $L + 2$ (the lookback window of log-returns, the normalised position size and the uncertainty score, see Equation~\ref{eq:state}). The action space is a single continuous variable in $[-1, 1]$.
+
+The trade-size computation inside \texttt{step} is the literal implementation of Equation~\ref{eq:probabilistic_trade_size}. When the environment is constructed without an uncertainty array (or with an all-zeros uncertainty array) the trade-scaling and risk-on-guard factors collapse to one and the environment behaves as the baseline-PPO environment of Equation~\ref{eq:baseline_trade_size}.
+
+\paragraph{T2.2 --- Baseline PPO training.} The runner \texttt{experiments/runners/run\_baseline.py} loads the protocol, constructs a \texttt{StockEnv} with an all-zeros uncertainty array, instantiates a Stable-Baselines3 PPO model with an MLP policy and the hyper-parameters of Section~\ref{sec:baseline_ppo}, and trains for the requested number of time-steps. After training, the policy is evaluated deterministically on the test window and the resulting equity curve and metrics are written to \texttt{experiments/results/}.
+
+\paragraph{T2.3 --- Probabilistic PPO training (Arm B, aleatoric).} The runner \texttt{experiments/runners/run\_probabilistic\_agent.py} extends the baseline by first training the probabilistic LSTM (T1.2 + T1.3), then computing the uncertainty score in aleatoric mode (T1.4 with \texttt{mode=\textquotesingle aleatoric\textquotesingle}), and finally training a PPO policy on the augmented \texttt{StockEnv}.
+
+\paragraph{T2.4 --- Probabilistic PPO training (Arm C, epistemic).} The same runner with \texttt{-{}-uncertainty-mode epistemic} switches the uncertainty computation to Equation~\ref{eq:epistemic_uncertainty}. Two additional command-line flags expose the dropout probability and the number of Monte-Carlo passes: \texttt{-{}-mc-dropout 0.1 -{}-mc-passes 20}. The PPO training itself is unchanged; only the uncertainty array fed to \texttt{StockEnv} differs.
+
+\section{WP3 --- Experimental grid}
+\label{sec:wp3}
+
+\paragraph{T3.1 --- The protocol file.} \texttt{experiments/configs/dissertation\_protocol.json} pins every reproducibility-critical choice: the date splits, the random seeds, the PPO hyper-parameters, the ticker groups, the uncertainty mode defaults, and the per-experiment training budgets. Every runner script reads from this file rather than from hard-coded constants. Changing one number in the protocol changes every downstream result.
+
+\paragraph{T3.2 --- Single-fold runners.} The three runners in WP2 each accept the flags \texttt{-{}-tickers}, \texttt{-{}-seeds}, \texttt{-{}-timesteps} and \texttt{-{}-tag}, so that an arbitrary subset of the grid can be requested from the command line. Output files are tagged with the suffix so that successive runs do not overwrite each other.
+
+\paragraph{T3.3 --- Walk-forward runner.} The runner \texttt{experiments/runners/run\_walk\_forward.py} iterates over the four protocol folds (\texttt{wf\_2018\_2019}, \texttt{wf\_2020\_2021}, \texttt{wf\_2022\_2023}, \texttt{wf\_2024\_2025}) and trains and evaluates per (ticker, fold, seed) cell. The Phase-1 walk-forward grid uses 4 tickers $\times$ 4 folds $\times$ 3 seeds = 48 cells per agent, which is CPU-feasible in one working day. The Phase-2 grid lifts this to 70 tickers $\times$ 4 folds $\times$ 10 seeds and is GPU-only.
+
+\paragraph{T3.4 --- The Colab notebook.} \texttt{notebooks/02\_Full\_Experiments.ipynb} is the Colab-ready orchestrator for the Phase-2 grid. Section~\ref{sec:notebooks_as_evidence} below describes it in more detail.
+
+\section{WP4 --- Evaluation and reporting}
+\label{sec:wp4}
+
+\paragraph{T4.1 --- Aggregation.} The script \texttt{experiments/aggregate\_results.py} collects every per-cell JSON file matching a tag suffix and produces median, inter-quartile range and win-count summaries across seeds. The output is a single CSV that drops directly into the tables of Chapter~\ref{ch:results} and Appendix~\ref{app:full_results}.
+
+\paragraph{T4.2 --- Plotting.} The function \texttt{plot\_equity\_curves} in \texttt{reports/builders/build\_main\_dissertation\_docx.py} renders the equity-curve overlay used throughout Chapter~\ref{ch:results}, and \texttt{plot\_final\_value\_comparison} renders the headline bar chart.
+
+\paragraph{T4.3 --- Document builders.} The Word version of the dissertation (\texttt{reports/generated/exports/Main\_Dissertation\_Draft.docx}) is built by \texttt{reports/builders/build\_main\_dissertation\_docx.py}; the LaTeX version this chapter belongs to is built from \texttt{latex/main.tex} with \texttt{pdflatex} and \texttt{biber}. Both build paths consume the same underlying CSV produced by T4.1.
 
 \section{Reproducibility}
-% dissertation\_protocol.json, deterministic seeds, version pinning.
+\label{sec:reproducibility_implementation}
+
+Three measures make the implementation reproducible. The first is the protocol file: every hyper-parameter that matters is in one JSON file and every runner reads from it. The second is the seed control: each runner sets the global random seed for Python, NumPy, PyTorch and Stable-Baselines3 at the top of \texttt{main} before any random operation. The third is the public repository: every script, every notebook and every protocol file lives at \url{https://github.com/TheFinix13/dissertation-project}, and Appendix~\ref{app:reproducibility} lists the exact command-line invocations that reproduce each table and figure in this dissertation.
+
+\section{How the agent trades --- a day-by-day walkthrough}
+\label{sec:day_by_day_walkthrough}
+
+The tables and equity curves in Chapter~\ref{ch:results} report \emph{final} outcomes. A reader who wants to see how the agent actually makes decisions in real time can run the day-by-day walkthrough in \texttt{notebooks/01\_Project\_Walkthrough.ipynb}. The walkthrough replays the probabilistic-aleatoric agent on the first 60 trading days of the test window, printing one row per day with the date, the SPY price, the day's percentage change, the uncertainty score, the agent's decision (and whether it was blocked by the risk-on guard), and the running portfolio value.
+
+The walkthrough illustrates two operational properties of the design that are not immediately visible from the aggregate tables. First, the trade size shrinks gradually as uncertainty rises (the trade-scaling factor of Equation~\ref{eq:probabilistic_trade_size}); the agent does not have to learn this caution, the environment enforces it. Second, on the days where uncertainty crosses the threshold $\tau$ the agent's new buys are zeroed out (the risk-on guard), but sells are still allowed, so the agent can de-risk even when it cannot re-risk. The pattern of high-uncertainty days clusters around the deep-2022 part of the test window, which is the regime where the constraint binds hardest.
+
+\section{The notebooks as runnable evidence}
+\label{sec:notebooks_as_evidence}
+
+Two Jupyter notebooks live in \texttt{notebooks/} and are the dissertation's runnable evidence.
+
+\paragraph{\texttt{01\_Project\_Walkthrough.ipynb}} runs locally on a single CPU in about five minutes. It walks through the whole pipeline end to end on SPY: it fetches the data, trains the probabilistic LSTM in both aleatoric and epistemic modes, trains all three reinforcement-learning arms (Baseline, Aleatoric, Epistemic) at the Phase-1 budget, reports the headline comparison table, plots the equity curves, and finishes with the day-by-day walkthrough of Section~\ref{sec:day_by_day_walkthrough}.
+
+\paragraph{\texttt{02\_Full\_Experiments.ipynb}} runs on Google Colab with a T4 or A100 GPU runtime. It first runs a five-minute smoke test on SPY to verify the pipeline, then runs the Phase-2 grid (70 tickers $\times$ 10 seeds $\times$ 3 arms $\times$ 50\,000 PPO time-steps) followed by the walk-forward grid. Total wall time on the T4 is approximately four to six hours. The final cell zips every JSON and CSV in \texttt{experiments/results/} for download.
+
+The notebooks are the reproducibility apparatus: any examiner with a Google account and a browser can verify the Phase-1 numbers in five minutes and the Phase-2 numbers in a few hours, with no local installation required.
