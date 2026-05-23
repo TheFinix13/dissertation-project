@@ -30,6 +30,7 @@ from common import (
     fetch_close_frame,
     load_protocol,
     make_run_id,
+    per_cell_path,
     resolve_initial_balance,
     resolve_seeds,
     resolve_tickers,
@@ -58,15 +59,26 @@ def main():
 
     rows = []
     for ticker in tickers:
-        try:
-            price_df = fetch_close_frame(ticker, test_start, test_end)
-        except ValueError as e:
-            print(f"[WARN] {ticker}: {e}")
-            continue
-        close = close_1d(price_df)
-        prices = close.to_numpy(dtype="float32")
-
+        prices = None  # lazily loaded so we can skip wholly-cached tickers
         for seed in seeds:
+            cell_file = per_cell_path(out_dir, "baseline", args.tag, ticker, seed)
+
+            if cell_file.exists() and not args.no_skip:
+                with open(cell_file, "r", encoding="utf-8") as f:
+                    cached = json.load(f)
+                rows.append(cached)
+                print(f"{ticker:<5} seed={seed:>3}: skipped (cached at {cell_file.name})")
+                continue
+
+            if prices is None:
+                try:
+                    price_df = fetch_close_frame(ticker, test_start, test_end)
+                except ValueError as e:
+                    print(f"[WARN] {ticker}: {e}")
+                    break
+                close = close_1d(price_df)
+                prices = close.to_numpy(dtype="float32")
+
             set_global_seed(seed)
             env_cfg = EnvConfig(initial_balance=initial_balance)
 
@@ -82,6 +94,7 @@ def main():
                 batch_size=64,
                 n_epochs=5,
                 seed=seed,
+                device=args.device,
                 verbose=0,
             )
             model.learn(total_timesteps=timesteps)
@@ -100,13 +113,19 @@ def main():
             metrics["fold_id"] = "test_legacy"
             metrics["timesteps"] = timesteps
             metrics["agent"] = model_name
+            metrics["device"] = args.device
+
+            with open(cell_file, "w", encoding="utf-8") as f:
+                json.dump(metrics, f, indent=2)
+
             rows.append(metrics)
             print(
                 f"{ticker:<5} seed={seed:>3} ts={timesteps}: "
                 f"final={metrics['final_portfolio_value']:.2f}, "
                 f"sharpe={metrics['sharpe_ratio']:.4f}, "
                 f"max_dd={metrics['max_drawdown']:.4f}, "
-                f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f}"
+                f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f} "
+                f"-> {cell_file.name}"
             )
 
     if not rows:

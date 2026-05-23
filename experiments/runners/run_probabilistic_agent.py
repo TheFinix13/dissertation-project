@@ -44,6 +44,7 @@ from common import (
     load_protocol,
     make_run_id,
     maybe_bootstrap_training_prices,
+    per_cell_path,
     resolve_initial_balance,
     resolve_seeds,
     resolve_tickers,
@@ -226,6 +227,22 @@ def main():
 
     rows = []
     for ticker in tickers:
+        cached_for_ticker = []
+        seeds_todo = []
+        for seed in seeds:
+            cell_file = per_cell_path(out_dir, "probabilistic", args.tag, ticker, seed)
+            if cell_file.exists() and not args.no_skip:
+                with open(cell_file, "r", encoding="utf-8") as f:
+                    cached_for_ticker.append(json.load(f))
+            else:
+                seeds_todo.append(seed)
+
+        rows.extend(cached_for_ticker)
+        if cached_for_ticker:
+            print(f"{ticker:<5}: loaded {len(cached_for_ticker)} cached seed(s)")
+        if not seeds_todo:
+            continue
+
         try:
             price_df = fetch_close_frame(ticker, test_start, test_end)
         except ValueError as e:
@@ -240,7 +257,7 @@ def main():
             dropout=args.mc_dropout,
         )
 
-        for seed in seeds:
+        for seed in seeds_todo:
             set_global_seed(seed)
             env_cfg = EnvConfig(**cfg_overrides)
 
@@ -270,6 +287,7 @@ def main():
                 batch_size=64,
                 n_epochs=5,
                 seed=seed,
+                device=args.device,
                 verbose=0,
             )
             model.learn(total_timesteps=timesteps)
@@ -290,16 +308,23 @@ def main():
             metrics["bootstrap_paths"] = bootstrap_paths
             metrics["agent"] = model_name
             metrics["uncertainty_mode"] = uncertainty_mode
+            metrics["device"] = args.device
             if uncertainty_mode == "epistemic":
                 metrics["mc_passes"] = args.mc_passes
                 metrics["mc_dropout"] = args.mc_dropout
+
+            cell_file = per_cell_path(out_dir, "probabilistic", args.tag, ticker, seed)
+            with open(cell_file, "w", encoding="utf-8") as f:
+                json.dump(metrics, f, indent=2)
+
             rows.append(metrics)
             print(
                 f"{ticker:<5} seed={seed:>3} ts={timesteps} bs={bootstrap_paths} unc={uncertainty_mode}: "
                 f"final={metrics['final_portfolio_value']:.2f}, "
                 f"sharpe={metrics['sharpe_ratio']:.4f}, "
                 f"max_dd={metrics['max_drawdown']:.4f}, "
-                f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f}"
+                f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f} "
+                f"-> {cell_file.name}"
             )
 
     if not rows:

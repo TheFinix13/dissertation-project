@@ -154,6 +154,34 @@ def add_common_cli(parser: argparse.ArgumentParser) -> None:
         help="Optional tag suffix appended to output filenames "
              "(useful for distinguishing 10k vs 50k runs etc.).",
     )
+    parser.add_argument(
+        "--device", default="cpu", choices=["cpu", "cuda", "auto"],
+        help="PyTorch device for PPO. Default 'cpu' because MlpPolicy is "
+             "small enough that GPU transfers cost more than they save "
+             "(Stable-Baselines3 issue #1245).",
+    )
+    parser.add_argument(
+        "--no-skip", action="store_true",
+        help="Force re-run of (ticker, seed) cells even if their per-cell "
+             "checkpoint already exists. Default: skip completed cells "
+             "so a re-run resumes after a Colab disconnect.",
+    )
+
+
+def per_cell_path(out_dir: Path, prefix: str, tag: str | None,
+                  ticker: str, seed: int, fold: str | None = None) -> Path:
+    """Per-(ticker, seed[, fold]) checkpoint path. Stable across reruns so the
+    skip-if-exists logic works. The timestamp goes in the consolidated file
+    name, not the per-cell name."""
+    parts = [prefix, ticker.replace("/", "_"), f"seed{seed}"]
+    if fold is not None:
+        parts.append(f"fold{fold}")
+    if tag:
+        parts.append(tag)
+    name = "__".join(parts) + ".json"
+    cell_dir = out_dir / "per_cell"
+    cell_dir.mkdir(parents=True, exist_ok=True)
+    return cell_dir / name
 
 
 def make_run_id(tag: str | None = None) -> str:
