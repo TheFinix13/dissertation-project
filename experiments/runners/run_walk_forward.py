@@ -133,6 +133,7 @@ def main():
     )
 
     rows = []
+    failed_cells = []
     total_cells = len(tickers) * len(folds) * len(seeds)
     cell_idx = 0
     print(f"Walk-forward sweep: {len(tickers)} tickers x {len(folds)} folds x "
@@ -176,106 +177,145 @@ def main():
                         out_dir, "wf_baseline", args.tag,
                         ticker, seed, fold=fold["fold_id"],
                     )
+                    base_failed = base_cell.with_suffix(".failed.json")
                     if base_cell.exists() and not args.no_skip:
                         with open(base_cell, "r", encoding="utf-8") as f:
                             rows.append(json.load(f))
                         print(f"{cell_label} baseline:      cached -> {base_cell.name}")
+                    elif base_failed.exists() and not args.no_skip:
+                        print(f"{cell_label} baseline:      previously failed (skip)")
                     else:
-                        base_cfg = EnvConfig(initial_balance=initial_balance)
-                        base_curve = _train_and_eval(
-                            train_prices=train_prices_aug,
-                            test_prices=test_prices,
-                            train_uncertainty=None,
-                            test_uncertainty=None,
-                            seed=seed,
-                            timesteps=timesteps,
-                            cfg=base_cfg,
-                            device=args.device,
-                        )
-                        base_metrics = compute_metrics(base_curve)
-                        base_metrics.update({
-                            "agent": baseline_name,
-                            "ticker": ticker,
-                            "fold_id": fold["fold_id"],
-                            "seed": seed,
-                            "timesteps": timesteps,
-                            "bootstrap_paths": bootstrap_paths,
-                            "train_window": f"{train_start}/{train_end}",
-                            "test_window":  f"{test_start}/{test_end}",
-                            "device": args.device,
-                        })
-                        with open(base_cell, "w", encoding="utf-8") as f:
-                            json.dump(base_metrics, f, indent=2)
-                        rows.append(base_metrics)
-                        pd.DataFrame({
-                            "date": [d.strftime("%Y-%m-%d") for d in test_close.index[: len(base_curve)]],
-                            "portfolio_value": base_curve,
-                            "agent": baseline_name,
-                            "ticker": ticker,
-                            "fold_id": fold["fold_id"],
-                            "seed": seed,
-                        }).to_csv(
-                            curves_dir
-                            / f"baseline_{ticker}_{fold['fold_id']}_seed{seed}_{run_id}.csv",
-                            index=False,
-                        )
-                        print(f"{cell_label} baseline:      "
-                              f"final={base_metrics['final_portfolio_value']:.0f}, "
-                              f"sharpe={base_metrics['sharpe_ratio']:+.4f}, "
-                              f"mdd={base_metrics['max_drawdown']:.4f}")
+                        try:
+                            base_cfg = EnvConfig(initial_balance=initial_balance)
+                            base_curve = _train_and_eval(
+                                train_prices=train_prices_aug,
+                                test_prices=test_prices,
+                                train_uncertainty=None,
+                                test_uncertainty=None,
+                                seed=seed,
+                                timesteps=timesteps,
+                                cfg=base_cfg,
+                                device=args.device,
+                            )
+                            base_metrics = compute_metrics(base_curve)
+                            base_metrics.update({
+                                "agent": baseline_name,
+                                "ticker": ticker,
+                                "fold_id": fold["fold_id"],
+                                "seed": seed,
+                                "timesteps": timesteps,
+                                "bootstrap_paths": bootstrap_paths,
+                                "train_window": f"{train_start}/{train_end}",
+                                "test_window":  f"{test_start}/{test_end}",
+                                "device": args.device,
+                            })
+                            with open(base_cell, "w", encoding="utf-8") as f:
+                                json.dump(base_metrics, f, indent=2)
+                            rows.append(base_metrics)
+                            pd.DataFrame({
+                                "date": [d.strftime("%Y-%m-%d") for d in test_close.index[: len(base_curve)]],
+                                "portfolio_value": base_curve,
+                                "agent": baseline_name,
+                                "ticker": ticker,
+                                "fold_id": fold["fold_id"],
+                                "seed": seed,
+                            }).to_csv(
+                                curves_dir
+                                / f"baseline_{ticker}_{fold['fold_id']}_seed{seed}_{run_id}.csv",
+                                index=False,
+                            )
+                            print(f"{cell_label} baseline:      "
+                                  f"final={base_metrics['final_portfolio_value']:.0f}, "
+                                  f"sharpe={base_metrics['sharpe_ratio']:+.4f}, "
+                                  f"mdd={base_metrics['max_drawdown']:.4f}")
+                        except Exception as exc:  # noqa: BLE001
+                            err = {
+                                "ticker": ticker, "fold_id": fold["fold_id"], "seed": seed,
+                                "agent": "baseline",
+                                "error_type": type(exc).__name__,
+                                "error_msg": str(exc)[:500],
+                            }
+                            failed_cells.append(err)
+                            with open(base_failed, "w", encoding="utf-8") as f:
+                                json.dump(err, f, indent=2)
+                            print(f"[FAIL] {cell_label} baseline:      "
+                                  f"{type(exc).__name__}: {str(exc)[:120]}")
 
                 if "probabilistic" in requested_agents:
                     prob_cell = per_cell_path(
                         out_dir, "wf_probabilistic", args.tag,
                         ticker, seed, fold=fold["fold_id"],
                     )
+                    prob_failed = prob_cell.with_suffix(".failed.json")
                     if prob_cell.exists() and not args.no_skip:
                         with open(prob_cell, "r", encoding="utf-8") as f:
                             rows.append(json.load(f))
                         print(f"{cell_label} probabilistic: cached -> {prob_cell.name}")
+                    elif prob_failed.exists() and not args.no_skip:
+                        print(f"{cell_label} probabilistic: previously failed (skip)")
                     else:
-                        prob_cfg = EnvConfig(**prob_overrides)
-                        prob_curve = _train_and_eval(
-                            train_prices=train_prices_aug,
-                            test_prices=test_prices,
-                            train_uncertainty=train_uncertainty,
-                            test_uncertainty=test_uncertainty,
-                            seed=seed,
-                            timesteps=timesteps,
-                            cfg=prob_cfg,
-                            device=args.device,
-                        )
-                        prob_metrics = compute_metrics(prob_curve)
-                        prob_metrics.update({
-                            "agent": prob_name,
-                            "ticker": ticker,
-                            "fold_id": fold["fold_id"],
-                            "seed": seed,
-                            "timesteps": timesteps,
-                            "bootstrap_paths": bootstrap_paths,
-                            "train_window": f"{train_start}/{train_end}",
-                            "test_window":  f"{test_start}/{test_end}",
-                            "device": args.device,
-                        })
-                        with open(prob_cell, "w", encoding="utf-8") as f:
-                            json.dump(prob_metrics, f, indent=2)
-                        rows.append(prob_metrics)
-                        pd.DataFrame({
-                            "date": [d.strftime("%Y-%m-%d") for d in test_close.index[: len(prob_curve)]],
-                            "portfolio_value": prob_curve,
-                            "agent": prob_name,
-                            "ticker": ticker,
-                            "fold_id": fold["fold_id"],
-                            "seed": seed,
-                        }).to_csv(
-                            curves_dir
-                            / f"probabilistic_{ticker}_{fold['fold_id']}_seed{seed}_{run_id}.csv",
-                            index=False,
-                        )
-                        print(f"{cell_label} probabilistic: "
-                              f"final={prob_metrics['final_portfolio_value']:.0f}, "
-                              f"sharpe={prob_metrics['sharpe_ratio']:+.4f}, "
-                              f"mdd={prob_metrics['max_drawdown']:.4f}")
+                        try:
+                            prob_cfg = EnvConfig(**prob_overrides)
+                            prob_curve = _train_and_eval(
+                                train_prices=train_prices_aug,
+                                test_prices=test_prices,
+                                train_uncertainty=train_uncertainty,
+                                test_uncertainty=test_uncertainty,
+                                seed=seed,
+                                timesteps=timesteps,
+                                cfg=prob_cfg,
+                                device=args.device,
+                            )
+                            prob_metrics = compute_metrics(prob_curve)
+                            prob_metrics.update({
+                                "agent": prob_name,
+                                "ticker": ticker,
+                                "fold_id": fold["fold_id"],
+                                "seed": seed,
+                                "timesteps": timesteps,
+                                "bootstrap_paths": bootstrap_paths,
+                                "train_window": f"{train_start}/{train_end}",
+                                "test_window":  f"{test_start}/{test_end}",
+                                "device": args.device,
+                            })
+                            with open(prob_cell, "w", encoding="utf-8") as f:
+                                json.dump(prob_metrics, f, indent=2)
+                            rows.append(prob_metrics)
+                            pd.DataFrame({
+                                "date": [d.strftime("%Y-%m-%d") for d in test_close.index[: len(prob_curve)]],
+                                "portfolio_value": prob_curve,
+                                "agent": prob_name,
+                                "ticker": ticker,
+                                "fold_id": fold["fold_id"],
+                                "seed": seed,
+                            }).to_csv(
+                                curves_dir
+                                / f"probabilistic_{ticker}_{fold['fold_id']}_seed{seed}_{run_id}.csv",
+                                index=False,
+                            )
+                            print(f"{cell_label} probabilistic: "
+                                  f"final={prob_metrics['final_portfolio_value']:.0f}, "
+                                  f"sharpe={prob_metrics['sharpe_ratio']:+.4f}, "
+                                  f"mdd={prob_metrics['max_drawdown']:.4f}")
+                        except Exception as exc:  # noqa: BLE001
+                            err = {
+                                "ticker": ticker, "fold_id": fold["fold_id"], "seed": seed,
+                                "agent": "probabilistic",
+                                "error_type": type(exc).__name__,
+                                "error_msg": str(exc)[:500],
+                            }
+                            failed_cells.append(err)
+                            with open(prob_failed, "w", encoding="utf-8") as f:
+                                json.dump(err, f, indent=2)
+                            print(f"[FAIL] {cell_label} probabilistic: "
+                                  f"{type(exc).__name__}: {str(exc)[:120]}")
+
+    if failed_cells:
+        print(f"\n[!] {len(failed_cells)} cell(s) failed during this run:")
+        for f in failed_cells:
+            print(f"    {f['ticker']:<5} fold={f['fold_id']:<14} seed={f['seed']:>3} "
+                  f"{f['agent']:<14} {f['error_type']}")
+        print("    (.failed.json markers written; resume will skip them.)")
 
     if not rows:
         print("[ERROR] no results were produced; check tickers / folds / network access.")
