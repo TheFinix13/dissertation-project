@@ -154,6 +154,11 @@ def add_common_cli(parser: argparse.ArgumentParser) -> None:
         help="Optional tag suffix appended to output filenames "
              "(useful for distinguishing 10k vs 50k runs etc.).",
     )
+    parser.add_argument(
+        "--device", default=None,
+        help="PyTorch device for RL training ('cpu', 'cuda', 'cuda:0', etc.). "
+             "Default: auto-detect (cuda if available, else cpu).",
+    )
 
 
 def make_run_id(tag: str | None = None) -> str:
@@ -167,6 +172,14 @@ def resolve_initial_balance(args: argparse.Namespace, protocol: dict) -> float:
     if getattr(args, "initial_balance", None) is not None:
         return float(args.initial_balance)
     return float(protocol.get("initial_balance", 1_000_000.0))
+
+
+def resolve_device(args: argparse.Namespace) -> str:
+    """Return the PyTorch device string from CLI args, defaulting to auto-detect."""
+    dev = getattr(args, "device", None)
+    if dev is not None:
+        return dev
+    return "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # Public aliases so runner code reads cleanly.

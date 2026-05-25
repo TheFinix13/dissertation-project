@@ -75,6 +75,8 @@ def main() -> int:
                         help="Output filename suffix.")
     parser.add_argument("--agents", default="baseline,probabilistic",
                         help="Walk-forward agent subset.")
+    parser.add_argument("--device", default=None,
+                        help="PyTorch device ('cpu', 'cuda', etc.). Default: auto-detect.")
     # Skip flags so subsets of the pipeline can be run.
     parser.add_argument("--skip-benchmarks", action="store_true")
     parser.add_argument("--skip-rule", action="store_true")
@@ -87,11 +89,12 @@ def main() -> int:
 
     py = sys.executable
 
+    device_flag = ["--device", args.device] if args.device else []
     common = [
         "--tickers", args.tickers,
         "--initial-balance", str(args.initial_balance),
         "--tag", args.tag,
-    ]
+    ] + device_flag
     rl_common = common + [
         "--seeds", args.seeds,
         "--timesteps", str(args.timesteps),

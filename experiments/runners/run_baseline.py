@@ -30,6 +30,7 @@ from common import (
     fetch_close_frame,
     load_protocol,
     make_run_id,
+    resolve_device,
     resolve_initial_balance,
     resolve_seeds,
     resolve_tickers,
@@ -43,8 +44,8 @@ def main():
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent
-    protocol = load_protocol(root / "configs" / "dissertation_protocol.json")
-    out_dir = root / "results"
+    protocol = load_protocol(root.parent / "configs" / "dissertation_protocol.json")
+    out_dir = root.parent / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     run_id = make_run_id(args.tag)
 
@@ -52,6 +53,7 @@ def main():
     seeds = resolve_seeds(args.seeds, protocol)
     timesteps = args.timesteps if args.timesteps is not None else protocol["baseline"]["timesteps"]
     initial_balance = resolve_initial_balance(args, protocol)
+    device = resolve_device(args)
 
     test_start, test_end = protocol["splits"]["test"]
     model_name = protocol["baseline"]["model_name"]
@@ -83,6 +85,7 @@ def main():
                 n_epochs=5,
                 seed=seed,
                 verbose=0,
+                device=device,
             )
             model.learn(total_timesteps=timesteps)
 

@@ -10,6 +10,7 @@ Run examples:
     venv/bin/python experiments/runners/run_probabilistic_agent.py
     venv/bin/python experiments/runners/run_probabilistic_agent.py --tickers basket
     venv/bin/python experiments/runners/run_probabilistic_agent.py --tickers SPY --seeds extended --timesteps 50000 --bootstrap-paths 16 --tag full
+    venv/bin/python experiments/runners/run_probabilistic_agent.py --tickers market_sample --seeds extended --timesteps 50000 --bootstrap-paths 32 --uncertainty-mode aleatoric --tag phase2_aleatoric --device cpu
 """
 
 import argparse
@@ -36,11 +37,14 @@ from common import (
     load_protocol,
     make_run_id,
     maybe_bootstrap_training_prices,
+    resolve_device,
     resolve_initial_balance,
     resolve_seeds,
     resolve_tickers,
     set_global_seed,
 )
+
+UNCERTAINTY_MODES = ("aleatoric",)
 
 
 class ProbabilisticLSTM(nn.Module):
@@ -73,14 +77,22 @@ def build_sequences(data: np.ndarray, seq_len: int):
     return x, y
 
 
-def estimate_uncertainty(prices: np.ndarray, seq_len: int = 20, epochs: int = 20) -> np.ndarray:
+def estimate_uncertainty(
+    prices: np.ndarray,
+    seq_len: int = 20,
+    epochs: int = 20,
+    device: str = "cpu",
+) -> np.ndarray:
+    """Train a ProbabilisticLSTM on log returns and return min-max-normalised
+    predictive std as a [0, 1] uncertainty signal (aleatoric mode)."""
     flat_prices = np.asarray(prices, dtype=np.float32).reshape(-1)
     returns = np.diff(np.log(np.maximum(flat_prices, 1e-8))).astype(np.float32)
     x, y = build_sequences(returns, seq_len=seq_len)
-    xt = torch.tensor(x)
-    yt = torch.tensor(y)
+    dev = torch.device(device)
+    xt = torch.tensor(x, device=dev)
+    yt = torch.tensor(y, device=dev)
 
-    model = ProbabilisticLSTM()
+    model = ProbabilisticLSTM().to(dev)
     opt = torch.optim.Adam(model.parameters(), lr=1e-3)
 
     model.train()
@@ -97,7 +109,7 @@ def estimate_uncertainty(prices: np.ndarray, seq_len: int = 20, epochs: int = 20
     with torch.no_grad():
         _, log_var = model(xt)
         log_var = torch.clamp(log_var, -20.0, 10.0)
-        std = torch.exp(0.5 * log_var).squeeze(-1).numpy()
+        std = torch.exp(0.5 * log_var).squeeze(-1).cpu().numpy()
 
     padded = np.zeros(len(prices), dtype=np.float32)
     values = np.clip(std, 1e-6, None)
@@ -112,11 +124,18 @@ def estimate_uncertainty(prices: np.ndarray, seq_len: int = 20, epochs: int = 20
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     add_common_cli(parser)
+    parser.add_argument(
+        "--uncertainty-mode",
+        default="aleatoric",
+        choices=["aleatoric"],
+        help="Uncertainty estimation mode. Currently only 'aleatoric' (LSTM "
+             "predictive variance) is implemented. Future: 'epistemic', 'combined'.",
+    )
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent
-    protocol = load_protocol(root / "configs" / "dissertation_protocol.json")
-    out_dir = root / "results"
+    protocol = load_protocol(root.parent / "configs" / "dissertation_protocol.json")
+    out_dir = root.parent / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     run_id = make_run_id(args.tag)
 
@@ -128,6 +147,8 @@ def main():
     )
     initial_balance = resolve_initial_balance(args, protocol)
     bootstrap_paths = int(args.bootstrap_paths)
+    device = resolve_device(args)
+    uncertainty_mode = args.uncertainty_mode
 
     test_start, test_end = protocol["splits"]["test"]
     model_name = protocol["probabilistic_agent"]["model_name"]
@@ -136,6 +157,8 @@ def main():
         min_trade_scale=protocol["probabilistic_agent"]["position_scale_floor"],
         initial_balance=initial_balance,
     )
+
+    tag_suffix = f"__{uncertainty_mode}" if uncertainty_mode != "aleatoric" else ""
 
     rows = []
     for ticker in tickers:
@@ -146,7 +169,7 @@ def main():
             continue
         close = close_1d(price_df)
         prices = close.to_numpy(dtype="float32")
-        uncertainty = estimate_uncertainty(prices)
+        uncertainty = estimate_uncertainty(prices, device=device)
 
         for seed in seeds:
             set_global_seed(seed)
@@ -156,7 +179,8 @@ def main():
                 prices, num_paths=bootstrap_paths, protocol=protocol, seed=seed,
             )
             train_uncertainty = (
-                estimate_uncertainty(train_prices) if bootstrap_paths > 0 else uncertainty
+                estimate_uncertainty(train_prices, device=device)
+                if bootstrap_paths > 0 else uncertainty
             )
 
             def _make_env(prices=train_prices, uncertainty=train_uncertainty, env_cfg=env_cfg):
@@ -172,6 +196,7 @@ def main():
                 n_epochs=5,
                 seed=seed,
                 verbose=0,
+                device=device,
             )
             model.learn(total_timesteps=timesteps)
 
@@ -189,22 +214,27 @@ def main():
             metrics["fold_id"] = "test_legacy"
             metrics["timesteps"] = timesteps
             metrics["bootstrap_paths"] = bootstrap_paths
+            metrics["uncertainty_mode"] = uncertainty_mode
             metrics["agent"] = model_name
             rows.append(metrics)
+
+            out_tag = args.tag or ""
             print(
-                f"{ticker:<5} seed={seed:>3} ts={timesteps} bs={bootstrap_paths}: "
+                f"{ticker:<5} seed={seed:>3} ts={timesteps} bs={bootstrap_paths} "
+                f"unc={uncertainty_mode}: "
                 f"final={metrics['final_portfolio_value']:.2f}, "
                 f"sharpe={metrics['sharpe_ratio']:.4f}, "
                 f"max_dd={metrics['max_drawdown']:.4f}, "
                 f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f}"
+                f" -> probabilistic__{ticker}__seed{seed}__{out_tag}.json"
             )
 
     if not rows:
         print("[ERROR] no results were produced; check tickers / network access.")
         return
 
-    json_path = out_dir / f"probabilistic_{run_id}.json"
-    csv_path = out_dir / f"probabilistic_{run_id}.csv"
+    json_path = out_dir / f"probabilistic_{run_id}{tag_suffix}.json"
+    csv_path = out_dir / f"probabilistic_{run_id}{tag_suffix}.csv"
 
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(rows, f, indent=2)

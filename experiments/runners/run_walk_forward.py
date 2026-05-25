@@ -46,6 +46,7 @@ from common import (
     load_protocol,
     make_run_id,
     maybe_bootstrap_training_prices,
+    resolve_device,
     resolve_folds,
     resolve_initial_balance,
     resolve_seeds,
@@ -64,6 +65,7 @@ def _train_and_eval(
     seed: int,
     timesteps: int,
     cfg: EnvConfig,
+    device: str = "cpu",
 ):
     set_global_seed(seed)
 
@@ -80,6 +82,7 @@ def _train_and_eval(
         n_epochs=5,
         seed=seed,
         verbose=0,
+        device=device,
     )
     model.learn(total_timesteps=timesteps)
 
@@ -103,8 +106,8 @@ def main():
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent
-    protocol = load_protocol(root / "configs" / "dissertation_protocol.json")
-    out_dir = root / "results"
+    protocol = load_protocol(root.parent / "configs" / "dissertation_protocol.json")
+    out_dir = root.parent / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     curves_dir = out_dir / "wf_curves"
     curves_dir.mkdir(parents=True, exist_ok=True)
@@ -119,6 +122,7 @@ def main():
     )
     initial_balance = resolve_initial_balance(args, protocol)
     bootstrap_paths = int(args.bootstrap_paths)
+    device = resolve_device(args)
     requested_agents = {a.strip().lower() for a in args.agents.split(",") if a.strip()}
 
     baseline_name = protocol["baseline"]["model_name"]
@@ -152,7 +156,7 @@ def main():
             train_prices = train_close.to_numpy(dtype="float32")
             test_prices = test_close.to_numpy(dtype="float32")
 
-            test_uncertainty = estimate_uncertainty(test_prices)
+            test_uncertainty = estimate_uncertainty(test_prices, device=device)
 
             for seed in seeds:
                 cell_idx += 1
@@ -164,9 +168,9 @@ def main():
                     train_prices, num_paths=bootstrap_paths, protocol=protocol, seed=seed,
                 )
                 if bootstrap_paths > 0:
-                    train_uncertainty = estimate_uncertainty(train_prices_aug)
+                    train_uncertainty = estimate_uncertainty(train_prices_aug, device=device)
                 else:
-                    train_uncertainty = estimate_uncertainty(train_prices)
+                    train_uncertainty = estimate_uncertainty(train_prices, device=device)
 
                 if "baseline" in requested_agents:
                     base_cfg = EnvConfig(initial_balance=initial_balance)
@@ -178,6 +182,7 @@ def main():
                         seed=seed,
                         timesteps=timesteps,
                         cfg=base_cfg,
+                        device=device,
                     )
                     base_metrics = compute_metrics(base_curve)
                     base_metrics.update({
@@ -218,6 +223,7 @@ def main():
                         seed=seed,
                         timesteps=timesteps,
                         cfg=prob_cfg,
+                        device=device,
                     )
                     prob_metrics = compute_metrics(prob_curve)
                     prob_metrics.update({

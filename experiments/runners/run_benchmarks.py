@@ -47,8 +47,8 @@ def main():
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent
-    protocol = load_protocol(root / "configs" / "dissertation_protocol.json")
-    out_dir = root / "results"
+    protocol = load_protocol(root.parent / "configs" / "dissertation_protocol.json")
+    out_dir = root.parent / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     run_id = make_run_id(args.tag)
 
