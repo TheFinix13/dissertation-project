@@ -58,10 +58,12 @@ def main():
     model_name = protocol["baseline"]["model_name"]
 
     rows = []
+    failed_cells = []
     for ticker in tickers:
         prices = None  # lazily loaded so we can skip wholly-cached tickers
         for seed in seeds:
             cell_file = per_cell_path(out_dir, "baseline", args.tag, ticker, seed)
+            failed_marker = cell_file.with_suffix(".failed.json")
 
             if cell_file.exists() and not args.no_skip:
                 with open(cell_file, "r", encoding="utf-8") as f:
@@ -70,63 +72,90 @@ def main():
                 print(f"{ticker:<5} seed={seed:>3}: skipped (cached at {cell_file.name})")
                 continue
 
-            if prices is None:
-                try:
-                    price_df = fetch_close_frame(ticker, test_start, test_end)
-                except ValueError as e:
-                    print(f"[WARN] {ticker}: {e}")
-                    break
-                close = close_1d(price_df)
-                prices = close.to_numpy(dtype="float32")
+            if failed_marker.exists() and not args.no_skip:
+                print(f"{ticker:<5} seed={seed:>3}: skipped (previously failed; "
+                      f"delete {failed_marker.name} to retry)")
+                continue
 
-            set_global_seed(seed)
-            env_cfg = EnvConfig(initial_balance=initial_balance)
+            try:
+                if prices is None:
+                    try:
+                        price_df = fetch_close_frame(ticker, test_start, test_end)
+                    except ValueError as e:
+                        print(f"[WARN] {ticker}: {e}")
+                        break
+                    close = close_1d(price_df)
+                    prices = close.to_numpy(dtype="float32")
 
-            def _make_env(prices=prices, env_cfg=env_cfg):
-                return StockEnv(prices=prices, cfg=env_cfg)
+                set_global_seed(seed)
+                env_cfg = EnvConfig(initial_balance=initial_balance)
 
-            env = DummyVecEnv([_make_env])
-            model = PPO(
-                "MlpPolicy",
-                env,
-                learning_rate=3e-4,
-                n_steps=512,
-                batch_size=64,
-                n_epochs=5,
-                seed=seed,
-                device=args.device,
-                verbose=0,
-            )
-            model.learn(total_timesteps=timesteps)
+                def _make_env(prices=prices, env_cfg=env_cfg):
+                    return StockEnv(prices=prices, cfg=env_cfg)
 
-            eval_env = StockEnv(prices=prices, cfg=env_cfg)
-            obs, _ = eval_env.reset()
-            done = False
-            while not done:
-                action, _ = model.predict(obs, deterministic=False)
-                obs, _, done, _, _ = eval_env.step(action)
+                env = DummyVecEnv([_make_env])
+                model = PPO(
+                    "MlpPolicy",
+                    env,
+                    learning_rate=3e-4,
+                    n_steps=512,
+                    batch_size=64,
+                    n_epochs=5,
+                    seed=seed,
+                    device=args.device,
+                    verbose=0,
+                )
+                model.learn(total_timesteps=timesteps)
 
-            portfolio_values = eval_env.portfolio_values
-            metrics = compute_metrics(portfolio_values)
-            metrics["seed"] = seed
-            metrics["ticker"] = ticker
-            metrics["fold_id"] = "test_legacy"
-            metrics["timesteps"] = timesteps
-            metrics["agent"] = model_name
-            metrics["device"] = args.device
+                eval_env = StockEnv(prices=prices, cfg=env_cfg)
+                obs, _ = eval_env.reset()
+                done = False
+                while not done:
+                    action, _ = model.predict(obs, deterministic=False)
+                    obs, _, done, _, _ = eval_env.step(action)
 
-            with open(cell_file, "w", encoding="utf-8") as f:
-                json.dump(metrics, f, indent=2)
+                portfolio_values = eval_env.portfolio_values
+                metrics = compute_metrics(portfolio_values)
+                metrics["seed"] = seed
+                metrics["ticker"] = ticker
+                metrics["fold_id"] = "test_legacy"
+                metrics["timesteps"] = timesteps
+                metrics["agent"] = model_name
+                metrics["device"] = args.device
 
-            rows.append(metrics)
-            print(
-                f"{ticker:<5} seed={seed:>3} ts={timesteps}: "
-                f"final={metrics['final_portfolio_value']:.2f}, "
-                f"sharpe={metrics['sharpe_ratio']:.4f}, "
-                f"max_dd={metrics['max_drawdown']:.4f}, "
-                f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f} "
-                f"-> {cell_file.name}"
-            )
+                with open(cell_file, "w", encoding="utf-8") as f:
+                    json.dump(metrics, f, indent=2)
+
+                rows.append(metrics)
+                print(
+                    f"{ticker:<5} seed={seed:>3} ts={timesteps}: "
+                    f"final={metrics['final_portfolio_value']:.2f}, "
+                    f"sharpe={metrics['sharpe_ratio']:.4f}, "
+                    f"max_dd={metrics['max_drawdown']:.4f}, "
+                    f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f} "
+                    f"-> {cell_file.name}"
+                )
+            except Exception as exc:  # noqa: BLE001
+                err = {
+                    "ticker": ticker,
+                    "seed": seed,
+                    "error_type": type(exc).__name__,
+                    "error_msg": str(exc)[:500],
+                    "tag": args.tag,
+                }
+                failed_cells.append(err)
+                with open(failed_marker, "w", encoding="utf-8") as f:
+                    json.dump(err, f, indent=2)
+                print(
+                    f"[FAIL] {ticker:<5} seed={seed:>3}: {type(exc).__name__}: "
+                    f"{str(exc)[:120]} -> {failed_marker.name}"
+                )
+
+    if failed_cells:
+        print(f"\n[!] {len(failed_cells)} cell(s) failed during this run:")
+        for f in failed_cells:
+            print(f"    {f['ticker']:<5} seed={f['seed']:>3}: {f['error_type']}")
+        print("    (.failed.json markers written; resume will skip them.)")
 
     if not rows:
         print("[ERROR] no results were produced; check tickers / network access.")

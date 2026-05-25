@@ -226,14 +226,21 @@ def main():
     )
 
     rows = []
+    failed_cells = []
     for ticker in tickers:
         cached_for_ticker = []
         seeds_todo = []
         for seed in seeds:
             cell_file = per_cell_path(out_dir, "probabilistic", args.tag, ticker, seed)
+            failed_marker = cell_file.with_suffix(".failed.json")
             if cell_file.exists() and not args.no_skip:
                 with open(cell_file, "r", encoding="utf-8") as f:
                     cached_for_ticker.append(json.load(f))
+            elif failed_marker.exists() and not args.no_skip:
+                # Cell crashed in a previous session; do not retry on resume.
+                # Delete the .failed.json or pass --no-skip to retry.
+                print(f"{ticker:<5} seed={seed:>3}: skipped (previously failed; "
+                      f"delete {failed_marker.name} to retry)")
             else:
                 seeds_todo.append(seed)
 
@@ -258,74 +265,101 @@ def main():
         )
 
         for seed in seeds_todo:
-            set_global_seed(seed)
-            env_cfg = EnvConfig(**cfg_overrides)
+            try:
+                set_global_seed(seed)
+                env_cfg = EnvConfig(**cfg_overrides)
 
-            train_prices = maybe_bootstrap_training_prices(
-                prices, num_paths=bootstrap_paths, protocol=protocol, seed=seed,
-            )
-            train_uncertainty = (
-                estimate_uncertainty(
-                    train_prices,
-                    mode=uncertainty_mode,
-                    mc_passes=args.mc_passes,
-                    dropout=args.mc_dropout,
+                train_prices = maybe_bootstrap_training_prices(
+                    prices, num_paths=bootstrap_paths, protocol=protocol, seed=seed,
                 )
-                if bootstrap_paths > 0
-                else uncertainty
-            )
+                train_uncertainty = (
+                    estimate_uncertainty(
+                        train_prices,
+                        mode=uncertainty_mode,
+                        mc_passes=args.mc_passes,
+                        dropout=args.mc_dropout,
+                    )
+                    if bootstrap_paths > 0
+                    else uncertainty
+                )
 
-            def _make_env(prices=train_prices, uncertainty=train_uncertainty, env_cfg=env_cfg):
-                return StockEnv(prices=prices, uncertainty=uncertainty, cfg=env_cfg)
+                def _make_env(prices=train_prices, uncertainty=train_uncertainty, env_cfg=env_cfg):
+                    return StockEnv(prices=prices, uncertainty=uncertainty, cfg=env_cfg)
 
-            env = DummyVecEnv([_make_env])
-            model = PPO(
-                "MlpPolicy",
-                env,
-                learning_rate=3e-4,
-                n_steps=512,
-                batch_size=64,
-                n_epochs=5,
-                seed=seed,
-                device=args.device,
-                verbose=0,
-            )
-            model.learn(total_timesteps=timesteps)
+                env = DummyVecEnv([_make_env])
+                model = PPO(
+                    "MlpPolicy",
+                    env,
+                    learning_rate=3e-4,
+                    n_steps=512,
+                    batch_size=64,
+                    n_epochs=5,
+                    seed=seed,
+                    device=args.device,
+                    verbose=0,
+                )
+                model.learn(total_timesteps=timesteps)
 
-            eval_env = StockEnv(prices=prices, uncertainty=uncertainty, cfg=env_cfg)
-            obs, _ = eval_env.reset()
-            done = False
-            while not done:
-                action, _ = model.predict(obs, deterministic=False)
-                obs, _, done, _, _ = eval_env.step(action)
+                eval_env = StockEnv(prices=prices, uncertainty=uncertainty, cfg=env_cfg)
+                obs, _ = eval_env.reset()
+                done = False
+                while not done:
+                    action, _ = model.predict(obs, deterministic=False)
+                    obs, _, done, _, _ = eval_env.step(action)
 
-            portfolio_values = eval_env.portfolio_values
-            metrics = compute_metrics(portfolio_values)
-            metrics["seed"] = seed
-            metrics["ticker"] = ticker
-            metrics["fold_id"] = "test_legacy"
-            metrics["timesteps"] = timesteps
-            metrics["bootstrap_paths"] = bootstrap_paths
-            metrics["agent"] = model_name
-            metrics["uncertainty_mode"] = uncertainty_mode
-            metrics["device"] = args.device
-            if uncertainty_mode == "epistemic":
-                metrics["mc_passes"] = args.mc_passes
-                metrics["mc_dropout"] = args.mc_dropout
+                portfolio_values = eval_env.portfolio_values
+                metrics = compute_metrics(portfolio_values)
+                metrics["seed"] = seed
+                metrics["ticker"] = ticker
+                metrics["fold_id"] = "test_legacy"
+                metrics["timesteps"] = timesteps
+                metrics["bootstrap_paths"] = bootstrap_paths
+                metrics["agent"] = model_name
+                metrics["uncertainty_mode"] = uncertainty_mode
+                metrics["device"] = args.device
+                if uncertainty_mode == "epistemic":
+                    metrics["mc_passes"] = args.mc_passes
+                    metrics["mc_dropout"] = args.mc_dropout
 
-            cell_file = per_cell_path(out_dir, "probabilistic", args.tag, ticker, seed)
-            with open(cell_file, "w", encoding="utf-8") as f:
-                json.dump(metrics, f, indent=2)
+                cell_file = per_cell_path(out_dir, "probabilistic", args.tag, ticker, seed)
+                with open(cell_file, "w", encoding="utf-8") as f:
+                    json.dump(metrics, f, indent=2)
 
-            rows.append(metrics)
-            print(
-                f"{ticker:<5} seed={seed:>3} ts={timesteps} bs={bootstrap_paths} unc={uncertainty_mode}: "
-                f"final={metrics['final_portfolio_value']:.2f}, "
-                f"sharpe={metrics['sharpe_ratio']:.4f}, "
-                f"max_dd={metrics['max_drawdown']:.4f}, "
-                f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f} "
-                f"-> {cell_file.name}"
-            )
+                rows.append(metrics)
+                print(
+                    f"{ticker:<5} seed={seed:>3} ts={timesteps} bs={bootstrap_paths} unc={uncertainty_mode}: "
+                    f"final={metrics['final_portfolio_value']:.2f}, "
+                    f"sharpe={metrics['sharpe_ratio']:.4f}, "
+                    f"max_dd={metrics['max_drawdown']:.4f}, "
+                    f"preservation={metrics['capital_preservation_rate_95pct_hwm']:.4f} "
+                    f"-> {cell_file.name}"
+                )
+            except Exception as exc:  # noqa: BLE001
+                # One bad cell should not abort the whole run. Record
+                # what failed so the next resume skips it cleanly.
+                err = {
+                    "ticker": ticker,
+                    "seed": seed,
+                    "error_type": type(exc).__name__,
+                    "error_msg": str(exc)[:500],
+                    "tag": args.tag,
+                    "uncertainty_mode": uncertainty_mode,
+                }
+                failed_cells.append(err)
+                cell_file = per_cell_path(out_dir, "probabilistic", args.tag, ticker, seed)
+                failed_marker = cell_file.with_suffix(".failed.json")
+                with open(failed_marker, "w", encoding="utf-8") as f:
+                    json.dump(err, f, indent=2)
+                print(
+                    f"[FAIL] {ticker:<5} seed={seed:>3}: {type(exc).__name__}: "
+                    f"{str(exc)[:120]} -> {failed_marker.name}"
+                )
+
+    if failed_cells:
+        print(f"\n[!] {len(failed_cells)} cell(s) failed during this run:")
+        for f in failed_cells:
+            print(f"    {f['ticker']:<5} seed={f['seed']:>3}: {f['error_type']}")
+        print("    (.failed.json markers written; resume will skip them.)")
 
     if not rows:
         print("[ERROR] no results were produced; check tickers / network access.")

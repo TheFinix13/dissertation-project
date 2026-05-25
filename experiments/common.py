@@ -382,13 +382,33 @@ class StockEnv(gym.Env):
 
     def _get_obs(self):
         s = self.step_idx + self.cfg.lookback
-        rets = np.diff(np.log(self.prices[s - self.cfg.lookback : s + 1]))
-        rets = rets.astype(np.float32)
-        position = np.array(
-            [self.shares * self.prices[s] / (self.balance + 1e-8)], dtype=np.float32
-        )
-        uncertainty = np.array([self.uncertainty[s]], dtype=np.float32)
-        return np.concatenate([rets, position, uncertainty]).astype(np.float32)
+        # Use float64 for the log/diff so a synthetic price spike does not
+        # overflow before we get a chance to clip into float32 range.
+        window = np.asarray(self.prices[s - self.cfg.lookback : s + 1], dtype=np.float64)
+        # Floor the prices to avoid log(0) or log(negative) on degenerate paths.
+        window = np.maximum(window, 1e-8)
+        rets = np.diff(np.log(window))
+        # 100 % single-day moves are already at the extreme tail; clip to
+        # keep the policy network input bounded.
+        rets = np.clip(rets, -1.0, 1.0).astype(np.float32)
+
+        # Position feature: protect against tiny / negative balance and
+        # against synthetic price overflow on bootstrapped paths.
+        balance_safe = max(abs(self.balance), 1.0)
+        price_now = float(window[-1])
+        position_val = (self.shares * price_now) / balance_safe
+        position_val = float(np.clip(position_val, -1e4, 1e4))
+        position = np.array([position_val], dtype=np.float32)
+
+        unc_val = float(np.clip(self.uncertainty[s], 0.0, 1.0))
+        uncertainty = np.array([unc_val], dtype=np.float32)
+
+        obs = np.concatenate([rets, position, uncertainty]).astype(np.float32)
+        # Final safety net: any NaN/Inf that slipped through becomes 0 so
+        # the policy network never sees an invalid input.
+        if not np.all(np.isfinite(obs)):
+            obs = np.nan_to_num(obs, nan=0.0, posinf=1e4, neginf=-1e4)
+        return obs
 
     def step(self, action):
         s = self.step_idx + self.cfg.lookback
