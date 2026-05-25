@@ -87,13 +87,16 @@ def estimate_uncertainty(prices: np.ndarray, seq_len: int = 20, epochs: int = 20
     for _ in range(epochs):
         opt.zero_grad()
         mean, log_var = model(xt)
+        log_var = torch.clamp(log_var, -20.0, 10.0)
         loss = gaussian_nll(yt, mean, log_var)
         loss.backward()
+        nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         opt.step()
 
     model.eval()
     with torch.no_grad():
         _, log_var = model(xt)
+        log_var = torch.clamp(log_var, -20.0, 10.0)
         std = torch.exp(0.5 * log_var).squeeze(-1).numpy()
 
     padded = np.zeros(len(prices), dtype=np.float32)

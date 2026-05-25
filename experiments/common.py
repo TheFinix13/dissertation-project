@@ -356,11 +356,15 @@ class StockEnv(gym.Env):
         s = self.step_idx + self.cfg.lookback
         rets = np.diff(np.log(self.prices[s - self.cfg.lookback : s + 1]))
         rets = rets.astype(np.float32)
+        equity = self.shares * self.prices[s]
+        portfolio_value = self.balance + equity
         position = np.array(
-            [self.shares * self.prices[s] / (self.balance + 1e-8)], dtype=np.float32
+            [equity / max(portfolio_value, 1e-8)], dtype=np.float32
         )
         uncertainty = np.array([self.uncertainty[s]], dtype=np.float32)
-        return np.concatenate([rets, position, uncertainty]).astype(np.float32)
+        obs = np.concatenate([rets, position, uncertainty]).astype(np.float32)
+        np.nan_to_num(obs, copy=False, nan=0.0, posinf=1e6, neginf=-1e6)
+        return obs
 
     def step(self, action):
         s = self.step_idx + self.cfg.lookback
@@ -374,14 +378,16 @@ class StockEnv(gym.Env):
         trade_pct = float(np.clip(action[0], -1, 1))
         trade_value = self.balance * self.cfg.max_trade_fraction * trade_pct * trade_scale
         if uncertainty_level >= self.uncertainty_threshold and trade_value > 0:
-            # High uncertainty regime: block new risk-on buys.
             trade_value = 0.0
 
         if trade_value > 0:
             fee = abs(trade_value) * self.cfg.transaction_cost_rate
+            affordable = max(self.balance - fee, 0.0)
+            trade_value = min(trade_value, affordable)
             new_shares = trade_value / max(price, 1e-6)
             self.shares += new_shares
             self.balance -= trade_value + fee
+            self.balance = max(self.balance, 0.0)
             self.trade_count += 1
         else:
             sell_value = min(-trade_value, self.shares * price)
@@ -395,8 +401,9 @@ class StockEnv(gym.Env):
         portfolio_value = self.balance + self.shares * next_price
         self.portfolio_values.append(portfolio_value)
         prev_portfolio_value = self.portfolio_values[-2]
-        reward = math.log(
+        log_return = math.log(
             max(portfolio_value, 1e-8) / max(prev_portfolio_value, 1e-8)
-        ) * 100
+        )
+        reward = max(min(log_return * 100, 10.0), -10.0)
         terminated = self.step_idx >= self.n_steps - 1
         return self._get_obs(), reward, terminated, False, {}
