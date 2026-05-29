@@ -1,0 +1,14 @@
+
+=== phase2_arm_a_baseline ===
+Started: 2026-05-29T18:43:02
+Command: /usr/bin/python3 experiments/runners/run_baseline.py --tickers market_sample --seeds extended --timesteps 50000 --tag phase2 --device cpu
+Log:     /scratch/PDRL/dissertation-project/experiments/results/logs/phase2_arm_a_baseline_20260529_184302.log
+============================================================
+Traceback (most recent call last):
+  File "/scratch/PDRL/dissertation-project/experiments/runners/run_baseline.py", line 21, in <module>
+    from stable_baselines3 import PPO
+ModuleNotFoundError: No module named 'stable_baselines3'
+
+============================================================
+Finished: 2026-05-29T18:43:02
+Exit code: 1
