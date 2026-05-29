@@ -1,0 +1,14 @@
+
+=== phase2_walk_forward ===
+Started: 2026-05-29T18:31:07
+Command: /usr/bin/python3 experiments/runners/run_walk_forward.py --tickers basket --folds all --seeds extended --timesteps 50000 --bootstrap-paths 16 --agents baseline,probabilistic --tag phase2_wf --device cpu
+Log:     /scratch/PDRL/dissertation-project/experiments/results/logs/phase2_walk_forward_20260529_183107.log
+============================================================
+Traceback (most recent call last):
+  File "/scratch/PDRL/dissertation-project/experiments/runners/run_walk_forward.py", line 34, in <module>
+    from stable_baselines3 import PPO
+ModuleNotFoundError: No module named 'stable_baselines3'
+
+============================================================
+Finished: 2026-05-29T18:31:07
+Exit code: 1

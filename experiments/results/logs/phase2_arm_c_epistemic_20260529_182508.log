@@ -1,0 +1,14 @@
+
+=== phase2_arm_c_epistemic ===
+Started: 2026-05-29T18:25:08
+Command: /usr/bin/python3 experiments/runners/run_probabilistic_agent.py --tickers market_sample --seeds extended --timesteps 50000 --bootstrap-paths 32 --uncertainty-mode epistemic --tag phase2_epistemic --device cpu
+Log:     /scratch/PDRL/dissertation-project/experiments/results/logs/phase2_arm_c_epistemic_20260529_182508.log
+============================================================
+Traceback (most recent call last):
+  File "/scratch/PDRL/dissertation-project/experiments/runners/run_probabilistic_agent.py", line 30, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+============================================================
+Finished: 2026-05-29T18:25:08
+Exit code: 1
