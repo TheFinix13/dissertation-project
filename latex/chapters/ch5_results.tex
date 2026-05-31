@@ -62,12 +62,12 @@ The Sharpe ratios of the two probabilistic arms are within one standard error of
 \section{Equity curves and drawdown}
 \label{sec:equity_curves}
 
-Figure~\ref{fig:equity_curves} overlays the equity curves of the five strategies on the SPY test window. Two patterns are visible. First, the probabilistic agents (Arms B and C) ride out the 2022 drawdown with substantially less depth than buy-and-hold or the trailing stop, then participate in the 2023--2024 recovery aggressively enough to finish above buy-and-hold. Second, the baseline PPO sits near \$1\,M throughout: it has not learnt to take risk without the uncertainty signal.
+Figure~\ref{fig:equity_curves} overlays the equity curves of the two learned agents over the SPY test window, with buy-and-hold's terminal value marked as a reference. Two patterns are visible. First, the probabilistic agent rides out the 2022 drawdown and then participates in the 2023--2025 recovery aggressively enough to finish above buy-and-hold's \$1.52\,M. Second, the baseline PPO sits near \$1\,M throughout: it has not learnt to take risk without the uncertainty signal.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\textwidth]{../reports/generated/charts/equity_curve_comparison.png}
-\caption{Equity curves on the SPY 2022--2025 test window: buy-and-hold, baseline PPO (mean across three seeds), probabilistic PPO --- aleatoric (mean across three seeds), and the 5\,\% trailing stop. The probabilistic agents recover faster from the 2022 drawdown than buy-and-hold or the trailing stop.}
+\caption{Representative equity curves on the SPY 2022--2025 test window: the baseline PPO (which barely trades and stays near its \$1\,M start) and the probabilistic PPO with the uncertainty guard. The dashed line marks the terminal value of passive buy-and-hold (\$1.52\,M); the probabilistic agent dips during the 2022 sell-off but recovers to finish above it.}
 \label{fig:equity_curves}
 \end{figure}
 
@@ -76,8 +76,17 @@ Figure~\ref{fig:final_value} shows the same numbers as a final-value bar chart, 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.85\textwidth]{../reports/generated/charts/final_value_comparison.png}
-\caption{Terminal portfolio value at the end of the SPY 2022--2025 test window. Each bar is from a \$1\,M starting capital. The probabilistic agents finish above buy-and-hold; the baseline PPO finishes near cash; the trailing stop finishes well below buy-and-hold.}
+\caption{Terminal portfolio value at the end of the SPY 2022--2025 test window, from a \$1\,M starting capital. Five strategies are shown: buy-and-hold, the 5\,\% trailing stop, the baseline PPO, and the aleatoric and epistemic uncertainty guards. Both guards finish above buy-and-hold (\$1.62\,M and \$1.61\,M versus \$1.52\,M); the trailing stop finishes below it (\$1.23\,M); the baseline PPO finishes near cash.}
 \label{fig:final_value}
+\end{figure}
+
+Figure~\ref{fig:equity_uncertainty_overlay} shows the mechanism behind those curves on the same representative SPY run. The top panel is the equity of the probabilistic agent against the near-flat baseline; the bottom panel is the uncertainty score $u_t$ the agent reads each day. The shaded bands mark the days on which uncertainty rose above the threshold $\tau$ and the agent was forbidden from opening new long positions. The bands cluster in the turbulent 2022 sell-off, which is exactly when trimming exposure protects capital, and thin out through the calmer 2023--2025 recovery, when the agent is free to compound.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/equity_uncertainty_overlay.png}
+\caption{The uncertainty guard in action on a representative SPY run. \textbf{Top:} the probabilistic agent (red) grows the portfolio while the baseline PPO (blue) sits near its \$1\,M starting capital. \textbf{Bottom:} the daily uncertainty score; the dashed line is the 80th-percentile threshold $\tau$, and the shaded bands are the days on which new buys are blocked. The blocked days bunch up in the chaotic 2022 market and become rare in the calmer later years --- the agent automatically pulls back when the market is hardest to read.}
+\label{fig:equity_uncertainty_overlay}
 \end{figure}
 
 %% ============================================================
@@ -130,7 +139,14 @@ A --- Baseline PPO & 700 & \$999\,063 & $-0.04$ & 1.3\,\% & 46.1\,\% \\
 
 \paragraph{The probabilistic agents take informed positions.} Their median drawdown is 20--23\,\%, which is real market exposure. But their win-rate is 89--92\,\%, meaning that almost nine out of every ten cells finished with more money than they started. The uncertainty signal gives the agent enough information to take positions when the market is calm and pull back when it is chaotic --- and this selective exposure generates real returns.
 
-\paragraph{Aleatoric and epistemic produce similar headline numbers.} The median final values (\$1,612,478 vs \$1,619,713) and median Sharpe ratios (+0.70 vs +0.68) are within noise of each other. This is itself a finding: the specific source of the uncertainty signal (data noise vs model unfamiliarity) matters less than the fact that any calibrated uncertainty signal is present. Both modes capture enough information about ``how confident should the agent be today?'' to enable the same quality of decision-making.
+\paragraph{Aleatoric and epistemic produce similar headline numbers.} The median final values (\$1,612,478 vs \$1,619,713) and median Sharpe ratios (+0.70 vs +0.68) are within noise of each other. This is itself a finding: the specific source of the uncertainty signal (data noise vs model unfamiliarity) matters less than the fact that any calibrated uncertainty signal is present. Both modes capture enough information about ``how confident should the agent be today?'' to enable the same quality of decision-making. Figure~\ref{fig:aleatoric_vs_epistemic} makes the equivalence concrete at the per-stock level: plotting each stock's aleatoric outcome against its epistemic outcome puts almost every point on the line of equality (correlation $0.99$ for both final value and Sharpe ratio).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/aleatoric_vs_epistemic_scatter.png}
+\caption{Aleatoric versus epistemic uncertainty, compared stock by stock. Each dot is one stock: its horizontal position is the result with the aleatoric signal, its vertical position the result with the epistemic signal. The dashed line is ``equal performance''. Points lie almost exactly on that line for both final value (left) and Sharpe ratio (right), confirming that the two ways of measuring uncertainty lead the agent to essentially the same decisions.}
+\label{fig:aleatoric_vs_epistemic}
+\end{figure}
 
 \subsection{Distributional detail}
 
@@ -154,6 +170,22 @@ C --- Epistemic & \$1\,307\,665 & \$1\,619\,713 & \$2\,183\,355 & \$2\,129\,808 
 
 The baseline PPO's IQR spans just \$13,489 (from \$993,278 to \$1,006,767) --- the agent barely moves the portfolio. The probabilistic arms have an IQR of approximately \$900,000, reflecting the variety of outcomes across 70 different stocks with different volatility profiles. The mean exceeds the median for the probabilistic arms (\$2.08M vs \$1.61M for aleatoric), indicating a right-skewed distribution: some stocks produce large gains that pull the mean above the median. This is the desirable shape --- the upside is larger than the downside.
 
+Figures~\ref{fig:outcome_distribution} and~\ref{fig:sharpe_distribution} show these distributions directly, with one dot per stock. The return chart shows the baseline pinned at zero return while both guard arms spread well into positive territory; the Sharpe chart shows the same separation in risk-adjusted terms, with the baseline straddling zero and the guards clustered around $+0.7$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/outcome_distribution.png}
+\caption{Spread of total returns across the test grid, one dot per stock. The baseline PPO sits on the zero line (it barely trades), buy-and-hold is positive but bounded, and both uncertainty-guard arms reach much higher returns with a wide but predominantly positive spread. The vertical axis is clipped at $+165\,\%$ for readability; a handful of guard outliers run higher still.}
+\label{fig:outcome_distribution}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/sharpe_distribution.png}
+\caption{Spread of Sharpe ratios (return earned per unit of risk) across the test grid. The baseline cluster straddles zero --- it earns little reward for the risk it takes --- while both uncertainty-guard arms cluster clearly positive, around $+0.7$, comfortably above passive buy-and-hold.}
+\label{fig:sharpe_distribution}
+\end{figure}
+
 \subsection{Capital preservation}
 
 Table~\ref{tab:phase2_preservation} reports the capital-preservation metric, which is the fraction of the portfolio's high-water mark that is retained at the end of the test window.
@@ -175,6 +207,41 @@ C --- Epistemic & 97.3\,\% & 93.8\,\% \\
 \end{table}
 
 All three arms exceed the 95\,\% target at the median. The baseline exceeds it trivially (because it barely trades), but the probabilistic arms achieve it while generating meaningful returns --- that is, they manage to grow the portfolio by 60\,\% while never losing more than about 3\,\% from peak at the median.
+
+\subsection{Drawdown: the fair benchmark is buy-and-hold}
+\label{sec:drawdown_fair_comparison}
+
+Maximum drawdown is the deepest peak-to-trough fall a portfolio suffers, and it is the headline risk number for this dissertation's capital-preservation objective. It must be read against the \emph{right} benchmark. The baseline PPO's median drawdown of $1.3\,\%$ is not a risk-management triumph --- it is the by-product of barely investing, the same reason an all-cash account has zero drawdown. A strategy that does not take risk cannot lose money, but it also cannot grow capital, and the baseline finishes flat (Table~\ref{tab:phase2_headline}). The honest drawdown comparison is therefore against passive \textbf{buy-and-hold}, which is fully invested and so actually bears market risk.
+
+Figure~\ref{fig:drawdown_distribution} makes that comparison directly, and Table~\ref{tab:drawdown_fair} gives the numbers. Across the index-and-sector basket on which buy-and-hold was evaluated, buy-and-hold has a median drawdown of about $26\,\%$ and the two rule-based trailing stops are no better ($26\,\%$ and $33\,\%$). The uncertainty-guard agents sit \emph{below} buy-and-hold at the median: about $22\,\%$ (aleatoric) and $24\,\%$ (epistemic) across the full 70-stock grid, and about $20$--$23\,\%$ when restricted to the same basket of tickers buy-and-hold was run on. In other words, the guard grows a \$1\,M portfolio to a median of \$1.6\,M (Table~\ref{tab:phase2_headline}) \emph{while} taking a few percentage points less peak-to-trough pain than simply holding the market.
+
+\begin{table}[h]
+\centering
+\caption{Maximum drawdown (\%) by strategy on the 2022--2025 test grid. Lower is safer. The first column is the median across all stocks each strategy was run on; the second is the median when every strategy is restricted to the same eight index/sector ETFs that buy-and-hold was evaluated on (an apples-to-apples comparison); the third is the single worst stock. The baseline PPO's tiny drawdown reflects under-trading, not skill.}
+\label{tab:drawdown_fair}
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Strategy} & \textbf{Median (own grid)} & \textbf{Median (shared basket)} & \textbf{Worst stock} \\
+\midrule
+Buy-and-hold & 25.9\,\% & 25.9\,\% & 34.8\,\% \\
+Trailing stop-loss (5\,\%) & 26.2\,\% & 26.2\,\% & 28.3\,\% \\
+Trailing stop-loss (10\,\%) & 32.7\,\% & 32.7\,\% & 41.6\,\% \\
+Baseline PPO (under-trades) & 1.4\,\% & 1.8\,\% & 38.3\,\% \\
+\textbf{Aleatoric guard} & \textbf{22.1\,\%} & \textbf{20.5\,\%} & 57.1\,\% \\
+\textbf{Epistemic guard} & \textbf{24.1\,\%} & \textbf{22.6\,\%} & 56.5\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.97\textwidth]{../reports/generated/charts/drawdown_distribution.png}
+\caption{Maximum drawdown (deepest peak-to-trough loss) across the test grid; lower is safer and each dot is one stock. The dashed line is the buy-and-hold median. Buy-and-hold and the two trailing stops all sit at or above $26\,\%$. The uncertainty-guard agents (red, orange) sit at or below the buy-and-hold median while still taking real market exposure --- unlike the baseline PPO (blue), whose near-zero drawdown comes from barely investing. The caveat is the upper tail: on the most volatile single names the guard's worst case (around $57\,\%$) exceeds buy-and-hold's worst (about $35\,\%$).}
+\label{fig:drawdown_distribution}
+\end{figure}
+
+\paragraph{The honest caveat: the tail.} The median story favours the guard, but the comparison is not uniformly favourable. The guard was evaluated on the full 70-stock universe, which includes volatile single names where its worst-case drawdown reaches about $57\,\%$ --- deeper than buy-and-hold's worst of about $35\,\%$ on the calmer index/sector basket. The drawdown-reduction claim is therefore a claim about the \emph{typical} (median) stock and about the index/sector benchmark, not a guarantee that the guard caps losses below buy-and-hold on every individual high-volatility ticker. Section~\ref{sec:wins_and_losses} returns to which regimes drive the tail.
 
 \subsection{The six failed RYTM cells}
 
@@ -245,6 +312,15 @@ Table~\ref{tab:wf_by_fold} breaks the walk-forward results down by time period. 
 \end{tabular}
 \end{table}
 
+Figure~\ref{fig:walk_forward_by_fold} plots the same breakdown. The left panel shows that the probabilistic agent's median final value clears the \$1\,M starting line in all four folds while the baseline hugs it; the right panel shows the probabilistic agent winning the large majority of cells in every fold. The one place the baseline catches up is the win-rate of the easy 2024--2025 bull market, where almost any fully-invested strategy finishes ahead --- but even there the probabilistic agent's \emph{median} final value is far higher.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.97\textwidth]{../reports/generated/charts/walk_forward_by_fold.png}
+\caption{Walk-forward performance by time period. \textbf{Left:} median final value (from a \$1\,M start) for the baseline PPO and the probabilistic PPO in each of the four out-of-sample folds; the dotted line marks break-even. \textbf{Right:} the win-rate (share of cells finishing above \$1\,M). The probabilistic agent leads on median outcome in every fold; the baseline only draws level on win-rate in the calm 2024--2025 window.}
+\label{fig:walk_forward_by_fold}
+\end{figure}
+
 \subsection{What the walk-forward results prove}
 \label{sec:wf_interpretation}
 
@@ -269,6 +345,8 @@ This section states what the results do and do not show, in the conservative lan
   \item \textbf{Both uncertainty sources work equally well.} Aleatoric uncertainty (Arm~B, median \$1,612,478) and epistemic uncertainty (Arm~C, median \$1,619,713) produce nearly identical headline numbers. The source of the uncertainty signal matters less than the fact that a calibrated uncertainty signal is present.
 
   \item \textbf{Capital preservation is maintained.} The median capital-preservation rate across the probabilistic arms is 97.3\,\%, comfortably above the project's 95\,\% target. The agent achieves meaningful returns without excessive drawdowns.
+
+  \item \textbf{Drawdown is reduced relative to the fair benchmark, at the median.} Against passive buy-and-hold --- the comparator that, like the agent, is actually invested --- the guard's median maximum drawdown is lower ($\approx 22\,\%$ aleatoric, $\approx 24\,\%$ epistemic, versus $\approx 26\,\%$ for buy-and-hold and $26$--$33\,\%$ for the trailing stops; Section~\ref{sec:drawdown_fair_comparison}). This holds \emph{while} the guard grows capital to a median of \$1.6\,M. The caveat is the tail: on the most volatile single names the guard's worst-case drawdown ($\approx 57\,\%$) exceeds buy-and-hold's worst ($\approx 35\,\%$), so the reduction is a statement about the typical stock, not every stock.
 \end{enumerate}
 
 \subsection{What the results do not show}
@@ -292,6 +370,7 @@ Given the evidence above, the dissertation makes the following bounded claims:
   \item The improvement is \emph{robust to the choice of uncertainty source}: both aleatoric and epistemic modes produce similar results.
   \item The improvement \emph{holds out of sample} across four walk-forward time windows covering 2018--2025.
   \item The improvement is \emph{not a statistical artefact}: it is reproduced across 10 independent seeds and is visible at the 25th percentile, the median, and the 75th percentile of the outcome distribution.
+  \item The signal \emph{lowers typical drawdown relative to passive buy-and-hold} (median $\approx 22\,\%$ versus $\approx 26\,\%$) while remaining fully exposed enough to grow capital --- a property the under-trading baseline cannot claim, and which is bounded by the high-volatility tail noted above.
 \end{itemize}
 
 The dissertation does not claim that this specific agent configuration is optimal, that it will work in all market regimes, or that it is ready for live deployment without further validation.

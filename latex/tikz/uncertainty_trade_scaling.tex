@@ -1,0 +1,36 @@
+% Figure: how the uncertainty signal scales trade size and protects capital
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum height=1.4cm,
+              text width=#1, align=center, font=\small},
+  arr/.style={-{Stealth[length=3mm]}, thick},
+]
+  \node[box=2.7cm, fill=blue!10] (unc)
+    {Higher\\uncertainty $u_t$};
+  \node[box=2.9cm, fill=purple!10, right=0.6cm of unc] (size)
+    {Smaller\\trade size\\$\times \max(1-u_t,\,s_{\min})$};
+  \node[box=2.7cm, fill=yellow!12, right=0.6cm of size] (exp)
+    {Lower market\\exposure};
+  \node[box=2.7cm, fill=green!12, right=0.6cm of exp] (dd)
+    {Shallower\\drawdown};
+
+  \draw[arr] (unc.east)  -- (size.west);
+  \draw[arr] (size.east) -- (exp.west);
+  \draw[arr] (exp.east)  -- (dd.west);
+
+  % Hard guard note feeding into the exposure step
+  \node[box=5cm, fill=red!8, below=1.0cm of size, xshift=1.7cm] (guard)
+    {Hard guard: if $u_t \geq \tau$, block new buys entirely};
+  \draw[arr] (guard.north) -- ++(0,0.3) -| (exp.south);
+
+  \node[below=0.6cm of guard, text width=12cm, align=center, font=\footnotesize\itshape]
+    {When the forecaster is unsure, the agent trades smaller (and stops buying
+     altogether past the threshold $\tau$), so it carries less risk into turbulent
+     markets and its losses stay shallow.};
+\end{tikzpicture}
+\caption{How the uncertainty signal scales trade size: the more unsure the forecaster
+is, the smaller the agent trades --- and above the threshold $\tau$ it stops buying
+altogether --- which lowers exposure in turbulent markets and keeps drawdowns shallow.}
+\label{fig:uncertainty_trade_scaling}
+\end{figure}

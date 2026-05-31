@@ -165,7 +165,9 @@ and the probabilistic trade size is
 
 \paragraph{What the probabilistic agent's trade size means in words.} The probabilistic agent's trade size is the baseline trade size, shrunk by a factor that depends on the forecaster's uncertainty, and forced to zero on the buy side once uncertainty crosses the threshold. The first extra factor (the trade-scaling term) shrinks every trade in proportion to the current forecast uncertainty, with the floor $s_{\min}$ stopping the agent from being silenced entirely on a quiet day. The second factor (the risk-on guard) is binary: it is one for sells (which de-risk the portfolio and so should never be blocked) and one for buys when uncertainty is below the threshold, and zero for buys when uncertainty is above the threshold.
 
-\textbf{Equation~\ref{eq:probabilistic_trade_size} is the mathematical contribution of this dissertation.} Everything else in the environment --- the state of Equation~\ref{eq:state}, the reward of Equation~\ref{eq:reward}, the constrained objective of Equation~\ref{eq:constrained_objective} --- is shared between the baseline and the probabilistic agent.
+\textbf{Equation~\ref{eq:probabilistic_trade_size} is the mathematical contribution of this dissertation.} Everything else in the environment --- the state of Equation~\ref{eq:state}, the reward of Equation~\ref{eq:reward}, the constrained objective of Equation~\ref{eq:constrained_objective} --- is shared between the baseline and the probabilistic agent. Figure~\ref{fig:uncertainty_trade_scaling} traces the same mechanism in plain English: a higher uncertainty score shrinks the trade, lower exposure follows, and the drawdown stays shallower.
+
+\input{tikz/uncertainty_trade_scaling}
 
 \section{Baseline PPO}
 \label{sec:baseline_ppo}
