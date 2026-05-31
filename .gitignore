@@ -41,3 +41,7 @@ latex/*.toc
 latex/main.pdf
 latex/main.docx
 latex/chapters/*.aux
+
+# Generated Word build (reproducible via latex/build_docx.sh)
+/dissertation.docx
+latex/_docx_build/
