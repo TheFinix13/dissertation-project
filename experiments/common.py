@@ -2,6 +2,7 @@ import argparse
 import json
 import math
 import random
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -30,11 +31,54 @@ def fetch_close_prices(ticker: str, start: str, end: str) -> np.ndarray:
     return np.asarray(df["Close"].values, dtype=np.float32).ravel()
 
 
-def fetch_close_frame(ticker: str, start: str, end: str) -> pd.DataFrame:
-    df = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=True)
-    if df.empty:
-        raise ValueError(f"No price data returned for {ticker} [{start} -> {end}]")
-    return df
+def fetch_close_frame(
+    ticker: str,
+    start: str,
+    end: str,
+    *,
+    max_attempts: int = 4,
+    base_delay: float = 1.0,
+) -> pd.DataFrame:
+    """Download adjusted close prices for `ticker`, retrying transient empty responses.
+
+    yfinance occasionally returns an empty frame for an actively-traded ticker
+    when it is rate-limited or the upstream endpoint hiccups (it prints
+    "possibly delisted; no price data found"). These are transient, so we retry
+    with a linear-exponential backoff (1s, 2s, 4s, ...) before giving up. The
+    ValueError is only raised after all attempts are exhausted, so the existing
+    graceful skip-and-continue behaviour in the runners is preserved.
+    """
+    last_err: Exception | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            df = yf.download(
+                ticker, start=start, end=end, progress=False, auto_adjust=True
+            )
+        except Exception as exc:  # noqa: BLE001 - network/parse errors are transient too
+            last_err = exc
+            df = None
+
+        if df is not None and not df.empty:
+            return df
+
+        if attempt < max_attempts:
+            delay = base_delay * (2 ** (attempt - 1))
+            reason = "empty response" if last_err is None else f"error: {last_err}"
+            print(
+                f"[RETRY] {ticker} [{start} -> {end}] {reason} "
+                f"(attempt {attempt}/{max_attempts}); retrying in {delay:.0f}s"
+            )
+            time.sleep(delay)
+
+    if last_err is not None:
+        raise ValueError(
+            f"No price data returned for {ticker} [{start} -> {end}] "
+            f"after {max_attempts} attempts (last error: {last_err})"
+        )
+    raise ValueError(
+        f"No price data returned for {ticker} [{start} -> {end}] "
+        f"after {max_attempts} attempts"
+    )
 
 
 def close_1d(price_df: pd.DataFrame) -> pd.Series:

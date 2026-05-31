@@ -72,6 +72,30 @@ Files appear at
 [`epistemic-uncertainty/experiments/results/`](https://github.com/TheFinix13/dissertation-project/tree/epistemic-uncertainty/experiments/results)
 on GitHub, and Cursor on your Mac can read them after a `git pull`.
 
+## If results ended up in a nested `notebooks/dissertation-project/` folder
+
+Older versions of `notebooks/02_Full_Experiments.ipynb` always cloned the repo
+into a sub-folder named `dissertation-project`. When the notebook was launched
+from **inside** an already-cloned repo (e.g. from `.../dissertation-project/notebooks/`),
+this created a **nested** second clone at
+`.../dissertation-project/notebooks/dissertation-project/`, and every result
+was written there instead of into the real checkout. `scripts/sync_results.py`
+runs from the outer checkout, so it saw nothing new and reported
+"Nothing new to push".
+
+The notebook's setup cell is now idempotent: if it is already running inside a
+checkout of this repo it reuses it (no second clone). To recover results that a
+previous run wrote into a nested clone, copy them up into the outer checkout and
+then sync:
+
+```bash
+# From the OUTER checkout root (the one with .git/ you push from):
+cp -r notebooks/dissertation-project/experiments/results/* experiments/results/
+rm -rf notebooks/dissertation-project        # remove the stray nested clone
+export GH_TOKEN=ghp_yourTokenHere
+python scripts/sync_results.py
+```
+
 ## Diagnosing a failed cell
 
 If a single (ticker, seed) cell crashes during training, the runner
