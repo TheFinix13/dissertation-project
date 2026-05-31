@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 import yfinance as yf
@@ -33,28 +34,37 @@ def _load_curves(results_dir: Path, pattern: str) -> pd.DataFrame:
 def _plot_equity_curves(base_df: pd.DataFrame, prob_df: pd.DataFrame, out_path: Path) -> None:
     b = base_df.groupby("date", as_index=False)["portfolio_value"].mean()
     p = prob_df.groupby("date", as_index=False)["portfolio_value"].mean()
-    plt.figure(figsize=(10, 4))
-    plt.plot(b["date"], b["portfolio_value"], label="Baseline PPO", linewidth=1.8)
-    plt.plot(p["date"], p["portfolio_value"], label="Probabilistic PPO", linewidth=1.8)
-    plt.xticks(rotation=45)
-    plt.ylabel("Portfolio Value (USD)")
-    plt.title("Agent Equity Curve Comparison")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=160)
-    plt.close()
+    b = b.assign(date=pd.to_datetime(b["date"])).sort_values("date")
+    p = p.assign(date=pd.to_datetime(p["date"])).sort_values("date")
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(b["date"], b["portfolio_value"], label="Baseline PPO", linewidth=1.8)
+    ax.plot(p["date"], p["portfolio_value"], label="Probabilistic PPO", linewidth=1.8)
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Portfolio Value (USD)")
+    ax.set_title("Agent Equity Curve Comparison")
+    ax.legend()
+    fig.autofmt_xdate()
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=160)
+    plt.close(fig)
 
 
 def _plot_uncertainty(prob_df: pd.DataFrame, out_path: Path) -> None:
     p = prob_df.groupby("date", as_index=False)["uncertainty"].mean()
-    plt.figure(figsize=(10, 3))
-    plt.plot(p["date"], p["uncertainty"], color="orange", linewidth=1.6)
-    plt.xticks(rotation=45)
-    plt.ylabel("Uncertainty Score")
-    plt.title("Probabilistic Uncertainty Signal Over Time")
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=160)
-    plt.close()
+    p = p.assign(date=pd.to_datetime(p["date"])).sort_values("date")
+    fig, ax = plt.subplots(figsize=(10, 3))
+    ax.plot(p["date"], p["uncertainty"], color="orange", linewidth=1.6)
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Uncertainty Score")
+    ax.set_title("Probabilistic Uncertainty Signal Over Time")
+    fig.autofmt_xdate()
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=160)
+    plt.close(fig)
 
 
 def _plot_market_data(ticker: str, start: str, end: str, out_path: Path) -> None:
