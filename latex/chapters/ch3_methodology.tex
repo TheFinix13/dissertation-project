@@ -14,6 +14,10 @@ The agent is paired with a forecaster that emits both a prediction of tomorrow's
 
 The agent has been compared against three named alternatives on the same protocol. The exact mathematical difference between the candidate agent and the baseline PPO is two extra factors in the trade-size computation; everything else --- the state, the reward, the optimiser, the hyper-parameters --- is held constant so that the comparison is genuinely like-for-like.
 
+Figure~\ref{fig:rl_loop} shows one step of this decision loop: the environment hands the policy an observation, the policy chooses an action, the trade is executed and a reward is returned, and PPO periodically updates the policy from the accumulated experience.
+
+\input{tikz/rl_loop}
+
 \section{Problem formulation}
 \label{sec:problem_formulation}
 
@@ -85,9 +89,11 @@ The design adopted in this dissertation, set out in Section~\ref{sec:env_and_con
 
 Daily adjusted-close prices are downloaded from Yahoo Finance via the open-source Python library \texttt{yfinance}, which scrapes the public Yahoo Finance website. The market-sample test universe consists of 70 stocks: 41 single-name US large-cap equities spanning technology, payments and financial services, healthcare, consumer and industrials, plus 29 exchange-traded funds covering broad-market indices, sector SPDRs, dividend ETFs, thematic exposures and commodity funds. The full ticker list is materialised as the named group \texttt{market\_sample} in \texttt{experiments/configs/dissertation\_protocol.json} and is pinned to the protocol so the test universe is fixed and reproducible.
 
-SPY (an ETF that tracks the S\&P 500 index) is presented in Sections~\ref{sec:headline_aggregate} and~\ref{sec:equity_curves} as a representative single-ticker case study before Section~\ref{sec:multi_ticker_robustness} expands the analysis to the full universe.
+SPY (an ETF that tracks the S\&P 500 index) is presented in Sections~\ref{sec:headline_aggregate} and~\ref{sec:equity_curves} as a representative single-ticker case study before Section~\ref{sec:phase2_full_grid} expands the analysis to the full universe.
 
-The data are split chronologically into three non-overlapping windows: a training window (1 January 2009 to 31 December 2018), a validation window (1 January 2019 to 31 December 2021), and a test window (1 January 2022 to 31 December 2025). The split is strict --- there is no random shuffling --- so that no information from the test window leaks into model selection.
+The data are split chronologically into three non-overlapping windows: a training window (1 January 2009 to 31 December 2018), a validation window (1 January 2019 to 31 December 2021), and a test window (1 January 2022 to 31 December 2025). The split is strict --- there is no random shuffling --- so that no information from the test window leaks into model selection. Figure~\ref{fig:data_splits} illustrates the three windows and the role each one plays.
+
+\input{tikz/data_splits}
 
 Each price series is converted to log-returns,
 \begin{equation}
@@ -137,7 +143,7 @@ The combined epistemic + aleatoric uncertainty is the root-sum-of-squares of the
     + \underbrace{\mathbb{E}_k\!\left[ \hat{\sigma}_t^{(k)} \right]^2}_{\text{aleatoric}}
   }.
 \end{equation}
-This combined quantity is then min--max normalised exactly as in Equation~\ref{eq:uncertainty_score} to produce the policy-facing uncertainty score. The epistemic mode is an experimental arm; the empirical comparison against the aleatoric mode is in Section~\ref{sec:epistemic_ablation}.
+This combined quantity is then min--max normalised exactly as in Equation~\ref{eq:uncertainty_score} to produce the policy-facing uncertainty score. The epistemic mode is an experimental arm; the empirical comparison against the aleatoric mode is in Section~\ref{sec:phase2_what_headline_shows}.
 
 \section{Trading environment and the contribution}
 \label{sec:env_and_contribution}
@@ -169,7 +175,7 @@ The baseline agent is identical in every other respect. It uses the same observa
 \section{Evaluation protocol}
 \label{sec:evaluation_protocol}
 
-The protocol fixes the train, validation and test splits (Section~\ref{sec:data_preprocessing}). Three random seeds $\{7, 19, 42\}$ are used for both the baseline and the probabilistic agent in the Phase-1 budget; ten seeds are used in the extended-budget seed-stability check of Section~\ref{sec:extended_seed_stability}.
+The protocol fixes the train, validation and test splits (Section~\ref{sec:data_preprocessing}). Three random seeds $\{7, 19, 42\}$ are used for both the baseline and the probabilistic agent in the single-ticker case study; the full Phase-2 grid of Section~\ref{sec:phase2_full_grid} uses ten seeds per ticker.
 
 \paragraph{Benchmarks.} Two non-RL benchmarks are reported alongside the seeded agents. The first is a passive buy-and-hold of the asset taken at the start of the test window and held to its end. The second is an all-cash position that earns no return but also takes no risk. A third comparator is the rule-based trailing stop-loss policy of Section~\ref{sec:rule_based_comparator} below.
 

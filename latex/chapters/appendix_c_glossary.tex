@@ -1,0 +1,45 @@
+\chapter{Glossary}
+\label{app:glossary}
+
+This glossary defines the key terms used in the dissertation in one sentence each, for the reader who wants a quick reference. The definitions are deliberately informal; the formal statements are in Chapters~\ref{ch:background} and~\ref{ch:methodology}.
+
+\begin{longtable}{p{4.2cm} p{10cm}}
+\toprule
+\textbf{Term} & \textbf{One-sentence definition} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{l}{\small\itshape Glossary continued from previous page} \\
+\toprule
+\textbf{Term} & \textbf{One-sentence definition} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+PPO (Proximal Policy Optimization) & A reinforcement-learning algorithm for agents that take a sequence of actions; it updates the agent's policy in small, clipped steps so that no single update overshoots~\parencite{schulman2017ppo}. \\
+\addlinespace
+LSTM (Long Short-Term Memory) & A type of neural network designed to learn patterns in sequences, such as a series of daily stock returns~\parencite{hochreiter1997lstm}. \\
+\addlinespace
+MDP (Markov Decision Process) & The standard mathematical frame for sequential decision problems under uncertainty, in which today's action influences tomorrow's state. \\
+\addlinespace
+DeepAR & A probabilistic forecasting architecture that outputs both a predicted mean and a predicted spread rather than a single point estimate~\parencite{salinas2020deepar}. \\
+\addlinespace
+Sharpe ratio & A measure of risk-adjusted return: average return divided by the standard deviation of returns, where higher is better. \\
+\addlinespace
+Maximum drawdown (MDD) & The worst peak-to-trough percentage drop in portfolio value over a period; lower is better. \\
+\addlinespace
+Value-at-Risk (VaR) & The loss threshold that is exceeded only with a small stated probability (here 5\,\%) over a single period. \\
+\addlinespace
+Capital-preservation ratio & The ratio of current portfolio value to its running high-watermark; the project targets a value above 95\,\%. \\
+\addlinespace
+Aleatoric uncertainty & Uncertainty about \emph{the data} --- how noisy or chaotic the market is on a given day. \\
+\addlinespace
+Epistemic uncertainty & Uncertainty about \emph{the model itself} --- how unfamiliar today's data looks compared with what the forecaster was trained on. \\
+\addlinespace
+MC dropout (Monte-Carlo dropout) & A technique that keeps dropout active at inference time and runs several forward passes, using the spread of their outputs as an estimate of epistemic uncertainty~\parencite{gal2016dropout}. \\
+\addlinespace
+Seed & A fixed random starting point for training; running multiple seeds shows a result is not down to luck. \\
+\addlinespace
+Walk-forward validation & An evaluation method in which the training and test windows slide forward through time, so the agent is always tested on data strictly later than its training data. \\
+\addlinespace
+Block bootstrap & A resampling method that draws contiguous blocks of a historical return series to generate synthetic but realistic training paths~\parencite{politis1994stationary}. \\
+\end{longtable}

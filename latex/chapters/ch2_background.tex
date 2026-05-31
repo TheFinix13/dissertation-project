@@ -132,7 +132,7 @@ Three families of techniques dominate the uncertainty-in-neural-networks literat
 
 \paragraph{Conformal prediction.} \textcite{vovk2005algorithmic} take a distribution-free, calibration-set-based route to uncertainty: a small held-out calibration set is used to map any model's outputs into prediction intervals with marginal coverage guarantees. Conformal methods sit outside the parametric-likelihood family and are mentioned here as the third reasonable route this dissertation does not pursue.
 
-\paragraph{What this dissertation uses.} The headline experiments use the aleatoric route (Equation~\ref{eq:gaussian_nll}). A third experimental arm, added in response to project-proposal feedback, adds Monte-Carlo dropout~\parencite{gal2016dropout} to the same LSTM to give an epistemic-uncertainty estimate that is combined with the aleatoric one. Section~\ref{sec:uncertainty_score} sets out the mathematical detail of both modes, and Section~\ref{sec:epistemic_ablation} reports the empirical comparison.
+\paragraph{What this dissertation uses.} The headline experiments use the aleatoric route (Equation~\ref{eq:gaussian_nll}). A third experimental arm, added in response to project-proposal feedback, adds Monte-Carlo dropout~\parencite{gal2016dropout} to the same LSTM to give an epistemic-uncertainty estimate that is combined with the aleatoric one. Section~\ref{sec:uncertainty_score} sets out the mathematical detail of both modes, and Section~\ref{sec:phase2_what_headline_shows} reports the empirical comparison.
 
 \section{Gap and positioning}
 \label{sec:gap_and_positioning}

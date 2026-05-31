@@ -33,6 +33,10 @@ Table~\ref{tab:work_packages} maps the four work packages onto the source files 
 
 The implementation is in Python 3.11. The core dependencies are PyTorch (the deep-learning library that hosts both the LSTM forecaster and the PPO policy network), Stable-Baselines3~\parencite{raffin2021sb3} (the reference PPO implementation), Gymnasium (the modern fork of OpenAI Gym, which defines the agent--environment interface), \texttt{yfinance} (Yahoo Finance data downloader), \texttt{numpy} and \texttt{pandas} for data handling, and \texttt{matplotlib} for plotting. Exact versions are pinned in \texttt{requirements.txt} at the repository root.
 
+Figure~\ref{fig:pipeline} shows how these pieces fit together end to end, from raw prices through the LSTM forecaster and the uncertainty injection into \texttt{StockEnv}, to PPO training and evaluation. The baseline arm skips the forecaster and uncertainty-injection stages and is otherwise identical.
+
+\input{tikz/training_pipeline}
+
 \section{WP1 --- Data and forecaster}
 \label{sec:wp1}
 
@@ -80,7 +84,7 @@ The trade-size computation inside \texttt{step} is the literal implementation of
 \section{Reproducibility}
 \label{sec:reproducibility_implementation}
 
-Three measures make the implementation reproducible. The first is the protocol file: every hyper-parameter that matters is in one JSON file and every runner reads from it. The second is the seed control: each runner sets the global random seed for Python, NumPy, PyTorch and Stable-Baselines3 at the top of \texttt{main} before any random operation. The third is the public repository: every script, every notebook and every protocol file lives at \url{https://github.com/TheFinix13/dissertation-project}, and Appendix~\ref{app:reproducibility} lists the exact command-line invocations that reproduce each table and figure in this dissertation.
+Three measures make the implementation reproducible. The first is the protocol file: every hyper-parameter that matters is in one JSON file and every runner reads from it. The second is the seed control: each runner sets the global random seed for Python, NumPy, PyTorch and Stable-Baselines3 at the top of \texttt{main} before any random operation. The third is the public repository: every script, every notebook and every protocol file lives at \url{https://github.com/TheFinix13/portfolio-risk-drl}, and Appendix~\ref{app:reproducibility} lists the exact command-line invocations that reproduce each table and figure in this dissertation.
 
 \section{How the agent trades --- a day-by-day walkthrough}
 \label{sec:day_by_day_walkthrough}

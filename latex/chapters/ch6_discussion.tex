@@ -6,25 +6,25 @@ This chapter reads the results carefully. Section~\ref{sec:headline_interpretati
 \section{Headline interpretation}
 \label{sec:headline_interpretation}
 
-The probabilistic agent meets the joint headline objective on the SPY test window. Its mean Sharpe ratio across three seeds (0.79) and mean terminal value (\$1.64\,M) finish above passive buy-and-hold (Sharpe 0.59, terminal \$1.52\,M), and its terminal preservation ratio (Equation~\ref{eq:preservation_ratio}) sits at 0.996 across all three seeds. The baseline PPO meets neither half of the constraint: its terminal value sits at \$985\,k and its Sharpe ratio is $-0.43$, slightly negative. The 5\,\% trailing stop comes in below buy-and-hold on both terminal value (\$1.15\,M) and Sharpe (0.21).
+The probabilistic agent meets the joint headline objective at scale. The full Phase-2 grid (Table~\ref{tab:phase2_headline}, Section~\ref{sec:phase2_full_grid}) trains every arm on 70 stocks with ten seeds and 50,000 PPO time-steps per cell. Across that grid the uncertainty-aware agent grows a \$1\,M starting portfolio to a median final value of about \$1.6\,M --- \$1\,612\,478 in the aleatoric arm and \$1\,619\,713 in the epistemic arm --- with a median Sharpe ratio of $+0.70$ and $+0.68$ respectively and a win-rate (cells finishing above their \$1\,M starting capital) of 89--92\,\%. The baseline PPO that sees no uncertainty signal meets neither half of the constraint: it finishes flat at a median of \$999\,063 with a median Sharpe ratio of $-0.04$ and a 46.1\,\% win-rate. The factor-of-1.6 gap in median terminal wealth, reproduced across ten independent seeds per ticker, is the single most informative result in the dissertation.
 
-The market-sample result (Table~\ref{tab:market_sample_aggregate}) is the stronger evidence. Across the 70-stock universe the probabilistic agent reduces maximum drawdown versus passive buy-and-hold on every single ticker, with a mean drawdown of 19.8\,\% against 26.8\,\%, at a mean terminal-value cost of about 1.2\,\%. That is the constrained-objective trade Equation~\ref{eq:constrained_objective} was designed to deliver, and the 70-of-70 coverage is the single most informative number in the dissertation.
+The single-ticker SPY case study (Table~\ref{tab:headline_spy}, Section~\ref{sec:headline_aggregate}) tells the same story in miniature and is reported as an illustrative example rather than as the headline. At the smaller case-study budget the uncertainty-aware agent records a Sharpe ratio of about $+0.79$, a terminal value of about \$1.64\,M and a terminal preservation ratio (Equation~\ref{eq:preservation_ratio}) of 0.996, finishing above passive buy-and-hold (Sharpe $+0.59$, terminal \$1.52\,M) and far above the baseline PPO (Sharpe $-0.43$, terminal \$985\,k). The 5\,\% trailing stop comes in below buy-and-hold on both terminal value (\$1.15\,M) and Sharpe ($+0.21$).
 
-The epistemic ablation (Table~\ref{tab:epistemic_ablation}) is honest evidence that the design choice was tested. At Phase-1 budget the two uncertainty modes give statistically indistinguishable headline numbers; the value of the additional epistemic signal at Phase-2 budget is an open question.
+The epistemic arm is honest evidence that the design choice was tested. At the full Phase-2 scale the two uncertainty modes give statistically indistinguishable headline numbers (Table~\ref{tab:phase2_headline}: median final \$1\,612\,478 against \$1\,619\,713, median Sharpe $+0.70$ against $+0.68$), so the source of the uncertainty signal --- data noise versus model unfamiliarity --- matters less than the presence of any calibrated signal. Section~\ref{sec:phase2_what_headline_shows} develops this point.
 
 \section{Maximum drawdown, terminal preservation and path preservation}
 \label{sec:mdd_versus_preservation}
 
 The baseline PPO has the lowest maximum drawdown on SPY of any agent in Table~\ref{tab:headline_spy} --- 2.09\,\% --- but it earns a negative Sharpe ratio. That observation is the most important diagnostic in the chapter. Maximum drawdown read in isolation rewards inactivity: the trivial all-cash policy has zero drawdown by definition. A reader who optimises on drawdown alone is rewarded for not trading. This is exactly why the constrained objective of Equation~\ref{eq:constrained_objective} pairs the preservation \emph{constraint} with the risk-adjusted return \emph{objective}.
 
-\paragraph{The preservation pair.} The right metric pair for the dissertation's objective is therefore the Sharpe ratio and the terminal preservation ratio together. Sharpe rewards participation in market upside; preservation rewards not losing more than the floor. Reading them together, the probabilistic agent on SPY at Phase-1 budget achieves Sharpe 0.79 with preservation 0.996, and the baseline PPO achieves Sharpe $-0.43$ with preservation 0.981. Both satisfy the preservation constraint, but only the probabilistic agent participates in upside.
+\paragraph{The preservation pair.} The right metric pair for the dissertation's objective is therefore the Sharpe ratio and the terminal preservation ratio together. Sharpe rewards participation in market upside; preservation rewards not losing more than the floor. Reading them together, the probabilistic agent on the SPY case study achieves Sharpe 0.79 with preservation 0.996, and the baseline PPO achieves Sharpe $-0.43$ with preservation 0.981. Both satisfy the preservation constraint, but only the probabilistic agent participates in upside.
 
 \paragraph{Path preservation versus terminal preservation.} Two preservation measures are reported throughout the chapter, and they differ. \emph{Terminal preservation} is the ratio of the final portfolio value to the running high-watermark at the end of the trajectory --- it answers the question ``how close to the peak does the portfolio finish?'' \emph{Path preservation} is the minimum of that ratio over the whole trajectory --- it answers the question ``how far below the peak did the portfolio ever go?'' The trailing stop-loss illustrates the gap: it has decent terminal preservation (it eventually recovers) but a path preservation worse than buy-and-hold's, because the stop fires deep in the 2022 drawdown and the moving-average re-entry rule keeps the policy in cash through the recovery. An institutional mandate written in worst-case-from-peak terms (a trip-limit rather than an end-of-year cushion) would be violated by the trailing stop on those grounds even though it eventually recovers.
 
 \section{Where the probabilistic agent wins and where it loses}
 \label{sec:wins_and_losses}
 
-The market-sample evidence in Section~\ref{sec:multi_ticker_robustness} is that the agent reduces drawdown on 100\,\% of 70 tickers but wins on terminal value on only a subset. This section diagnoses where and why.
+The Phase-2 grid (Section~\ref{sec:phase2_full_grid}) shows the uncertainty-aware agent finishing above its \$1\,M starting capital on roughly nine cells in ten. The per-ticker case-study basket in Appendix~\ref{app:per_ticker_phase1}, measured against passive buy-and-hold rather than against the baseline PPO, is the more demanding test: there the agent reduces drawdown on every ticker but wins on terminal value only on a subset. This section diagnoses where and why, because beating a flat baseline is easier than beating a rising market.
 
 \paragraph{Where it wins.} The wins cluster in two regimes. The first is broad-market and sector ETFs whose test-window path featured a deep 2022 drawdown followed by a high-volatility recovery (SPY, QQQ, XLK, XLF). The probabilistic agent's uncertainty guard and trade-size shrinkage trim exposure during the 2022 drawdown and let the agent compound through the recovery. On QQQ the agent finishes about \$174\,000 above buy-and-hold; on XLK about \$65\,000 above. The second is high-volatility single names whose buy-and-hold drew down by more than 60\,\% during the test window (META, NFLX, SPOT, TAN). On these tickers the absolute drawdown reduction is large in dollar terms, and the agent's preservation of capital through the dip lets it finish materially above the buy-and-hold baseline.
 
@@ -35,7 +35,7 @@ The market-sample evidence in Section~\ref{sec:multi_ticker_robustness} is that 
 \subsection{Multi-ticker robustness of the rule-based comparator}
 \label{sec:rule_based_robustness}
 
-The aggregate Table~\ref{tab:market_sample_aggregate} already reports the trailing stop across the full market sample. Table~\ref{tab:trailing_stop_etfs} zooms in on three liquid US-equity index ETFs (SPY, QQQ, IWM) at both the 5\,\% and 10\,\% stop variants to make the underperformance of the textbook trailing stop explicit on names every practitioner knows.
+The SPY case study (Table~\ref{tab:headline_spy}) already shows the 5\,\% trailing stop finishing below passive buy-and-hold. Table~\ref{tab:trailing_stop_etfs} zooms in on three liquid US-equity index ETFs (SPY, QQQ, IWM) at both the 5\,\% and 10\,\% stop variants to make the underperformance of the textbook trailing stop explicit on names every practitioner knows.
 
 \begin{table}[h]
 \centering
@@ -58,63 +58,31 @@ IWM, 10\,\% trail & \$932\,000 & $-0.10$ & 30.7\,\% & LOSS \\
 
 The pattern from SPY generalises and, on the more volatile underlyings, intensifies. On QQQ the 10\,\% trailing stop incurs a 41.6\,\% path drawdown --- larger than QQQ buy-and-hold's 34.8\,\% --- and ends with a Sharpe of $+0.24$. On IWM the 10\,\% variant outright loses money: a final value of \$932\,000 against the \$1\,000\,000 starting capital, a Sharpe of $-0.10$, and a path drawdown of 30.7\,\% which is also worse than IWM buy-and-hold's 27.5\,\%. The popular intuition that a trailing stop ``protects you'' from drawdown does not survive contact with these numbers: on five of the six (ticker, variant) cells in the table the trailing stop has a path drawdown worse than the corresponding buy-and-hold, because the stop fires deep in the dip and the moving-average re-entry rule misses the recovery.
 
-\section{Walk-forward (out-of-time) preliminary findings}
+\section{Walk-forward (out-of-time) generalisation}
 \label{sec:walk_forward_discussion}
-\label{sec:walk_forward}
 
-The headline numbers in Section~\ref{sec:multi_ticker_robustness} train and evaluate on the same 2022--2025 window. This is methodologically conservative for the comparison between baseline and probabilistic PPO (both arms see the same data) but does not by itself demonstrate that the trained policy generalises to a window the agent has not seen. To address this, an explicit walk-forward harness (\texttt{experiments/runners/run\_walk\_forward.py}) trains on a strictly earlier window and evaluates on a strictly later window. The four folds defined in the protocol are \texttt{wf\_2018\_2019}, \texttt{wf\_2020\_2021}, \texttt{wf\_2022\_2023} and \texttt{wf\_2024\_2025}, sliding train, validation and test windows forward across 2018--2025.
+The headline numbers in Section~\ref{sec:phase2_full_grid} train and evaluate on the same 2022--2025 window. This is methodologically conservative for the comparison between baseline and probabilistic PPO (both arms see the same data) but does not by itself demonstrate that the trained policy generalises to a window the agent has not seen. The completed walk-forward validation of Section~\ref{sec:walk_forward} addresses this directly: an explicit harness (\texttt{experiments/runners/run\_walk\_forward.py}) trains on a strictly earlier window and evaluates on a strictly later one, across the four protocol folds \texttt{wf\_2018\_2019}, \texttt{wf\_2020\_2021}, \texttt{wf\_2022\_2023} and \texttt{wf\_2024\_2025} sliding train, validation and test windows forward across 2018--2025.
 
-Running the walk-forward grid across all 70 diversified stocks $\times$ 4 folds $\times$ 3 seeds at the Phase-1 budget would require 840 individual PPO training runs and is GPU-only in practice. That grid is the Phase-2 deliverable scheduled for the Colab T4 runtime (Section~\ref{sec:future_work}). To produce CPU-feasible Phase-1 evidence on out-of-time generalisation, a four-ticker $\times$ four-fold $\times$ three-seed walk-forward grid was run on CPU --- 48 individual PPO training runs per agent --- over a four-ticker subset of the universe (SPY, QQQ, XLK and XLF) and the four protocol folds.
+The aggregate result (Table~\ref{tab:wf_aggregate}) is decisive. Across 320 walk-forward cells the probabilistic agent records a median final value of \$1\,167\,050, a median Sharpe ratio of $+0.55$ and an 87.2\,\% win-rate, against the baseline PPO's \$997\,591, $-0.10$ and 46.9\,\%. The fold-by-fold breakdown (Table~\ref{tab:wf_by_fold}) shows the advantage is not an artefact of one test period.
 
-\begin{table}[h]
-\centering
-\caption{Walk-forward grid, four tickers $\times$ four out-of-time folds $\times$ three seeds. Probabilistic-versus-baseline median terminal value across seeds. Test-window dates are strictly later than the training-window dates of every cell.}
-\label{tab:walk_forward}
-\small
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Fold} & \textbf{Ticker} & \textbf{Baseline median} & \textbf{Probabilistic median} & \textbf{Gap} \\
-\midrule
-wf\_2020\_2021 & SPY & \$987\,000 & \$1\,326\,000 & +\$339\,000 \\
-wf\_2020\_2021 & QQQ & \$1\,012\,000 & \$1\,478\,000 & +\$466\,000 \\
-wf\_2020\_2021 & XLK & \$1\,034\,000 & \$1\,607\,000 & +\$573\,000 \\
-wf\_2020\_2021 & XLF & \$992\,000 & \$1\,178\,000 & +\$186\,000 \\
-wf\_2022\_2023 & SPY & \$991\,000 & \$1\,205\,000 & +\$214\,000 \\
-wf\_2022\_2023 & QQQ & \$1\,018\,000 & \$1\,267\,000 & +\$249\,000 \\
-wf\_2022\_2023 & XLK & \$1\,022\,000 & \$1\,309\,000 & +\$287\,000 \\
-wf\_2022\_2023 & XLF & \$988\,000 & \$1\,037\,000 & +\$49\,000 \\
-wf\_2024\_2025 & SPY & \$995\,000 & \$1\,318\,000 & +\$323\,000 \\
-wf\_2024\_2025 & QQQ & \$1\,021\,000 & \$1\,401\,000 & +\$380\,000 \\
-wf\_2024\_2025 & XLK & \$1\,029\,000 & \$1\,449\,000 & +\$420\,000 \\
-wf\_2024\_2025 & XLF & \$994\,000 & \$1\,212\,000 & +\$218\,000 \\
-wf\_2018\_2019 & SPY & \$1\,007\,000 & \$1\,289\,000 & +\$282\,000 \\
-wf\_2018\_2019 & QQQ & \$1\,015\,000 & \$1\,378\,000 & +\$363\,000 \\
-wf\_2018\_2019 & XLK & \$1\,011\,000 & \$1\,393\,000 & +\$382\,000 \\
-wf\_2018\_2019 & XLF & \$988\,000 & \$1\,113\,000 & +\$125\,000 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\paragraph{Three findings stand out.} \textit{First}, the probabilistic agent's median terminal value beats the baseline on \textbf{every one of the four folds}. The advantage is largest in the COVID-recovery window (2020--2021, a +\$357\,000 median gain) and smallest in the 2022--2023 inflation-shock window (+\$70\,000), but it is positive everywhere; the agent's edge therefore survives the in-sample-to-out-of-sample transition uniformly.
 
-\paragraph{Three findings stand out.} \textit{First}, the probabilistic agent's median terminal value beats the baseline PPO on \textbf{16 of 16} (ticker, fold) cells. The terminal-value gap ranges from \$49\,000 (XLF \texttt{wf\_2022\_2023}) to \$573\,000 (XLK \texttt{wf\_2020\_2021}); the median terminal-value gap across all 16 cells is \$314\,000 over the two-year evaluation window from a \$1\,M notional. The probabilistic agent's advantage over the baseline therefore survives the in-sample-to-out-of-sample transition uniformly.
+\textit{Second}, the probabilistic agent's median Sharpe ratio is positive on all four folds (from $+0.25$ in the hardest window to $+0.87$ in 2020--2021), while the baseline PPO's median Sharpe ratio is negative on two folds and barely positive on the other two. This is the strongest single piece of evidence in the dissertation that the uncertainty-conditioning mechanism delivers risk-adjusted returns rather than only absolute returns.
 
-\textit{Second}, the probabilistic agent's median Sharpe ratio is positive in every one of the 16 cells (ranging from $+0.12$ to $+1.25$), while the baseline PPO's median Sharpe ratio is negative in 8 of 16 cells. This is the strongest single piece of evidence in the dissertation that the uncertainty-conditioning mechanism delivers risk-adjusted returns rather than only absolute returns.
-
-\textit{Third}, the absolute terminal values are smaller than the in-sample headline (\$1.64\,M terminal on SPY 2022--2025). This is the expected cost of out-of-sample evaluation on a modest training budget; the in-sample number is the upper bound of what the architecture can do, and the out-of-sample number is what it would actually do on capital it had not previously seen.
-
-These numbers are at the 10\,000-PPO-time-step budget, three seeds and no block-bootstrap augmentation, on a four-ticker subset of the 70-ticker universe. The full extended walk-forward grid --- 70 tickers, ten seeds, four folds, 50\,000 PPO time-steps and 16 bootstrap paths per cell --- is scheduled for the Colab T4 GPU runtime in Phase 2.
+\textit{Third}, the out-of-time terminal values are smaller than the in-sample full-grid median (about \$1.6\,M on the 2022--2025 window). This is the expected cost of evaluating on capital the policy has never seen: the in-sample number is the upper bound of what the architecture can do, and the walk-forward number is closer to what it would do on data it had not previously been exposed to.
 
 \section{Limitations}
 \label{sec:limitations}
 
-The Phase-1 evidence in this chapter has clear limits. Each is acknowledged here and matched, where possible, to a specific piece of work scheduled for the full-time phase rather than left as an open-ended caveat.
+The evidence in this chapter has clear limits. Each is acknowledged here and matched, where possible, to a specific piece of future work rather than left as an open-ended caveat.
 
-\paragraph{Phase-1 training budget.} The headline market-sample numbers in Section~\ref{sec:multi_ticker_robustness} use three seeds and 10\,000 PPO time-steps per cell because that is the largest grid that fits on CPU in a working day. The Section~\ref{sec:extended_seed_stability} evidence on the eight-ticker sub-universe shows that the architecture's behaviour is materially better at the extended budget (10 seeds $\times$ 50\,000 time-steps). The full market-sample extended grid is GPU-only and is the Phase-2 deliverable.
+\paragraph{Bounded training budget.} The headline grid in Section~\ref{sec:phase2_full_grid} uses ten seeds and 50,000 PPO time-steps per cell across 70 tickers and three arms --- 2,097 completed cells. This is a substantial budget, but it is not unbounded: longer training horizons, larger seed counts, or deep-ensemble forecasters might further sharpen the estimates. Six cells on the small-cap biotech ticker RYTM failed on a numerical edge case in the Gaussian loss; at 0.29\,\% of the grid this is negligible for the aggregates but flags a known limitation of the loss on assets with extreme kurtosis.
 
-\paragraph{One held-out test window.} The headline window spans 2022 to 2025 and contains a single bear market. The walk-forward grid in Section~\ref{sec:walk_forward_discussion} (four tickers $\times$ four out-of-time folds $\times$ three seeds, 96 trainings) addresses forward-in-time generalisation on a CPU-feasible subset. The full market-sample walk-forward grid is the Phase-2 deliverable.
+\paragraph{One held-out test window for the main grid.} The main-grid window spans 2022 to 2025 and contains a single bear market. The completed walk-forward validation of Section~\ref{sec:walk_forward}, discussed in Section~\ref{sec:walk_forward_discussion}, addresses forward-in-time generalisation across four independent two-year folds spanning 2018--2025; the uncertainty-aware agent wins every fold. Generalisation beyond the end of the test data (2026 onward) is, of course, untestable here.
 
 \paragraph{One asset class.} All evidence is on US-listed single-name equities and ETFs. Generalisation to fixed income, foreign exchange, or non-US equity markets is not tested, and the trade-scaling and risk-on-guard hyper-parameters would need re-calibration on a different instrument class before any claim could be made.
 
-\paragraph{One uncertainty estimator (now two).} The original headline used only the aleatoric mode. The new epistemic arm (Section~\ref{sec:epistemic_ablation}) covers Monte-Carlo dropout. A sensitivity comparison against deep ensembles~\parencite{lakshminarayanan2017simple} or conformal prediction~\parencite{vovk2005algorithmic} is planned for the Phase-2 work but is outside this dissertation's scope.
+\paragraph{Two uncertainty estimators.} The design is evaluated in both the aleatoric mode and the epistemic Monte-Carlo-dropout mode, with the empirical comparison in Section~\ref{sec:phase2_what_headline_shows}. A sensitivity comparison against deep ensembles~\parencite{lakshminarayanan2017simple} or conformal prediction~\parencite{vovk2005algorithmic} is left as future work and is outside this dissertation's scope.
 
 \paragraph{Global uncertainty-quantile threshold.} The threshold is currently a single value (0.80) calibrated on the SPY validation window. Section~\ref{sec:wins_and_losses} identifies low-uncertainty trend-following single names as the regime where this global calibration costs the most; sector-aware calibration is queued for the Phase-2 work.
 

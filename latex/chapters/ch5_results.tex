@@ -1,7 +1,7 @@
 \chapter{Results}
 \label{ch:results}
 
-This chapter reports the empirical results in seven sections. Section~\ref{sec:experimental_setup} restates the setup so the chapter can be read standalone. Section~\ref{sec:forecast_uncertainty} shows the forecaster's uncertainty signal in both modes. Section~\ref{sec:headline_aggregate} is the single-ticker headline comparison on SPY. Section~\ref{sec:equity_curves} shows the equity curves and the drawdown story. Section~\ref{sec:phase2_full_grid} presents the full Phase-2 results across 70 stocks. Section~\ref{sec:walk_forward} reports the walk-forward validation. Section~\ref{sec:phase2_interpretation} is the honest interpretation of all Phase-2 evidence.
+This chapter reports the empirical results in seven sections. Section~\ref{sec:experimental_setup} restates the setup so the chapter can be read standalone. Section~\ref{sec:forecast_uncertainty} shows the forecaster's uncertainty signal in both modes. Section~\ref{sec:headline_aggregate} is the single-ticker case study on SPY. Section~\ref{sec:equity_curves} shows the equity curves and the drawdown story. Section~\ref{sec:phase2_full_grid} presents the full Phase-2 results across 70 stocks. Section~\ref{sec:walk_forward} reports the walk-forward validation. Section~\ref{sec:phase2_interpretation} is the honest interpretation of all Phase-2 evidence.
 
 \section{Experimental setup}
 \label{sec:experimental_setup}
@@ -30,19 +30,12 @@ Figure~\ref{fig:uncertainty_signal} shows the normalised uncertainty score $u_t$
 \label{fig:uncertainty_signal}
 \end{figure}
 
-The epistemic-mode uncertainty score from Equation~\ref{eq:epistemic_uncertainty} is plotted alongside the aleatoric score in Figure~\ref{fig:uncertainty_aleatoric_vs_epistemic} (rendered in the walkthrough notebook). The empirical correlation between the two signals on the SPY test window is about $0.05$ --- close to zero, which is informative. The two signals capture genuinely different things: aleatoric measures data-noise (``how chaotic is the market right now?''), epistemic measures model unfamiliarity (``how different from the training distribution does today look?''). Section~\ref{sec:phase2_full_grid} reports the empirical consequence for the trained agent across the full market sample.
+The epistemic-mode uncertainty score from Equation~\ref{eq:epistemic_uncertainty} is computed alongside the aleatoric score in the walkthrough notebook. The empirical correlation between the two signals on the SPY test window is about $0.05$ --- close to zero, which is informative and confirms that the two scores capture distinct quantities. The two signals measure genuinely different things: aleatoric measures data-noise (``how chaotic is the market right now?''), while epistemic measures model unfamiliarity (``how different from the training distribution does today look?''). Section~\ref{sec:phase2_full_grid} reports the empirical consequence for the trained agent across the full market sample.
 
-\begin{figure}[h]
-\centering
-\framebox{\parbox[c][3cm][c]{0.85\textwidth}{\centering\textit{Figure to be exported from \texttt{notebooks/01\_Project\_Walkthrough.ipynb}: aleatoric and epistemic uncertainty signals plotted on the same SPY price chart, with the threshold $\tau$ marked.}}}
-\caption{Aleatoric and epistemic uncertainty signals over the SPY test window. The empirical correlation between the two is approximately $0.05$, confirming that they capture distinct quantities.}
-\label{fig:uncertainty_aleatoric_vs_epistemic}
-\end{figure}
-
-\section{Aggregate comparison on SPY}
+\section{Single-ticker case study on SPY}
 \label{sec:headline_aggregate}
 
-Table~\ref{tab:headline_spy} is the headline single-ticker comparison. It reports five rows on the SPY test window: passive buy-and-hold, the rule-based 5\,\% trailing stop-loss, the baseline PPO of Section~\ref{sec:baseline_ppo}, and the probabilistic PPO of Section~\ref{sec:env_and_contribution} in both aleatoric and epistemic modes. The numbers for the two reinforcement-learning rows are means across three seeds; the numbers for the benchmark rows are deterministic.
+Table~\ref{tab:headline_spy} is the single-ticker case-study comparison, reported as an illustrative example ahead of the canonical Phase-2 grid of Section~\ref{sec:phase2_full_grid}. It reports five rows on the SPY test window: passive buy-and-hold, the rule-based 5\,\% trailing stop-loss, the baseline PPO of Section~\ref{sec:baseline_ppo}, and the probabilistic PPO of Section~\ref{sec:env_and_contribution} in both aleatoric and epistemic modes. The numbers for the two reinforcement-learning rows are means across three seeds; the numbers for the benchmark rows are deterministic.
 
 \begin{table}[h]
 \centering

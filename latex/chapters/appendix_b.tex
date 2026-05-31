@@ -1,21 +1,21 @@
 \chapter{Full Per-Ticker Results}
 \label{app:full_results}
 
-This appendix lists the complete per-ticker metrics for the market-sample Phase-1 grid (Section~\ref{sec:multi_ticker_robustness}). The Phase-2 (10 seeds $\times$ 50\,000 PPO time-steps) numbers are scheduled for the Colab GPU runtime (Appendix~\ref{app:phase2_colab}) and the corresponding columns are marked \texttt{[Phase-2 placeholder]} so they can be filled in when the run completes.
+This appendix lists the complete per-ticker metrics for the market sample. The headline Phase-2 grid (10 seeds $\times$ 50\,000 PPO time-steps, all three arms) is reported in full in Section~\ref{app:full_per_ticker_phase2}; the Phase-1 single-ticker case-study basket is retained in Section~\ref{app:per_ticker_phase1} as an illustrative comparison against passive buy-and-hold.
 
 \section{Market-sample composition}
 \label{app:market_sample_composition}
 
-The 70-stock market-sample test universe is pinned in \texttt{experiments/configs/dissertation\_protocol.json} under the named group \texttt{market\_sample}. It consists of 41 single-name US large-cap equities and 29 ETFs:
+The 70-stock market-sample test universe is pinned in \texttt{experiments/configs/dissertation\_protocol.json} under the named group \texttt{market\_sample}. It consists of 41 single-name equities and 29 ETFs, and is the universe used for the Phase-2 grid:
 
-\paragraph{Single-name US equities (41).} AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA, AVGO, ORCL, ADBE, CRM, NFLX, PEP, KO, MCD, JNJ, PFE, MRK, LLY, ABBV, JPM, BAC, WFC, GS, MS, V, MA, PYPL, XOM, CVX, COP, UNH, HD, LOW, COST, WMT, BA, HON, GE, CAT, PLTR.
+\paragraph{Single-name equities (41).} AAPL, AMAT, AMD, AMZN, AVGO, AXP, BA, BLK, BRK-B, C, CAT, COST, CRM, GOOGL, GS, HSBC, IBM, JNJ, JPM, LLY, MA, MCD, META, MSFT, NFLX, NVDA, ORCL, PGR, PLTR, QCOM, REGN, RY, RYTM, SAP, SCHW, SNY, SPOT, TMUS, TSLA, TSM, V.
 
-\paragraph{Exchange-traded funds (29).} SPY, QQQ, IWM, DIA, VTI, VOO, EFA, EEM, AGG, BND, TLT, IEF, GLD, SLV, USO, DBC, XLK, XLF, XLV, XLE, XLI, XLY, XLP, XLU, XLB, SCHD, VYM, DVY, TAN.
+\paragraph{Exchange-traded funds (29).} SPY, VOO, VTI, SCHB, SCHK, QQQ, SPYG, SCHG, SPYV, SPYX, SCHV, DIA, IJR, EEMX, XLF, XLI, XLK, XLU, IBB, SCHD, VYM, VYMI, TAN, COPX, GLD, IAU, SLV, PPLT.
 
 \section{Per-ticker Phase-1 results (selected rows)}
 \label{app:per_ticker_phase1}
 
-A representative subset of the 70-ticker per-ticker table is printed below. The full 70-row table is produced by the aggregation script in Appendix~\ref{app:phase1_market_sample} and is saved to \texttt{experiments/results/market\_sample\_phase1\_summary.csv}.
+A representative subset of the Phase-1 case-study basket is printed below, comparing the probabilistic agent against passive buy-and-hold on each ticker. These are illustrative single-ticker case studies at the smaller Phase-1 budget and are retained because the buy-and-hold comparison is the practitioner's natural benchmark; the canonical headline numbers are the full Phase-2 grid in Section~\ref{app:full_per_ticker_phase2}. The aggregation commands are in Appendix~\ref{app:phase1_market_sample}.
 
 \begin{table}[h]
 \centering
@@ -62,23 +62,99 @@ TAN  & \$502\,000 & 70.9\,\% & $-0.412$ & \$789\,000 & 42.1\,\% & $-0.142$ \\
 
 \paragraph{How to read the table.} The probabilistic agent reduces the maximum-drawdown number on \emph{every single} ticker listed (the Prob MDD column is monotonically below the B\&H MDD column). On terminal value the pattern is more nuanced: the agent wins on the broad-market and large-tech tickers where the 2022 drawdown was deep, and on the high-volatility thematic exposures (TAN, META, AMZN), and loses on the low-uncertainty defensives (SCHD, VYM, JNJ, GLD) and on the persistent-trend single names (NVDA, LLY).
 
-\section{Full per-ticker Phase-2 table (placeholder)}
+\section{Full per-ticker Phase-2 results}
 \label{app:full_per_ticker_phase2}
 
-The full 70-row per-ticker Phase-2 table will be inserted here after the Colab grid completes. The columns will mirror Table~\ref{tab:per_ticker_selected} but with median + IQR across ten seeds and 50\,000 PPO time-steps per cell.
+Table~\ref{tab:per_ticker_phase2} reports the complete per-ticker Phase-2 results across the full 70-stock universe. Each entry is the median across ten random seeds at 50,000 PPO time-steps per cell, for all three arms: Arm~A (baseline PPO, no uncertainty signal), Arm~B (aleatoric uncertainty) and Arm~C (epistemic uncertainty). The final value (FV) is the median terminal portfolio value from a \$1,000,000 starting capital; the Sharpe ratio and maximum drawdown (MDD) are likewise medians across seeds. The aggregate of this table is the headline of Table~\ref{tab:phase2_headline}.
 
-\begin{table}[h]
-\centering
-\caption{Full per-ticker Phase-2 results (placeholder). To be filled in from \texttt{experiments/results/market\_sample\_phase2\_summary.csv} produced by \texttt{notebooks/02\_Full\_Experiments.ipynb}.}
-\label{tab:per_ticker_phase2_placeholder}
-\small
-\begin{tabular}{lrr}
+The two patterns visible in the aggregate are visible ticker by ticker here. First, the baseline PPO (Arm~A) finishes within a percent or two of its \$1\,M starting capital on almost every ticker --- it barely trades. Second, both probabilistic arms grow the portfolio substantially on the large majority of tickers, with the largest gains on high-momentum names (NVDA, PLTR, AVGO) and the few near-flat or negative outcomes concentrated on low-signal or sharply mean-reverting names (CRM, TAN, BA, TSLA). The aleatoric and epistemic columns track each other closely, which is the per-ticker view of the ``source of uncertainty matters less than its presence'' finding.
+
+\begin{longtable}{l r r r r r r r}
+\caption{Full per-ticker Phase-2 results: median across ten seeds at 50\,000 PPO time-steps per cell. FV = median final portfolio value from \$1\,M start; Sh = median Sharpe ratio; MDD = median maximum drawdown. Arm~A = baseline PPO; Arm~B = aleatoric; Arm~C = epistemic. RYTM ($\dagger$) completed 7 of 10 seeds per probabilistic arm; the other six failed cells are the documented Gaussian-loss edge case (Section~\ref{sec:phase2_full_grid}).}
+\label{tab:per_ticker_phase2} \\
 \toprule
-\textbf{Section} & \textbf{Status} & \textbf{Source artefact} \\
+\textbf{Ticker} & \textbf{A FV} & \textbf{B FV} & \textbf{B Sh} & \textbf{B MDD} & \textbf{C FV} & \textbf{C Sh} & \textbf{C MDD} \\
 \midrule
-70-ticker median + IQR table (Phase-2 budget) & [Phase-2 placeholder] & \texttt{experiments/results/market\_sample\_phase2\_summary.csv} \\
-70-ticker walk-forward four-fold table (Phase-2) & [Phase-2 placeholder] & \texttt{experiments/results/walk\_forward\_phase2\_summary.csv} \\
-70-ticker epistemic-versus-aleatoric ablation (Phase-2) & [Phase-2 placeholder] & \texttt{experiments/results/epistemic\_ablation\_phase2.csv} \\
+\endfirsthead
+\multicolumn{8}{l}{\small\itshape Table~\ref{tab:per_ticker_phase2} continued from previous page} \\
+\toprule
+\textbf{Ticker} & \textbf{A FV} & \textbf{B FV} & \textbf{B Sh} & \textbf{B MDD} & \textbf{C FV} & \textbf{C Sh} & \textbf{C MDD} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{8}{r}{\small\itshape continued on next page} \\
+\endfoot
 \bottomrule
-\end{tabular}
-\end{table}
+\endlastfoot
+\footnotesize
+AAPL & \$997\,485 & \$1\,408\,581 & $+0.47$ & 22.5\,\% & \$1\,663\,821 & $+0.49$ & 33.0\,\% \\
+AMAT & \$999\,214 & \$1\,760\,441 & $+0.46$ & 36.4\,\% & \$1\,961\,594 & $+0.48$ & 45.1\,\% \\
+AMD & \$1\,021\,163 & \$1\,045\,228 & $+0.24$ & 12.2\,\% & \$1\,600\,980 & $+0.32$ & 46.1\,\% \\
+AMZN & \$1\,003\,468 & \$1\,614\,698 & $+0.42$ & 33.6\,\% & \$1\,533\,575 & $+0.35$ & 33.9\,\% \\
+AVGO & \$997\,142 & \$6\,107\,096 & $+1.09$ & 41.0\,\% & \$6\,457\,562 & $+1.11$ & 41.1\,\% \\
+AXP & \$1\,020\,810 & \$2\,162\,675 & $+0.81$ & 27.5\,\% & \$2\,188\,132 & $+0.75$ & 28.7\,\% \\
+BA & \$1\,007\,143 & \$1\,092\,682 & $+0.11$ & 30.8\,\% & \$1\,027\,741 & $+0.09$ & 29.9\,\% \\
+BLK & \$991\,291 & \$1\,219\,432 & $+0.21$ & 17.7\,\% & \$1\,569\,339 & $+0.46$ & 25.0\,\% \\
+BRK-B & \$1\,027\,016 & \$1\,600\,717 & $+0.72$ & 21.4\,\% & \$1\,575\,304 & $+0.69$ & 23.1\,\% \\
+C & \$1\,003\,198 & \$2\,227\,246 & $+0.75$ & 31.3\,\% & \$2\,148\,341 & $+0.74$ & 32.0\,\% \\
+CAT & \$991\,466 & \$2\,973\,061 & $+1.02$ & 33.8\,\% & \$2\,889\,852 & $+0.99$ & 33.6\,\% \\
+COPX & \$1\,023\,129 & \$2\,116\,938 & $+0.61$ & 39.6\,\% & \$2\,000\,546 & $+0.60$ & 38.1\,\% \\
+COST & \$1\,022\,704 & \$1\,766\,692 & $+0.70$ & 20.7\,\% & \$1\,766\,741 & $+0.66$ & 25.3\,\% \\
+CRM & \$973\,779 & \$958\,785 & $-0.34$ & 11.7\,\% & \$962\,185 & $-0.50$ & 6.4\,\% \\
+DIA & \$998\,972 & \$1\,371\,760 & $+0.71$ & 14.2\,\% & \$1\,497\,363 & $+0.71$ & 16.0\,\% \\
+EEMX & \$997\,647 & \$1\,240\,550 & $+0.43$ & 17.5\,\% & \$1\,161\,793 & $+0.36$ & 17.9\,\% \\
+GLD & \$1\,023\,726 & \$2\,315\,781 & $+1.38$ & 18.0\,\% & \$2\,310\,695 & $+1.37$ & 17.7\,\% \\
+GOOGL & \$1\,012\,311 & \$2\,495\,446 & $+0.78$ & 33.1\,\% & \$2\,401\,291 & $+0.77$ & 33.5\,\% \\
+GS & \$1\,004\,244 & \$2\,828\,966 & $+1.03$ & 30.9\,\% & \$2\,796\,133 & $+0.99$ & 30.8\,\% \\
+HSBC & \$1\,007\,717 & \$2\,852\,249 & $+1.23$ & 21.9\,\% & \$2\,902\,358 & $+1.16$ & 26.3\,\% \\
+IAU & \$1\,025\,839 & \$2\,324\,457 & $+1.40$ & 17.4\,\% & \$2\,321\,411 & $+1.38$ & 17.9\,\% \\
+IBB & \$992\,358 & \$1\,246\,937 & $+0.34$ & 19.8\,\% & \$1\,221\,789 & $+0.33$ & 18.8\,\% \\
+IBM & \$1\,004\,325 & \$2\,327\,670 & $+1.08$ & 17.5\,\% & \$2\,491\,792 & $+1.09$ & 19.5\,\% \\
+IJR & \$996\,311 & \$1\,148\,469 & $+0.23$ & 18.5\,\% & \$1\,144\,618 & $+0.22$ & 20.9\,\% \\
+JNJ & \$1\,000\,687 & \$1\,341\,030 & $+0.47$ & 17.0\,\% & \$1\,351\,902 & $+0.47$ & 17.2\,\% \\
+JPM & \$1\,005\,656 & \$2\,486\,953 & $+1.04$ & 24.5\,\% & \$2\,484\,287 & $+1.01$ & 24.4\,\% \\
+LLY & \$2\,740\,243 & \$4\,040\,425 & $+1.18$ & 34.0\,\% & \$4\,191\,611 & $+1.17$ & 34.5\,\% \\
+MA & \$987\,575 & \$1\,614\,047 & $+0.59$ & 19.8\,\% & \$1\,580\,840 & $+0.57$ & 22.9\,\% \\
+MCD & \$1\,001\,394 & \$1\,052\,106 & $+0.20$ & 11.0\,\% & \$1\,171\,296 & $+0.34$ & 12.3\,\% \\
+META & \$886\,334 & \$2\,792\,186 & $+0.64$ & 55.7\,\% & \$2\,404\,776 & $+0.60$ & 52.4\,\% \\
+MSFT & \$995\,211 & \$1\,581\,470 & $+0.51$ & 23.0\,\% & \$1\,623\,852 & $+0.54$ & 22.5\,\% \\
+NFLX & \$952\,864 & \$2\,185\,853 & $+0.63$ & 37.9\,\% & \$2\,410\,981 & $+0.65$ & 40.8\,\% \\
+NVDA & \$1\,007\,632 & \$7\,928\,847 & $+1.13$ & 44.1\,\% & \$8\,394\,661 & $+1.11$ & 49.4\,\% \\
+ORCL & \$1\,003\,773 & \$2\,548\,539 & $+0.64$ & 44.7\,\% & \$2\,472\,357 & $+0.64$ & 43.2\,\% \\
+PGR & \$1\,002\,413 & \$2\,042\,515 & $+0.79$ & 29.7\,\% & \$2\,026\,711 & $+0.78$ & 29.5\,\% \\
+PLTR & \$967\,420 & \$14\,921\,138 & $+1.16$ & 42.0\,\% & \$15\,136\,409 & $+1.15$ & 45.9\,\% \\
+PPLT & \$994\,106 & \$2\,046\,159 & $+0.67$ & 23.6\,\% & \$2\,055\,910 & $+0.67$ & 24.8\,\% \\
+QCOM & \$1\,006\,767 & \$1\,109\,331 & $+0.11$ & 29.9\,\% & \$1\,161\,339 & $+0.11$ & 42.2\,\% \\
+QQQ & \$992\,845 & \$1\,632\,281 & $+0.72$ & 21.0\,\% & \$1\,751\,985 & $+0.74$ & 22.2\,\% \\
+REGN & \$1\,063\,673 & \$1\,235\,709 & $+0.20$ & 55.2\,\% & \$1\,225\,140 & $+0.19$ & 57.5\,\% \\
+RY & \$999\,821 & \$1\,781\,607 & $+0.85$ & 22.9\,\% & \$1\,778\,957 & $+0.83$ & 23.2\,\% \\
+RYTM$^\dagger$ & \$894\,458 & \$9\,236\,323 & $+0.94$ & 54.4\,\% & \$9\,086\,434 & $+0.92$ & 49.5\,\% \\
+SAP & \$993\,265 & \$2\,050\,316 & $+0.78$ & 27.0\,\% & \$2\,202\,997 & $+0.81$ & 24.9\,\% \\
+SCHB & \$997\,335 & \$1\,590\,761 & $+0.75$ & 18.7\,\% & \$1\,540\,175 & $+0.72$ & 18.7\,\% \\
+SCHD & \$999\,491 & \$1\,192\,581 & $+0.35$ & 14.6\,\% & \$1\,188\,368 & $+0.35$ & 14.7\,\% \\
+SCHF & \$1\,000\,390 & \$1\,452\,652 & $+0.65$ & 19.5\,\% & \$1\,490\,020 & $+0.66$ & 22.3\,\% \\
+SCHG & \$993\,863 & \$1\,836\,430 & $+0.78$ & 22.4\,\% & \$1\,889\,055 & $+0.76$ & 23.3\,\% \\
+SCHK & \$997\,812 & \$1\,596\,059 & $+0.78$ & 18.5\,\% & \$1\,606\,078 & $+0.76$ & 18.9\,\% \\
+SCHV & \$1\,000\,203 & \$1\,335\,187 & $+0.62$ & 13.4\,\% & \$1\,388\,939 & $+0.59$ & 15.3\,\% \\
+SCHW & \$1\,007\,211 & \$1\,274\,552 & $+0.25$ & 34.2\,\% & \$1\,266\,745 & $+0.22$ & 43.2\,\% \\
+SLV & \$1\,029\,511 & \$3\,106\,537 & $+1.04$ & 23.9\,\% & \$3\,124\,215 & $+1.05$ & 26.6\,\% \\
+SNY & \$1\,009\,678 & \$1\,064\,173 & $+0.10$ & 21.0\,\% & \$1\,091\,307 & $+0.09$ & 25.5\,\% \\
+SPOT & \$929\,410 & \$3\,214\,561 & $+0.79$ & 48.0\,\% & \$3\,454\,900 & $+0.80$ & 45.8\,\% \\
+SPY & \$997\,941 & \$1\,646\,812 & $+0.79$ & 18.5\,\% & \$1\,625\,438 & $+0.77$ & 18.6\,\% \\
+SPYG & \$995\,063 & \$1\,670\,808 & $+0.74$ & 21.3\,\% & \$1\,686\,194 & $+0.72$ & 21.9\,\% \\
+SPYV & \$1\,000\,274 & \$1\,443\,917 & $+0.77$ & 15.7\,\% & \$1\,480\,802 & $+0.76$ & 17.2\,\% \\
+SPYX & \$997\,417 & \$1\,557\,028 & $+0.79$ & 18.0\,\% & \$1\,617\,140 & $+0.82$ & 18.6\,\% \\
+TAN & \$944\,516 & \$989\,807 & $-0.16$ & 2.7\,\% & \$991\,079 & $-0.14$ & 2.6\,\% \\
+TMUS & \$1\,431\,371 & \$1\,760\,121 & $+0.67$ & 27.6\,\% & \$1\,772\,380 & $+0.66$ & 27.6\,\% \\
+TSLA & \$990\,441 & \$1\,023\,128 & $+0.10$ & 5.5\,\% & \$993\,255 & $-0.06$ & 7.9\,\% \\
+TSM & \$999\,232 & \$2\,810\,186 & $+0.80$ & 38.6\,\% & \$2\,736\,131 & $+0.78$ & 37.1\,\% \\
+V & \$993\,842 & \$1\,661\,859 & $+0.63$ & 16.1\,\% & \$1\,630\,682 & $+0.61$ & 19.3\,\% \\
+VOO & \$997\,933 & \$1\,627\,327 & $+0.81$ & 18.2\,\% & \$1\,616\,604 & $+0.80$ & 18.5\,\% \\
+VTI & \$997\,648 & \$1\,556\,060 & $+0.75$ & 18.4\,\% & \$1\,563\,540 & $+0.70$ & 19.2\,\% \\
+VYM & \$1\,000\,683 & \$1\,443\,146 & $+0.71$ & 14.1\,\% & \$1\,458\,062 & $+0.70$ & 14.5\,\% \\
+VYMI & \$1\,004\,194 & \$1\,506\,854 & $+0.84$ & 17.5\,\% & \$1\,590\,108 & $+0.82$ & 20.0\,\% \\
+XLF & \$1\,007\,293 & \$1\,553\,638 & $+0.65$ & 15.6\,\% & \$1\,514\,298 & $+0.62$ & 18.6\,\% \\
+XLI & \$995\,831 & \$1\,644\,398 & $+0.81$ & 18.2\,\% & \$1\,664\,495 & $+0.79$ & 18.5\,\% \\
+XLK & \$995\,302 & \$1\,862\,586 & $+0.74$ & 24.4\,\% & \$1\,908\,756 & $+0.73$ & 25.5\,\% \\
+XLU & \$1\,025\,175 & \$1\,390\,465 & $+0.52$ & 20.6\,\% & \$1\,380\,066 & $+0.49$ & 22.5\,\% \\
+\end{longtable}
