@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1051638.0044258388,
+  "annualized_return": 0.0130310472253307,
+  "annualized_volatility": 0.024611350289503734,
+  "sharpe_ratio": 0.5260495636304447,
+  "max_drawdown": 0.033137240936434775,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.03163265306122449,
+  "capital_preservation_rate_95pct_hwm": 0.9668627590635652,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "REGN",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

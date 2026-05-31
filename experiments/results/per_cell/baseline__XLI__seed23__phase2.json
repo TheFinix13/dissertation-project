@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 995242.4134570669,
+  "annualized_return": -0.0012255472295920064,
+  "annualized_volatility": 0.004473517799723404,
+  "sharpe_ratio": -0.27411432508774136,
+  "max_drawdown": 0.010002047846477402,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.00510204081632653,
+  "capital_preservation_rate_95pct_hwm": 0.9921881221981326,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "XLI",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

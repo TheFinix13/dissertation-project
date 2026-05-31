@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 994056.442380886,
+  "annualized_return": -0.0015317290673056469,
+  "annualized_volatility": 0.007942185822931115,
+  "sharpe_ratio": -0.19300388574636926,
+  "max_drawdown": 0.012061251453691635,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.007142857142857143,
+  "capital_preservation_rate_95pct_hwm": 0.9892272272834501,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "SPYX",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

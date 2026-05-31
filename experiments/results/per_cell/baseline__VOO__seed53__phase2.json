@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 994247.8828484019,
+  "annualized_return": -0.001482286573008221,
+  "annualized_volatility": 0.006704048739633743,
+  "sharpe_ratio": -0.221261983605811,
+  "max_drawdown": 0.010448753192030868,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.006122448979591836,
+  "capital_preservation_rate_95pct_hwm": 0.9900496112593882,
+  "meets_95pct_preservation_goal": true,
+  "seed": 53,
+  "ticker": "VOO",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

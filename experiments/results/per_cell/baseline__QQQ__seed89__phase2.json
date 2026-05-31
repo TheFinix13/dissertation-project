@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 992844.7120705763,
+  "annualized_return": -0.0018448415543573364,
+  "annualized_volatility": 0.00890710993339053,
+  "sharpe_ratio": -0.20730769858075357,
+  "max_drawdown": 0.016159999629498656,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9892769674675137,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "QQQ",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

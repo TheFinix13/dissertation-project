@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1085162.1256377762,
+  "annualized_return": 0.043935298948440595,
+  "annualized_volatility": 0.16811818737862802,
+  "sharpe_ratio": 0.255757413417637,
+  "max_drawdown": 0.15804192582989607,
+  "var_95": -0.017326766380777948,
+  "var_95_violation_rate": 0.05010438413361169,
+  "capital_preservation_rate_95pct_hwm": 1.0,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "XLF",
+  "fold_id": "wf_2022_2023",
+  "seed": 29,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2021-12-31",
+  "test_window": "2022-01-01/2023-12-31",
+  "device": "cpu"
+}

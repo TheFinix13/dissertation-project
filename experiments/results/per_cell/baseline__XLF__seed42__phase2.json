@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1008132.4413374001,
+  "annualized_return": 0.002084912158995176,
+  "annualized_volatility": 0.004269339037681792,
+  "sharpe_ratio": 0.4878189079458445,
+  "max_drawdown": 0.004434795810427716,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.003061224489795918,
+  "capital_preservation_rate_95pct_hwm": 0.999314597715151,
+  "meets_95pct_preservation_goal": true,
+  "seed": 42,
+  "ticker": "XLF",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

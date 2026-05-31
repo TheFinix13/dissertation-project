@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1019260.7434180207,
+  "annualized_return": 0.0049177218843430666,
+  "annualized_volatility": 0.01901567130394341,
+  "sharpe_ratio": 0.25797818844424286,
+  "max_drawdown": 0.027781862047154493,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.972570197959387,
+  "meets_95pct_preservation_goal": true,
+  "seed": 53,
+  "ticker": "AMD",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

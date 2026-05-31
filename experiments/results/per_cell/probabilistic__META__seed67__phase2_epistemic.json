@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 871664.7752392439,
+  "annualized_return": -0.034702238665890436,
+  "annualized_volatility": 0.07449521609822007,
+  "sharpe_ratio": -0.4741054641929105,
+  "max_drawdown": 0.21609798752594955,
+  "var_95": -0.0035453593929824835,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8665401512778999,
+  "meets_95pct_preservation_goal": false,
+  "seed": 67,
+  "ticker": "META",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

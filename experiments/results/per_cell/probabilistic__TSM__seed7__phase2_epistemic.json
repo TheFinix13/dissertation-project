@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 2822903.035936764,
+  "annualized_return": 0.305849860695938,
+  "annualized_volatility": 0.3723039648171772,
+  "sharpe_ratio": 0.7167636514742768,
+  "max_drawdown": 0.46968354918704913,
+  "var_95": -0.03478832626284092,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9728908021389104,
+  "meets_95pct_preservation_goal": true,
+  "seed": 7,
+  "ticker": "TSM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

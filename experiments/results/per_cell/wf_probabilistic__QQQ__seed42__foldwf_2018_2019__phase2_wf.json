@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1146023.6758852855,
+  "annualized_return": 0.07417894296977816,
+  "annualized_volatility": 0.12789003133692148,
+  "sharpe_ratio": 0.5595159075781762,
+  "max_drawdown": 0.15068525713302727,
+  "var_95": -0.015260791785200832,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.999446562193284,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "QQQ",
+  "fold_id": "wf_2018_2019",
+  "seed": 42,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2017-12-31",
+  "test_window": "2018-01-01/2019-12-31",
+  "device": "cpu"
+}

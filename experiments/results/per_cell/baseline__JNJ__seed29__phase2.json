@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1023263.2269855539,
+  "annualized_return": 0.005930972259595989,
+  "annualized_volatility": 0.01936024790477856,
+  "sharpe_ratio": 0.30544055123260805,
+  "max_drawdown": 0.0378974069344985,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.0336734693877551,
+  "capital_preservation_rate_95pct_hwm": 0.9973544660742455,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "JNJ",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

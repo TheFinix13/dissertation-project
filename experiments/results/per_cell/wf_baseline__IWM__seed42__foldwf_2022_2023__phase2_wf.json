@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 989671.3326305953,
+  "annualized_return": -0.00544723769846792,
+  "annualized_volatility": 0.01947499187725922,
+  "sharpe_ratio": -0.28046653411178596,
+  "max_drawdown": 0.02308049590249328,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.03549060542797495,
+  "capital_preservation_rate_95pct_hwm": 0.983855170697342,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_standalone",
+  "ticker": "IWM",
+  "fold_id": "wf_2022_2023",
+  "seed": 42,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2021-12-31",
+  "test_window": "2022-01-01/2023-12-31",
+  "device": "cpu"
+}

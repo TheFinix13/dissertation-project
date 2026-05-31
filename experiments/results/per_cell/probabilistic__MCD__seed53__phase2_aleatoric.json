@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 992258.858684844,
+  "annualized_return": -0.0019963285472208024,
+  "annualized_volatility": 0.004314845500760376,
+  "sharpe_ratio": -0.46311052161000094,
+  "max_drawdown": 0.013968622684637277,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.011224489795918367,
+  "capital_preservation_rate_95pct_hwm": 0.9863028372723202,
+  "meets_95pct_preservation_goal": true,
+  "seed": 53,
+  "ticker": "MCD",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

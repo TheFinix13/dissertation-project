@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1013086.3991238737,
+  "annualized_return": 0.003348840817403597,
+  "annualized_volatility": 0.02785863028868506,
+  "sharpe_ratio": 0.12000686509992373,
+  "max_drawdown": 0.07070467434973038,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.04285714285714286,
+  "capital_preservation_rate_95pct_hwm": 0.9357679601551623,
+  "meets_95pct_preservation_goal": false,
+  "seed": 13,
+  "ticker": "SLV",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

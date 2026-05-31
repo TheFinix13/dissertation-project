@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 2474272.2508517965,
+  "annualized_return": 0.26232798486352316,
+  "annualized_volatility": 0.21271292461101562,
+  "sharpe_ratio": 1.095172988873093,
+  "max_drawdown": 0.19107846773743986,
+  "var_95": -0.017632295789335915,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9715827969523003,
+  "meets_95pct_preservation_goal": true,
+  "seed": 67,
+  "ticker": "IBM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

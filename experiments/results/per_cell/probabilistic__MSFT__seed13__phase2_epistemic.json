@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 994048.82565713,
+  "annualized_return": -0.001533696351624569,
+  "annualized_volatility": 0.02059129688611374,
+  "sharpe_ratio": -0.07453934754698212,
+  "max_drawdown": 0.037095242990856314,
+  "var_95": -0.0012743429744118905,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9860819815823185,
+  "meets_95pct_preservation_goal": true,
+  "seed": 13,
+  "ticker": "MSFT",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

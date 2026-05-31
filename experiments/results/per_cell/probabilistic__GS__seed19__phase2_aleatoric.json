@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2843656.724546992,
+  "annualized_return": 0.30831184085879393,
+  "annualized_volatility": 0.2694412510522143,
+  "sharpe_ratio": 0.9973880231120905,
+  "max_drawdown": 0.3089572718724469,
+  "var_95": -0.023294956473775486,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9793091056179705,
+  "meets_95pct_preservation_goal": true,
+  "seed": 19,
+  "ticker": "GS",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

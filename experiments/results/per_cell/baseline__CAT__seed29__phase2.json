@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 990794.6423979208,
+  "annualized_return": -0.002375228914222118,
+  "annualized_volatility": 0.0048682378638551195,
+  "sharpe_ratio": -0.4884676488382742,
+  "max_drawdown": 0.012963975163477914,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.006122448979591836,
+  "capital_preservation_rate_95pct_hwm": 0.9907946423979208,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "CAT",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

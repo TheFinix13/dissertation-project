@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1529291.0193814475,
+  "annualized_return": 0.11542486425695504,
+  "annualized_volatility": 0.1853052441555933,
+  "sharpe_ratio": 0.5894883516611786,
+  "max_drawdown": 0.19898499590308572,
+  "var_95": -0.017141375021725302,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9271878965417124,
+  "meets_95pct_preservation_goal": false,
+  "seed": 67,
+  "ticker": "BLK",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

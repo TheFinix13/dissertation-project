@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1021960.5275781603,
+  "annualized_return": 0.005601510542677264,
+  "annualized_volatility": 0.011754816511803946,
+  "sharpe_ratio": 0.4751928695253478,
+  "max_drawdown": 0.018189170478045802,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.02040816326530612,
+  "capital_preservation_rate_95pct_hwm": 0.9989276536414889,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "BRK-B",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

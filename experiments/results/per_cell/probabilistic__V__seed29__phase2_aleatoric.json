@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1705950.2294938632,
+  "annualized_return": 0.14722470745887178,
+  "annualized_volatility": 0.19635323509009697,
+  "sharpe_ratio": 0.6994823218171505,
+  "max_drawdown": 0.1719567370324151,
+  "var_95": -0.019120199519900356,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9534638423228515,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "V",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

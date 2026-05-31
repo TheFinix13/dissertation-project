@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 5267466.951844703,
+  "annualized_return": 0.5330444724577291,
+  "annualized_volatility": 0.38211068722915936,
+  "sharpe_ratio": 1.1181457267010373,
+  "max_drawdown": 0.37718119672300077,
+  "var_95": -0.03264640524427502,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8594496748148635,
+  "meets_95pct_preservation_goal": false,
+  "seed": 67,
+  "ticker": "AVGO",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

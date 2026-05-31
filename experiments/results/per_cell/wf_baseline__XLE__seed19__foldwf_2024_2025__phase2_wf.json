@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1011350.697109663,
+  "annualized_return": 0.0059555847464702666,
+  "annualized_volatility": 0.009722934735093242,
+  "sharpe_ratio": 0.6107027936715693,
+  "max_drawdown": 0.0052279497999888624,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.025052192066805846,
+  "capital_preservation_rate_95pct_hwm": 0.9994507589201718,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_standalone",
+  "ticker": "XLE",
+  "fold_id": "wf_2024_2025",
+  "seed": 19,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2023-12-31",
+  "test_window": "2024-01-01/2025-12-31",
+  "device": "cpu"
+}

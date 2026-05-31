@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1338393.7408013444,
+  "annualized_return": 0.07782969590423351,
+  "annualized_volatility": 0.20538007091627677,
+  "sharpe_ratio": 0.3649303469668346,
+  "max_drawdown": 0.24850938965942226,
+  "var_95": -0.020537445495440565,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9834015008006979,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "IBB",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1162892.700949111,
+  "annualized_return": 0.039568356419432946,
+  "annualized_volatility": 0.09345298658163366,
+  "sharpe_ratio": 0.41524108107325036,
+  "max_drawdown": 0.14515551257220838,
+  "var_95": -0.0093119374683857,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9979156973857746,
+  "meets_95pct_preservation_goal": true,
+  "seed": 42,
+  "ticker": "VTI",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

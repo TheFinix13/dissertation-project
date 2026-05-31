@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1248240.2853459795,
+  "annualized_return": 0.058674354872792774,
+  "annualized_volatility": 0.3096403944697775,
+  "sharpe_ratio": 0.1841409862431212,
+  "max_drawdown": 0.5969200694042495,
+  "var_95": -0.026415135534877798,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.6530661315259771,
+  "meets_95pct_preservation_goal": false,
+  "seed": 7,
+  "ticker": "REGN",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

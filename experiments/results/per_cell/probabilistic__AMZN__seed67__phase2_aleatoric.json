@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1502110.8481508298,
+  "annualized_return": 0.11029313015538399,
+  "annualized_volatility": 0.2684647346352796,
+  "sharpe_ratio": 0.38971226503634937,
+  "max_drawdown": 0.3624300733779766,
+  "var_95": -0.02610648036033325,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9318498162940387,
+  "meets_95pct_preservation_goal": false,
+  "seed": 67,
+  "ticker": "AMZN",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

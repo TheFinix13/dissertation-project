@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 997334.5612836522,
+  "annualized_return": -0.0006860781380423921,
+  "annualized_volatility": 0.005308844423517758,
+  "sharpe_ratio": -0.12927353319538565,
+  "max_drawdown": 0.009517365992875448,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9947090108920555,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "SCHB",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1060327.4268406276,
+  "annualized_return": 0.015176867435382142,
+  "annualized_volatility": 0.14791627478233452,
+  "sharpe_ratio": 0.10183351900163931,
+  "max_drawdown": 0.19270049266256561,
+  "var_95": -0.014152694462030622,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9894898537774375,
+  "meets_95pct_preservation_goal": true,
+  "seed": 67,
+  "ticker": "QCOM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

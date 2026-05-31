@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 2666990.416778887,
+  "annualized_return": 0.28691058844718237,
+  "annualized_volatility": 0.2910024613536092,
+  "sharpe_ratio": 0.8668116227581861,
+  "max_drawdown": 0.302515440570747,
+  "var_95": -0.025369549681856007,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9700875319732772,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "GOOGL",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

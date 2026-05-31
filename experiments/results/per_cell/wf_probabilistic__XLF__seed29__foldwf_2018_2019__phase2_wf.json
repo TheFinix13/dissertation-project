@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1077259.5680748313,
+  "annualized_return": 0.0398439971849409,
+  "annualized_volatility": 0.09113153699992282,
+  "sharpe_ratio": 0.42872788523860533,
+  "max_drawdown": 0.10552835679196271,
+  "var_95": -0.008305639574601195,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9975964509016189,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "XLF",
+  "fold_id": "wf_2018_2019",
+  "seed": 29,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2017-12-31",
+  "test_window": "2018-01-01/2019-12-31",
+  "device": "cpu"
+}

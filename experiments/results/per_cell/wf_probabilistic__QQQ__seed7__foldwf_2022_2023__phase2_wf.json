@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1080390.6823998136,
+  "annualized_return": 0.04151790757329574,
+  "annualized_volatility": 0.14798096295201935,
+  "sharpe_ratio": 0.27489435899632875,
+  "max_drawdown": 0.17979220460553835,
+  "var_95": -0.015078764812531807,
+  "var_95_violation_rate": 0.05010438413361169,
+  "capital_preservation_rate_95pct_hwm": 0.9997057308697809,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "QQQ",
+  "fold_id": "wf_2022_2023",
+  "seed": 7,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2021-12-31",
+  "test_window": "2022-01-01/2023-12-31",
+  "device": "cpu"
+}

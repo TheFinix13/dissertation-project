@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 2254646.671985363,
+  "annualized_return": 0.23251329434697635,
+  "annualized_volatility": 0.14961002486181355,
+  "sharpe_ratio": 1.397334114061756,
+  "max_drawdown": 0.17058521949363747,
+  "var_95": -0.014331341443880685,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9572701467109334,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "IAU",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

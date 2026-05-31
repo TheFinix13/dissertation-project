@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 992029.4742209098,
+  "annualized_return": -0.0020556597172964155,
+  "annualized_volatility": 0.006121018198699646,
+  "sharpe_ratio": -0.3361731746466222,
+  "max_drawdown": 0.014882524068201008,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.007142857142857143,
+  "capital_preservation_rate_95pct_hwm": 0.9862342246690131,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "V",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

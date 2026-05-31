@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1696274.9800126594,
+  "annualized_return": 0.14554808340828287,
+  "annualized_volatility": 0.2714395891053201,
+  "sharpe_ratio": 0.5006016952914673,
+  "max_drawdown": 0.3336051402449226,
+  "var_95": -0.02759704181764766,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9565674121730687,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "AAPL",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

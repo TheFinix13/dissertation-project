@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1205883.1542777682,
+  "annualized_return": 0.10327872823531933,
+  "annualized_volatility": 0.08722946645256707,
+  "sharpe_ratio": 1.1267549097918512,
+  "max_drawdown": 0.06117662301162563,
+  "var_95": -0.008872396348628086,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9974583451969276,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "XLU",
+  "fold_id": "wf_2018_2019",
+  "seed": 23,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2017-12-31",
+  "test_window": "2018-01-01/2019-12-31",
+  "device": "cpu"
+}

@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2954428.0244641453,
+  "annualized_return": 0.32123137407563757,
+  "annualized_volatility": 0.27658230708775583,
+  "sharpe_ratio": 1.0071649338471373,
+  "max_drawdown": 0.3370166873737107,
+  "var_95": -0.02656460363192954,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9252895222629712,
+  "meets_95pct_preservation_goal": false,
+  "seed": 67,
+  "ticker": "CAT",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

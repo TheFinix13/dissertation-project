@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 979128.7273619885,
+  "annualized_return": -0.011035160794137352,
+  "annualized_volatility": 0.12196073307112415,
+  "sharpe_ratio": -0.09098408260886252,
+  "max_drawdown": 0.16832959711063966,
+  "var_95": -0.012452332763086282,
+  "var_95_violation_rate": 0.05010438413361169,
+  "capital_preservation_rate_95pct_hwm": 0.8913061943858939,
+  "meets_95pct_preservation_goal": false,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "XLU",
+  "fold_id": "wf_2022_2023",
+  "seed": 67,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2021-12-31",
+  "test_window": "2022-01-01/2023-12-31",
+  "device": "cpu"
+}

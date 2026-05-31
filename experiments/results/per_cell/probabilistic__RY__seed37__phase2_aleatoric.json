@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1785081.8304182217,
+  "annualized_return": 0.1606789026199473,
+  "annualized_volatility": 0.17937972892685694,
+  "sharpe_ratio": 0.8306677896448248,
+  "max_drawdown": 0.24106344123865542,
+  "var_95": -0.017593069353395663,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 1.0,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "RY",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

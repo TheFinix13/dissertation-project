@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 950840.993523246,
+  "annualized_return": -0.012878520536862724,
+  "annualized_volatility": 0.01828914770095332,
+  "sharpe_ratio": -0.7087293148032161,
+  "max_drawdown": 0.05053349134164353,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.006122448979591836,
+  "capital_preservation_rate_95pct_hwm": 0.950840993523246,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "NFLX",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

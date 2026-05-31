@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1435036.1776992823,
+  "annualized_return": 0.09732724294241743,
+  "annualized_volatility": 0.13880341709059,
+  "sharpe_ratio": 0.6691286114075947,
+  "max_drawdown": 0.1826688081851905,
+  "var_95": -0.012838107902415262,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8367696265306565,
+  "meets_95pct_preservation_goal": false,
+  "seed": 89,
+  "ticker": "TMUS",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

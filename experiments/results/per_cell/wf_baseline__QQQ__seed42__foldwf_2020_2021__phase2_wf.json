@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 951280.2745917712,
+  "annualized_return": -0.025775131651042987,
+  "annualized_volatility": 0.06451308305246614,
+  "sharpe_ratio": -0.40477164476301775,
+  "max_drawdown": 0.11472686272440735,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.04771784232365145,
+  "capital_preservation_rate_95pct_hwm": 0.915694023952826,
+  "meets_95pct_preservation_goal": false,
+  "agent": "ppo_standalone",
+  "ticker": "QQQ",
+  "fold_id": "wf_2020_2021",
+  "seed": 42,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2019-12-31",
+  "test_window": "2020-01-01/2021-12-31",
+  "device": "cpu"
+}

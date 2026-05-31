@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1483012.974955472,
+  "annualized_return": 0.10664595673495975,
+  "annualized_volatility": 0.13369363524161582,
+  "sharpe_ratio": 0.7579542570357168,
+  "max_drawdown": 0.14451096270280028,
+  "var_95": -0.012942999531150435,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9855830825566503,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "VYM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 998984.9736742117,
+  "annualized_return": -0.000261105229658716,
+  "annualized_volatility": 0.0033779829150243205,
+  "sharpe_ratio": -0.07730265626459641,
+  "max_drawdown": 0.005888617713347921,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.00510204081632653,
+  "capital_preservation_rate_95pct_hwm": 0.9963871623765187,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "DIA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 3595182.429124111,
+  "annualized_return": 0.38963155849311637,
+  "annualized_volatility": 0.44849882419536186,
+  "sharpe_ratio": 0.7336441300645016,
+  "max_drawdown": 0.5604093647950006,
+  "var_95": -0.04199893982772842,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.7490526925558113,
+  "meets_95pct_preservation_goal": false,
+  "seed": 19,
+  "ticker": "SPOT",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

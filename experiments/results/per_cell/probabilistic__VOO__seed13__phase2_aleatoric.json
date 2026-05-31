@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1506046.1213193792,
+  "annualized_return": 0.11104037487297894,
+  "annualized_volatility": 0.13206287668062883,
+  "sharpe_ratio": 0.7973226624507824,
+  "max_drawdown": 0.1531657283468335,
+  "var_95": -0.012674564790200816,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.997000003383149,
+  "meets_95pct_preservation_goal": true,
+  "seed": 13,
+  "ticker": "VOO",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1027151.8078255908,
+  "annualized_return": 0.006912571750808723,
+  "annualized_volatility": 0.016455147333041674,
+  "sharpe_ratio": 0.41863636136278803,
+  "max_drawdown": 0.032767532561688295,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.02857142857142857,
+  "capital_preservation_rate_95pct_hwm": 0.9672324674383117,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "GLD",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

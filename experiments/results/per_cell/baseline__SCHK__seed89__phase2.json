@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 997821.7412969336,
+  "annualized_return": -0.0005605774187057975,
+  "annualized_volatility": 0.005600670699379161,
+  "sharpe_ratio": -0.1001163500035646,
+  "max_drawdown": 0.009784781787669505,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9942225205009082,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "SCHK",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

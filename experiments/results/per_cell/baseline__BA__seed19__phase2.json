@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1004859.9431186558,
+  "annualized_return": 0.001247450147109154,
+  "annualized_volatility": 0.003945046302556383,
+  "sharpe_ratio": 0.3159969412445549,
+  "max_drawdown": 0.004017390435361312,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9990262047941854,
+  "meets_95pct_preservation_goal": true,
+  "seed": 19,
+  "ticker": "BA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

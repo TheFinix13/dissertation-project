@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 4144830.74542727,
+  "annualized_return": 0.44140977544787646,
+  "annualized_volatility": 0.31108053770194344,
+  "sharpe_ratio": 1.1753273333031038,
+  "max_drawdown": 0.34471762055808175,
+  "var_95": -0.027176371830792957,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9718817458610045,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "LLY",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

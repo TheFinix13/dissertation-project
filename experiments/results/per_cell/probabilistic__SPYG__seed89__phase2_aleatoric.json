@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1462455.8610701822,
+  "annualized_return": 0.10268090614119202,
+  "annualized_volatility": 0.14973183423049521,
+  "sharpe_ratio": 0.6527957061045193,
+  "max_drawdown": 0.16958546658163864,
+  "var_95": -0.015494072122183677,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9876425172242038,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "SPYG",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

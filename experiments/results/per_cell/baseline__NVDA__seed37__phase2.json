@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1009212.284949988,
+  "annualized_return": 0.0023608107934735435,
+  "annualized_volatility": 0.026814061560173533,
+  "sharpe_ratio": 0.08793947506261279,
+  "max_drawdown": 0.03419858686169541,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.00816326530612245,
+  "capital_preservation_rate_95pct_hwm": 0.9746639586010731,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "NVDA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

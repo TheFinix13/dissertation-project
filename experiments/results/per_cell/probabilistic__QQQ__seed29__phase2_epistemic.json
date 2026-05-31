@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1971447.5264659955,
+  "annualized_return": 0.19069879534548229,
+  "annualized_volatility": 0.19398739716003732,
+  "sharpe_ratio": 0.899750280065701,
+  "max_drawdown": 0.22734472913890835,
+  "var_95": -0.018795847122602717,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9778438584869082,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "QQQ",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

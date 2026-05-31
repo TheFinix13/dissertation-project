@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1061126.6522853898,
+  "annualized_return": 0.031706184078678125,
+  "annualized_volatility": 0.1406725501432286,
+  "sharpe_ratio": 0.22189038243213283,
+  "max_drawdown": 0.135675110438094,
+  "var_95": -0.014212220028849388,
+  "var_95_violation_rate": 0.05010438413361169,
+  "capital_preservation_rate_95pct_hwm": 0.9932730352436796,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "XLV",
+  "fold_id": "wf_2022_2023",
+  "seed": 23,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2021-12-31",
+  "test_window": "2022-01-01/2023-12-31",
+  "device": "cpu"
+}

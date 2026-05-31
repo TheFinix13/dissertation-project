@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1192093.3390349345,
+  "annualized_return": 0.04621908623475127,
+  "annualized_volatility": 0.12382709752929837,
+  "sharpe_ratio": 0.3648857007537675,
+  "max_drawdown": 0.21116624718362687,
+  "var_95": -0.012213195162130574,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.991688242682878,
+  "meets_95pct_preservation_goal": true,
+  "seed": 67,
+  "ticker": "EEMX",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

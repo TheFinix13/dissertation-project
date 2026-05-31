@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2103411.2539894227,
+  "annualized_return": 0.21070308679155675,
+  "annualized_volatility": 0.24193364367831385,
+  "sharpe_ratio": 0.790304010458737,
+  "max_drawdown": 0.2529294031305179,
+  "var_95": -0.023257711473870835,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9781230725792317,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "AXP",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

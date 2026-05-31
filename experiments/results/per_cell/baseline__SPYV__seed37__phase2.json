@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 998727.9233790083,
+  "annualized_return": -0.0003272600837424835,
+  "annualized_volatility": 0.003930057851576672,
+  "sharpe_ratio": -0.083281324822708,
+  "max_drawdown": 0.005787762135081476,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.006122448979591836,
+  "capital_preservation_rate_95pct_hwm": 0.9948214500846022,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "SPYV",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 918179.6437514996,
+  "annualized_return": -0.021711129948235815,
+  "annualized_volatility": 0.03837638617505257,
+  "sharpe_ratio": -0.5719713552770045,
+  "max_drawdown": 0.1455493145385537,
+  "var_95": -0.002755760659548656,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8956487891467909,
+  "meets_95pct_preservation_goal": false,
+  "seed": 37,
+  "ticker": "BA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

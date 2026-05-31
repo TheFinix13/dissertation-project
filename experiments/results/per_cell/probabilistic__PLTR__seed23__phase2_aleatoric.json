@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1353345.2074064035,
+  "annualized_return": 0.08091309963844719,
+  "annualized_volatility": 0.18336262299253225,
+  "sharpe_ratio": 0.42432900409119845,
+  "max_drawdown": 0.2307766253047029,
+  "var_95": -0.018059483653846086,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9781859450935183,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "PLTR",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

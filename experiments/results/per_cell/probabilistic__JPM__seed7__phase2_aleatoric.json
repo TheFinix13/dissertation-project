@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2584740.956743485,
+  "annualized_return": 0.2765860432142872,
+  "annualized_volatility": 0.22995652781946982,
+  "sharpe_ratio": 1.061892848819078,
+  "max_drawdown": 0.24665423562246303,
+  "var_95": -0.02004698259695008,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9835343311966726,
+  "meets_95pct_preservation_goal": true,
+  "seed": 7,
+  "ticker": "JPM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

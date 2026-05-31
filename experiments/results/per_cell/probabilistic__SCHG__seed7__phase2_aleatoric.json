@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1888440.8501468098,
+  "annualized_return": 0.1776005874439743,
+  "annualized_volatility": 0.19844269395845784,
+  "sharpe_ratio": 0.8238087974126396,
+  "max_drawdown": 0.22701073415099593,
+  "var_95": -0.019620529914567884,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9788194273824056,
+  "meets_95pct_preservation_goal": true,
+  "seed": 7,
+  "ticker": "SCHG",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

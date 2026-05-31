@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1002850.0407547264,
+  "annualized_return": 0.0007320931008468051,
+  "annualized_volatility": 0.0049513468274214375,
+  "sharpe_ratio": 0.1477985313146516,
+  "max_drawdown": 0.008088629509267808,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.006122448979591836,
+  "capital_preservation_rate_95pct_hwm": 0.9987884508942829,
+  "meets_95pct_preservation_goal": true,
+  "seed": 67,
+  "ticker": "C",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

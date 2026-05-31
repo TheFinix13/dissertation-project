@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1012835.7608683201,
+  "annualized_return": 0.003285004591258995,
+  "annualized_volatility": 0.018769999186569603,
+  "sharpe_ratio": 0.17472526139758104,
+  "max_drawdown": 0.021411196509636188,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9797146606629369,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "GOOGL",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

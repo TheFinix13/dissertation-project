@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 2415416.9356664247,
+  "annualized_return": 0.25453760719377,
+  "annualized_volatility": 0.4367434461196414,
+  "sharpe_ratio": 0.5192224034512529,
+  "max_drawdown": 0.5690615775120524,
+  "var_95": -0.03581968096537995,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.7030684509627373,
+  "meets_95pct_preservation_goal": false,
+  "seed": 19,
+  "ticker": "NFLX",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

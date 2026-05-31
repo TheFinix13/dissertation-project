@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1000461.2348616034,
+  "annualized_return": 0.00011858293695807194,
+  "annualized_volatility": 0.003995226521239586,
+  "sharpe_ratio": 0.029678215904984748,
+  "max_drawdown": 0.006190678219739176,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9969590382239465,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "SCHF",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

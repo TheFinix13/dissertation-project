@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1821244.4267590402,
+  "annualized_return": 0.16668021246804143,
+  "annualized_volatility": 0.19540944773526622,
+  "sharpe_ratio": 0.788918688407746,
+  "max_drawdown": 0.23932104730159098,
+  "var_95": -0.017461904800391625,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.823926632456967,
+  "meets_95pct_preservation_goal": false,
+  "seed": 23,
+  "ticker": "PGR",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

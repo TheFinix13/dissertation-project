@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 976251.2510063839,
+  "annualized_return": -0.012565263579494244,
+  "annualized_volatility": 0.01776622686002627,
+  "sharpe_ratio": -0.711730251312397,
+  "max_drawdown": 0.029045787786774913,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.03966597077244259,
+  "capital_preservation_rate_95pct_hwm": 0.972741680332513,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_standalone",
+  "ticker": "XLK",
+  "fold_id": "wf_2022_2023",
+  "seed": 67,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2021-12-31",
+  "test_window": "2022-01-01/2023-12-31",
+  "device": "cpu"
+}

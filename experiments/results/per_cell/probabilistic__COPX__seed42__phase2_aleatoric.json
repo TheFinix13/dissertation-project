@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2083830.6503094349,
+  "annualized_return": 0.20779490749338597,
+  "annualized_volatility": 0.3146589949012202,
+  "sharpe_ratio": 0.6000025880249933,
+  "max_drawdown": 0.39576624340638933,
+  "var_95": -0.03071083369277181,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9639572066633356,
+  "meets_95pct_preservation_goal": true,
+  "seed": 42,
+  "ticker": "COPX",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

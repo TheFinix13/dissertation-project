@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1066923.5031551754,
+  "annualized_return": 0.01679703838537419,
+  "annualized_volatility": 0.054664632373772566,
+  "sharpe_ratio": 0.3047213364645175,
+  "max_drawdown": 0.07500281518677565,
+  "var_95": -0.00529436401599197,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.995839365203066,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "DIA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

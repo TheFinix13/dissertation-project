@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 991239.9281454562,
+  "annualized_return": -0.0022599567754525204,
+  "annualized_volatility": 0.0046271452391383845,
+  "sharpe_ratio": -0.48894871387762795,
+  "max_drawdown": 0.009980205072829262,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.006122448979591836,
+  "capital_preservation_rate_95pct_hwm": 0.9912399281454563,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "BLK",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 795489.8029352195,
+  "annualized_return": -0.05713633111266817,
+  "annualized_volatility": 0.12051844050802084,
+  "sharpe_ratio": -0.48817011535424104,
+  "max_drawdown": 0.3842129330491941,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.04387755102040816,
+  "capital_preservation_rate_95pct_hwm": 0.6209898092365985,
+  "meets_95pct_preservation_goal": false,
+  "seed": 13,
+  "ticker": "RYTM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

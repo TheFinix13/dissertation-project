@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1020645.574224655,
+  "annualized_return": 0.01074131638899188,
+  "annualized_volatility": 0.009354178641022523,
+  "sharpe_ratio": 1.142148054515969,
+  "max_drawdown": 0.0029991147999399725,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.01037344398340249,
+  "capital_preservation_rate_95pct_hwm": 0.9990575767340801,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_standalone",
+  "ticker": "XLV",
+  "fold_id": "wf_2020_2021",
+  "seed": 42,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2019-12-31",
+  "test_window": "2020-01-01/2021-12-31",
+  "device": "cpu"
+}

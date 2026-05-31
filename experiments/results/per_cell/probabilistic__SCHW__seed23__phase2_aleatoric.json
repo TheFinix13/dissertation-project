@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1241719.0159444048,
+  "annualized_return": 0.0572493534747641,
+  "annualized_volatility": 0.19407551720001112,
+  "sharpe_ratio": 0.28684988772151454,
+  "max_drawdown": 0.2875177685555117,
+  "var_95": -0.01900185359911184,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9960092382704732,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "SCHW",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

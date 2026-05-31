@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 7113678.882661473,
+  "annualized_return": 0.6561892132926952,
+  "annualized_volatility": 0.4877659903048184,
+  "sharpe_ratio": 1.0343467041602497,
+  "max_drawdown": 0.49502800459722063,
+  "var_95": -0.036814497587219816,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9698579569783665,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "RYTM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

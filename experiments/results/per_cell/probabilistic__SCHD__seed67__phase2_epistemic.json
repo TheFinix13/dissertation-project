@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1185639.0300477813,
+  "annualized_return": 0.04475956021611883,
+  "annualized_volatility": 0.12433960316935103,
+  "sharpe_ratio": 0.3521542292761746,
+  "max_drawdown": 0.14238491321649915,
+  "var_95": -0.011805506007068266,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9815152066256759,
+  "meets_95pct_preservation_goal": true,
+  "seed": 67,
+  "ticker": "SCHD",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

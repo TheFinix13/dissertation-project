@@ -1,0 +1,8 @@
+{
+  "ticker": "RYTM",
+  "seed": 13,
+  "error_type": "ValueError",
+  "error_msg": "Expected parameter loc (Tensor of shape (64, 1)) of distribution Normal(loc: torch.Size([64, 1]), scale: torch.Size([64, 1])) to satisfy the constraint Real(), but found invalid values:\ntensor([[nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],\n        [nan],",
+  "tag": "phase2_aleatoric",
+  "uncertainty_mode": "aleatoric"
+}

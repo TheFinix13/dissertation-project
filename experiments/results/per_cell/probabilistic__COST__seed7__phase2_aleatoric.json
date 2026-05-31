@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1544489.8279322053,
+  "annualized_return": 0.11826498815434403,
+  "annualized_volatility": 0.15830935931510873,
+  "sharpe_ratio": 0.7060748326054647,
+  "max_drawdown": 0.17888349545233273,
+  "var_95": -0.01391384269443936,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8482087938288578,
+  "meets_95pct_preservation_goal": false,
+  "seed": 7,
+  "ticker": "COST",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

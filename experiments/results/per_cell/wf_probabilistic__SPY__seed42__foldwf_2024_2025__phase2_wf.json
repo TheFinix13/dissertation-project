@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1429884.909444902,
+  "annualized_return": 0.2069889207856493,
+  "annualized_volatility": 0.1633972219720287,
+  "sharpe_ratio": 1.1513572746022003,
+  "max_drawdown": 0.1875521624243186,
+  "var_95": -0.015401963377749439,
+  "var_95_violation_rate": 0.05010438413361169,
+  "capital_preservation_rate_95pct_hwm": 0.996335318166358,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "SPY",
+  "fold_id": "wf_2024_2025",
+  "seed": 42,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2023-12-31",
+  "test_window": "2024-01-01/2025-12-31",
+  "device": "cpu"
+}

@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1512389.102466347,
+  "annualized_return": 0.11224175709246165,
+  "annualized_volatility": 0.13175870026496522,
+  "sharpe_ratio": 0.8073656713128852,
+  "max_drawdown": 0.19955606463475806,
+  "var_95": -0.012558529552544682,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.998297548841274,
+  "meets_95pct_preservation_goal": true,
+  "seed": 67,
+  "ticker": "VYMI",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 2051186.6485143085,
+  "annualized_return": 0.20290104916620716,
+  "annualized_volatility": 0.27878955730401966,
+  "sharpe_ratio": 0.6626362795331285,
+  "max_drawdown": 0.2482547089419228,
+  "var_95": -0.02467245946440686,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8757154963535873,
+  "meets_95pct_preservation_goal": false,
+  "seed": 23,
+  "ticker": "PPLT",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

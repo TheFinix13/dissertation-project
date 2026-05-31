@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2952562.5620130077,
+  "annualized_return": 0.3210168044127959,
+  "annualized_volatility": 0.21728735464694487,
+  "sharpe_ratio": 1.281259756218218,
+  "max_drawdown": 0.2182892952126506,
+  "var_95": -0.02057507293681917,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9859952403549951,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "HSBC",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

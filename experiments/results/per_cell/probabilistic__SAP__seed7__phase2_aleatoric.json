@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2237552.310501986,
+  "annualized_return": 0.23010357108244808,
+  "annualized_volatility": 0.2571185994505608,
+  "sharpe_ratio": 0.805458035908253,
+  "max_drawdown": 0.2982179586676428,
+  "var_95": -0.024384075023131845,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.7887675766489277,
+  "meets_95pct_preservation_goal": false,
+  "seed": 7,
+  "ticker": "SAP",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

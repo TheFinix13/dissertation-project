@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1011520.13544013,
+  "annualized_return": 0.0029497292145602653,
+  "annualized_volatility": 0.025734550253338262,
+  "sharpe_ratio": 0.11445193725493469,
+  "max_drawdown": 0.04626966059851312,
+  "var_95": -2.1947762910201617e-06,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.958647515308357,
+  "meets_95pct_preservation_goal": true,
+  "seed": 13,
+  "ticker": "AMD",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1541137.734027964,
+  "annualized_return": 0.11764038997156447,
+  "annualized_volatility": 0.18756397661349616,
+  "sharpe_ratio": 0.5929687357993645,
+  "max_drawdown": 0.1964600802090456,
+  "var_95": -0.01873136096664032,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9671675076672737,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "MA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

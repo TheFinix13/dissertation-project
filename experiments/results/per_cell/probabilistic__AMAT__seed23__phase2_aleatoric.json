@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1195652.4055623617,
+  "annualized_return": 0.04702139570201474,
+  "annualized_volatility": 0.15882505348914258,
+  "sharpe_ratio": 0.2893077634130172,
+  "max_drawdown": 0.2516568276091,
+  "var_95": -0.015676294936676882,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9802837806090618,
+  "meets_95pct_preservation_goal": true,
+  "seed": 23,
+  "ticker": "AMAT",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

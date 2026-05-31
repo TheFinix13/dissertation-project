@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 999231.8875296431,
+  "annualized_return": -0.00019757101110527928,
+  "annualized_volatility": 0.025134695338688652,
+  "sharpe_ratio": -0.007861216546952857,
+  "max_drawdown": 0.05480119377488235,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.04795918367346939,
+  "capital_preservation_rate_95pct_hwm": 0.990969580294516,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "IBM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

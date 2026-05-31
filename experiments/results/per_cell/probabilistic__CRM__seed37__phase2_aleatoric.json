@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 955574.1666924205,
+  "annualized_return": -0.011617308344636423,
+  "annualized_volatility": 0.018593955022308813,
+  "sharpe_ratio": -0.6284417017649686,
+  "max_drawdown": 0.045779271252788245,
+  "var_95": -9.372299195309352e-06,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9555741666924205,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "CRM",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

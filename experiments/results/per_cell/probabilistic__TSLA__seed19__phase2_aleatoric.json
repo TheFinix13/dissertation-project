@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 969892.9600042591,
+  "annualized_return": -0.007829930189467586,
+  "annualized_volatility": 0.021184618356774612,
+  "sharpe_ratio": -0.37105630201326795,
+  "max_drawdown": 0.04533398730928517,
+  "var_95": -4.580018027153798e-05,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9698929600042592,
+  "meets_95pct_preservation_goal": true,
+  "seed": 19,
+  "ticker": "TSLA",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

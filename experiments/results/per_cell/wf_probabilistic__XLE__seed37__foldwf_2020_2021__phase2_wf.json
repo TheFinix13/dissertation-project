@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1011231.4067165564,
+  "annualized_return": 0.005856372975577159,
+  "annualized_volatility": 0.01761476544939962,
+  "sharpe_ratio": 0.3314968045507186,
+  "max_drawdown": 0.013351517736991947,
+  "var_95": -0.0006976130738160613,
+  "var_95_violation_rate": 0.05186721991701245,
+  "capital_preservation_rate_95pct_hwm": 0.9926050787475157,
+  "meets_95pct_preservation_goal": true,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "XLE",
+  "fold_id": "wf_2020_2021",
+  "seed": 37,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2019-12-31",
+  "test_window": "2020-01-01/2021-12-31",
+  "device": "cpu"
+}

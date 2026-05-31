@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 1098533.7246580413,
+  "annualized_return": 0.024459685627963232,
+  "annualized_volatility": 0.25826409260248145,
+  "sharpe_ratio": 0.09356826392561944,
+  "max_drawdown": 0.3204066887258147,
+  "var_95": -0.022776526893091998,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.8497562254702442,
+  "meets_95pct_preservation_goal": false,
+  "seed": 29,
+  "ticker": "SNY",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

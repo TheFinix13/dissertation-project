@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1003657.2174996708,
+  "annualized_return": 0.0009391525925886817,
+  "annualized_volatility": 0.0054862220952028185,
+  "sharpe_ratio": 0.17109856060654696,
+  "max_drawdown": 0.006952386582865344,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.004081632653061225,
+  "capital_preservation_rate_95pct_hwm": 0.9956352131798859,
+  "meets_95pct_preservation_goal": true,
+  "seed": 7,
+  "ticker": "ORCL",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

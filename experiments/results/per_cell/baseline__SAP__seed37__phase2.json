@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 992666.0869794454,
+  "annualized_return": -0.0018910224849913785,
+  "annualized_volatility": 0.00670941791097178,
+  "sharpe_ratio": -0.2821061331169091,
+  "max_drawdown": 0.012594951189672798,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.00510204081632653,
+  "capital_preservation_rate_95pct_hwm": 0.9926660869794455,
+  "meets_95pct_preservation_goal": true,
+  "seed": 37,
+  "ticker": "SAP",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

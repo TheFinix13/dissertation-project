@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 2391829.3703805306,
+  "annualized_return": 0.2513758353576921,
+  "annualized_volatility": 0.27573505879516874,
+  "sharpe_ratio": 0.8132570670861189,
+  "max_drawdown": 0.31312644383285837,
+  "var_95": -0.023231204797785752,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9717834885326422,
+  "meets_95pct_preservation_goal": true,
+  "seed": 19,
+  "ticker": "C",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}

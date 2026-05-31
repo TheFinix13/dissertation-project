@@ -1,0 +1,20 @@
+{
+  "final_portfolio_value": 1362612.28164268,
+  "annualized_return": 0.17558148444693789,
+  "annualized_volatility": 0.20610919704410663,
+  "sharpe_ratio": 0.7848401880846216,
+  "max_drawdown": 0.2023742566865957,
+  "var_95": -0.02062942440105866,
+  "var_95_violation_rate": 0.05186721991701245,
+  "capital_preservation_rate_95pct_hwm": 0.922450970586101,
+  "meets_95pct_preservation_goal": false,
+  "agent": "ppo_with_uncertainty_guard",
+  "ticker": "IWM",
+  "fold_id": "wf_2020_2021",
+  "seed": 29,
+  "timesteps": 50000,
+  "bootstrap_paths": 16,
+  "train_window": "2009-01-01/2019-12-31",
+  "test_window": "2020-01-01/2021-12-31",
+  "device": "cpu"
+}

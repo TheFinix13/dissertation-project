@@ -1,0 +1,21 @@
+{
+  "final_portfolio_value": 1443652.2093666012,
+  "annualized_return": 0.09901764044946737,
+  "annualized_volatility": 0.12993133205718826,
+  "sharpe_ratio": 0.7266654609600444,
+  "max_drawdown": 0.1526552737595427,
+  "var_95": -0.012817878154624651,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9976627324104685,
+  "meets_95pct_preservation_goal": true,
+  "seed": 29,
+  "ticker": "SCHV",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard_epistemic",
+  "uncertainty_mode": "epistemic",
+  "device": "cpu",
+  "mc_passes": 20,
+  "mc_dropout": 0.1
+}

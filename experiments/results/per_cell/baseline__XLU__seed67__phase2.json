@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 1022946.5230663305,
+  "annualized_return": 0.005850904320924295,
+  "annualized_volatility": 0.05098137378418925,
+  "sharpe_ratio": 0.11443073528841977,
+  "max_drawdown": 0.10030015326294273,
+  "var_95": -0.004997228326763103,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9499460782206575,
+  "meets_95pct_preservation_goal": false,
+  "seed": 67,
+  "ticker": "XLU",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

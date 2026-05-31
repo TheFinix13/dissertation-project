@@ -1,0 +1,17 @@
+{
+  "final_portfolio_value": 996823.6358473414,
+  "annualized_return": -0.0008177447656986566,
+  "annualized_volatility": 0.005542087122439689,
+  "sharpe_ratio": -0.14760790497099094,
+  "max_drawdown": 0.008606799492087647,
+  "var_95": 0.0,
+  "var_95_violation_rate": 0.01020408163265306,
+  "capital_preservation_rate_95pct_hwm": 0.9956415099571824,
+  "meets_95pct_preservation_goal": true,
+  "seed": 19,
+  "ticker": "IJR",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "agent": "ppo_standalone",
+  "device": "cpu"
+}

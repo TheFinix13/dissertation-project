@@ -1,0 +1,19 @@
+{
+  "final_portfolio_value": 990918.1705802764,
+  "annualized_return": -0.002343247034885313,
+  "annualized_volatility": 0.017025911437202928,
+  "sharpe_ratio": -0.13778850371376355,
+  "max_drawdown": 0.02626776618223059,
+  "var_95": -1.2611888113678302e-05,
+  "var_95_violation_rate": 0.05,
+  "capital_preservation_rate_95pct_hwm": 0.9882352179696893,
+  "meets_95pct_preservation_goal": true,
+  "seed": 89,
+  "ticker": "TAN",
+  "fold_id": "test_legacy",
+  "timesteps": 50000,
+  "bootstrap_paths": 32,
+  "agent": "ppo_with_uncertainty_guard",
+  "uncertainty_mode": "aleatoric",
+  "device": "cpu"
+}
