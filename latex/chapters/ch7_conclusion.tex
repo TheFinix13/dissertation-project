@@ -4,82 +4,83 @@
 \section{Summary}
 \label{sec:summary}
 
-This dissertation has set out a controlled empirical study of a single design choice: feeding a deep reinforcement-learning policy the predictive uncertainty produced by its own forecaster, both as a state feature and as a hard guard on new long-side actions, and asking whether the resulting agent sits on a more attractive point of the return-versus-drawdown trade-off than uncertainty-blind alternatives.
+This dissertation set out to answer one question: does feeding a deep reinforcement-learning trading agent the predictive uncertainty produced by its own forecaster improve the agent's risk-adjusted performance? The answer, based on the Phase-2 evidence reported in Chapter~\ref{ch:results}, is yes --- and the improvement is large, consistent, and robust.
 
-\paragraph{What was built.} The agent is a PPO~\parencite{schulman2017ppo} policy paired with a probabilistic LSTM forecaster~\parencite{hochreiter1997lstm,salinas2020deepar}. The forecaster emits a mean and a spread per step; the spread is normalised to a unit-interval uncertainty score and enters the policy in two places --- as a state coordinate and as a hard guard. The single piece of mathematics that distinguishes the candidate from a baseline PPO is Equation~\ref{eq:probabilistic_trade_size}.
+\paragraph{What was built.} The agent is a PPO~\parencite{schulman2017ppo} policy paired with a probabilistic LSTM forecaster~\parencite{hochreiter1997lstm,salinas2020deepar}. The forecaster emits a mean and a spread per step; the spread is normalised to a unit-interval uncertainty score and enters the policy in two places --- as a state coordinate and as a hard guard on new long-side trades. The single piece of mathematics that distinguishes the candidate from a baseline PPO is Equation~\ref{eq:probabilistic_trade_size}. The design was tested in two uncertainty modes: aleatoric (data noise) and epistemic (model unfamiliarity via Monte-Carlo dropout~\parencite{gal2016dropout}).
 
-\paragraph{What was found.} On the SPY 2022--2025 test window the probabilistic agent earns a Sharpe ratio of $+0.79$ against the buy-and-hold's $+0.59$, finishes with about \$120\,k more terminal value, and records a capital-preservation ratio of 99.6\,\%. On the 70-stock market-sample test window the probabilistic agent reduces maximum drawdown versus passive buy-and-hold on every single ticker (70 of 70), at a mean terminal-value cost of approximately 1.2\,\%. The trailing stop-loss comparator finishes below buy-and-hold on most tickers and incurs path drawdowns that are larger than buy-and-hold's on the majority of (ticker, variant) cells in Table~\ref{tab:trailing_stop_etfs}.
+\paragraph{What was found --- Phase-2 headline.} The full Phase-2 grid trained each agent variant on 70 stocks with 10 random seeds and 50,000 PPO time-steps per cell, producing 2,097 completed cells across three experimental arms. The results are unambiguous:
 
-\paragraph{What was tested but did not change the headline.} A third experimental arm using Monte-Carlo dropout for epistemic uncertainty~\parencite{gal2016dropout} was added and evaluated against the aleatoric headline. At Phase-1 budget the two arms produce statistically indistinguishable end-of-window metrics. The dissertation reports this honestly rather than only showing the better-performing arm.
+\begin{itemize}[leftmargin=*]
+  \item The probabilistic agents (both aleatoric and epistemic) grew a \$1\,M starting portfolio to a \emph{median} of \$1.6\,M across the 70-stock universe on the 2022--2025 test window, with a median Sharpe ratio above $+0.68$ and a win-rate (cells finishing above \$1\,M) of 89--92\,\%.
+  \item The baseline PPO, without the uncertainty signal, finished at a median of \$999\,063 --- essentially flat --- with a median Sharpe of $-0.04$ and a win-rate of 46\,\%. The baseline agent learned to do almost nothing, because without a confidence signal it could not distinguish dangerous days from safe ones.
+  \item The two uncertainty modes (aleatoric and epistemic) produced nearly identical headline numbers. The source of the uncertainty matters less than the presence of any calibrated uncertainty signal.
+\end{itemize}
 
-\paragraph{What is not claimed.} The dissertation does not propose a new reinforcement-learning algorithm; PPO is unchanged. It does not propose a new forecasting architecture; the probabilistic LSTM is a 2020 idea built on a 1997 idea. It does not claim multi-asset portfolio optimisation; one agent runs per ticker. It does not claim live-trading performance; all evidence is backtest evidence on adjusted-close daily data. It does not claim the design works in every regime; Section~\ref{sec:wins_and_losses} names two regimes (sustained low-uncertainty bull markets and very-low-drawdown defensives) in which it under-performs and explains why.
+\paragraph{Walk-forward confirmation.} The walk-forward validation tested the agent on four independent two-year windows covering 2018--2025 (including the COVID crash and the 2022 inflation shock). Across 320 walk-forward cells, the probabilistic agent achieved a median final value of \$1,167,050, a median Sharpe of $+0.55$, and a win-rate of 87.2\,\% --- compared to the baseline's \$997,591, $-0.10$, and 46.9\,\%. The advantage held on every single fold. This is strong evidence that the agent learned a general strategy, not a pattern specific to one test period.
+
+\paragraph{What was tested but did not change the headline.} The epistemic arm (Arm~C) was added in response to project-proposal feedback. At full Phase-2 scale, its median final value (\$1,619,713) and win-rate (92.3\,\%) are within noise of the aleatoric arm (\$1,612,478, 89.1\,\%). The dissertation reports both honestly. The practical implication is that a practitioner can use either uncertainty source with similar expected outcomes.
+
+\paragraph{What is not claimed.} The dissertation does not propose a new reinforcement-learning algorithm; PPO is unchanged. It does not propose a new forecasting architecture; the probabilistic LSTM is a 2020 idea built on a 1997 idea. It does not claim multi-asset portfolio optimisation; one agent runs per ticker. It does not claim live-trading performance; all evidence is backtest evidence on adjusted-close daily data. It does not claim the design works in every regime; Section~\ref{sec:wins_and_losses} names regimes (sustained low-uncertainty bull markets and very-low-drawdown defensives) in which it under-performs and explains why. Six out of 2,100 cells failed (0.29\,\%), all on a single small-cap biotech ticker (RYTM), due to a numerical edge case in the Gaussian loss.
 
 \section{Future work}
 \label{sec:future_work}
 
-The future-work items are split into three groups. Group~1 is work scheduled to land before the September 2026 submission and is on the submission-critical path. Group~2 is a real-world deployment roadmap that sits outside the submission-critical path and is offered as the bridge from the dissertation evidence to a system that runs against a real portfolio. Group~3 is post-dissertation research extensions.
+The future-work items are split into three groups. Group~1 is work that can be completed before the September 2026 submission. Group~2 is a real-world deployment roadmap. Group~3 is post-dissertation research extensions.
 
-\subsection{Group 1 --- Scheduled before submission}
+\subsection{Group 1 --- Before submission}
 \label{sec:group_1_scheduled}
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Phase-2 extended grid on the full market sample (June--July 2026).} Re-run the four-agent comparison at the extended budget --- 10 seeds $\times$ 50\,000 PPO time-steps $\times$ 4 walk-forward folds $\times$ 16 bootstrap paths per cell --- across all 70 stocks on the Colab T4 GPU runtime. The orchestrator is \texttt{experiments/runners/run\_extended\_grid.py} and the notebook is \texttt{notebooks/02\_Full\_Experiments.ipynb}. The headline aggregate Table~\ref{tab:market_sample_aggregate} and the Table~\ref{tab:extended_seed_stability} seed-stability evidence will both be reproduced at this budget for the entire universe.
+  \item \textbf{Sector-aware uncertainty calibration.} Replace the single global uncertainty-guard threshold ($\tau = 0.80$) with per-sector or per-regime thresholds calibrated on the validation window. Section~\ref{sec:wins_and_losses} identifies persistent-trend single names as the regime where the global threshold costs the most; this is the most surgical fix.
 
-  \item \textbf{Phase-2 epistemic comparison (July 2026).} Re-run the four-agent comparison at the extended budget with both aleatoric and epistemic uncertainty arms in parallel, on the full 70-stock market sample. If the epistemic arm beats the aleatoric arm by more than Monte-Carlo noise on path drawdown, the headline contribution becomes ``three arms compared on one protocol'' rather than ``two arms compared on one protocol'', and Table~\ref{tab:epistemic_ablation_phase2} of Chapter~\ref{ch:results} reports the final number.
+  \item \textbf{Ablation study.} Compare four PPO variants on the same protocol: pure baseline (no uncertainty), uncertainty as a state feature only (no guard), uncertainty guard only (no state feature), and the full design that has both. The aim is to attribute how much of the headline result comes from each of the two pieces.
 
-  \item \textbf{Sector-aware uncertainty calibration (July 2026).} Replace the single global uncertainty-guard threshold ($\tau = 0.80$) with per-sector or per-regime thresholds calibrated on the validation window. Section~\ref{sec:wins_and_losses} identifies persistent-trend single names as the regime where the global threshold costs the most; this is the most surgical fix.
+  \item \textbf{Sensitivity sweep.} Sweep the uncertainty quantile threshold over $\{0.7, 0.8, 0.9\}$, the minimum scale $s_{\min}$ over $\{0.05, 0.10, 0.20\}$, and the maximum trade fraction $f_{\max}$ over $\{0.05, 0.10, 0.20\}$. Report the headline metrics over the resulting 27-cell grid on SPY.
 
-  \item \textbf{Ablation study (July 2026).} Compare four PPO variants on the same protocol: pure baseline (no uncertainty), uncertainty as a state feature only (no guard), uncertainty guard only (no state feature), and the full design that has both. The aim is to attribute how much of the headline result comes from each of the two pieces.
+  \item \textbf{Bootstrap-augmented training.} Generate synthetic training paths by block-bootstrap resampling of historical return sequences~\parencite{politis1994stationary} to expand the effective training set without leaving the empirical return distribution.
 
-  \item \textbf{Sensitivity sweep (July 2026).} Sweep the uncertainty quantile threshold over $\{0.7, 0.8, 0.9\}$, the minimum scale $s_{\min}$ over $\{0.05, 0.10, 0.20\}$, and the maximum trade fraction $f_{\max}$ over $\{0.05, 0.10, 0.20\}$. Report the headline metrics over the resulting 27-cell grid on SPY.
-
-  \item \textbf{Bootstrap-augmented training (August 2026).} Generate synthetic training paths by block-bootstrap resampling of historical return sequences~\parencite{politis1994stationary} to expand the effective training set by an order of magnitude without leaving the empirical return distribution.
-
-  \item \textbf{Shock-window case studies (August 2026).} Score the four agents on the protocol shock periods (COVID 2020, Ukraine-war onset 2022) as standalone case studies, with per-window equity curves and metric tables.
+  \item \textbf{Shock-window case studies.} Score the agents on the protocol shock periods (COVID 2020, Ukraine-war onset 2022) as standalone case studies, with per-window equity curves and metric tables.
 \end{itemize}
 
 \subsection{Group 2 --- Real-world deployment roadmap (post-submission)}
 \label{sec:group_2_deployment}
 
-The dissertation answers a scientific question about a design choice. A separate engineering question, asked outside the dissertation, is whether the resulting agent can be made useful against a real, live portfolio. The roadmap below phases that work from low risk to higher risk so that each phase produces evidence the next phase needs. The skeleton in the \texttt{live/} branch of the repository is the starting point.
+The dissertation answers a scientific question about a design choice. A separate engineering question is whether the resulting agent can be made useful against a real, live portfolio. The roadmap below phases that work from low risk to higher risk so that each phase produces evidence the next phase needs.
 
 \paragraph{Phase A --- Shadow paper-trading via Alpaca.}
 \begin{itemize}[leftmargin=*]
-  \item Provision an Alpaca paper-trading account and store credentials in environment variables (no secrets in the repository).
-  \item Wire the saved market-sample probabilistic policy and its DeepAR-style forecaster behind a daily polling loop in \texttt{live/paper\_trading/alpaca\_paper\_loop.py}.
-  \item Log every observation, predicted $(\mu, \sigma)$ pair, raw action, scaled action and resulting fill on a per-day per-ticker basis to a versioned JSONL trail under \texttt{live/paper\_trading/runs/}.
-  \item Run the loop in shadow mode for at least two weeks of trading days; the agent acts only on the paper account, no real capital is touched.
-  \item Reconcile the live equity curve against a simultaneous backtest replay on the same observation stream, to confirm that the live wiring reproduces the backtest behaviour up to fill-time and slippage.
-  \item Go/no-go criterion for Phase B: the live capital-preservation ratio sits above 0.95 across the shadow window and the live Sharpe is non-inferior to the matched-window backtest within Monte-Carlo noise.
+  \item Provision an Alpaca paper-trading account and store credentials in environment variables.
+  \item Wire the saved policy and forecaster behind a daily polling loop.
+  \item Run in shadow mode for at least two weeks of trading days; the agent acts only on the paper account.
+  \item Reconcile the live equity curve against a simultaneous backtest replay to confirm the live wiring reproduces the backtest behaviour up to fill-time and slippage.
+  \item Go/no-go criterion for Phase B: the live capital-preservation ratio sits above 0.95 and the live Sharpe is non-inferior to the matched-window backtest.
 \end{itemize}
 
-\paragraph{Phase B --- Decision-support advisor against the real portfolio.}
+\paragraph{Phase B --- Decision-support advisor.}
 \begin{itemize}[leftmargin=*]
-  \item Build \texttt{live/decision\_support/nightly\_advisor.py}: pull current positions and prices from Alpaca (live account, read-only), run the agent on the day's observation, and emit a recommendation (target weight, scaled action, confidence) by email or Slack.
-  \item Operate as decision-support only --- the human is the executor, the agent is the advisor --- for at least one full quarter of trading days.
-  \item Maintain a side-by-side ledger that records what the agent suggested, what the human did, and the resulting profit-and-loss attribution between the two.
-  \item Include an explicit kill-switch and a hard exposure cap (no single-name position above a configurable percent of equity, no aggregate gross above a configurable percent of equity).
-  \item Go/no-go criterion for Phase C: across the quarter the recommendations would have produced a Sharpe non-inferior to the actual portfolio, with maximum drawdown below the running high-watermark threshold the dissertation reports.
+  \item Pull current positions and prices, run the agent on the day's observation, and emit a recommendation by email or Slack.
+  \item Operate as decision-support only --- the human is the executor, the agent is the advisor --- for at least one full quarter.
+  \item Maintain a side-by-side ledger that records what the agent suggested, what the human did, and the resulting profit-and-loss attribution.
+  \item Go/no-go criterion for Phase C: across the quarter the recommendations would have produced a Sharpe non-inferior to the actual portfolio.
 \end{itemize}
 
 \paragraph{Phase C --- Scheduled execution with continuous risk gates.}
 \begin{itemize}[leftmargin=*]
-  \item Build \texttt{live/execution/scheduled\_executor.py}: a cron- or systemd-timer-driven entry point that runs the advisor and, where it satisfies pre-trade risk gates, places the corresponding orders on the live account through the Alpaca trading API.
-  \item Pre-trade risk gates are non-negotiable: position-size cap, gross-exposure cap, sector-exposure cap, daily-loss cap, and a circuit breaker tied to the running high-watermark drawdown threshold.
-  \item Run only on a small fraction of equity initially; size up only after each successive month of operation continues to satisfy the preservation-against-high-watermark and Sharpe gates.
-  \item Maintain the same observation / prediction / action / fill audit trail as Phase A and B, so that any month of live operation can be replayed against the backtest deterministically.
-  \item Stop criterion: any breach of the preservation-against-high-watermark gate halts the executor, requires a written incident note, and forces a return to Phase B until the cause is understood.
+  \item A cron-driven entry point that runs the advisor and, where it satisfies pre-trade risk gates, places orders on the live account.
+  \item Pre-trade risk gates are non-negotiable: position-size cap, gross-exposure cap, sector-exposure cap, daily-loss cap, and a circuit breaker tied to the high-watermark drawdown threshold.
+  \item Run only on a small fraction of equity initially; size up only after each successive month continues to satisfy the preservation and Sharpe gates.
+  \item Stop criterion: any breach of the preservation gate halts the executor and forces a return to Phase B.
 \end{itemize}
 
 \subsection{Group 3 --- Beyond the scope of this dissertation}
 \label{sec:group_3_beyond}
 
-\paragraph{Alternative uncertainty estimators.} Compare the Gaussian-NLL head and the Monte-Carlo dropout head used in this dissertation against a deep ensemble~\parencite{lakshminarayanan2017simple} and a conformal-prediction overlay~\parencite{vovk2005algorithmic}. The aim is to test whether the headline contribution survives a different uncertainty estimator.
+\paragraph{Alternative uncertainty estimators.} Compare the Gaussian-NLL head and the Monte-Carlo dropout head used in this dissertation against a deep ensemble~\parencite{lakshminarayanan2017simple} and a conformal-prediction overlay~\parencite{vovk2005algorithmic}.
 
-\paragraph{Risk-aware reward shaping.} Compare the implicit risk control obtained from the trade-scaling factor of Equation~\ref{eq:probabilistic_trade_size} against an explicit risk-aware reward --- for instance log-growth penalised by drawdown, or a Conditional Value-at-Risk shaped reward~\parencite{rockafellar2000optimization}.
+\paragraph{Risk-aware reward shaping.} Compare the implicit risk control from the trade-scaling factor against an explicit risk-aware reward --- for instance log-growth penalised by drawdown, or a Conditional Value-at-Risk shaped reward~\parencite{rockafellar2000optimization}.
 
-\paragraph{Intraday extension.} Re-calibrate the trade-size scaling and the risk-on guard for minute or tick granularity, and re-run the protocol on intraday data. This requires a different data source and a different transaction-cost model and is therefore out of scope for the present dissertation.
+\paragraph{Intraday extension.} Re-calibrate the trade-size scaling and the risk-on guard for minute or tick granularity. This requires a different data source and a different transaction-cost model.
 
-\paragraph{Multi-asset portfolio optimisation.} The present dissertation runs one agent per ticker. A multi-asset agent that allocates across the market sample jointly --- with the same uncertainty signal --- is a natural follow-up but requires a different action space and a different reward structure and is therefore not within scope.
+\paragraph{Multi-asset portfolio optimisation.} The present dissertation runs one agent per ticker. A multi-asset agent that allocates across the market sample jointly is a natural follow-up but requires a different action space and reward structure.
 
-\paragraph{Closing remark.} The dissertation's contribution is deliberately narrow: one design choice, one reproducible protocol, three named comparators, and one new ablation arm. Group~1 above is the work needed to lift the Phase-1 numbers to the headline Phase-2 numbers without changing the design. Groups~2 and~3 are the work that would build on the dissertation rather than within it.
+\paragraph{Closing remark.} The dissertation's contribution is deliberately narrow: one design choice, one reproducible protocol, three experimental arms, and 2,097 completed experiment cells. The Phase-2 results confirm the hypothesis that a calibrated uncertainty signal enables a deep reinforcement-learning agent to earn materially higher risk-adjusted returns than the same agent without the signal. The walk-forward validation across four independent time windows confirms that this is a general finding, not an artefact of the test-window choice. The evidence is honest: six cells failed, the baseline agent's conservatism is a specific outcome of this reward function, and all numbers are backtest-only. Within these bounds, the result is clear and strong.
