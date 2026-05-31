@@ -84,7 +84,7 @@ The trade-size computation inside \texttt{step} is the literal implementation of
 \section{Reproducibility}
 \label{sec:reproducibility_implementation}
 
-Three measures make the implementation reproducible. The first is the protocol file: every hyper-parameter that matters is in one JSON file and every runner reads from it. The second is the seed control: each runner sets the global random seed for Python, NumPy, PyTorch and Stable-Baselines3 at the top of \texttt{main} before any random operation. The third is the public repository: every script, every notebook and every protocol file lives at \url{https://github.com/TheFinix13/portfolio-risk-drl}, and Appendix~\ref{app:reproducibility} lists the exact command-line invocations that reproduce each table and figure in this dissertation.
+Three measures make the implementation reproducible. The first is the protocol file: every hyper-parameter that matters is in one JSON file and every runner reads from it. The second is the seed control: each runner sets the global random seed for Python, NumPy, PyTorch and Stable-Baselines3 at the top of \texttt{main} before any random operation. The third is the public repository: every script, every notebook and every protocol file lives at \url{https://github.com/TheFinix13/dissertation-project}, and Appendix~\ref{app:reproducibility} lists the exact command-line invocations that reproduce each table and figure in this dissertation.
 
 \section{How the agent trades --- a day-by-day walkthrough}
 \label{sec:day_by_day_walkthrough}
