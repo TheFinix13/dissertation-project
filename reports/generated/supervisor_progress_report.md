@@ -1,5 +1,47 @@
 # Supervisor Progress Report (Draft)
 
+> ## Update — Phase-2 complete (May 2026)
+>
+> **This report below is a historical Phase-1 interim snapshot. It is kept as a
+> dated record; the numbers in it are superseded by the completed Phase-2
+> results summarised here.** The Phase-2 extended grid that the body describes
+> as "scheduled for May–June 2026" has now been **run and completed** on the
+> full `market_sample` universe (70 stocks, 10 seeds, 50,000 PPO time-steps per
+> cell). The canonical write-up is the LaTeX dissertation in `latex/`; this
+> note brings the progress report into line with it.
+>
+> **Headline (held-out 2022–2025 test window, full grid):**
+>
+> | Arm | Cells | Median final value | Median Sharpe | Median max drawdown | Win-rate |
+> |---|---:|---:|---:|---:|---:|
+> | Baseline PPO (no uncertainty) | 700 | $999,063 | −0.04 | ~1.3% | 46.1% |
+> | **Probabilistic — aleatoric** | **697** | **$1,612,478** | **+0.70** | **20.9%** | **89.1%** |
+> | **Probabilistic — epistemic** | **697** | **$1,619,713** | **+0.68** | **22.9%** | **92.3%** |
+>
+> The uncertainty-aware agents grow a \$1M portfolio to a **median of about
+> \$1.6M** (median Sharpe **+0.68 to +0.70**, win-rate **89–92%**); the baseline
+> finishes essentially flat at **~\$999,063** (Sharpe **−0.04**, win-rate
+> **46.1%**), because without a confidence signal it learns to under-trade.
+>
+> **Walk-forward (4 folds, 2018–2025, 320 cells):** the probabilistic agent
+> wins **every fold**, with an overall **87.2%** win-rate, a median final value
+> of **\$1,167,050** and a median Sharpe of **+0.55**.
+>
+> **Drawdown — honest framing (median across the grid, 2022–2025):** the proper
+> benchmark is **passive buy-and-hold (~25.9%)**, *not* the baseline PPO. The
+> baseline's ~1.3–1.4% drawdown is an **under-trading artefact**, not risk
+> skill. The uncertainty guards take **less drawdown than buy-and-hold on the
+> typical stock and the index basket** (aleatoric ~22.1%, epistemic ~24.1%; vs
+> trailing stops 26.2% and 32.7%) — but **not on the worst-case tail** (guard
+> worst ~57% > buy-and-hold worst ~35%). The claim is "better on the median
+> stock and the basket", never "reduces drawdown on every ticker".
+>
+> The "70-ticker" / "3-seed Phase-1" framing used in the body below is the
+> historical interim state and has been superseded; the project's standard term
+> for the universe is now **`market_sample`**.
+>
+> ---
+
 ## Executive Summary
 
 - Objective: study whether a PPO agent that conditions on its own forecaster's predictive uncertainty can sit on a more attractive point of the **return-versus-drawdown** trade-off than three named comparators (passive buy-and-hold, a manually-tuned trailing stop-loss, and a baseline PPO with no uncertainty signal).

@@ -3,6 +3,21 @@
 > Use this file to fill the **black** boxes in `InterimReview.docx`.
 > The blue supervisor boxes are intentionally left empty.
 
+> **Historical record — superseded by Phase-2 results (May 2026).** This is the
+> formal interim-review snapshot from the Phase-1 stage of the project. It is
+> preserved as a dated record of what was true at interim review. The numbers
+> in the "Technical progress" section below are **Phase-1** figures (3 seeds,
+> 10,000 PPO time-steps, single-window means); they are **no longer the
+> headline**. The Phase-2 extended grid that this document describes as
+> "scheduled" has since been **completed**: across the full `market_sample`
+> universe (70 stocks, 10 seeds, 50,000 time-steps) the uncertainty-aware agent
+> reaches a **median final value of ~\$1.6M** (median Sharpe **+0.68 to +0.70**,
+> win-rate **89–92%**) versus the baseline's **~\$999,063** (Sharpe **−0.04**,
+> win-rate **46.1%**), with the honest drawdown story that the proper benchmark
+> is buy-and-hold (the guard beats it on the median stock and the index basket,
+> but not on the worst-case tail). The canonical write-up is the LaTeX
+> dissertation in `latex/`.
+
 ---
 
 ## Cover information

@@ -1,3 +1,17 @@
+"""Generate a simple results snapshot into reports/generated/dissertation_results.md.
+
+SUPERSEDED (May 2026) — produces a rough, mean-based snapshot only.
+    This script fills the template with the *mean* across whatever result
+    files happen to be latest in `experiments/results/`. The canonical Phase-2
+    headline is reported as the *median* across the full grid and lives in the
+    LaTeX dissertation in `latex/`; the committed `dissertation_results.md` has
+    been hand-reconciled to those Phase-2 figures (median final value ~$1.6M,
+    median Sharpe +0.68 to +0.70, win-rate 89-92% for the uncertainty guards;
+    ~$999,063 / -0.04 / 46.1% for the baseline PPO). Re-running this script will
+    overwrite that file with a mean-based snapshot that does NOT match the
+    canonical median figures, so only do so deliberately.
+"""
+
 import json
 from pathlib import Path
 

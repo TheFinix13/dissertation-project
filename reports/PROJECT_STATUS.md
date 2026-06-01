@@ -1,8 +1,34 @@
 # Project Status Reference
 
-**Last updated:** 2026-05-15
+**Last updated:** 2026-05-30
 **Programme:** MSc EEEM004 — Electrical & Electronic Engineering, University of Surrey
 **Supervisor:** Dr Cuong Nguyen
+
+---
+
+## Current Status — Phase-2 complete
+
+**Phase-2 is finished.** The full experimental grid has been run across the
+`market_sample` universe (70 stocks), ten seeds and 50,000 PPO time-steps per
+cell, plus a four-fold walk-forward validation. The LaTeX dissertation in
+`latex/`, both notebooks, and the chart suite in `reports/generated/charts/`
+are all reconciled to these results and are the source of truth.
+
+**Headline (held-out 2022–2025 test window):** the uncertainty-aware agents
+grow a $1M portfolio to a **median of ~$1.6M** (median Sharpe **+0.68 to
++0.70**, win-rate **89–92%**); the baseline PPO finishes flat at **~$999,063**
+(Sharpe **−0.04**, win-rate **46.1%**). The walk-forward grid (320 cells)
+confirms the advantage on **all four folds** (overall 87.2% win-rate, median
+final ~$1,167,050).
+
+**Drawdown — honest framing:** the proper benchmark is **buy-and-hold (~25.9%
+median)**, not the baseline PPO (whose ~1.4% drawdown is an under-trading
+artefact). The guard beats buy-and-hold on the median stock and the index
+basket (~22–24%) but **not** on the worst-case tail (guard worst ~57% >
+buy-and-hold worst ~35%).
+
+The interim-review feedback and Phase-1 notes below are retained as a
+historical record of how the project reached this point.
 
 ---
 

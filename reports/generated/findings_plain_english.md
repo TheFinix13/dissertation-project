@@ -19,28 +19,66 @@ We built a two-piece AI agent. **Piece 1** is a small neural network that watche
 
 ## Does it work? Three results, in dollars and percentages.
 
-### Result 1 — On the broad US market (SPY ETF, 2022–2025)
+### Result 1 — An early single-ticker case study on the broad US market (SPY ETF, 2022–2025)
+
+This first result is an **illustrative single-ticker case study** — a useful
+warm-up before the real headline (Result 2). It is reported on one ETF (SPY) at
+a small training budget, so treat it as an example, not the main evidence.
 Starting from $1,000,000:
 
 | Strategy | Final value | Worst drawdown |
 |---|---:|---:|
 | Buy-and-hold (just hold the ETF) | $1.52M | -25% |
-| Manual 5% stop-loss rule | $1.23M | -25% (still!) |
+| Manual 5% stop-loss rule | $1.15M | -20% |
 | **Probabilistic AI agent (this dissertation)** | **$1.62M** | **-18%** |
 
-The AI made $100K more than buy-and-hold *and* took 7 percentage points less drawdown. The manual stop-loss rule made $290K *less* than buy-and-hold and didn't even reduce drawdown.
+On this single ticker the AI made about $100K more than buy-and-hold *and* took
+roughly 6 percentage points less drawdown. The manual stop-loss rule trimmed
+drawdown a little but gave up about $370K versus buy-and-hold — it sells late
+and buys back even later. This is only one stock, though; the dissertation's
+actual headline is the full grid below.
 
-### Result 2 — On a market sample of 70 stocks (the dissertation's headline)
+### Result 2 — On the full market sample of 70 stocks (the dissertation's headline)
 
-Same test window. Mean across 70 diversified stocks — 41 single-name US large-cap stocks (technology, payments and financial services, healthcare, consumer, industrials) and 29 ETFs (broad-market, sector, dividend, thematic, commodities) — each starting from $1M:
+This is the **completed Phase-2 result** and the headline of the dissertation.
+Every agent is trained across the `market_sample` universe (70 diversified
+stocks — 41 single-name US large-cap stocks across technology, payments and
+financial services, healthcare, consumer and industrials, plus 29 ETFs
+spanning broad-market, sector, dividend, thematic and commodity exposures),
+with **ten random starting points (seeds)** and **50,000 training rounds** per
+combination. Each run starts from $1M and is tested on the 2022–2025 window.
+"Median" means the typical (middle) stock; "win-rate" means the share of runs
+that finish with more money than they started.
 
-| Strategy | Mean final value | Mean worst drawdown |
-|---|---:|---:|
-| Buy-and-hold | $2.10M | -37% |
-| Manual 5% stop-loss | $1.53M | -31% |
-| **Probabilistic AI agent** | **$2.00M** | **-23%** |
+| Strategy | Median final value | Median Sharpe | Win-rate (finish above $1M) |
+|---|---:|---:|---:|
+| Baseline PPO (no confidence signal) | $999,063 | −0.04 | 46% |
+| **Probabilistic AI agent — aleatoric** | **$1.61M** | **+0.70** | **89%** |
+| **Probabilistic AI agent — epistemic** | **$1.62M** | **+0.68** | **92%** |
 
-The big finding: **the AI cut average max-drawdown by 14 percentage points (from -37% to -23%) at a cost of only ~5% in mean terminal value**. It cut drawdown on **70 of 70 diversified stocks** — every single one. It beat the manually-tuned stop-loss alternative on **61 of 70 diversified stocks** (87%) in terminal value, and on essentially every ticker in risk-adjusted return. This is a real, defensible improvement on a heterogeneous, real-world equity universe rather than on a single index ETF.
+The big finding: **the uncertainty-aware AI grows a typical $1M portfolio to
+about $1.6M — a 60% median gain — and finishes ahead of where it started about
+nine times out of ten (89–92%).** The baseline PPO, which sees no confidence
+signal, finishes essentially flat at about $999,000 and only wins 46% of the
+time: without a confidence signal it learns to barely trade at all. The two
+ways of measuring uncertainty (aleatoric = "how noisy is the market?" and
+epistemic = "how unfamiliar is today?") give almost identical results.
+
+**What about drawdown — does the AI lose less?** On the *typical* stock and on
+the index basket, yes: the AI's median worst-drop is about **22–24%**, a few
+points *better* than just holding the market (**~26%**), and far better than
+the trailing stop-loss rules (**26%** and **33%**). But this is an honest, not
+a perfect, story:
+
+- The right thing to compare against is **buy-and-hold** (which is fully
+  invested and so actually carries market risk), **not** the baseline PPO.
+- The baseline PPO's tiny ~1.4% drawdown looks great but is a **side-effect of
+  barely investing** — there is almost nothing to lose. It is not risk skill.
+- The AI does **not** win on the worst case. On the most volatile individual
+  stocks its deepest drop (about **57%**) is worse than buy-and-hold's worst
+  (about **35%**). So the claim is "the AI takes less drawdown on the typical
+  stock and on the index basket" — **never** "it reduces drawdown on every
+  single stock".
 
 ---
 
@@ -71,17 +109,26 @@ Total parameter count is well under 50,000. A real production trading system wou
 
 - **This is not a complete trading system.** It is the risk-control layer of one. The stock-picking is assumed; the layer being studied is what to do with positions you've already chosen.
 - **The novelty is modest.** Probabilistic forecasting exists. Drawdown-constrained optimisation exists. RL-based trading exists. The contribution is putting the three together into one explicit, formal, reproducible pipeline and measuring the result. It is one paper's worth of contribution, not a thesis chapter's worth of breakthrough.
-- **2022–2025 is a 4-year test window.** A four-fold walk-forward grid on a four-ticker subset of the universe (96 trainings) has finished and shows the agent beats the baseline on all 16 (ticker, fold) cells out-of-time. The full market-sample × 4-fold walk-forward grid is the GPU-only Phase-2 deliverable.
-- **Three random seeds is a small ensemble at the Phase-1 budget.** Extended 10-seed × 50 000-step runs on a representative eight-ticker sub-universe have finished on CPU and show inter-quartile range under 3% of starting capital on six of eight tickers. The full market-sample × 10-seed extended grid is scheduled on Colab GPU in May–June.
+- **2022–2025 is a 4-year test window, but it is not the only one tested.** A four-fold walk-forward check (training on an earlier period and testing on a strictly later one) has now been run across the grid — 320 runs spanning 2018–2025, including the COVID crash and the 2022 inflation shock. The AI beats the baseline on **all four** time windows, with an overall **87% win-rate** and a median final value of about **$1.17M** out-of-sample. So the advantage is not an accident of one test period.
+- **The full grid is complete.** The headline numbers above come from the finished Phase-2 grid (10 seeds × 50,000 training rounds × 70 stocks). This is no longer "scheduled" or "planned" — it has been run, and the dissertation reports the results.
 - **Single-asset environment.** The agent runs on one ticker at a time. A true multi-asset version that watches the running peak of the *whole portfolio* is the natural next step and is in the future-work plan.
 
 ---
 
 ## What you can show Dr Nguyen, today
 
-- **`reports/generated/exports/Main_Dissertation_Draft.docx`** — the full dissertation. The sections that directly answer the supervisor's previous-meeting feedback are Section 1.2 (problem statement, now formal), Section 2.1 (finance background with notation), Section 3.1.5 (explicit objective function — this was missing before), Section 5.5 (market-sample test-universe aggregate), Section 5.5.1 (extended-budget seed-stability check), Appendix B (full 70-row per-ticker table), Section 6.3 (honest discussion of where the agent fails), Section 6.4 (walk-forward out-of-time evidence).
-- **`reports/generated/exports/InterimReview.docx`** — the formal Interim Review document, ready to share.
-- **`reports/generated/charts/market_sample_results.png`** — one image showing the per-ticker results across all 70 diversified stocks.
-- **`reports/generated/charts/market_sample_winloss.png`** — one image showing where the agent wins and loses across 70 diversified stocks.
+- **The LaTeX dissertation in `latex/`** — this is now the canonical, full
+  dissertation, reconciled to the completed Phase-2 results. An editable Word
+  copy can be produced at any time with `latex/build_docx.sh`. The chapters
+  that directly answer the supervisor's previous-meeting feedback are Chapter 1
+  (formal problem statement and objectives), Chapter 2 (finance background with
+  notation), Chapter 3 (explicit objective function), Chapter 5 (the full
+  Phase-2 grid across 70 stocks, the honest drawdown comparison, and the
+  walk-forward validation), and Chapter 6 (honest discussion of where the agent
+  wins and where it fails).
+- **`reports/generated/charts/`** — the reproducible Phase-2 chart suite,
+  including the equity curves, the outcome and Sharpe distributions, the
+  drawdown comparison, and the walk-forward-by-fold breakdown.
+- **`reports/generated/dissertation_results.md`** — a one-page summary of the
+  Phase-2 headline numbers.
 - **`reports/generated/findings_plain_english.md`** — this document.
-- **`reports/generated/supervisor_handout.md`** — a one-page meeting brief.

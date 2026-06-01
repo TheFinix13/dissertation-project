@@ -5,6 +5,20 @@ Outputs:
 
 Run:
     venv/bin/python reports/builders/build_main_dissertation_docx.py
+
+SUPERSEDED (May 2026) — DO NOT TREAT AS CANONICAL.
+    The canonical dissertation is now the LaTeX source in `latex/`, which has
+    been reconciled to the completed Phase-2 results (full `market_sample`
+    grid: 70 stocks, 10 seeds, 50,000 PPO time-steps). To produce an editable
+    Word copy of the current dissertation, run `latex/build_docx.sh` instead.
+
+    This script and the prose/numbers hard-coded in it are a Phase-1-era
+    artefact (single-window means, 3 seeds, 10,000 steps, "Sharpe 0.85" SPY
+    headline, "scheduled for Colab" language). They are kept for provenance
+    only and are NOT updated to Phase-2. If you regenerate this .docx, treat
+    its figures as historical, not current. The Phase-2 headline is: median
+    final value ~$1.6M, median Sharpe +0.68 to +0.70, win-rate 89-92% for the
+    uncertainty guards vs ~$999,063 / -0.04 / 46.1% for the baseline PPO.
 """
 
 from __future__ import annotations

@@ -9,6 +9,17 @@ framing. The blue supervisor boxes are intentionally left empty.
 
 Run:
     venv/bin/python reports/builders/build_interim_review_docx.py
+
+HISTORICAL ARTEFACT (Phase-1 interim snapshot) — superseded by Phase-2.
+    This builder reproduces the formal Interim Review form as it stood at the
+    Phase-1 interim stage (3 seeds, 10,000 PPO time-steps, single-window
+    figures, Phase-2 described as "scheduled"). Those numbers are correct *as
+    the interim-review record* and are deliberately left unchanged so the form
+    remains a faithful dated snapshot. They are NOT the current headline:
+    Phase-2 is complete, and the canonical, up-to-date results live in the
+    LaTeX dissertation in `latex/` (median final value ~$1.6M, median Sharpe
+    +0.68 to +0.70, win-rate 89-92% for the uncertainty guards; ~$999,063 /
+    -0.04 / 46.1% for the baseline PPO).
 """
 
 from __future__ import annotations

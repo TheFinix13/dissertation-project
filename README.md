@@ -3,6 +3,18 @@
 EEEM004 research project: an uncertainty-aware PPO policy for
 capital preservation under regime stress.
 
+**Project status — Phase-2 complete.** The full experimental grid has been run
+across the `market_sample` universe (70 stocks, 10 seeds, 50,000 PPO time-steps
+per cell) plus a four-fold walk-forward validation. On the held-out 2022–2025
+window the uncertainty-aware agents grow a $1M portfolio to a **median of
+~$1.6M** (median Sharpe **+0.68 to +0.70**, win-rate **89–92%**) versus the
+baseline PPO's **~$999,063** (Sharpe **−0.04**, win-rate **46.1%**). The
+**canonical dissertation is the LaTeX source in [`latex/`](latex/)**, reconciled
+to these results; run [`latex/build_docx.sh`](latex/build_docx.sh) for an
+editable Word copy. (On drawdown the honest benchmark is buy-and-hold, ~25.9%
+median: the guard beats it on the typical stock and the index basket, ~22–24%,
+but not on the worst-case tail.)
+
 ## For supervisors — two notebooks
 
 Both notebooks live in `notebooks/` and are designed to run top to bottom with one click.
@@ -29,17 +41,27 @@ jupyter notebook notebooks/01_Project_Walkthrough.ipynb
 The interim review draft (Surrey form) lives at
 `reports/generated/interim_review_draft.md`.
 
-## Generated artifacts (under `reports/generated/exports/`)
+## The dissertation (canonical) and historical artifacts
 
-- `Main_Dissertation_Draft.docx` — the **academic** Master's dissertation. Headline robustness evidence is the four-agent comparison on a market sample of 70 stocks (Section 5.5) with the full per-ticker table in Appendix B; supplementary studies are an extended seed-stability check on a representative eight-ticker sub-universe (Section 5.5.1) and a four-fold walk-forward grid on a four-ticker subset (Section 6.4). Title page, abstract, 7 chapters, references, two appendices.
-- `InterimReview.docx` — the formal Surrey Interim Review form.
-- `equations/` — individual PNGs for every equation in the docx.
-
-To regenerate every document:
+The **canonical Master's dissertation is the LaTeX source in [`latex/`](latex/)**,
+reconciled to the completed Phase-2 results. To produce an editable Microsoft
+Word copy from it:
 
 ```bash
-venv/bin/python reports/builders/build_main_dissertation_docx.py       # academic dissertation
-venv/bin/python reports/builders/build_interim_review_docx.py          # interim review form
+latex/build_docx.sh        # LaTeX -> ../dissertation.docx (sources never modified)
+```
+
+The earlier Python-built Word documents under `reports/generated/exports/` are
+**historical Phase-1-era artifacts** and are no longer the source of truth:
+
+- `Main_Dissertation_Draft.docx` — superseded by the LaTeX dissertation above. Its builder (`reports/builders/build_main_dissertation_docx.py`) carries Phase-1 numbers and is kept for provenance only.
+- `InterimReview.docx` — the formal Surrey Interim Review form, a faithful snapshot of the Phase-1 interim stage.
+- `equations/` — individual PNGs for every equation in the docx.
+
+```bash
+# Historical docx artifacts only (Phase-1 framing — see the docstring warnings):
+venv/bin/python reports/builders/build_main_dissertation_docx.py
+venv/bin/python reports/builders/build_interim_review_docx.py
 ```
 
 Heaviest experiments (market-sample × 10-seed × 50k-step extended grid, walk-forward

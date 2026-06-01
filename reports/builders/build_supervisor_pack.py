@@ -1,3 +1,18 @@
+"""Build the supervisor chart and a simple progress-report snapshot.
+
+SUPERSEDED (May 2026) — overwrites the curated Phase-2 report.
+    The committed `reports/generated/supervisor_progress_report.md` is a
+    hand-curated document carrying a dated "Phase-2 complete" update and the
+    honest drawdown framing. This script regenerates a much simpler, mean-based,
+    Phase-1-style version ("Market proxy: SPY", "Next Tests Before Viva") and
+    will CLOBBER the curated report if run. The canonical results are the
+    Phase-2 median figures in the LaTeX dissertation in `latex/` (uncertainty
+    guards: median final value ~$1.6M, median Sharpe +0.68 to +0.70, win-rate
+    89-92%; baseline PPO: ~$999,063 / -0.04 / 46.1%). Run this only if you
+    deliberately want to rebuild the chart, and restore the curated report
+    afterwards.
+"""
+
 import csv
 from pathlib import Path
 
