@@ -120,17 +120,68 @@ The Phase-2 grid is GPU-accelerated and was run to completion on the Colab T4 ru
 
 Wall time on a T4 is approximately four to six hours. The downloaded results bundle populates the headline aggregate (Table~\ref{tab:phase2_headline}), the full per-ticker table (Table~\ref{tab:per_ticker_phase2}), and the walk-forward tables (Tables~\ref{tab:wf_aggregate}, \ref{tab:wf_by_fold}).
 
+\section{Paired statistical-inference pass (Table~\ref{tab:phase2_stats}, Section~\ref{sec:phase2_inference})}
+\label{app:stats_significance}
+
+The script reads the committed per-cell JSONs under \path{experiments/results/per_cell/} and reproduces Table~\ref{tab:phase2_stats} and the walk-forward inference numbers without re-running any training. Wall time: under three seconds on a single CPU core.
+
+\begin{verbatim}
+venv/bin/python experiments/stats_significance.py
+# Writes to reports/generated/stats/:
+#   - phase2_statistical_tests.json
+#   - phase2_statistical_tests.md
+#   - main_grid_per_ticker_medians.csv
+#   - wf_per_ticker_fold_medians.csv
+\end{verbatim}
+
+\section{Forecaster calibration figure (Figure~\ref{fig:forecaster_calibration})}
+\label{app:calibration}
+
+Retrains the LSTM forecaster on the SPY training window (2009--2018), evaluates predictive-interval calibration on the held-out validation window (2019--2021), and writes the reliability diagram + an Expected Calibration Error metric. Wall time: under one minute on CPU. The yfinance fetch is cached under \path{experiments/cache/}.
+
+\begin{verbatim}
+venv/bin/python reports/builders/build_forecaster_calibration.py
+# Writes:
+#   reports/generated/charts/forecaster_calibration.pdf
+#   reports/generated/charts/forecaster_calibration.png
+#   reports/generated/stats/forecaster_calibration_metrics.json
+\end{verbatim}
+
+\section{Two-piece ablation of Equation~\ref{eq:probabilistic_trade_size}}
+\label{app:ablation}
+
+The ablation isolates the two halves of the contribution. Arm~D keeps the uncertainty coordinate in the policy state but disables both the trade-scaling factor and the binary risk-on guard. Arm~E activates the binary guard only and zero-masks the uncertainty coordinate in the state. Arm~F activates the continuous trade-scaling factor only and zero-masks the state coordinate. The SPY pilot at Phase-2 budget reproduces Table~\ref{tab:spy_ablation}; the 70-ticker grid is GPU-feasible on Colab (about 2--3 hours per arm on a T4).
+
+\begin{verbatim}
+# SPY pilot at Phase-2 budget (~10 minutes wall on CPU)
+venv/bin/python experiments/runners/run_ablation.py --ablation state_only \
+    --tickers SPY --seeds extended --timesteps 50000 \
+    --tag ablation_spy_phase2
+venv/bin/python experiments/runners/run_ablation.py --ablation guard_only \
+    --tickers SPY --seeds extended --timesteps 50000 \
+    --tag ablation_spy_phase2
+venv/bin/python experiments/runners/run_ablation.py --ablation scaling_only \
+    --tickers SPY --seeds extended --timesteps 50000 \
+    --tag ablation_spy_phase2
+
+# Full 70-ticker grid (Colab T4, ~5h per arm)
+venv/bin/python experiments/runners/run_ablation.py --ablation state_only \
+    --tickers market_sample --seeds extended --timesteps 50000 \
+    --tag ablation_market_phase2
+# ... and likewise for guard_only and scaling_only.
+
+# Summary table (writes to reports/generated/stats/)
+venv/bin/python experiments/compute_spy_phase2_table.py
+\end{verbatim}
+
 \section{Rebuilding the documents}
 \label{app:rebuild_documents}
 
 \begin{verbatim}
-# Word document
-python reports/builders/build_main_dissertation_docx.py
-
-# LaTeX document (requires texlive)
+# LaTeX PDF (requires texlive)
 cd latex/
-pdflatex main.tex
-biber main
-pdflatex main.tex
-pdflatex main.tex
+./build.sh
+
+# Editable Word copy (LaTeX -> dissertation.docx at repo root)
+latex/build_docx.sh
 \end{verbatim}

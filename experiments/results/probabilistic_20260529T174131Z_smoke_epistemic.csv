@@ -1,4 +1,0 @@
-agent,annualized_return,annualized_volatility,bootstrap_paths,capital_preservation_rate_95pct_hwm,device,final_portfolio_value,fold_id,max_drawdown,mc_dropout,mc_passes,meets_95pct_preservation_goal,seed,sharpe_ratio,ticker,timesteps,uncertainty_mode,var_95,var_95_violation_rate
-ppo_with_uncertainty_guard_epistemic,0.12707083686900209,0.15204442541711397,0,0.9966921586529319,cpu,1592327.857306669,test_legacy,0.16746088664623104,0.1,20,True,7,0.7867566484279848,SPY,10000,epistemic,-0.014386547793021974,0.05
-ppo_with_uncertainty_guard_epistemic,0.11952105003073707,0.12684575930332725,0,0.9968054166180604,cpu,1551247.2560522652,test_legacy,0.14954790807856733,0.1,20,True,19,0.8900638008811518,SPY,10000,epistemic,-0.012401159535126549,0.05
-ppo_with_uncertainty_guard_epistemic,0.1305223894592545,0.16396190183140774,0,0.996411999411325,cpu,1611375.5272733178,test_legacy,0.19394735838550536,0.1,20,True,42,0.7482207592777986,SPY,10000,epistemic,-0.01562293146829745,0.05

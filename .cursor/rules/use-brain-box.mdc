@@ -1,0 +1,46 @@
+---
+description: Always read the Brain Box first. This repo's primary node is school/surrey-msc-ai/dissertation-eeem004.md.
+alwaysApply: true
+---
+
+# Use Brain Box (uncertainty-aware-portfolio-drl workspace)
+
+This repo (`uncertainty-aware-portfolio-drl`, local folder; GitHub `TheFinix13/dissertation-project`) is the **dissertation implementation** for Surrey EEEM004. Brain Box node: `life/finance-research/uncertainty-aware-portfolio-drl.md`.
+
+## Always do this first
+
+1. Read `/Users/the1finix/Documents/GitHub/brain-box/index.md`.
+2. Read `/Users/the1finix/Documents/GitHub/brain-box/school/_index.md`.
+3. Read `/Users/the1finix/Documents/GitHub/brain-box/school/surrey-msc-ai/dissertation-eeem004.md` — the primary node.
+4. Read `/Users/the1finix/Documents/GitHub/brain-box/school/surrey-msc-ai/notebooklm/final-dissertation.md` for the Dr Nguyen scope-locking history.
+5. Read `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/_index.md` for report structure + grading criteria.
+6. Read `/Users/the1finix/Documents/GitHub/brain-box/agents/dissertation_agent.md` for separation rules.
+
+## Auto-trigger: academic-writing
+
+> **Auto-trigger.** If the user's message contains any of `report`, `writeup`, `write up`, `documentation`, `paper`, `draft`, `progress note`, `progress update` AND the implied output is longer than ~30 lines of prose, also load and apply `academic-writing.mdc` from this same workspace. Treat the output as report-grade IMRaD (Abstract → Introduction → Related Work → Methodology → Implementation → Results → Discussion → Conclusion → References) with the LaTeX-canonical / DOCX-editable workflow per `latex-docx-workflow.md`. The Related Work section requires a real literature search step (see `literature-review-protocol.md`) — no hand-waving with fabricated citations. The Methodology and Results follow `readability-and-clarity.md`. Do NOT substitute a vanilla Markdown summary unless the user explicitly says "quick note" or "summary only" or "TL;DR".
+
+## Hard separation rules — academic only
+
+- **No live broker APIs** in this repo. Backtest data only.
+- **No Yochaa / Bamboo keys** anywhere.
+- **Don't claim personal-project results** as dissertation results.
+- Anything you publish here must follow the structure in `school/methodology/academic-report-structures.md`.
+
+## Output format expectations
+
+This repo will produce:
+- The EEEM004 dissertation (LaTeX or DOCX).
+- A reproducible code release with `docs/REPORT.md` (use the [`personal-project-report-template`](../../brain-box/school/methodology/personal-project-report-template.md) skeleton).
+- A future conference / workshop paper version (use [`research-paper-template`](../../brain-box/school/methodology/research-paper-template.md)).
+
+## Session end ritual
+
+Before ending a meaningful session:
+
+1. Open `/Users/the1finix/Documents/GitHub/brain-box/school/surrey-msc-ai/dissertation-eeem004.md`.
+2. Append a `## Session log` bullet for today.
+3. Update `last_updated:` in front-matter.
+4. Commit brain-box separately.
+
+See `agents/cross-workspace-protocol.md` in brain-box for the full model.

@@ -158,6 +158,7 @@ def plot_drawdown_distribution(summary: pd.DataFrame) -> dict:
     _style_axis(ax)
     fig.tight_layout()
     fig.savefig(CHARTS / "drawdown_distribution.png", dpi=160)
+    fig.savefig(CHARTS / "drawdown_distribution.pdf")
     plt.close(fig)
     return stats
 
@@ -203,6 +204,7 @@ def plot_outcome_distribution(summary: pd.DataFrame) -> None:
     _style_axis(ax)
     fig.tight_layout()
     fig.savefig(CHARTS / "outcome_distribution.png", dpi=160)
+    fig.savefig(CHARTS / "outcome_distribution.pdf")
     plt.close(fig)
 
 
@@ -244,6 +246,7 @@ def plot_sharpe_distribution(summary: pd.DataFrame) -> None:
     _style_axis(ax)
     fig.tight_layout()
     fig.savefig(CHARTS / "sharpe_distribution.png", dpi=160)
+    fig.savefig(CHARTS / "sharpe_distribution.pdf")
     plt.close(fig)
 
 
@@ -302,6 +305,8 @@ def plot_equity_uncertainty_overlay(repr_curve: pd.DataFrame) -> None:
 
     fig.savefig(CHARTS / "equity_uncertainty_overlay.png", dpi=160,
                 bbox_inches="tight")
+    fig.savefig(CHARTS / "equity_uncertainty_overlay.pdf",
+                bbox_inches="tight")
     plt.close(fig)
 
 
@@ -341,6 +346,7 @@ def plot_aleatoric_vs_epistemic(summary: pd.DataFrame) -> dict:
                  "outcomes", fontsize=13, fontweight="bold")
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(CHARTS / "aleatoric_vs_epistemic_scatter.png", dpi=160)
+    fig.savefig(CHARTS / "aleatoric_vs_epistemic_scatter.pdf")
     plt.close(fig)
     return out
 
@@ -394,6 +400,7 @@ def plot_walk_forward_by_fold(wf: pd.DataFrame) -> None:
                  "in every period", fontsize=13, fontweight="bold")
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     fig.savefig(CHARTS / "walk_forward_by_fold.png", dpi=160)
+    fig.savefig(CHARTS / "walk_forward_by_fold.pdf")
     plt.close(fig)
 
 
@@ -430,6 +437,7 @@ def plot_equity_curve_comparison(repr_curve: pd.DataFrame,
         mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
     fig.tight_layout()
     fig.savefig(CHARTS / "equity_curve_comparison.png", dpi=160)
+    fig.savefig(CHARTS / "equity_curve_comparison.pdf")
     plt.close(fig)
 
 
@@ -460,6 +468,7 @@ def plot_final_value_comparison(summary: pd.DataFrame) -> None:
     plt.setp(ax.get_xticklabels(), fontsize=9)
     fig.tight_layout()
     fig.savefig(CHARTS / "final_value_comparison.png", dpi=160)
+    fig.savefig(CHARTS / "final_value_comparison.pdf")
     plt.close(fig)
 
 
@@ -489,6 +498,7 @@ def plot_uncertainty_signal(repr_curve: pd.DataFrame) -> None:
         mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
     fig.tight_layout()
     fig.savefig(CHARTS / "uncertainty_signal.png", dpi=160)
+    fig.savefig(CHARTS / "uncertainty_signal.pdf")
     plt.close(fig)
 
 

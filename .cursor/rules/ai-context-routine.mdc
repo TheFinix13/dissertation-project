@@ -1,0 +1,75 @@
+---
+description: Keep ai_context.md current — the brain-dump routine for uncertainty-aware-portfolio-drl (EEEM004 dissertation impl.)
+alwaysApply: true
+---
+
+# ai_context.md routine (uncertainty-aware-portfolio-drl)
+
+`ai_context.md` (project root) is the compact state summary used to start
+fresh chats cheaply. It must never go stale. This is the dissertation
+implementation repo — accuracy of numbers in this file matters because
+those numbers feed straight into the LaTeX dissertation.
+
+## When starting a fresh session
+
+If the user references `@ai_context.md` (or asks "where did we leave off"),
+read it FIRST, then `docs/CHECKPOINT.md` if more depth is needed, then
+`reports/PROJECT_STATUS.md` for older Phase-1-era context. Do not
+re-derive project history from the codebase, the chapters, or old chats.
+
+## When to UPDATE ai_context.md (do it proactively, don't wait to be asked)
+
+Update it immediately after any of:
+
+- A heavy experiment lands (new walk-forward fold, new seed-stability
+  result, new ablation, new bootstrap run, new chart suite regenerated).
+- A dissertation-chapter divergence (chapter rewritten, new figure added,
+  numbers reconciled to a fresh experimental result, abstract retuned).
+- A supervisor checkpoint moves (new feedback from Dr Nguyen, interim
+  review form updated, a new draft sent for review).
+- A scope or methodology decision (algorithm swapped, dataset window
+  changed, evaluation metric added/removed, MOBO grid retuned).
+- The user signals the session is ending ("summarize", "brain dump",
+  "starting fresh", "closing this thread").
+
+## How to update it
+
+Keep the same three-section structure, strictly technical and short:
+
+1. **What is built and working** — append/edit only what changed; keep
+   numbers exact (medians, Sharpes, win-rates, drawdowns, seed counts,
+   timestep budgets). When a number changes, update the prose and the
+   matching figure caption + LaTeX chapter together.
+2. **Key file paths** — add new files (new chapter, new runner, new
+   chart), remove deleted ones.
+3. **Next immediate goal** — rewrite to the actual current dissertation
+   subgoal; keep the "Parked (do not start without discussion)" list
+   accurate (especially the "no live broker integration" entry).
+
+Also bump the date in the header. Target < 80 lines total — compress old
+detail into `docs/CHECKPOINT.md` / `reports/PROJECT_STATUS.md` references
+instead of letting this file grow.
+
+## The full checkpoint routine
+
+After MAJOR divergences (new research direction, big architecture change,
+algorithm swap, evaluation-window shift), `ai_context.md` alone is not
+enough — also run "THE ROUTINE" checklist in `docs/CHECKPOINT.md`
+(journey doc, checkpoint snapshot, dated review, stale-doc sync, artifact
+prune, test verification). The Phase-1 DOCX pipeline was removed in the
+v0.17.2 repo prune (June 2026); LaTeX in `latex/` is the only document source.
+
+## Cross-pollination
+
+If the dissertation finding affects the trading agent or portfolio app,
+write a row to `~/Documents/GitHub/brain-box/meta/shared-findings.md`
+above the `<!-- Append new rows above this line. -->` marker. Then mirror
+the entry into the relevant Brain Box node's `## Session log` per
+`agents/cross-workspace-protocol.md`.
+
+## Reminders
+
+- After updating, tell the user it was updated so they know the brain dump
+  is fresh before they close the thread.
+- Commit `ai_context.md` together with the work it describes (when the
+  user asks for a commit). Never commit it with stale numbers.

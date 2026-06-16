@@ -1,6 +1,11 @@
 # Project Status Reference
 
-**Last updated:** 2026-05-30
+> **Historical note:** Sections below the "Interim Review Session" heading describe
+> the April 2026 interim-review workflow. The Phase-1 DOCX builders and
+> `reports/generated/exports/` were removed in the v0.17.2 repo prune (June 2026).
+> The canonical dissertation is LaTeX in `latex/`.
+
+**Last updated:** 2026-06-16
 **Programme:** MSc EEEM004 — Electrical & Electronic Engineering, University of Surrey
 **Supervisor:** Dr Cuong Nguyen
 

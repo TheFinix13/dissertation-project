@@ -1,0 +1,147 @@
+---
+description: When writing the dissertation, conference/journal papers, technical reports, or methodology docs in this repo, follow Brain Box academic standards.
+globs:
+  - "**/REPORT.md"
+  - "**/REPORT.tex"
+  - "**/docs/**/*.md"
+  - "**/docs/**/*.tex"
+  - "**/dissertation/**"
+  - "**/paper/**"
+  - "**/*.tex"
+alwaysApply: false
+---
+
+# Academic-grade writing rule (dissertation repo)
+
+This repo IS the dissertation. Every report-grade deliverable here must follow Brain Box methodology standards.
+
+## Always read first
+
+1. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/_index.md`
+2. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/academic-report-structures.md`
+3. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/grading-criteria-rubric.md`
+4. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/research-paper-template.md` (for paper-bound outputs)
+5. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/literature-review-protocol.md` (for related-work sections)
+6. `/Users/the1finix/Documents/GitHub/brain-box/school/surrey-msc-ai/dissertation-eeem004.md` (current scope)
+
+## Visual stack — external builders only
+
+**Source of truth:** `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/visual-stack-policy.md`. Read it the first time you produce any figure / chart / diagram / graph in this dissertation.
+
+The three universal rules apply verbatim:
+
+1. **The agent emits the source. An external builder emits the render.** Same principle as LaTeX. Cursor never owns the final pixel.
+2. **A house style lives in `brain-box/templates/`.** One matplotlib `.mplstyle`, one Mermaid theme, one pandoc `reference.docx`, one Graphviz attribute defaults file, one Excalidraw library. Every render pulls from there.
+3. **No raw screenshots of agent-generated visuals into reports.** Always re-render from the source so the figure is editable, vectorised, and consistent with the house style.
+
+**Forbidden in every chapter of the dissertation:**
+
+- Matplotlib defaults (no `plt.plot(...)` without `plt.style.use("brain-box/templates/brain-box.mplstyle")` first). Every results chart in the dissertation must vectorise via PDF/SVG and live under `report/figures/`.
+- Word equation editor (equations are LaTeX; pandoc converts).
+- Hand-drawn diagrams shipped as PNG (use Mermaid, Excalidraw, or Graphviz; commit the `.mmd` / `.excalidraw.json` / `.dot` source).
+- Raw screenshots of dynamic visuals (e.g. the brain-box graph viewer, a TensorBoard dashboard) into report PDFs — re-render as static SVG.
+- Force-directed-only graph layouts (always offer a hierarchy layout as default).
+
+## Related Work — mandatory literature search
+
+When the user requests a report (dissertation chapter, conference/journal paper, project proposal, lab report), the Related Work / Background section is non-negotiable — perform a real literature search using `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/literature-review-protocol.md` before drafting; no fabricated citations; if internet access is unavailable, state this in the draft and list candidate keywords for a manual search instead.
+
+## Surrey EEEM004 dissertation rubric — self-mark every milestone
+
+| Criterion | Weight |
+|---|---|
+| Background + literature | 15% |
+| Methodology | 20% |
+| Implementation | 20% |
+| Results + analysis | 20% |
+| Discussion + limitations | 10% |
+| Presentation + writing | 10% |
+| Originality + contribution | 5% |
+
+Aim distinction band (70+) on every milestone, not just the final.
+
+## Citation default: Harvard for Surrey, IEEE for any conference/journal version.
+
+## Hard rules
+
+- **No live broker code or API keys.** Backtest data only.
+- **No personal-project results** dressed up as dissertation results.
+- **Reproducibility section is mandatory.**
+- **Limitations before future work.**
+
+## Readability — non-negotiable
+
+**Source of truth:** `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/readability-and-clarity.md`. Read it before drafting any chapter.
+
+**Why this rule exists in this repo.** The Project Proposal (`First Report (Project Proposal).docx`) scored ~69%. The same writing-band penalties cost us 5/15 marks on the EEEM072 RSP proposal — group-writing cohort spread was **86 (Joel) / 80 (Talha) / 69 (us)**. The Interim Review Section "Step 8 — SPY 14 January 2022 BLOCKED trade" is the strongest writing we have produced — replicate that voice across the full dissertation.
+
+> Earlier framing ("86 vs 73") conflated Joel's group mark with Fiyin's individual mark. Corrected: 86 vs 80 vs 69 on group writing; 97 vs 86 vs 73 on individual marks once peer review is factored in. The dissertation is **individual** (no peer-review lever) so only the writing rules below apply here.
+
+**The "smart non-technical friend" test is mandatory.** A smart non-AI cousin must follow the abstract and Section 1. If they cannot, the chapter is not ready for the supervisor.
+
+### Six rules (apply on every chapter)
+
+1. **Lead with the intuition, follow with the formalism.** State the human consequence (preserving 95% of peak portfolio value during a crash) before any acronym. Three-acronym budget per paragraph; first use defines, subsequent uses revert to a plain noun ("the policy", "the forecaster", "the agent").
+2. **One idea per sentence, ≤30 words for ≥4 of every 5 sentences.** Split anything with three commas or three "and"s.
+3. **Define every acronym on first use; alternate with plain nouns afterwards.** No abstract should chain DRL / PPO / DeepAR / FinRL / GluonTS without breath.
+4. **Signpost every section.** Open with one sentence stating scope. Close with one sentence linking to the next.
+5. **Number-first results.** Open every results paragraph with the headline number + units, then mechanism, then decision (carried forward / discarded / further tested).
+6. **Concrete worked example before abstract claim.** Every method section earns a walk-through of one day, one ticker, one decision — see Interim Review Step 8 for the model. Date, exact prices, exact threshold, exact decision.
+
+### Mandatory pre-supervisor self-check
+
+Run [`readability-and-clarity`](file:///Users/the1finix/Documents/GitHub/brain-box/school/methodology/readability-and-clarity.md) Section "Self-check" — six questions. If more than one fails, revise before sending.
+
+### Editing-pass discipline
+
+Allocate one full pass per chapter to the writing-band axes only: clear English, neat presentation (figure/table layout), correct referencing. EEEM072 evidence: this is where 5/15 marks bleed on first drafts.
+
+## Document format: LaTeX-canonical · DOCX-editable
+
+**Source of truth:** `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/latex-docx-workflow.md`. Read it the first time you touch the dissertation.
+
+This dissertation is written in LaTeX. The canonical source lives at:
+
+```
+report/main.tex          # canonical — agent edits this
+report/main.docx         # editable mirror — user edits this
+report/main.pdf          # compiled deliverable for the supervisor
+report/refs.bib          # bibliography
+report/figures/          # vector PDFs
+```
+
+Build commands:
+
+```bash
+cd report
+latexmk -pdf -interaction=nonstopmode main.tex
+pandoc main.tex --citeproc --bibliography=refs.bib -o main.docx
+```
+
+The edit loop:
+
+1. Agent writes / updates `main.tex`. Regenerates `main.pdf` and `main.docx`.
+2. User opens `main.docx`, marks it up (track-changes / inline comments).
+3. User hands the marked-up DOCX back: *"incorporate these changes"*.
+4. Agent runs `pandoc marked.docx -t latex -o marked.tex`, lists every change, applies each to `main.tex`, regenerates DOCX + PDF, and confirms in chat which changes were applied.
+
+**Rules.**
+
+- The agent **never edits the DOCX directly.** It only regenerates it from the current LaTeX.
+- LaTeX wins on conflict, always.
+- All equations are LaTeX (inline `$x$`, display `\[ \dots \]` or `align`). Number every equation referenced later.
+- All cross-references use `\Cref{sec:foo}` from the `cleveref` package — never hand-typed numbers.
+
+## Writing conventions
+
+- **Never use the `§` glyph.** Write "Section 3" or "Sec. 3" in prose. In LaTeX use `\Cref{sec:foo}`. The user has explicitly flagged `§` as visually noisy.
+- **One em-dash per sentence maximum.**
+- **Smart quotes off in code blocks.** Smart quotes on in prose.
+- **Numbered sections** use `1.`, `1.1`, `1.1.1` (not Roman numerals — Surrey dissertation convention).
+
+## Cross-pollination
+
+If a finding here would benefit `eurusd-ai-agent` or `global-portfolio-assistant`, log it in:
+`/Users/the1finix/Documents/GitHub/brain-box/meta/shared-findings.md`
+
+Then those repos' agents will see it on their next session.

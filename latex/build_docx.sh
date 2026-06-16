@@ -37,7 +37,7 @@ rm -rf "$BUILD"
 mkdir -p "$FIGS" "$BUILD/chapters"
 
 # ── 1. Render each TikZ diagram to a cropped PNG ──────────────────────────────
-for fig in rl_loop data_splits training_pipeline; do
+for fig in rl_loop data_splits training_pipeline uncertainty_trade_scaling; do
   {
     printf '%s\n' \
       '\documentclass[border=4pt]{standalone}' \
@@ -70,6 +70,9 @@ TIKZ = {
                     "into training.", "fig:data_splits", "0.95"),
     "training_pipeline": ("End-to-end training pipeline from raw prices to "
                           "evaluation metrics.", "fig:pipeline", "0.8"),
+    "uncertainty_trade_scaling": (
+        "How the uncertainty score enters the trade-size computation.",
+        "fig:uncertainty_trade_scaling", "0.85"),
 }
 
 def figure_block(name):
@@ -84,9 +87,16 @@ for src in sorted((LATEX / "chapters").glob("*.tex")):
     for name in TIKZ:
         text = re.sub(r"\\input\{tikz/" + re.escape(name) + r"\}",
                       lambda _m, n=name: figure_block(n), text)
-    # absolute-ise chart paths like {../reports/.../x.png}
-    text = re.sub(r"\{(\.\./[^}]*\.png)\}",
-                  lambda m: "{" + str((LATEX / m.group(1)).resolve()) + "}", text)
+    # absolute-ise chart paths; prefer PNG sibling when LaTeX cites vector PDF
+    def _abs_chart(m):
+        rel = m.group(1)
+        p = (LATEX / rel).resolve()
+        if p.suffix.lower() == ".pdf":
+            png = p.with_suffix(".png")
+            if png.exists():
+                p = png
+        return "{" + str(p) + "}"
+    text = re.sub(r"\{(\.\./[^}]+\.(?:png|pdf))\}", _abs_chart, text)
     (OUT_CH / src.name).write_text(text, encoding="utf-8")
 
 main = (LATEX / "main.tex").read_text(encoding="utf-8")

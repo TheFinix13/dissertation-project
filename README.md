@@ -38,30 +38,14 @@ pip install jupyter
 jupyter notebook notebooks/01_Project_Walkthrough.ipynb
 ```
 
-The interim review draft (Surrey form) lives at
-`reports/generated/interim_review_draft.md`.
-
-## The dissertation (canonical) and historical artifacts
+## The dissertation (canonical)
 
 The **canonical Master's dissertation is the LaTeX source in [`latex/`](latex/)**,
-reconciled to the completed Phase-2 results. To produce an editable Microsoft
-Word copy from it:
+reconciled to the completed Phase-2 results.
 
 ```bash
-latex/build_docx.sh        # LaTeX -> ../dissertation.docx (sources never modified)
-```
-
-The earlier Python-built Word documents under `reports/generated/exports/` are
-**historical Phase-1-era artifacts** and are no longer the source of truth:
-
-- `Main_Dissertation_Draft.docx` — superseded by the LaTeX dissertation above. Its builder (`reports/builders/build_main_dissertation_docx.py`) carries Phase-1 numbers and is kept for provenance only.
-- `InterimReview.docx` — the formal Surrey Interim Review form, a faithful snapshot of the Phase-1 interim stage.
-- `equations/` — individual PNGs for every equation in the docx.
-
-```bash
-# Historical docx artifacts only (Phase-1 framing — see the docstring warnings):
-venv/bin/python reports/builders/build_main_dissertation_docx.py
-venv/bin/python reports/builders/build_interim_review_docx.py
+cd latex && ./build.sh          # PDF → latex/main.pdf
+latex/build_docx.sh             # Word → dissertation.docx at repo root
 ```
 
 Heaviest experiments (market-sample × 10-seed × 50k-step extended grid, walk-forward
@@ -73,19 +57,22 @@ across all four folds, bootstrap-augmented training) live in
 
 ```
 dissertation-project/
+├── latex/                   # Canonical dissertation source (PDF + DOCX export)
 ├── experiments/
-│   ├── runners/             # CLI entry points (run_baseline.py, run_probabilistic_agent.py, ...)
+│   ├── runners/             # CLI entry points (run_baseline.py, run_ablation.py, ...)
 │   ├── common.py            # Shared library: env, metrics, data, training helpers
 │   ├── aggregate_results.py # Pools per-cell JSON results into median + IQR summaries
 │   ├── configs/             # dissertation_protocol.json
-│   └── results/             # Per-cell JSON + CSV outputs from runners
+│   └── results/             # Per-cell JSON + canonical Phase-2 CSVs
 ├── reports/
-│   ├── builders/            # All build_*.py / generate_*.py / plot_*.py scripts
-│   ├── generated/           # Outputs (markdown, charts/, exports/)
-│   └── templates/           # Markdown templates and viva notes
-├── notebooks/               # 01_Project_Walkthrough (local, 5 min) + 02_Full_Experiments (Colab GPU, 3–6 h)
-├── requirements.txt
-└── README.md
+│   ├── builders/            # plot_phase2_charts.py, build_forecaster_calibration.py
+│   ├── generated/           # charts/, stats/ (Phase-2 figures and inference outputs)
+│   └── templates/           # viva Q&A notes
+├── notebooks/               # 01_Project_Walkthrough (local) + 02_Full_Experiments (Colab)
+├── scripts/                 # Lab-machine helpers (run_phase2.py, sync_results.py)
+├── docs/CHECKPOINT.md       # Deep-state snapshot (updated at major divergences)
+├── ai_context.md            # Compact state summary for fresh chat sessions
+└── requirements.txt
 ```
 
 ## Experiment Pipeline
@@ -95,50 +82,16 @@ dissertation-project/
 ```bash
 source venv/bin/activate
 
-# 1) Baseline PPO with deterministic seeds
 python experiments/runners/run_baseline.py
-
-# 2) Probabilistic DeepAR-style uncertainty + PPO
 python experiments/runners/run_probabilistic_agent.py
-
-# 3) Buy-and-hold and all-cash benchmarks
 python experiments/runners/run_benchmarks.py
-
-# 4) Rule-based trailing stop-loss comparator (5 % and 10 % variants)
 python experiments/runners/run_rule_baselines.py
-
-# 5) Markdown summary, supervisor pack, plots
-python reports/builders/generate_dissertation_report.py
-python reports/builders/build_supervisor_pack.py
-python reports/builders/plot_dissertation_visuals.py
-
-# 6) Word documents (dissertation + interim review)
-python reports/builders/build_main_dissertation_docx.py
-python reports/builders/build_interim_review_docx.py
+python experiments/aggregate_results.py
+MPLBACKEND=Agg MPLCONFIGDIR=.mplconfig venv/bin/python reports/builders/plot_phase2_charts.py
 ```
 
 - Protocol config: `experiments/configs/dissertation_protocol.json`
-- Artifacts: `experiments/results/`
-- Report output: `reports/generated/dissertation_results.md`
-
-### Phase-1 — market-sample run (CPU, ~25–35 min)
-
-```bash
-python experiments/runners/run_benchmarks.py        --tickers market_sample --tag broad
-python experiments/runners/run_rule_baselines.py    --tickers market_sample --tag broad
-python experiments/runners/run_baseline.py          --tickers market_sample --tag broad
-python experiments/runners/run_probabilistic_agent.py --tickers market_sample --tag broad
-
-# Walk-forward subset (96 trainings, ~6–8 hours CPU)
-python experiments/runners/run_walk_forward.py --tickers SPY,QQQ,XLK,XLF
-
-# Extended seed-stability check on representative sub-universe (80 trainings, ~4–5 hours CPU)
-python experiments/runners/run_probabilistic_agent.py --tickers basket --seeds extended --timesteps 50000 --tag extbasket
-
-# Build the dissertation
-python reports/builders/build_main_dissertation_docx.py
-python reports/builders/build_interim_review_docx.py
-```
+- Artifacts: `experiments/results/per_cell/`
 
 ### Phase-2 (Colab GPU) — heavy lifting only
 
@@ -147,12 +100,21 @@ Anything that takes more than ~1 hour on CPU lives in
 market-sample grid (~5–7 h), *A100* if you also want the full market-sample walk-forward
 (~12–14 h on A100).
 
-Or to drive the same heavy run from the command line (e.g. on a leased GPU node):
+Or from the command line on a leased GPU node:
 
 ```bash
 python experiments/runners/run_extended_grid.py \
     --tickers market_sample --seeds extended --folds all \
     --timesteps 50000 --bootstrap-paths 16 --tag colab_70_extended
+```
+
+### Statistical inference and ablation (CPU, seconds to minutes)
+
+```bash
+venv/bin/python experiments/stats_significance.py
+venv/bin/python experiments/compute_spy_ablation_stats.py
+venv/bin/python reports/builders/build_forecaster_calibration.py
+MPLBACKEND=Agg MPLCONFIGDIR=.mplconfig venv/bin/python reports/builders/plot_phase2_charts.py
 ```
 
 ## CLI flag reference (every runner)

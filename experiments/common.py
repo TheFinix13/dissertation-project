@@ -385,6 +385,17 @@ class EnvConfig:
     transaction_cost_rate: float = 0.001
     uncertainty_stop_quantile: float = 0.80
     min_trade_scale: float = 0.10
+    # --- Ablation switches for Equation 3.9 (off by default; full design active). ---
+    # When `enable_trade_scaling` is False the trade-scaling factor collapses to 1.0,
+    # so the trade size is the baseline expression of Equation 3.8.
+    # When `enable_risk_on_guard` is False the binary 1(a<=0 or u<tau) factor is
+    # collapsed to 1 and high-uncertainty buys are not blocked.
+    # When `mask_uncertainty_in_state` is True the uncertainty coordinate fed to the
+    # observation is zeroed, so the policy cannot condition on u_t even if the
+    # forecaster array is supplied to the environment.
+    enable_trade_scaling: bool = True
+    enable_risk_on_guard: bool = True
+    mask_uncertainty_in_state: bool = False
 
 
 class StockEnv(gym.Env):
@@ -445,6 +456,8 @@ class StockEnv(gym.Env):
         position = np.array([position_val], dtype=np.float32)
 
         unc_val = float(np.clip(self.uncertainty[s], 0.0, 1.0))
+        if self.cfg.mask_uncertainty_in_state:
+            unc_val = 0.0
         uncertainty = np.array([unc_val], dtype=np.float32)
 
         obs = np.concatenate([rets, position, uncertainty]).astype(np.float32)
@@ -460,12 +473,19 @@ class StockEnv(gym.Env):
         next_price = float(self.prices[s + 1]) if s + 1 < len(self.prices) else price
 
         uncertainty_level = float(self.uncertainty[s])
-        trade_scale = 1.0 - uncertainty_level
-        trade_scale = max(trade_scale, self.cfg.min_trade_scale)
+        if self.cfg.enable_trade_scaling:
+            trade_scale = 1.0 - uncertainty_level
+            trade_scale = max(trade_scale, self.cfg.min_trade_scale)
+        else:
+            trade_scale = 1.0
 
         trade_pct = float(np.clip(action[0], -1, 1))
         trade_value = self.balance * self.cfg.max_trade_fraction * trade_pct * trade_scale
-        if uncertainty_level >= self.uncertainty_threshold and trade_value > 0:
+        if (
+            self.cfg.enable_risk_on_guard
+            and uncertainty_level >= self.uncertainty_threshold
+            and trade_value > 0
+        ):
             # High uncertainty regime: block new risk-on buys.
             trade_value = 0.0
 

@@ -1,0 +1,32 @@
+---
+description: When a dissertation finding would affect the trading agent or portfolio app, write to the shared-findings ledger so those workspaces see it next session.
+alwaysApply: false
+---
+
+# Cross-pollination rule (dissertation repo)
+
+Apply this rule when the dissertation produces a finding that would change a decision in `multi-pair-trading-agent` or `global-portfolio-assistant`.
+
+## What to do
+
+1. Open `/Users/the1finix/Documents/GitHub/brain-box/meta/shared-findings.md`.
+2. Append a row to the ledger:
+
+   ```
+   | YYYY-MM-DD | school/surrey-msc-ai/dissertation-eeem004 | <affected node(s)> | <finding> | <action> |
+   ```
+
+3. Also append a one-line bullet to the affected nodes' `## Session log`:
+   - `/Users/the1finix/Documents/GitHub/brain-box/life/finance-research/multi-pair-trading-agent.md`
+   - `/Users/the1finix/Documents/GitHub/brain-box/life/finance-research/global-portfolio-assistant.md`
+
+## Examples of cross-affecting findings
+
+- DeepAR sigma calibration → use as eurusd entry-size scaler.
+- DRL policy beats benchmark on backtest → migrate equivalent logic to portfolio app.
+- Found that a feature is leakage-prone → flag for trading agent's data pipeline.
+- Determined that 1-day forecast horizon is optimal → update both repos' default horizon.
+
+## Hard rule
+
+Do not log to the ledger findings that do **not** cross pillars. Keep dissertation-only details inside the dissertation node.

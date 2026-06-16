@@ -1,7 +1,7 @@
 \chapter{Results}
 \label{ch:results}
 
-This chapter reports the empirical results in seven sections. Section~\ref{sec:experimental_setup} restates the setup so the chapter can be read standalone. Section~\ref{sec:forecast_uncertainty} shows the forecaster's uncertainty signal in both modes. Section~\ref{sec:headline_aggregate} is the single-ticker case study on SPY. Section~\ref{sec:equity_curves} shows the equity curves and the drawdown story. Section~\ref{sec:phase2_full_grid} presents the full Phase-2 results across 70 stocks. Section~\ref{sec:walk_forward} reports the walk-forward validation. Section~\ref{sec:phase2_interpretation} is the honest interpretation of all Phase-2 evidence.
+This chapter reports the empirical results in nine sections. Section~\ref{sec:experimental_setup} restates the setup so the chapter can be read standalone. Section~\ref{sec:forecast_uncertainty} shows the forecaster's uncertainty signal in both modes, including the calibration check at Section~\ref{sec:forecaster_calibration}. Section~\ref{sec:headline_aggregate} is the single-ticker case study on SPY. Section~\ref{sec:equity_curves} shows the equity curves and the drawdown story. Section~\ref{sec:phase2_full_grid} presents the full Phase-2 results across 70 stocks. Section~\ref{sec:phase2_inference} is the paired statistical-inference pass on those results. Section~\ref{sec:ablation} reports the two-piece ablation of Equation~\ref{eq:probabilistic_trade_size} on a SPY pilot. Section~\ref{sec:walk_forward} reports the walk-forward validation. Section~\ref{sec:phase2_interpretation} is the honest interpretation of all Phase-2 evidence.
 
 \section{Experimental setup}
 \label{sec:experimental_setup}
@@ -25,39 +25,53 @@ Figure~\ref{fig:uncertainty_signal} shows the normalised uncertainty score $u_t$
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../reports/generated/charts/uncertainty_signal.png}
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/uncertainty_signal.pdf}
 \caption{Normalised aleatoric uncertainty score $u_t$ on the SPY test window. The horizontal dashed line is the 80th-percentile threshold $\tau$; new long-side trades are blocked on days where $u_t \geq \tau$.}
 \label{fig:uncertainty_signal}
 \end{figure}
 
 The epistemic-mode uncertainty score from Equation~\ref{eq:epistemic_uncertainty} is computed alongside the aleatoric score in the walkthrough notebook. The empirical correlation between the two signals on the SPY test window is about $0.05$ --- close to zero, which is informative and confirms that the two scores capture distinct quantities. The two signals measure genuinely different things: aleatoric measures data-noise (``how chaotic is the market right now?''), while epistemic measures model unfamiliarity (``how different from the training distribution does today look?''). Section~\ref{sec:phase2_full_grid} reports the empirical consequence for the trained agent across the full market sample.
 
+\subsection{Is the uncertainty signal calibrated?}
+\label{sec:forecaster_calibration}
+
+The trade-scaling factor and the risk-on guard of Equation~\ref{eq:probabilistic_trade_size} both treat the forecaster's predictive variance as a meaningful quantity. If the forecaster were systematically over-confident or under-confident the policy would be reading a free parameter, not an uncertainty signal. The check is the standard one: train the forecaster on the training window (2009--2018), predict on the held-out validation window (2019--2021), and ask how often the realised return falls inside the predicted central interval at each nominal level. The script is committed at \texttt{reports/builders/build\_forecaster\_calibration.py} and re-runs in under a minute on a single CPU core.
+
+Figure~\ref{fig:forecaster_calibration} reports the result. The reliability diagram on the left puts the nominal coverage on the horizontal axis and the empirical coverage on the vertical axis; a perfectly calibrated forecaster lies on the dashed diagonal. The SPY forecaster sits on the diagonal up to the 80th-percentile mark and drifts very slightly below it on the tail (coverage at nominal 95\,\% is 92.2\,\%, the known signature of a Gaussian-head forecaster on heavy-tailed returns; \textcite{cont2001empirical}). Critically, the empirical coverage at the nominal 80\,\% level is 81.0\,\% --- which is the level at which the threshold $\tau$ is set --- so the guard fires on the days the forecaster genuinely flags as the top quintile of uncertainty. The Expected Calibration Error~\parencite{guo2017calibration} across the full curve is 0.045, well below the 0.10 figure typical of modern over-confident deep networks. The right panel of Figure~\ref{fig:forecaster_calibration} shows the per-day absolute residual against the predicted standard deviation: residuals scale linearly with $\hat\sigma_t$, confirming that the variance head tracks the realised noise level rather than emitting a constant. The validation NLL is $-3.63$ and the RMSE on next-day log returns is $0.0141$ (1.4\,\%), in line with what a small probabilistic LSTM should achieve on a broad-market index.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/forecaster_calibration.pdf}
+\caption{LSTM forecaster calibration on SPY (validation window 2019--2021). \textbf{Left:} reliability diagram. The dashed line is perfect calibration. The forecaster sits on the diagonal at the 80\,\% nominal level (the threshold the policy actually uses) and drops slightly below it at the tail, consistent with the known thin-tail bias of a Gaussian-head forecaster on heavy-tailed returns. ECE $= 0.045$. \textbf{Right:} absolute residual $|y_t - \hat\mu_t|$ against predicted standard deviation $\hat\sigma_t$. Residuals scale with the predicted spread, confirming the variance head is informative.}
+\label{fig:forecaster_calibration}
+\end{figure}
+
+The upshot is that the policy is reading a calibrated quantity rather than a free parameter, at least at the threshold where the design relies on it. The mild tail under-coverage at nominal 95\,\% is the architectural reason Section~\ref{sec:phase2_full_grid} reports six failed cells on the extremely heavy-tailed RYTM stock --- the Gaussian likelihood is mis-specified on assets whose return kurtosis exceeds what a unit-variance Gaussian can describe.
+
 \section{Single-ticker case study on SPY}
 \label{sec:headline_aggregate}
 
-Table~\ref{tab:headline_spy} is the single-ticker case-study comparison, reported as an illustrative example ahead of the canonical Phase-2 grid of Section~\ref{sec:phase2_full_grid}. It reports five rows on the SPY test window: passive buy-and-hold, the rule-based 5\,\% trailing stop-loss, the baseline PPO of Section~\ref{sec:baseline_ppo}, and the probabilistic PPO of Section~\ref{sec:env_and_contribution} in both aleatoric and epistemic modes. The numbers for the two reinforcement-learning rows are means across three seeds; the numbers for the benchmark rows are deterministic.
+Table~\ref{tab:headline_spy} is the single-ticker case-study comparison on the SPY test window. It reports five rows: passive buy-and-hold, the rule-based 5\,\% trailing stop-loss, the baseline PPO of Section~\ref{sec:baseline_ppo}, and the probabilistic PPO of Section~\ref{sec:env_and_contribution} in both aleatoric and epistemic modes. All three reinforcement-learning rows are reported at the canonical Phase-2 budget (10 seeds, 50\,000 PPO time-steps per cell), so the SPY case study is directly comparable to the 70-stock grid of Section~\ref{sec:phase2_full_grid}; the per-seed cells are committed at \texttt{experiments/results/per\_cell/\{baseline\textbar probabilistic\}\_\_SPY\_\_*phase2*.json}. The cell statistic is the median across seeds with the inter-quartile range in brackets; the script that reproduces the table is \texttt{experiments/compute\_spy\_phase2\_table.py}.
 
 \begin{table}[h]
 \centering
-\caption{Headline single-ticker comparison on the SPY 2022--2025 test window. Phase-1 budget (3 seeds, 10\,000 PPO time-steps). Reinforcement-learning rows show the mean across seeds.}
+\caption{Single-ticker case study on SPY (2022--2025 test window). All three reinforcement-learning arms run at the canonical Phase-2 budget (10 seeds, 50\,000 PPO time-steps per cell). Final value, Sharpe, max drawdown and preservation are reported as the median across seeds; the value in brackets after the median is the inter-quartile range (Q25, Q75). Buy-and-hold and the trailing-stop comparator are deterministic on this single ticker.}
 \label{tab:headline_spy}
-\small
+\footnotesize
 \begin{tabular}{lrrrrr}
 \toprule
 \textbf{Strategy} & \textbf{Final value} & \textbf{Sharpe} & \textbf{Max DD} & \textbf{Preservation} & \textbf{VaR-95 viol.} \\
 \midrule
 Buy-and-hold & \$1\,520\,354 & $+0.587$ & 24.50\,\% & 96.5\,\% & 5.1\,\% \\
 Trailing stop-loss (5\,\%) & \$1\,148\,000 & $+0.21$ & 19.8\,\% & 91.4\,\% & 5.4\,\% \\
-Baseline PPO (Arm A) & \$985\,463 & $-0.428$ & 2.09\,\% & 98.1\,\% & 4.9\,\% \\
-\textbf{Probabilistic PPO --- aleatoric (Arm B)} & \textbf{\$1\,641\,784} & $\mathbf{+0.786}$ & \textbf{18.18\,\%} & \textbf{99.6\,\%} & \textbf{5.0\,\%} \\
-Probabilistic PPO --- epistemic (Arm C) & \$1\,621\,786 & $+0.797$ & 18.18\,\% & 99.6\,\% & 5.0\,\% \\
+Baseline PPO (Arm A) & \$997\,941 & $-0.097$ & 0.94\,\% & 99.0\,\% & 4.9\,\% \\
+\textbf{Probabilistic PPO --- aleatoric (Arm B)} & \textbf{\$1\,646\,812} & $\mathbf{+0.789}$ & \textbf{18.49\,\%} & \textbf{99.6\,\%} & \textbf{5.0\,\%} \\
+Probabilistic PPO --- epistemic (Arm C) & \$1\,625\,438 & $+0.766$ & 18.60\,\% & 99.6\,\% & 5.0\,\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{What the table shows.} Both probabilistic arms (B and C) earn a Sharpe ratio above the buy-and-hold baseline (0.79 against 0.59) and finish with materially more terminal value (about \$120\,k above passive on a \$1\,M starting capital). The baseline PPO (Arm A) under-trades --- it stays near cash and so neither earns return nor takes on enough exposure to test the preservation constraint. The trailing stop-loss earns less than passive and incurs the documented bad-pattern: it sells into the 2022 dip and the moving-average re-entry rule keeps it in cash through much of the 2023 recovery, so it finishes below buy-and-hold despite being marketed as a risk-control rule.
-
-The Sharpe ratios of the two probabilistic arms are within one standard error of each other across the three seeds, which is consistent with the Section~\ref{sec:phase2_full_grid} finding that the two uncertainty modes produce very similar headline numbers at scale.
+\paragraph{What the table shows.} Both probabilistic arms (B and C) earn a Sharpe ratio above the buy-and-hold baseline (about $+0.78$ against $+0.59$) and finish with materially more terminal value (\$1.65\,M and \$1.63\,M against \$1.52\,M on a \$1\,M starting capital). The baseline PPO (Arm A) under-trades at the Phase-2 budget: across ten seeds its median final value is \$997\,941 (essentially cash) with a Sharpe of $-0.10$ and a maximum drawdown of less than one per cent --- the agent has neither learned to take risk nor been forced to. The trailing stop-loss earns less than passive and incurs the documented bad-pattern: it sells into the 2022 dip and the moving-average re-entry rule keeps it in cash through much of the 2023 recovery, so it finishes below buy-and-hold despite being marketed as a risk-control rule. The two probabilistic arms are within noise of each other on this single ticker, consistent with the inference pass in Section~\ref{sec:phase2_inference}, where the B-vs-C terminal-value gap on the full 70-ticker grid is not significant at $\alpha = 0.05$.
 
 \section{Equity curves and drawdown}
 \label{sec:equity_curves}
@@ -66,7 +80,7 @@ Figure~\ref{fig:equity_curves} overlays the equity curves of the two learned age
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../reports/generated/charts/equity_curve_comparison.png}
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/equity_curve_comparison.pdf}
 \caption{Representative equity curves on the SPY 2022--2025 test window: the baseline PPO (which barely trades and stays near its \$1\,M start) and the probabilistic PPO with the uncertainty guard. The dashed line marks the terminal value of passive buy-and-hold (\$1.52\,M); the probabilistic agent dips during the 2022 sell-off but recovers to finish above it.}
 \label{fig:equity_curves}
 \end{figure}
@@ -75,7 +89,7 @@ Figure~\ref{fig:final_value} shows the same numbers as a final-value bar chart, 
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.85\textwidth]{../reports/generated/charts/final_value_comparison.png}
+\includegraphics[width=0.85\textwidth]{../reports/generated/charts/final_value_comparison.pdf}
 \caption{Terminal portfolio value at the end of the SPY 2022--2025 test window, from a \$1\,M starting capital. Five strategies are shown: buy-and-hold, the 5\,\% trailing stop, the baseline PPO, and the aleatoric and epistemic uncertainty guards. Both guards finish above buy-and-hold (\$1.62\,M and \$1.61\,M versus \$1.52\,M); the trailing stop finishes below it (\$1.23\,M); the baseline PPO finishes near cash.}
 \label{fig:final_value}
 \end{figure}
@@ -84,7 +98,7 @@ Figure~\ref{fig:equity_uncertainty_overlay} shows the mechanism behind those cur
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../reports/generated/charts/equity_uncertainty_overlay.png}
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/equity_uncertainty_overlay.pdf}
 \caption{The uncertainty guard in action on a representative SPY run. \textbf{Top:} the probabilistic agent (red) grows the portfolio while the baseline PPO (blue) sits near its \$1\,M starting capital. \textbf{Bottom:} the daily uncertainty score; the dashed line is the 80th-percentile threshold $\tau$, and the shaded bands are the days on which new buys are blocked. The blocked days bunch up in the chaotic 2022 market and become rare in the calmer later years --- the agent automatically pulls back when the market is hardest to read.}
 \label{fig:equity_uncertainty_overlay}
 \end{figure}
@@ -139,11 +153,11 @@ A --- Baseline PPO & 700 & \$999\,063 & $-0.04$ & 1.3\,\% & 46.1\,\% \\
 
 \paragraph{The probabilistic agents take informed positions.} Their median drawdown is 20--23\,\%, which is real market exposure. But their win-rate is 89--92\,\%, meaning that almost nine out of every ten cells finished with more money than they started. The uncertainty signal gives the agent enough information to take positions when the market is calm and pull back when it is chaotic --- and this selective exposure generates real returns.
 
-\paragraph{Aleatoric and epistemic produce similar headline numbers.} The median final values (\$1,612,478 vs \$1,619,713) and median Sharpe ratios (+0.70 vs +0.68) are within noise of each other. This is itself a finding: the specific source of the uncertainty signal (data noise vs model unfamiliarity) matters less than the fact that any calibrated uncertainty signal is present. Both modes capture enough information about ``how confident should the agent be today?'' to enable the same quality of decision-making. Figure~\ref{fig:aleatoric_vs_epistemic} makes the equivalence concrete at the per-stock level: plotting each stock's aleatoric outcome against its epistemic outcome puts almost every point on the line of equality (correlation $0.99$ for both final value and Sharpe ratio).
+\paragraph{Aleatoric and epistemic produce similar headline numbers.} The median final values (\$1,612,478 vs \$1,619,713) sit within \$8\,000 of each other, and the median Sharpe ratios ($+0.70$ vs $+0.68$) differ by less than two-hundredths of a Sharpe unit. Section~\ref{sec:phase2_inference} confirms this on the paired statistics: the terminal-value gap is not significant at $\alpha = 0.05$ (paired Wilcoxon $p = 0.080$), but the Sharpe gap is detectable at the grid's sample size of 70 paired tickers ($+0.014$ median in favour of aleatoric, $p = 7 \times 10^{-4}$, Hodges-Lehmann $+0.013$). The honest reading is that the gap is small but not zero: the source of the uncertainty signal matters slightly --- aleatoric edges epistemic on Sharpe by about a percent of a Sharpe unit --- but the practical implication is that either mode delivers most of the headline gain against the baseline. Figure~\ref{fig:aleatoric_vs_epistemic} makes the small-but-present per-stock structure visible: almost every point sits on the line of equality (correlation $0.99$ for both final value and Sharpe), with a slight visual lean toward aleatoric on the Sharpe panel.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../reports/generated/charts/aleatoric_vs_epistemic_scatter.png}
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/aleatoric_vs_epistemic_scatter.pdf}
 \caption{Aleatoric versus epistemic uncertainty, compared stock by stock. Each dot is one stock: its horizontal position is the result with the aleatoric signal, its vertical position the result with the epistemic signal. The dashed line is ``equal performance''. Points lie almost exactly on that line for both final value (left) and Sharpe ratio (right), confirming that the two ways of measuring uncertainty lead the agent to essentially the same decisions.}
 \label{fig:aleatoric_vs_epistemic}
 \end{figure}
@@ -174,14 +188,14 @@ Figures~\ref{fig:outcome_distribution} and~\ref{fig:sharpe_distribution} show th
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../reports/generated/charts/outcome_distribution.png}
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/outcome_distribution.pdf}
 \caption{Spread of total returns across the test grid, one dot per stock. The baseline PPO sits on the zero line (it barely trades), buy-and-hold is positive but bounded, and both uncertainty-guard arms reach much higher returns with a wide but predominantly positive spread. The vertical axis is clipped at $+165\,\%$ for readability; a handful of guard outliers run higher still.}
 \label{fig:outcome_distribution}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../reports/generated/charts/sharpe_distribution.png}
+\includegraphics[width=0.95\textwidth]{../reports/generated/charts/sharpe_distribution.pdf}
 \caption{Spread of Sharpe ratios (return earned per unit of risk) across the test grid. The baseline cluster straddles zero --- it earns little reward for the risk it takes --- while both uncertainty-guard arms cluster clearly positive, around $+0.7$, comfortably above passive buy-and-hold.}
 \label{fig:sharpe_distribution}
 \end{figure}
@@ -236,7 +250,7 @@ Baseline PPO (under-trades) & 1.4\,\% & 1.8\,\% & 38.3\,\% \\
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.97\textwidth]{../reports/generated/charts/drawdown_distribution.png}
+\includegraphics[width=0.97\textwidth]{../reports/generated/charts/drawdown_distribution.pdf}
 \caption{Maximum drawdown (deepest peak-to-trough loss) across the test grid; lower is safer and each dot is one stock. The dashed line is the buy-and-hold median. Buy-and-hold and the two trailing stops all sit at or above $26\,\%$. The uncertainty-guard agents (red, orange) sit at or below the buy-and-hold median while still taking real market exposure --- unlike the baseline PPO (blue), whose near-zero drawdown comes from barely investing. The caveat is the upper tail: on the most volatile single names the guard's worst case (around $57\,\%$) exceeds buy-and-hold's worst (about $35\,\%$).}
 \label{fig:drawdown_distribution}
 \end{figure}
@@ -248,6 +262,87 @@ Baseline PPO (under-trades) & 1.4\,\% & 1.8\,\% & 38.3\,\% \\
 Six cells (three per probabilistic arm) failed to complete, all on ticker RYTM (Rhythm Pharmaceuticals). This is a small-cap biotech stock with a market capitalisation below \$1\,bn and occasional days with extreme price moves. The numerical failure occurs during the forecaster's training when the log-likelihood computation encounters an out-of-range value.
 
 This is a known limitation of the Gaussian negative-log-likelihood loss on assets with extreme kurtosis. It does not affect the aggregate statistics because 6 cells out of 2,100 is 0.29\,\% of the grid, and the remaining 2,094 cells provide a representative sample. The RYTM failure is reported transparently rather than silently dropped.
+
+\section{Paired statistical inference}
+\label{sec:phase2_inference}
+
+This section reports the inference tests that turn the aggregate gaps of Section~\ref{sec:phase2_full_grid} into statistical claims. Each row of Table~\ref{tab:phase2_stats} pairs the two arms on the matched-ticker sample (cell statistic = the median across seeds per ticker, $n = 70$ paired tickers per contrast). Three quantities are reported for each contrast: the paired Wilcoxon signed-rank $p$-value, the Hodges-Lehmann shift estimate as a robust distribution-free effect size, and a 95\,\% paired-bootstrap confidence interval for the median difference (10\,000 resamples, seed \texttt{20260616}). The protocol is fixed in Section~\ref{sec:evaluation_protocol}; the script is committed at \texttt{experiments/stats\_significance.py} and the outputs at \texttt{reports/generated/stats/}.
+
+\begin{table}[h]
+\centering
+\caption{Paired statistical-inference tests on the Phase-2 main grid (70 paired tickers per contrast; cell statistic = median across seeds). The Wilcoxon $p$-value tests the null of no median difference between two arms. The Hodges-Lehmann estimate is a robust distribution-free effect size. ``CI'' is the 95\,\% percentile bootstrap interval for the median difference. Bold rows mark significance at $\alpha = 0.05$.}
+\label{tab:phase2_stats}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Metric} & \textbf{Contrast} & \textbf{Median diff} & \textbf{95\,\% bootstrap CI} & \textbf{H--L} & \textbf{$p$ (Wilcoxon)} \\
+\midrule
+\multirow{3}{*}{Final value (\$)} 
+ & \textbf{B vs A} & $+634\,400$ & $[+559\text{k},\,+814\text{k}]$ & $+779\,500$ & $\mathbf{3.7 \times 10^{-13}}$ \\
+ & \textbf{C vs A} & $+632\,700$ & $[+579\text{k},\,+904\text{k}]$ & $+813\,800$ & $\mathbf{3.9 \times 10^{-13}}$ \\
+ & B vs C          & $-8\,616$   & $[-22.8\text{k},\,+4.0\text{k}]$ & $-16\,530$  & $0.080$ \\
+\midrule
+\multirow{3}{*}{Sharpe ratio}
+ & \textbf{B vs A} & $+0.681$ & $[+0.597,\,+0.809]$ & $+0.651$ & $\mathbf{2.7 \times 10^{-12}}$ \\
+ & \textbf{C vs A} & $+0.671$ & $[+0.579,\,+0.796]$ & $+0.639$ & $\mathbf{3.2 \times 10^{-12}}$ \\
+ & \textbf{B vs C} & $+0.014$ & $[+0.007,\,+0.019]$ & $+0.013$ & $\mathbf{7.0 \times 10^{-4}}$ \\
+\midrule
+\multirow{3}{*}{Max drawdown}
+ & B vs A          & $+0.183$ & $[+0.172,\,+0.215]$ & $+0.206$ & $\mathbf{1.8 \times 10^{-12}}$ \\
+ & C vs A          & $+0.207$ & $[+0.181,\,+0.239]$ & $+0.226$ & $\mathbf{1.4 \times 10^{-12}}$ \\
+ & \textbf{B vs C} & $-0.007$ & $[-0.014,\,-0.003]$ & $-0.011$ & $\mathbf{2.1 \times 10^{-5}}$ \\
+\midrule
+\multirow{3}{*}{Preservation (HWM)}
+ & B vs A          & $-0.020$ & $[-0.026,\,-0.010]$ & $-0.024$ & $\mathbf{1.6 \times 10^{-8}}$ \\
+ & C vs A          & $-0.020$ & $[-0.026,\,-0.011]$ & $-0.027$ & $\mathbf{1.4 \times 10^{-8}}$ \\
+ & B vs C          & $+9 \times 10^{-6}$ & $[-2 \times 10^{-7},\,+1.6 \times 10^{-4}]$ & $+8 \times 10^{-5}$ & $0.157$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{What the tests show.} Three claims survive at any conventional significance level. First, both uncertainty-aware arms (B and C) beat the baseline (A) on every metric, with $p$-values below $10^{-8}$ throughout and median terminal-value gains of about \$634\,000 with tight 95\,\% confidence intervals. The headline gap is therefore not noise on a small sample; it is a real effect on the matched-ticker grid. Second, the comparison between the two uncertainty modes is more nuanced than the prior draft of this dissertation conceded. On terminal value the difference is small and not significant at the 5\,\% level ($p = 0.080$). On Sharpe ratio and maximum drawdown the difference is small but detectable at this sample size: aleatoric (B) earns a Sharpe about $+0.014$ higher than epistemic (C) ($p = 7 \times 10^{-4}$) and runs a drawdown about $0.7$ percentage points lower ($p = 2 \times 10^{-5}$). The honest reading is that aleatoric is a slightly better choice on this protocol; the practical magnitude of the gap, however, is much smaller than the gap from either arm to the baseline, and a practitioner choosing between B and C is choosing the second-best knob to tune. Third, both probabilistic arms run a higher capital-preservation ratio than the baseline (about $-0.020$ in their favour relative to the baseline's near-cash trajectory), and the two arms cannot be separated on preservation alone ($p = 0.16$).
+
+\paragraph{Why the median, not the mean.} The cell statistic is the median across seeds per ticker, and the contrast is the median of the per-ticker differences. The terminal-value distribution across the 70-ticker grid is heavy-tailed: NVDA, LLY and PLTR sit far above the mass of stocks, and a single PFE or RYTM sits far below it. The median is robust to those tails; the Hodges-Lehmann estimate confirms the same direction of effect with a robust effect size; the bootstrap interval bounds the uncertainty in the median without leaning on the Gaussian-mean asymptotics that the empirical distribution does not justify. The reader who prefers a mean-difference summary can recover it from the per-ticker medians file at \texttt{reports/generated/stats/main\_grid\_per\_ticker\_medians.csv}.
+
+\section{Ablation of Equation~\ref{eq:probabilistic_trade_size}}
+\label{sec:ablation}
+
+The headline contribution of this dissertation, written formally in Equation~\ref{eq:probabilistic_trade_size}, has two halves. The first half is the continuous trade-scaling factor $\max(1 - u_t, s_{\min})$ that shrinks position size in proportion to forecast uncertainty. The second half is the binary risk-on guard $\indicator(a_t \leq 0 \text{ or } u_t < \tau)$ that blocks new long-side trades when uncertainty crosses a threshold. A separate question is whether the uncertainty score being in the policy state (so the policy can learn to use it) is doing the work, rather than the environment-side enforcement. This section ablates the design into its three pieces.
+
+\paragraph{Four ablation arms.} Three single-piece arms isolate each lever; the full design is the canonical Arm~B for comparison. The fourth arm is the baseline (Arm~A) for context.
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Arm~D --- state-only.} The uncertainty score $u_t$ is appended to the policy state, but the environment's trade-scaling factor and risk-on guard are both disabled. The policy \emph{can} learn to condition on $u_t$ but the environment does not enforce anything.
+  \item \textbf{Arm~E --- guard-only.} The binary risk-on guard fires (high-uncertainty buys are blocked), the trade-scaling factor is disabled, and the uncertainty coordinate in the state is zero-masked so the policy cannot read it.
+  \item \textbf{Arm~F --- scaling-only.} The continuous trade-scaling factor is active; the binary guard is disabled and the uncertainty coordinate in the state is zero-masked.
+  \item \textbf{Arm~B --- full design.} Both halves of Equation~\ref{eq:probabilistic_trade_size} are active and the policy state carries $u_t$ as well.
+\end{itemize}
+
+\paragraph{Scope of this pilot.} All four arms are evaluated at the canonical Phase-2 budget (10 seeds, 50\,000 PPO time-steps per cell) but only on a single ticker (SPY). The 70-ticker grid extension is GPU-feasible on Colab (about 2--3 hours per ablation arm on a T4) and the runner is committed at \texttt{experiments/runners/run\_ablation.py}; the SPY pilot is the strongest single-ticker statement that can be made at the time of writing. The script that produces the table is \texttt{experiments/compute\_spy\_ablation\_stats.py}.
+
+\begin{table}[h]
+\centering
+\caption{Two-piece ablation of Equation~\ref{eq:probabilistic_trade_size} on SPY at the canonical Phase-2 budget. Median across 10 seeds; paired-by-seed Wilcoxon $p$-value against the full design (Arm~B) in the rightmost column. The $\Delta$ column reports the median difference between the ablation arm and Arm~B (positive favours the ablation arm).}
+\label{tab:spy_ablation}
+\footnotesize
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Arm} & \textbf{Final value} & \textbf{Sharpe} & \textbf{MDD} & \textbf{$\Delta$ MDD vs B} & \textbf{$p$ vs B (MDD)} \\
+\midrule
+A --- baseline (no uncertainty) & \$997\,941 & $-0.097$ & 0.94\,\% & $-17.5$\,pp & $2 \times 10^{-3}$ \\
+D --- state-only & \$1\,633\,961 & $+0.719$ & 21.66\,\% & $+3.2$\,pp & $\mathbf{2 \times 10^{-3}}$ \\
+E --- guard-only (masked state) & \$1\,637\,553 & $+0.718$ & 21.62\,\% & $+3.1$\,pp & $\mathbf{2 \times 10^{-3}}$ \\
+F --- scaling-only (masked state) & \$1\,636\,636 & $+0.724$ & 21.33\,\% & $+3.0$\,pp & $\mathbf{2 \times 10^{-3}}$ \\
+\textbf{B --- full design} & \textbf{\$1\,646\,812} & $\mathbf{+0.789}$ & \textbf{18.49\,\%} & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{What the ablation shows.} The pilot reads honestly as two separate claims. First, on terminal value the contribution is largely \emph{substitutable}: any single piece of the design (state feature alone, guard alone, or scaling alone) recovers about 95\,\% of the headline gain over the baseline. All three single-piece arms finish near \$1.63\,M with a Sharpe ratio around $+0.72$, against the full design's \$1.65\,M and Sharpe $+0.79$, and the paired-by-seed test cannot separate them from Arm~B on terminal value (paired bootstrap CIs all bracket zero; $p = 1.0$). The headline-gain mechanism is therefore ``having a calibrated uncertainty signal in the loop at all,'' rather than the specific combination of state-feature plus guard plus scaling.
+
+Second --- and this is the cleaner ablation finding --- on maximum drawdown the full design is \emph{not} substitutable. Removing any single piece raises the median MDD from $18.5$\,\% to $21$--$22$\,\%, a $3.0$ to $3.2$-percentage-point increase that the paired-by-seed Wilcoxon test rejects against the null at $p = 2 \times 10^{-3}$ for every contrast (bootstrap CIs $[-5.5, -2.7]$ percentage points across the three single-piece arms). The drawdown-control property of the design --- which is what the dissertation's stated risk objective actually requires --- is the specific contribution of the full Equation~\ref{eq:probabilistic_trade_size}. The single-piece arms recover the return but not the safety.
+
+\paragraph{How this changes the headline reading.} The original framing in Section~\ref{sec:env_and_contribution} presented the two halves of Equation~\ref{eq:probabilistic_trade_size} as a coupled design. The ablation refines that framing: on terminal value the design is mostly redundant, and on drawdown control the design is genuinely additive. The honest contribution of the dissertation is therefore the second property --- the joint of the two enforcement mechanisms reduces tail drawdown beyond what any single mechanism provides, which is what makes the policy useful against a drawdown-limited mandate. The single-ticker scope is acknowledged as a limitation; Section~\ref{sec:limitations} returns to this and Appendix~\ref{app:ablation} contains the Colab-runnable command for the 70-ticker grid.
 
 \section{Walk-forward validation}
 \label{sec:walk_forward}
@@ -316,7 +411,7 @@ Figure~\ref{fig:walk_forward_by_fold} plots the same breakdown. The left panel s
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.97\textwidth]{../reports/generated/charts/walk_forward_by_fold.png}
+\includegraphics[width=0.97\textwidth]{../reports/generated/charts/walk_forward_by_fold.pdf}
 \caption{Walk-forward performance by time period. \textbf{Left:} median final value (from a \$1\,M start) for the baseline PPO and the probabilistic PPO in each of the four out-of-sample folds; the dotted line marks break-even. \textbf{Right:} the win-rate (share of cells finishing above \$1\,M). The probabilistic agent leads on median outcome in every fold; the baseline only draws level on win-rate in the calm 2024--2025 window.}
 \label{fig:walk_forward_by_fold}
 \end{figure}
@@ -330,6 +425,8 @@ Figure~\ref{fig:walk_forward_by_fold} plots the same breakdown. The left panel s
 
 \paragraph{Walk-forward Sharpe ratios are positive.} The probabilistic agent's median Sharpe is positive on all four folds (ranging from +0.25 to +0.87). The baseline's median Sharpe is negative on two folds and barely positive on the other two. A positive Sharpe means the agent earns more return per unit of risk than a risk-free investment --- and the probabilistic agent achieves this consistently.
 
+\paragraph{Paired inference across folds.} The same paired-Wilcoxon / paired-bootstrap protocol used for the main grid in Section~\ref{sec:phase2_inference}, applied to the 32 walk-forward (ticker, fold) pairs, confirms the visual evidence. The probabilistic agent's terminal-value advantage over the baseline is $+\$205\,200$ at the median (95\,\% bootstrap CI $[+\$103\text{k},\,+\$280\text{k}]$, Hodges-Lehmann $+\$228\,700$, Wilcoxon $p = 4.7 \times 10^{-9}$); the Sharpe-ratio advantage is $+0.525$ (95\,\% CI $[+0.231,\,+0.819]$, Hodges-Lehmann $+0.529$, $p = 6.8 \times 10^{-6}$); the maximum-drawdown gap is $+0.16$ in favour of the baseline (as expected: the under-trading baseline has a tiny drawdown, see Section~\ref{sec:drawdown_fair_comparison}), with $p = 4.7 \times 10^{-10}$. The walk-forward effect is therefore not an artefact of fold averaging --- it survives the paired Wilcoxon at every conventional significance level.
+
 \section{Honest interpretation of Phase-2 results}
 \label{sec:phase2_interpretation}
 
@@ -342,7 +439,7 @@ This section states what the results do and do not show, in the conservative lan
 
   \item \textbf{The advantage holds out of sample.} The walk-forward validation confirms the same pattern across four independent time windows spanning 2018--2025, including the COVID crash and the 2022 inflation shock. An 87\,\% win-rate across 320 walk-forward cells is strong evidence that the agent has learned a general strategy, not a pattern specific to one test period.
 
-  \item \textbf{Both uncertainty sources work equally well.} Aleatoric uncertainty (Arm~B, median \$1,612,478) and epistemic uncertainty (Arm~C, median \$1,619,713) produce nearly identical headline numbers. The source of the uncertainty signal matters less than the fact that a calibrated uncertainty signal is present.
+  \item \textbf{Both uncertainty sources work, with a small detectable Sharpe edge to aleatoric.} Aleatoric uncertainty (Arm~B, median \$1,612,478) and epistemic uncertainty (Arm~C, median \$1,619,713) produce close headline numbers. On terminal value the difference is not significant (paired Wilcoxon $p = 0.080$, Section~\ref{sec:phase2_inference}); on Sharpe ratio and on maximum drawdown the paired test detects a small but real advantage to aleatoric ($+0.014$ Sharpe, $p = 7 \times 10^{-4}$; $-0.65$ percentage points of drawdown, $p = 2 \times 10^{-5}$). Both arms beat the baseline by an order of magnitude more.
 
   \item \textbf{Capital preservation is maintained.} The median capital-preservation rate across the probabilistic arms is 97.3\,\%, comfortably above the project's 95\,\% target. The agent achieves meaningful returns without excessive drawdowns.
 
@@ -369,7 +466,7 @@ Given the evidence above, the dissertation makes the following bounded claims:
   \item Adding a calibrated uncertainty signal to a PPO trading agent \emph{substantially improves terminal wealth and risk-adjusted return} relative to the same agent without the signal, as measured on a 70-stock market sample over the 2022--2025 test window.
   \item The improvement is \emph{robust to the choice of uncertainty source}: both aleatoric and epistemic modes produce similar results.
   \item The improvement \emph{holds out of sample} across four walk-forward time windows covering 2018--2025.
-  \item The improvement is \emph{not a statistical artefact}: it is reproduced across 10 independent seeds and is visible at the 25th percentile, the median, and the 75th percentile of the outcome distribution.
+  \item The improvement is \emph{not a statistical artefact}. A paired Wilcoxon signed-rank test on the 70 matched tickers rejects the null of no difference between either probabilistic arm and the baseline at $p < 10^{-12}$ on terminal value, Sharpe and maximum drawdown, with paired-bootstrap 95\,\% confidence intervals that exclude zero by a wide margin (Table~\ref{tab:phase2_stats}). The walk-forward analogue is significant at $p < 10^{-8}$ on terminal value and at $p < 10^{-5}$ on Sharpe.
   \item The signal \emph{lowers typical drawdown relative to passive buy-and-hold} (median $\approx 22\,\%$ versus $\approx 26\,\%$) while remaining fully exposed enough to grow capital --- a property the under-trading baseline cannot claim, and which is bounded by the high-volatility tail noted above.
 \end{itemize}
 

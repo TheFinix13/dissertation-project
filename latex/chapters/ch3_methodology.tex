@@ -28,7 +28,7 @@ The trading task is cast as a Markov decision process (MDP) with state space $\m
 
 The asset is observed daily with adjusted close price $p_t$. The portfolio at the end of day $t$ holds a cash balance $B_t \geq 0$ and a non-negative number of shares $n_t$; its market value is $V_t = B_t + n_t p_t$. The agent transacts at the close.
 
-A scalar action $a_t \in [-1, 1]$ encodes the fraction of the cash balance to commit to a long-side trade (when $a_t > 0$) or the fraction of the existing position to liquidate (when $a_t < 0$). Per-step turnover is bounded by a maximum fraction $f_{\max} \in (0, 1]$ of cash. The realised gross trade value at step $t$ is denoted $v_t$, and trades incur a linear transaction cost $c \in [0, 1)$ on the gross notional.
+A scalar action $a_t \in [-1, 1]$ encodes the fraction of the cash balance to commit to a long-side trade (when $a_t > 0$) or the fraction of the existing position to liquidate (when $a_t < 0$). Per-step turnover is bounded by a maximum fraction $f_{\max} \in (0, 1]$ of cash. The realised gross trade value at step $t$ is denoted $v_t$. Trades incur a linear transaction cost $c \in [0, 1)$ on the gross notional. The cost rate is set to $c = 0.0005$ (5 basis points) throughout, the round-trip-equivalent commission charged by major US retail brokerages on US-listed equities and ETFs at the time of writing. Slippage and market impact are not modelled; Section~\ref{sec:limitations} returns to this point.
 
 \subsection{State}
 \label{sec:state}
@@ -135,15 +135,15 @@ This score captures the data-side uncertainty Kendall and Gal call aleatoric~\pa
 
 A dropout layer with probability $p_{\mathrm{drop}} = 0.1$ is inserted between the LSTM output and the two linear heads. At inference time the dropout is kept active (not switched off as in standard inference), and $K = 20$ forward passes are run per input. This gives $K$ samples of the predicted mean $\{ \hat{\mu}_t^{(k)} \}_{k=1}^{K}$ and $K$ samples of the predicted standard deviation $\{ \hat{\sigma}_t^{(k)} \}_{k=1}^{K}$.
 
-The combined epistemic + aleatoric uncertainty is the root-sum-of-squares of the spread of predicted means (epistemic) and the mean of predicted standard deviations (aleatoric):
+Following the decomposition of \textcite{kendall2017uncertainties}, the total predictive variance is the sum of the variance of predicted means (epistemic) and the expectation of the predicted variances (aleatoric):
 \begin{equation}
   \label{eq:epistemic_uncertainty}
-  \tilde{\sigma}_t = \sqrt{
+  \tilde{\sigma}_t^2 \;=\;
     \underbrace{\mathrm{Var}_k\!\left[ \hat{\mu}_t^{(k)} \right]}_{\text{epistemic}}
-    + \underbrace{\mathbb{E}_k\!\left[ \hat{\sigma}_t^{(k)} \right]^2}_{\text{aleatoric}}
-  }.
+    \;+\;
+    \underbrace{\mathbb{E}_k\!\left[ \bigl(\hat{\sigma}_t^{(k)}\bigr)^2 \right]}_{\text{aleatoric}}.
 \end{equation}
-This combined quantity is then min--max normalised exactly as in Equation~\ref{eq:uncertainty_score} to produce the policy-facing uncertainty score. The epistemic mode is an experimental arm; the empirical comparison against the aleatoric mode is in Section~\ref{sec:phase2_what_headline_shows}.
+The two terms are different quantities of different sign by Jensen's inequality, and the second one is the expectation of the squared standard deviations rather than the square of the expectation. The combined uncertainty $\tilde{\sigma}_t$ used by the policy is then min--max normalised exactly as in Equation~\ref{eq:uncertainty_score} to produce the policy-facing score. The epistemic mode is an experimental arm; the empirical comparison against the aleatoric mode is in Section~\ref{sec:phase2_what_headline_shows}.
 
 \section{Trading environment and the contribution}
 \label{sec:env_and_contribution}
@@ -189,5 +189,7 @@ The protocol fixes the train, validation and test splits (Section~\ref{sec:data_
 where $\bar{r}$ is the realised mean return, $r_f$ is the risk-free rate (taken as zero on the test window) and $\sigma_r$ is the realised standard deviation; the maximum drawdown of Equation~\ref{eq:mdd}; the Value-at-Risk at 95\,\% confidence (Equation~\ref{eq:var}) and the rate at which the realised log-return falls below it; and the capital-preservation ratio of Equation~\ref{eq:preservation_ratio}.
 
 \paragraph{Cross-arm consistency.} For experiments that report all three reinforcement-learning arms (Arm~A --- baseline PPO; Arm~B --- probabilistic PPO with aleatoric uncertainty; Arm~C --- probabilistic PPO with epistemic uncertainty), the only thing that changes between the arms is which uncertainty mode is used. The PPO hyper-parameters, the training budget, the seeds, the data splits and the metric set are identical across all three arms. This is the controlled-comparison condition that supports the headline claim in Chapter~\ref{ch:results}.
+
+\paragraph{Statistical inference.} Aggregate per-arm summaries (median, inter-quartile range, win-rate) are reported alongside three paired inference statistics on the matched-ticker sample (cell statistic = median across seeds): the paired Wilcoxon signed-rank test for the null of no difference between two arms, the Hodges-Lehmann shift estimate as a distribution-free effect size, and a paired bootstrap 95\,\% confidence interval for the median difference (10\,000 resamples; the script is committed at \texttt{experiments/stats\_significance.py}). The Wilcoxon statistic is preferred over a paired $t$-test because the per-ticker terminal-value distribution is heavy-tailed (Section~\ref{sec:phase2_full_grid}). All p-values, confidence intervals, and effect sizes reported in Chapter~\ref{ch:results} come from this protocol; the corresponding tables are in Section~\ref{sec:phase2_inference}.
 
 \paragraph{Rule-based comparator.} \label{sec:rule_based_comparator} The trailing stop-loss policy is a deterministic rule, not a learned policy. It begins fully invested, tracks the running peak of the portfolio value, and sells the entire position when the value falls more than $k$\,\% below the running peak. After the stop fires, the policy waits for the price to rise above its 20-day simple moving average before re-entering. Two variants are reported in Chapter~\ref{ch:results}: $k = 5$ (a tight stop) and $k = 10$ (a loose stop). The rule has no random component, so a single deterministic trajectory per ticker is reported.

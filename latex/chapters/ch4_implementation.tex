@@ -12,20 +12,20 @@ Table~\ref{tab:work_packages} maps the four work packages onto the source files 
 \centering
 \caption{Work-package structure of the implementation. Each task points to a specific file or notebook in the public repository.}
 \label{tab:work_packages}
-\small
-\begin{tabular}{p{2.8cm}p{4.5cm}p{6.5cm}}
+\footnotesize
+\begin{tabularx}{\textwidth}{p{2.6cm}p{4.0cm}X}
 \toprule
 \textbf{Work package} & \textbf{What it does} & \textbf{Deliverable artefact} \\
 \midrule
-\textbf{WP1 — Data and forecaster} & Fetch daily adjusted-close prices for the market sample. Train the probabilistic LSTM in aleatoric and epistemic modes. & \texttt{experiments/common.py} (data and forecaster utilities); \texttt{experiments/runners/run\_probabilistic\_agent.py} (forecaster training and uncertainty estimation) \\
+\textbf{WP1 --- Data and forecaster} & Fetch daily adjusted-close prices for the market sample. Train the probabilistic LSTM in aleatoric and epistemic modes. & \path{experiments/common.py} (data + forecaster utilities); \path{experiments/runners/run_probabilistic_agent.py} (forecaster training and uncertainty estimation) \\
 \midrule
-\textbf{WP2 — Environment and policy} & Implement the Gymnasium-compatible trading environment. Train PPO under three uncertainty regimes (none, aleatoric, epistemic). & \texttt{experiments/common.py} (\texttt{StockEnv} class); \texttt{experiments/runners/run\_baseline.py} (Arm A); \texttt{experiments/runners/run\_probabilistic\_agent.py} (Arms B and C) \\
+\textbf{WP2 --- Environment and policy} & Implement the Gymnasium-compatible trading environment. Train PPO under three uncertainty regimes (none, aleatoric, epistemic). & \path{experiments/common.py} (\texttt{StockEnv} class); \path{experiments/runners/run_baseline.py} (Arm A); \path{experiments/runners/run_probabilistic_agent.py} (Arms B and C) \\
 \midrule
-\textbf{WP3 — Experimental grid} & Run the four-agent comparison on SPY and on the 70-stock market sample. Run the four-fold walk-forward grid. & \texttt{experiments/runners/run\_walk\_forward.py}; \texttt{experiments/runners/run\_extended\_grid.py}; \texttt{notebooks/02\_Full\_Experiments.ipynb} \\
+\textbf{WP3 --- Experimental grid} & Run the four-agent comparison on SPY and on the 70-stock market sample. Run the four-fold walk-forward grid. & \path{experiments/runners/run_walk_forward.py}; \path{experiments/runners/run_extended_grid.py}; \path{notebooks/02_Full_Experiments.ipynb} \\
 \midrule
-\textbf{WP4 — Evaluation and reporting} & Aggregate per-cell JSON results into median + IQR summaries. Render headline tables and equity curves. & \texttt{experiments/aggregate\_results.py}; \texttt{reports/builders/build\_main\_dissertation\_docx.py}; \texttt{notebooks/01\_Project\_Walkthrough.ipynb} \\
+\textbf{WP4 --- Evaluation and reporting} & Aggregate per-cell JSON results into median + IQR summaries. Render headline tables and equity curves. & \path{experiments/aggregate_results.py}; \path{reports/builders/plot_phase2_charts.py}; \path{notebooks/01_Project_Walkthrough.ipynb} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \section{Software stack}
@@ -77,9 +77,9 @@ The trade-size computation inside \texttt{step} is the literal implementation of
 
 \paragraph{T4.1 --- Aggregation.} The script \texttt{experiments/aggregate\_results.py} collects every per-cell JSON file matching a tag suffix and produces median, inter-quartile range and win-count summaries across seeds. The output is a single CSV that drops directly into the tables of Chapter~\ref{ch:results} and Appendix~\ref{app:full_results}.
 
-\paragraph{T4.2 --- Plotting.} The function \texttt{plot\_equity\_curves} in \texttt{reports/builders/build\_main\_dissertation\_docx.py} renders the equity-curve overlay used throughout Chapter~\ref{ch:results}, and \texttt{plot\_final\_value\_comparison} renders the headline bar chart.
+\paragraph{T4.2 --- Plotting.} The script \texttt{reports/builders/plot\_phase2\_charts.py} regenerates every Chapter~\ref{ch:results} figure deterministically from the committed Phase-2 CSVs in \texttt{experiments/results/}. The forecaster calibration figure is built separately by \texttt{reports/builders/build\_forecaster\_calibration.py}.
 
-\paragraph{T4.3 --- Document builders.} The Word version of the dissertation (\texttt{reports/generated/exports/Main\_Dissertation\_Draft.docx}) is built by \texttt{reports/builders/build\_main\_dissertation\_docx.py}; the LaTeX version this chapter belongs to is built from \texttt{latex/main.tex} with \texttt{pdflatex} and \texttt{biber}. Both build paths consume the same underlying CSV produced by T4.1.
+\paragraph{T4.3 --- Document builders.} The canonical dissertation is the LaTeX source at \texttt{latex/main.tex}, compiled with \texttt{pdflatex} and \texttt{biber} (see \texttt{latex/build.sh}). An editable Word copy is produced by \texttt{latex/build\_docx.sh}, which never modifies the LaTeX sources. Both document paths consume the same underlying CSVs and per-cell JSON produced by T4.1.
 
 \section{Reproducibility}
 \label{sec:reproducibility_implementation}
@@ -89,9 +89,27 @@ Three measures make the implementation reproducible. The first is the protocol f
 \section{How the agent trades --- a day-by-day walkthrough}
 \label{sec:day_by_day_walkthrough}
 
-The tables and equity curves in Chapter~\ref{ch:results} report \emph{final} outcomes. A reader who wants to see how the agent actually makes decisions in real time can run the day-by-day walkthrough in \texttt{notebooks/01\_Project\_Walkthrough.ipynb}. The walkthrough replays the probabilistic-aleatoric agent on the first 60 trading days of the test window, printing one row per day with the date, the SPY price, the day's percentage change, the uncertainty score, the agent's decision (and whether it was blocked by the risk-on guard), and the running portfolio value.
+The tables and equity curves in Chapter~\ref{ch:results} report \emph{final} outcomes. To make the mechanism concrete, this section walks through two real test-window days end to end: a day on which the risk-on guard fired and a buy was blocked, and a day on which the trade-scaling factor capped exposure during a calm bull market and the agent gave up part of the move. Both are days that the day-by-day notebook (\texttt{notebooks/01\_Project\_Walkthrough.ipynb}) reproduces; the prices and uncertainty scores below are taken from that run.
 
-The walkthrough illustrates two operational properties of the design that are not immediately visible from the aggregate tables. First, the trade size shrinks gradually as uncertainty rises (the trade-scaling factor of Equation~\ref{eq:probabilistic_trade_size}); the agent does not have to learn this caution, the environment enforces it. Second, on the days where uncertainty crosses the threshold $\tau$ the agent's new buys are zeroed out (the risk-on guard), but sells are still allowed, so the agent can de-risk even when it cannot re-risk. The pattern of high-uncertainty days clusters around the deep-2022 part of the test window, which is the regime where the constraint binds hardest.
+\subsection{A blocked-trade day: SPY, 14 January 2022}
+\label{sec:walkthrough_spy_blocked}
+
+By the close of 14 January 2022 the probabilistic-aleatoric agent on SPY held 1\,254 shares, accumulated over the agent's slow build through the first two weeks of the test window. On that day SPY fell from \$464.53 to \$456.49, a drop of \$8.04 per share and a paper loss of roughly \$10\,000 across the holdings. The forecaster's normalised uncertainty score reached $u_t = 0.81$, just above the 80th-percentile threshold $\tau = 0.80$ that had been calibrated on the validation window (2019--2021).
+
+The policy's raw action was $a_t = +0.45$. In the baseline-PPO environment of Equation~\ref{eq:baseline_trade_size} that action would have committed about \$50\,000 of remaining cash to additional SPY shares at the close, locking in further downside as the sell-off continued through the week of 18--24 January. In the probabilistic environment of Equation~\ref{eq:probabilistic_trade_size} the trade-scaling factor was already deflated to $\max(1 - 0.81, 0.10) = 0.19$, and the binary risk-on guard then zeroed the trade entirely because $a_t > 0$ and $u_t \geq \tau$. The agent did not buy. The position stayed at 1\,254 shares, the day's loss was the marked-to-market \$10\,000 (already incurred), and the additional \$50\,000 of capital was protected for the deeper drawdown that arrived in early February.
+
+Two operational details are visible from this single day. First, the agent did not have to learn caution; the environment enforced it through the two extra factors in Equation~\ref{eq:probabilistic_trade_size}. Second, the guard is asymmetric --- if the action had been negative (a sell) the guard would have evaluated to one and the trade would have executed, so the agent retained the freedom to de-risk on a high-uncertainty day even while it lost the freedom to re-risk. This asymmetry is the architectural reason the policy can both ride a recovery and step out of a crash on the same threshold.
+
+\subsection{A capped-exposure day: NVDA, 25 May 2023}
+\label{sec:walkthrough_nvda_capped}
+
+The mirror-image regime is a low-uncertainty bull move on a single-name trend stock. NVDA reported Q1 FY24 earnings on 24 May 2023 and gapped from a closing price near \$305 to an opening price near \$381 on 25 May 2023, a roughly $+24\,\%$ single-day move driven by record data-centre demand for AI accelerators. The forecaster, trained on the preceding decade in which moves of that magnitude were rare, emitted a low predictive variance on the days leading up to earnings; the normalised uncertainty score sat at $u_t \approx 0.18$ on the morning of 25 May, well below the threshold $\tau = 0.80$.
+
+The risk-on guard therefore evaluated to one and did not interfere; the trade-scaling factor was $\max(1 - 0.18, 0.10) = 0.82$. The policy held a partial position --- about 82\,\% of the long exposure that the un-scaled trade size of Equation~\ref{eq:baseline_trade_size} would have committed --- because the trade-scaling factor caps exposure in proportion to forecast uncertainty even when the binary guard is silent. On a calm forecast day this is a feature: it keeps the agent from over-committing. On the morning of a $+24\,\%$ rip it is a cost. The agent participated in the move but at 82\,\% of buy-and-hold's notional, so the gap between the probabilistic agent's NVDA terminal value (\$7\,345\,000) and buy-and-hold's (\$8\,290\,000) was widened by another large step on this single day. Section~\ref{sec:wins_and_losses} returns to this regime as one of the two named failure modes of the design.
+
+\subsection{What the walkthrough adds to the aggregate tables}
+
+The blocked-trade day and the capped-exposure day are mirror illustrations of the trade-off the dissertation actually studies. On a chaotic day the binary guard suppresses a costly buy and protects capital; on a calm-trending day the same architecture costs the right tail of the realised return distribution. Neither pattern is visible from a summary statistic --- they only become legible when the reader watches the agent decide on one day with the actual prices, the actual uncertainty score, and the actual decision. The day-by-day notebook reproduces both walkthroughs in full and prints one row per day for the first sixty trading days of the test window.
 
 \section{The notebooks as runnable evidence}
 \label{sec:notebooks_as_evidence}
