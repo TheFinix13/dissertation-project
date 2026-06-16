@@ -1,4 +1,4 @@
-# Probabilistic DRL for Portfolio Risk Analysis
+# AI-Driven Portfolio Protection
 
 EEEM004 research project: an uncertainty-aware PPO policy for
 capital preservation under regime stress.

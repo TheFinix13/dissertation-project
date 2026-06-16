@@ -1,5 +1,5 @@
 {
-  "project": "Probabilistic Deep Reinforcement Learning for Portfolio Risk Analysis",
+  "project": "AI-Driven Portfolio Protection: Balancing Growth and Limiting Large Losses Using Confidence Signals",
   "version": "phase2_protocol_v1",
   "objective": "Maximise expected risk-adjusted return subject to a drawdown-floor capital-preservation constraint, evaluated against three named comparators (passive buy-and-hold, rule-based trailing stop-loss, baseline PPO with no uncertainty signal) on a fully reproducible protocol.",
   "data": {

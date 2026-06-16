@@ -1,5 +1,5 @@
 # ai_context.md · uncertainty-aware-portfolio-drl
-Last updated: 2026-06-16 (v0.17.3 — Ch 6–7 future-work synced to completed SPY ablation; PDF + DOCX rebuilt.)
+Last updated: 2026-06-16 (v0.17.4 — dissertation title aligned to interim review: AI-Driven Portfolio Protection.)
 
 Read this first in a fresh chat. Strictly technical state summary for the
 EEEM004 dissertation implementation. Deeper history: `reports/PROJECT_STATUS.md`
@@ -59,8 +59,7 @@ and `docs/CHECKPOINT.md`.
   modes: aleatoric (Gaussian NLL) and epistemic (MC Dropout, T=20).
   Guard: if u > τ, scale or block new buys. Walk-forward: four rolling
   2-year folds 2018–2025.
-- **Canonical dissertation = LaTeX in `latex/`.** PDF: `latex/main.pdf` (96 pp, 0 undefined refs). Word: `dissertation.docx` at repo root (rebuilt via `latex/build_docx.sh`). Title: Fiyinfoluwa Akano, URN 6962514. Local folder: `uncertainty-aware-portfolio-drl` (GitHub: `TheFinix13/dissertation-project`).
-  entries, critical-comparison table Section 2.6.1, three-role
+- **Canonical dissertation = LaTeX in `latex/`.** PDF: `latex/main.pdf`. Word: `dissertation.docx` at repo root (rebuilt via `latex/build_docx.sh`). Title: *AI-Driven Portfolio Protection: Balancing Growth and Limiting Large Losses Using Confidence Signals*. Author: Fiyinfoluwa Akano, URN 6962514. Ch 2 literature rebuild (71 bib entries, critical-comparison table Section 2.6.1, three-role
   positioning tags, safe-RL + distributional-RL + multiple-testing
   literatures explicit). Chapter 5 gained Sections 5.2.5
   (calibration), 5.6 (paired inference), 5.7 (ablation). Chapter 4
