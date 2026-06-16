@@ -1,22 +1,22 @@
 \chapter{Results}
 \label{ch:results}
 
-This chapter reports the empirical results in nine sections. Section~\ref{sec:experimental_setup} restates the setup so the chapter can be read standalone. Section~\ref{sec:forecast_uncertainty} shows the forecaster's uncertainty signal in both modes, including the calibration check at Section~\ref{sec:forecaster_calibration}. Section~\ref{sec:headline_aggregate} is the single-ticker case study on SPY. Section~\ref{sec:equity_curves} shows the equity curves and the drawdown story. Section~\ref{sec:phase2_full_grid} presents the full Phase-2 results across 70 stocks. Section~\ref{sec:phase2_inference} is the paired statistical-inference pass on those results. Section~\ref{sec:ablation} reports the two-piece ablation of Equation~\ref{eq:probabilistic_trade_size} on a SPY pilot. Section~\ref{sec:walk_forward} reports the walk-forward validation. Section~\ref{sec:phase2_interpretation} is the honest interpretation of all Phase-2 evidence.
+This chapter reports what happened when the four agents were run on historical data. Numbers first, mechanism second. Section~\ref{sec:experimental_setup} names the four agents in plain English. Section~\ref{sec:forecast_uncertainty} shows the confidence signal and checks that the forecaster is calibrated. Section~\ref{sec:headline_aggregate} is the SPY case study. Sections~\ref{sec:phase2_full_grid}--\ref{sec:phase2_inference} scale to 70 stocks with statistical tests. Section~\ref{sec:ablation} asks which half of the design (state, guard, or scaling) does the work. Section~\ref{sec:walk_forward} tests earlier time periods. Section~\ref{sec:phase2_interpretation} states honest limits.
 
 \section{Experimental setup}
 \label{sec:experimental_setup}
 
 All numbers below are evaluated on held-out test windows. For the main grid (Sections~\ref{sec:headline_aggregate}--\ref{sec:phase2_full_grid}), the test window is 1 January 2022 to 31 December 2025. For walk-forward validation (Section~\ref{sec:walk_forward}), four non-overlapping two-year test windows cover 2018--2025.
 
-The experiment uses three experimental arms:
+The experiment compares four strategies on the same stocks, dates, and random seeds:
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Arm~A --- Baseline PPO.} A standard Proximal Policy Optimisation agent with no forecaster and no uncertainty signal. This is the control: it shows what happens when a policy-gradient agent trades without any external confidence signal.
-  \item \textbf{Arm~B --- Probabilistic PPO, aleatoric uncertainty.} The same PPO agent, but now the forecaster produces a mean and a spread for each day's prediction, and the spread is turned into an uncertainty score. This measures \emph{data noise} --- how chaotic the market is on any given day. When uncertainty is high, the agent trades smaller or not at all.
-  \item \textbf{Arm~C --- Probabilistic PPO, epistemic uncertainty.} The same PPO agent, but the uncertainty comes from running the forecaster multiple times with random dropout (Monte-Carlo dropout). This measures \emph{model unfamiliarity} --- how different today's market looks from the data the forecaster was trained on. The same trade-scaling mechanism applies.
+  \item \textbf{Arm~A --- Plain PPO (control).} A standard learning agent with \emph{no} forecaster and \emph{no} confidence signal. Shows what happens when the agent must trade blind to forecast confidence.
+  \item \textbf{Arm~B --- PPO + market-noise signal (aleatoric).} The forecaster outputs a mean and a spread each day; the spread becomes the confidence signal. High signal means the market itself looks chaotic; the agent trades smaller or stops buying.
+  \item \textbf{Arm~C --- PPO + model-unfamiliarity signal (epistemic).} The same setup, but confidence comes from running the forecaster twenty times with random dropout (Monte-Carlo dropout). High signal means today's data look unlike the training years; the same shrink-and-guard rules apply.
 \end{itemize}
 
-Each cell in the grid trains one agent on one stock with one random seed. At the Phase-2 budget, each cell uses 50,000 PPO time-steps and 10 random seeds per ticker, for a total of 700 cells per arm (70 tickers $\times$ 10 seeds). The starting capital is \$1,000,000 per cell.
+Each run trains one agent on one stock with one random seed. At full scale: 70 stocks $\times$ 10 seeds $\times$ 50{,}000 learning steps per cell, starting from \$1{,}000{,}000.
 
 \section{Forecast uncertainty in the test window}
 \label{sec:forecast_uncertainty}

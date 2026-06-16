@@ -1,5 +1,5 @@
 # ai_context.md · uncertainty-aware-portfolio-drl
-Last updated: 2026-06-16 (v0.17.4 — dissertation title aligned to interim review: AI-Driven Portfolio Protection.)
+Last updated: 2026-06-16 (v0.17.5 — plain-English pass: reader guide, confidence-signal terminology, glossary expanded.)
 
 Read this first in a fresh chat. Strictly technical state summary for the
 EEEM004 dissertation implementation. Deeper history: `reports/PROJECT_STATUS.md`

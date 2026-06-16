@@ -1,0 +1,21 @@
+% Included at the start of Chapter 1 — plain-English on-ramp for non-specialist readers.
+
+\section*{How to read this dissertation}
+\addcontentsline{toc}{section}{How to read this dissertation}
+
+This dissertation is written for a reader who understands money and risk but does not need to be a machine-learning specialist. Every technical term is defined in plain English on first use. The formal equations are in Chapter~\ref{ch:methodology}; the one-page glossary in Appendix~\ref{app:glossary} is a quick reference if a term is forgotten mid-chapter.
+
+\paragraph{The question in one sentence.} Can a small AI trading agent grow a portfolio \emph{and} step back when its own forecast is unsure --- and does that beat simply holding the market or using a manual stop-loss rule?
+
+\paragraph{Three ideas to hold in mind.}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Drawdown} --- how far the portfolio has fallen from its recent peak (not day-to-day wiggle). Pension funds care about this number.
+  \item \textbf{Confidence signal} --- a score from 0 (very confident) to 1 (very unsure) that the forecaster attaches to each day's prediction. When the score is high, the agent trades less or stops buying.
+  \item \textbf{Reinforcement learning} --- the agent learns by trial and error in a simulated market: it tries actions, sees whether the portfolio grew, and adjusts. Proximal Policy Optimization (PPO) is the specific learning algorithm used here; it is standard in the field and is not modified in this dissertation.
+\end{enumerate}
+
+\paragraph{How the chapters fit together.} Chapter~\ref{ch:background} explains what others have tried. Chapter~\ref{ch:methodology} states the rules of the experiment in words first, then in equations. Chapter~\ref{ch:implementation} points to the code. Chapter~\ref{ch:results} reports the numbers. Chapter~\ref{ch:discussion} and Chapter~\ref{ch:conclusion} say what those numbers do and do not prove.
+
+\paragraph{Writing convention.} After a term is defined once (for example Sharpe ratio, Value-at-Risk, or aleatoric uncertainty), later sections alternate between the formal name and a plain noun (``the agent'', ``the forecaster'', ``the confidence signal'') so the page does not turn into an acronym list.
+
+\clearpage

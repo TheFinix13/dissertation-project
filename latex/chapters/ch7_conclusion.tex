@@ -4,9 +4,9 @@
 \section{Summary}
 \label{sec:summary}
 
-This dissertation set out to answer one question: does feeding a deep reinforcement-learning trading agent the predictive uncertainty produced by its own forecaster improve the agent's risk-adjusted performance? The answer, based on the Phase-2 evidence reported in Chapter~\ref{ch:results}, is yes --- and the improvement is large, consistent, and robust.
+This dissertation asked a simple question: if a trading agent can see how confident its own forecaster is, does it manage drawdown-aware growth better than agents that cannot? On the Phase-2 evidence, the answer is yes --- the gain is large, repeats across stocks and time windows, and survives formal statistical checks.
 
-\paragraph{What was built.} The agent is a PPO~\parencite{schulman2017ppo} policy paired with a probabilistic LSTM forecaster~\parencite{hochreiter1997lstm,salinas2020deepar}. The forecaster emits a mean and a spread per step; the spread is normalised to a unit-interval uncertainty score and enters the policy in two places --- as a state coordinate and as a hard guard on new long-side trades. The single piece of mathematics that distinguishes the candidate from a baseline PPO is Equation~\ref{eq:probabilistic_trade_size}. The design was tested in two uncertainty modes: aleatoric (data noise) and epistemic (model unfamiliarity via Monte-Carlo dropout~\parencite{gal2016dropout}).
+\paragraph{What was built.} A PPO~\parencite{schulman2017ppo} trading agent paired with a probabilistic LSTM forecaster~\parencite{hochreiter1997lstm,salinas2020deepar}. Each day the forecaster outputs a mean return and a spread; the spread becomes a \textbf{confidence signal} $u_t$. The signal enters twice: the agent sees it as context, and a guard blocks new buys when confidence is too low. The only new mathematics is Equation~\ref{eq:probabilistic_trade_size}, which shrinks trade size when $u_t$ is high. Two signal sources were tested: market noise (aleatoric) and model unfamiliarity (epistemic via Monte-Carlo dropout~\parencite{gal2016dropout}).
 
 \paragraph{What was found --- Phase-2 headline.} The full Phase-2 grid trained each agent variant on 70 stocks with 10 random seeds and 50,000 PPO time-steps per cell, producing 2,097 completed cells across three experimental arms. The results are unambiguous:
 

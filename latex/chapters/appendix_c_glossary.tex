@@ -1,45 +1,61 @@
 \chapter{Glossary}
 \label{app:glossary}
 
-This glossary defines the key terms used in the dissertation in one sentence each, for the reader who wants a quick reference. The definitions are deliberately informal; the formal statements are in Chapters~\ref{ch:background} and~\ref{ch:methodology}.
+This glossary defines key terms in one plain sentence each. Formal definitions and equations are in Chapters~\ref{ch:background} and~\ref{ch:methodology}.
 
 \begin{longtable}{p{4.2cm} p{10cm}}
 \toprule
-\textbf{Term} & \textbf{One-sentence definition} \\
+\textbf{Term} & \textbf{Plain-English definition} \\
 \midrule
 \endfirsthead
 \multicolumn{2}{l}{\small\itshape Glossary continued from previous page} \\
 \toprule
-\textbf{Term} & \textbf{One-sentence definition} \\
+\textbf{Term} & \textbf{Plain-English definition} \\
 \midrule
 \endhead
 \bottomrule
 \endlastfoot
-PPO (Proximal Policy Optimization) & A reinforcement-learning algorithm for agents that take a sequence of actions; it updates the agent's policy in small, clipped steps so that no single update overshoots~\parencite{schulman2017ppo}. \\
+Confidence signal ($u_t$) & A number from 0 (forecaster very confident) to 1 (very unsure), derived from how wide the forecaster's prediction interval is that day; also called the uncertainty score in the equations. \\
 \addlinespace
-LSTM (Long Short-Term Memory) & A type of neural network designed to learn patterns in sequences, such as a series of daily stock returns~\parencite{hochreiter1997lstm}. \\
+Drawdown & How far the portfolio has fallen from its recent peak, expressed as a percentage; the risk measure pension mandates usually care about. \\
 \addlinespace
-MDP (Markov Decision Process) & The standard mathematical frame for sequential decision problems under uncertainty, in which today's action influences tomorrow's state. \\
+Reinforcement learning & Machine learning where an agent learns by trying actions in a simulation and adjusting when outcomes are good or bad. \\
 \addlinespace
-DeepAR & A probabilistic forecasting architecture that outputs both a predicted mean and a predicted spread rather than a single point estimate~\parencite{salinas2020deepar}. \\
+PPO (Proximal Policy Optimization) & A standard reinforcement-learning algorithm that updates the agent in small safe steps~\parencite{schulman2017ppo}; used here unchanged. \\
 \addlinespace
-Sharpe ratio & A measure of risk-adjusted return: average return divided by the standard deviation of returns, where higher is better. \\
+Forecaster & The neural network that reads recent price history and predicts tomorrow's return plus how uncertain that prediction is. \\
 \addlinespace
-Maximum drawdown (MDD) & The worst peak-to-trough percentage drop in portfolio value over a period; lower is better. \\
+LSTM (Long Short-Term Memory) & A neural-network building block for sequences such as daily returns~\parencite{hochreiter1997lstm}. \\
 \addlinespace
-Value-at-Risk (VaR) & The loss threshold that is exceeded only with a small stated probability (here 5\,\%) over a single period. \\
+Buy-and-hold & Passive strategy: buy at the start of the test window and hold; the fair return benchmark. \\
 \addlinespace
-Capital-preservation ratio & The ratio of current portfolio value to its running high-watermark; the project targets a value above 95\,\%. \\
+Trailing stop-loss & Rule that sells when price falls more than $k$\,\% below the recent peak; common discretionary risk tool. \\
 \addlinespace
-Aleatoric uncertainty & Uncertainty about \emph{the data} --- how noisy or chaotic the market is on a given day. \\
+MDP (Markov Decision Process) & The standard maths frame for ``observe state, take action, get reward, move to next state'' problems. \\
 \addlinespace
-Epistemic uncertainty & Uncertainty about \emph{the model itself} --- how unfamiliar today's data looks compared with what the forecaster was trained on. \\
+DeepAR & Probabilistic forecasting method that outputs mean and spread, not a single point~\parencite{salinas2020deepar}; blueprint for the forecaster here. \\
 \addlinespace
-MC dropout (Monte-Carlo dropout) & A technique that keeps dropout active at inference time and runs several forward passes, using the spread of their outputs as an estimate of epistemic uncertainty~\parencite{gal2016dropout}. \\
+Sharpe ratio & Return earned per unit of volatility; higher means more return for the risk taken. \\
 \addlinespace
-Seed & A fixed random starting point for training; running multiple seeds shows a result is not down to luck. \\
+Maximum drawdown (MDD) & Worst peak-to-trough percentage loss over the period; lower is safer. \\
 \addlinespace
-Walk-forward validation & An evaluation method in which the training and test windows slide forward through time, so the agent is always tested on data strictly later than its training data. \\
+Value-at-Risk (VaR) & Loss level exceeded only on the worst 5\,\% of days (at 95\,\% VaR). \\
 \addlinespace
-Block bootstrap & A resampling method that draws contiguous blocks of a historical return series to generate synthetic but realistic training paths~\parencite{politis1994stationary}. \\
+Capital-preservation ratio & Current portfolio value divided by the highest value seen so far; target above 95\,\% here. \\
+\addlinespace
+Aleatoric uncertainty & Uncertainty about the \emph{market data} --- how noisy prices are today. \\
+\addlinespace
+Epistemic uncertainty & Uncertainty about the \emph{model} --- how unfamiliar today's data look versus training years. \\
+\addlinespace
+MC dropout (Monte-Carlo dropout) & Run the network several times with randomness switched on; spread of answers estimates epistemic uncertainty~\parencite{gal2016dropout}. \\
+\addlinespace
+Seed & Fixed random starting point for training; many seeds show a result is not luck. \\
+\addlinespace
+Walk-forward validation & Train on past years, test on later years, slide the window forward --- mimics real deployment order. \\
+\addlinespace
+Block bootstrap & Resample contiguous chunks of history to create synthetic training paths~\parencite{politis1994stationary}. \\
+\addlinespace
+Wilcoxon signed-rank test & Non-parametric test asking whether two strategies differ on matched pairs (here, matched stocks). \\
+\addlinespace
+ETF (exchange-traded fund) & A traded fund that tracks an index or sector; SPY tracks the US large-cap index. \\
 \end{longtable}

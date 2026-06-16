@@ -10,7 +10,7 @@ This chapter describes a single-asset trading environment. The multi-asset robus
 
 The trading task is set out as a sequential decision problem. Every day the agent observes a snapshot of the market and of its own portfolio, chooses how much to buy or sell, and is rewarded for growing the portfolio. Mathematically this is a Markov decision process, the standard frame for problems where today's action affects tomorrow's state (Section~\ref{sec:problem_formulation}).
 
-The agent is paired with a forecaster that emits both a prediction of tomorrow's return and a confidence interval around that prediction. The width of that confidence interval is what the dissertation calls the \emph{uncertainty score} (Section~\ref{sec:uncertainty_score}), and is what is fed back into the agent's decision-making (Section~\ref{sec:env_and_contribution}).
+The agent is paired with a \emph{forecaster} that outputs two things each day: a best guess at tomorrow's return, and a width for that guess. That width becomes the \textbf{confidence signal} --- formally the uncertainty score $u_t$ in Section~\ref{sec:uncertainty_score}. Low signal means ``trade normally''; high signal means ``the model is unsure, shrink or stop buying'' (Section~\ref{sec:env_and_contribution}).
 
 The agent has been compared against three named alternatives on the same protocol. The exact mathematical difference between the candidate agent and the baseline PPO is two extra factors in the trade-size computation; everything else --- the state, the reward, the optimiser, the hyper-parameters --- is held constant so that the comparison is genuinely like-for-like.
 
@@ -21,7 +21,7 @@ Figure~\ref{fig:rl_loop} shows one step of this decision loop: the environment h
 \section{Problem formulation}
 \label{sec:problem_formulation}
 
-The trading task is cast as a Markov decision process (MDP) with state space $\mathcal{S}$, action space $\mathcal{A}$, transition kernel $\mathcal{P}$, reward function $\mathcal{R}$, and discount factor $\gamma \in (0, 1]$. An MDP is the standard mathematical frame for sequential decision problems under uncertainty: at each time step the agent observes a state, chooses an action, receives a reward, and the environment transitions to a new state according to $\mathcal{P}$.
+The trading task is cast as a \emph{Markov decision process} (MDP) --- observe, act, receive reward, move to the next day --- with state space $\mathcal{S}$, action space $\mathcal{A}$, transition kernel $\mathcal{P}$, reward function $\mathcal{R}$, and discount factor $\gamma \in (0, 1]$.
 
 \subsection{Decision variables}
 \label{sec:decision_variables}
@@ -115,10 +115,10 @@ The forecaster is a stripped-down DeepAR~\parencite{salinas2020deepar} with a Ga
 
 Training uses the Gaussian negative log-likelihood loss of Equation~\ref{eq:gaussian_nll}, optimised with Adam at learning rate $1 \times 10^{-3}$ for 20 epochs. The forecaster is trained on the training window only; the validation window is used to set the uncertainty-score quantile threshold $\tau$, and the test window supplies the final reported numbers.
 
-\section{Uncertainty score}
+\section{Confidence signal (uncertainty score)}
 \label{sec:uncertainty_score}
 
-The uncertainty score is the dissertation's link between the forecaster and the policy. Two modes are evaluated: the headline aleatoric mode (the only mode in the original project proposal) and an epistemic mode added in response to project-proposal feedback.
+The confidence signal is the bridge between forecaster and agent. In plain English: it is a number from 0 to 1 that says how wide the forecaster's prediction interval is on that day, scaled so that 0 is the calmest day in the window and 1 is the wildest. Two ways of computing it are tested --- market-noise (aleatoric) and model-unfamiliarity (epistemic).
 
 \subsection{Aleatoric mode (headline)}
 \label{sec:aleatoric_mode}
@@ -128,7 +128,7 @@ At inference time the forecaster's predictive standard deviation $\hat{\sigma}_t
   \label{eq:uncertainty_score}
   u_t = \frac{\hat{\sigma}_t - \min_s \hat{\sigma}_s}{\max_s \hat{\sigma}_s - \min_s \hat{\sigma}_s} \in [0, 1].
 \end{equation}
-This score captures the data-side uncertainty Kendall and Gal call aleatoric~\parencite{kendall2017uncertainties}: it answers the question ``how chaotic does the market look right now to a forecaster trained on the past?''.
+This score captures \emph{market noise} --- how chaotic prices look today~\parencite{kendall2017uncertainties}. Plain question: ``how bumpy is the market right now?''
 
 \subsection{Epistemic mode (Monte-Carlo dropout)}
 \label{sec:epistemic_mode}
