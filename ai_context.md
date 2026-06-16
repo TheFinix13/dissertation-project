@@ -1,5 +1,5 @@
 # ai_context.md · uncertainty-aware-portfolio-drl
-Last updated: 2026-06-16 (v0.17.2 — repo pruned: Phase-1 DOCX pipeline removed; LaTeX canonical only.)
+Last updated: 2026-06-16 (v0.17.3 — Ch 6–7 future-work synced to completed SPY ablation; PDF + DOCX rebuilt.)
 
 Read this first in a fresh chat. Strictly technical state summary for the
 EEEM004 dissertation implementation. Deeper history: `reports/PROJECT_STATUS.md`

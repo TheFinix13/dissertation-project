@@ -88,7 +88,7 @@ The evidence in this chapter has clear limits. Each is acknowledged here and mat
 
 \paragraph{Two uncertainty estimators.} The design is evaluated in both the aleatoric mode and the epistemic Monte-Carlo-dropout mode, with the empirical comparison in Section~\ref{sec:phase2_what_headline_shows}. A sensitivity comparison against deep ensembles~\parencite{lakshminarayanan2017simple} or conformal prediction~\parencite{vovk2005algorithmic} is left as future work and is outside this dissertation's scope.
 
-\paragraph{Global uncertainty-quantile threshold.} The threshold is currently a single value (0.80) calibrated on the SPY validation window. Section~\ref{sec:wins_and_losses} identifies low-uncertainty trend-following single names as the regime where this global calibration costs the most; sector-aware calibration is queued for the Phase-2 work.
+\paragraph{Global uncertainty-quantile threshold.} The threshold is currently a single value (0.80) calibrated on the SPY validation window. Section~\ref{sec:wins_and_losses} identifies low-uncertainty trend-following single names as the regime where this global calibration costs the most; sector-aware calibration is the highest-priority item in Section~\ref{sec:group_1_scheduled}.
 
 \paragraph{Daily granularity.} Intraday dynamics are out of scope; the trade-size scaling and the risk-on guard would both need re-calibration at minute or tick granularity. This is left as future work.
 
