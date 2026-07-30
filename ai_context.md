@@ -80,11 +80,19 @@ and `docs/CHECKPOINT.md`.
   **22.1** vs PPO **500.0** (solved). Curve:
   `reports/generated/charts/phase0_cartpole_learning_curve.png`. Scripts:
   `experiments/phase0_cartpole/{train_ppo,plot_learning}.py`. Env: `.venv311`.
-- **Iteration-1 trading scaffold.** `experiments/iteration1/env.py` with
-  state $[\Delta P,C,n]$, mask, $W_t$ reward; synthetic baseline smoke
-  passes accounting identity (`experiments/iteration1/results/baseline_smoke.json`).
+- **Phase 1 SPY daily months (NEW 2026-07-30, branch `simple-modelling-iteration1`).**
+  Chronological 58 train / 26 test monthly episodes (honest: daily bars,
+  $T\approx 18$–$23$, not 390). Baselines B0 / B1(one) / **B1b(max)** /
+  B2 random / A1 PPO (80k steps). Test mean ΔW: B0 **0**, B1 **\$8.0**,
+  B1b **\$76.9**, B2 **\$14.1**, A1 **\$76.9**. **Honest finding:**
+  deterministic PPO matched B1b on **26/26** months (collapsed to
+  fully-invested buy-and-hold under pure $\Delta W$). Accounting tests
+  pass; illegal-action rate **3.9%**. Charts:
+  `reports/generated/charts/phase1_spy_daily_{delta_w,wealth_path}.png`.
+  Runner: `experiments/iteration1/run_phase1_spy_daily.py`. Doer notes:
+  `docs/going_beyond_recorder.md`.
 - Action plan + meeting memo: `docs/meeting_action_plan.md`,
-  `docs/nguyen_meeting_memo_jul30.md`.
+  `docs/nguyen_meeting_memo_jul30.md` (Phase 0+1 numbers filled).
 - **Canonical dissertation = LaTeX in `latex/`.** PDF: `latex/main.pdf`. Word: `dissertation.docx` at repo root (rebuilt via `latex/build_docx.sh`). Title: *AI-Driven Portfolio Protection: Balancing Growth and Limiting Large Losses Using Confidence Signals*. Author: Fiyinfoluwa Akano, URN 6962514. Ch 2 literature rebuild (71 bib entries, critical-comparison table Section 2.6.1, three-role
   positioning tags, safe-RL + distributional-RL + multiple-testing
   literatures explicit). Chapter 5 gained Sections 5.2.5
@@ -135,6 +143,7 @@ and `docs/CHECKPOINT.md`.
 | Phase-2 results (committed) | `experiments/results/per_cell/*.json` (2,749 cells incl. ablation v0.17), `experiments/results/wf_curves/*.csv` |
 | Stats outputs (NEW v0.17) | `reports/generated/stats/phase2_statistical_tests.{json,md}`, `reports/generated/stats/forecaster_calibration_metrics.json`, `reports/generated/stats/spy_phase2_case_study.{json,md}`, `reports/generated/stats/spy_ablation_stats.json` |
 | Chart suite | `reports/generated/charts/*.{png,pdf}` (10 charts dual-emit v0.17), `reports/builders/plot_phase2_charts.py`, `reports/builders/build_forecaster_calibration.py`, `reports/builders/gen_spy_repr_curve.py` |
+| Simple-modelling track | branch `simple-modelling-iteration1`; `experiments/{phase0_cartpole,iteration1}/**`; `docs/{tutor_sl_to_rl_training_loop,iteration1_experiment_plan,nguyen_meeting_memo_jul30,going_beyond_recorder}.md`; `latex/tikz/algorithm3_1_*`, `rl_training_loop_template_*` |
 | Cursor rules | `.cursor/rules/{use-brain-box,academic-writing,cross-pollination,ai-context-routine}.mdc` |
 | Brain Box primary nodes | `~/Documents/GitHub/brain-box/school/surrey-msc-ai/dissertation-eeem004.md`, `~/Documents/GitHub/brain-box/life/finance-research/uncertainty-aware-portfolio-drl.md` |
 
@@ -148,11 +157,15 @@ and `docs/CHECKPOINT.md`.
 | **Secondary (print/formal)** | `latex/main.pdf` | Fixed 96-page PDF, same LaTeX source |
 
 Immediate sequence:
-- Rehearse viva answers from `docs/nguyen_meeting_memo_jul30.md` §§1–3.
-- Bring to meeting: Algorithm 3.1 PNG, SL↔RL template PNG, CartPole curve, memo.
-- After meeting: real SPY minute data + PPO on Iteration-1 env (Phase 1 full).
+- Bring to meeting: memo (§§1–4), Alg 3.1 PNG, SL↔RL template, CartPole
+  curve, Phase-1 ΔW bar chart — lead with the **PPO=B1b collapse** finding.
+- Ask Nguyen: next lever = drawdown/turnover penalty vs richer state vs
+  minute bars ($T=390$).
+- Optional doer extras before/after meeting: scratch REINFORCE, fee grid,
+  one SPY minute-day episode.
 
 Parked (do not start without discussion):
 - Live broker integration of any kind (forbidden in this repo per `.cursor/rules/use-brain-box.mdc`).
-- Deflated Sharpe ratio (Bailey & López de Prado 2014) — listed as named limitation in Section 5.8; only revisit if Dr Nguyen requests it.
-- Rewriting any chapter that v0.17 has already touched, unless Dr Nguyen's feedback forces it.
+- Restoring the full v0.17 uncertainty dual-path as the *meeting story*
+  (keep as historical evidence only until Iteration-1 is understood).
+- Deflated Sharpe ratio — only if Dr Nguyen requests it.
