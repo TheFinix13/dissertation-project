@@ -1,5 +1,5 @@
 # ai_context.md · uncertainty-aware-portfolio-drl
-Last updated: 2026-06-16 (v0.17.5 — plain-English pass: reader guide, confidence-signal terminology, glossary expanded.)
+Last updated: 2026-07-30 (supervisor-directed simple-modelling reset underway.)
 
 Read this first in a fresh chat. Strictly technical state summary for the
 EEEM004 dissertation implementation. Deeper history: `reports/PROJECT_STATUS.md`
@@ -59,6 +59,32 @@ and `docs/CHECKPOINT.md`.
   modes: aleatoric (Gaussian NLL) and epistemic (MC Dropout, T=20).
   Guard: if u > τ, scale or block new buys. Walk-forward: four rolling
   2-year folds 2018–2025.
+- **Conceptual narrative (NEW v0.17.6).** Reader guide reframed as **"The core idea"**
+  (two-module loop, soft dial vs hard guard, return-vs-drawdown ablation split,
+  success/failure regimes, SPY/NVDA walkthrough pointers). Abstract, Ch1
+  motivation/contributions, Ch3 overview + Eq 3.9 interpretation, Ch6 headline
+  + Ch7 summary/conclusion now explain the *design idea* before the numbers.
+  Terminology: **confidence signal** in prose, $u_t$ in equations.
+- **Simple-modelling reset (NEW 2026-07-30).** After Dr Nguyen's July
+  supervision, the methodology is being rebuilt progressively from a
+  one-stock, three-action high-frequency MDP before any uncertainty or
+  multi-asset layers are added. Iteration 1 uses state
+  $s_t=[\Delta P_t,C_t,n_t]^\top$, actions {Hold, Buy one, Sell one},
+  feasibility masking, wealth-change reward, and separate PPO policy/value
+  updates. Word-ready Algorithm 3.1:
+  `latex/tikz/algorithm3_1_training_pipeline_word.png`; canonical source:
+  `latex/tikz/algorithm3_1_training_pipeline_standalone.tex`. The v0.17
+  stack/results remain historical evidence, not automatically the final model.
+- **Phase 0 CartPole PPO (NEW 2026-07-30).** Policy-based correctness
+  sandbox per Nguyen Recording 47: 50k timesteps, random eval mean return
+  **22.1** vs PPO **500.0** (solved). Curve:
+  `reports/generated/charts/phase0_cartpole_learning_curve.png`. Scripts:
+  `experiments/phase0_cartpole/{train_ppo,plot_learning}.py`. Env: `.venv311`.
+- **Iteration-1 trading scaffold.** `experiments/iteration1/env.py` with
+  state $[\Delta P,C,n]$, mask, $W_t$ reward; synthetic baseline smoke
+  passes accounting identity (`experiments/iteration1/results/baseline_smoke.json`).
+- Action plan + meeting memo: `docs/meeting_action_plan.md`,
+  `docs/nguyen_meeting_memo_jul30.md`.
 - **Canonical dissertation = LaTeX in `latex/`.** PDF: `latex/main.pdf`. Word: `dissertation.docx` at repo root (rebuilt via `latex/build_docx.sh`). Title: *AI-Driven Portfolio Protection: Balancing Growth and Limiting Large Losses Using Confidence Signals*. Author: Fiyinfoluwa Akano, URN 6962514. Ch 2 literature rebuild (71 bib entries, critical-comparison table Section 2.6.1, three-role
   positioning tags, safe-RL + distributional-RL + multiple-testing
   literatures explicit). Chapter 5 gained Sections 5.2.5
@@ -100,7 +126,7 @@ and `docs/CHECKPOINT.md`.
 
 | Area | Files |
 |---|---|
-| Dissertation source (canonical) | `latex/main.tex`, `latex/chapters/abstract.tex` … `ch7_conclusion.tex`, `latex/chapters/acknowledgements.tex`, `latex/chapters/appendix_{a,b,c_glossary}.tex`, `latex/references.bib` (71 entries v0.17), `latex/tikz/{rl_loop,data_splits,training_pipeline,uncertainty_trade_scaling}.tex` |
+| Dissertation source (canonical) | `latex/main.tex`, `latex/chapters/abstract.tex`, `latex/chapters/reader_guide.tex` (The core idea), `ch1_introduction.tex` … `ch7_conclusion.tex`, `latex/chapters/acknowledgements.tex`, `latex/chapters/appendix_{a,b,c_glossary}.tex`, `latex/references.bib` (71 entries v0.17), `latex/tikz/{rl_loop,data_splits,training_pipeline,uncertainty_trade_scaling}.tex` |
 | Deliverables | `latex/main.pdf` (96 pages v0.17, gitignored), `dissertation.docx` (gitignored) |
 | Notebooks | `notebooks/01_Project_Walkthrough.ipynb`, `notebooks/02_Full_Experiments.ipynb` |
 | Experiment runners | `experiments/runners/{run_baseline,run_probabilistic_agent,run_benchmarks,run_rule_baselines,run_walk_forward,run_extended_grid,run_ablation}.py` (last one NEW v0.17) |
@@ -114,18 +140,17 @@ and `docs/CHECKPOINT.md`.
 
 ## 3) Next immediate goal
 
-**Your read-through, then ship to Dr Cuong Nguyen.**
+**Rebuild and understand the simple model before restoring complexity.**
 
 | Send this | Path | Why |
 |---|---|---|
 | **Primary (recommended)** | `dissertation.docx` (repo root) | Editable Word — Dr Nguyen can comment inline |
 | **Secondary (print/formal)** | `latex/main.pdf` | Fixed 96-page PDF, same LaTeX source |
 
-Before sending: skim acknowledgements, abstract, Table 5.3 (stats), Section 5.7 (ablation), Ch4 worked examples.
-
-After Dr Nguyen's feedback:
-- Optional: extend ablation from SPY pilot to full 70-ticker grid on Colab (~2–3 h per arm).
-- Re-open Cursor workspace from **`~/Documents/GitHub/uncertainty-aware-portfolio-drl`** (folder renamed).
+Immediate sequence:
+- Rehearse viva answers from `docs/nguyen_meeting_memo_jul30.md` §§1–3.
+- Bring to meeting: Algorithm 3.1 PNG, SL↔RL template PNG, CartPole curve, memo.
+- After meeting: real SPY minute data + PPO on Iteration-1 env (Phase 1 full).
 
 Parked (do not start without discussion):
 - Live broker integration of any kind (forbidden in this repo per `.cursor/rules/use-brain-box.mdc`).
