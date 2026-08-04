@@ -1,0 +1,100 @@
+\chapter{Empirical Results \& Analysis}
+\label{ch:results_simple}
+
+This chapter reports every experiment run to date on the simple-modelling track, in the order the methodology builds: Phase~0 validates the learning algorithms on games with known outcomes; Phase~1 applies the validated PPO loop to real SPY data under Iteration~1 (3-D state) and Iteration~2 (5-D state). All numbers below are produced by committed scripts and are reproducible from the repository; none are illustrative placeholders.
+
+\section{Experimental setup and evaluation metrics}
+\label{sec:setup_simple}
+
+\paragraph{Phase 0 (games).} Each algorithm trains under a fixed seed (42) with a fixed interaction budget (50{,}000 environment timesteps on CartPole; 150{,}000 on Flappy Bird and LunarLander; REINFORCE uses an equivalent episode budget), then is evaluated greedily over 30 fresh episodes. The metric is mean evaluation return.
+
+\paragraph{Phase 1 (trading).} SPY daily closes 2018--2024, split chronologically into 58 training months and 26 held-out test months (Nov 2022 -- Dec 2024). Starting cash $C_0 = \$10{,}000$, transaction cost $c = 5$ basis points, PPO budget 80{,}000 timesteps, seed 42. Metrics per test month: wealth change $\Delta W$ (dollars), trades per month, and the win rate against the strongest passive baseline. Two diagnostics accompany every run: the accounting identity (rewards must sum to the wealth change; tolerance $10^{-6}$) and the illegal-action request rate.
+
+\section{Phase 0: algorithm validation on games}
+\label{sec:phase0_results}
+
+Table~\ref{tab:phase0_results} reports mean evaluation return for all five algorithms on the three games. Figure~\ref{fig:phase0_curves} shows the CartPole learning curves.
+
+\begin{table}[h]
+\centering
+\caption{Phase 0 mean evaluation return (30 greedy episodes, seed 42). CartPole is solved at $\approx 475$; LunarLander at $\approx 200$. Tabular Q-learning is only defined on the hand-discretized CartPole.}
+\label{tab:phase0_results}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Algorithm} & \textbf{CartPole-v1} & \textbf{FlappyBird-v0} & \textbf{LunarLander-v3} \\
+\midrule
+Random                  & 28.8           & $-7.4$        & $-183.4$ \\
+Tabular Q-learning      & \textbf{500.0} & ---           & --- \\
+DQN                     & \textbf{500.0} & 7.0           & \textbf{177.6} \\
+REINFORCE (scratch)     & 292.2          & 7.1           & 15.3 \\
+A2C                     & \textbf{500.0} & 4.6           & $-41.2$ \\
+PPO                     & \textbf{500.0} & \textbf{12.6} & 176.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{phase0_cartpole_curves}
+  \caption{CartPole learning curves (25-episode moving average). All learning algorithms clear the random floor; A2C, PPO and DQN reach the 500-step cap within the 50k budget.}
+  \label{fig:phase0_curves}
+\end{figure}
+
+Three observations carry forward. First, every implementation clears its random floor on every game, which is the correctness evidence Phase~0 exists to provide. Second, the from-scratch REINFORCE learns on all three games but with visibly higher variance and a lower plateau --- the textbook motivation for actor--critic and clipped updates. Third, tabular Q-learning reaches 500 on CartPole \emph{only after} the continuous state is hand-binned into a $6{\times}6{\times}12{\times}12$ table; no such binning is available for a trading state with continuous cash and prices, which is why the trading experiments use policy-gradient methods with function approximation. On the harder games, PPO is the most consistent learner (best on Flappy Bird; within noise of DQN on LunarLander), supporting its selection for Phase~1.
+
+\section{Phase 1, Iteration 1: the 3-D state agent}
+\label{sec:phase1_iter1_results}
+
+Table~\ref{tab:phase1_iter1} compares PPO on \texttt{TradingEnv-v0} against four baselines with explicit objectives: B0 never trades; B1 buys a single share on the first bar and holds; B1b invests all available cash on the first bars and holds (the fair passive benchmark when $C_0 \gg P_t$); B2 selects uniformly among feasible actions.
+
+\begin{table}[h]
+\centering
+\caption{Iteration 1 on the 26 held-out SPY test months. $\Delta W$ in dollars; fee 5\,bps; PPO budget 80k steps.}
+\label{tab:phase1_iter1}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Method} & \textbf{Mean $\Delta W$} & \textbf{Std} & \textbf{Trades/mo} & \textbf{Win vs B1b} \\
+\midrule
+B0 do-nothing        & 0.00   & 0.00   & 0.0  & 31\% \\
+B1 buy-one-hold      & 7.97   & 16.67  & 1.0  & 31\% \\
+B1b buy-max-hold     & 76.91  & 178.68 & 19.1 & --- \\
+B2 random (masked)   & 14.14  & 32.93  & 12.8 & 31\% \\
+A1 PPO (3-D state)   & 76.91  & 178.68 & 19.1 & 0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The honest headline.} The trained PPO policy produced an action sequence \emph{identical to B1b on all 26 test months}: under the pure wealth-change reward with a 3-D state, the optimal learned behaviour is simply ``get fully invested and stay there.'' The agent's apparent +\$76.91 is therefore not evidence of skill beyond buy-and-hold --- and this equivalence would have been invisible had the comparison stopped at the one-share baseline B1, which PPO ``beats'' by construction. The accounting identity held exactly on every episode, and the deterministic policy requested an infeasible action on 3.9\% of steps (executed as Hold), indicating the constraints are mostly, but not perfectly, internalised.
+
+\section{Phase 1, Iteration 2: the 5-D state agent}
+\label{sec:phase1_iter2_results}
+
+Iteration 2 re-trains the identical PPO configuration on \texttt{TradingEnv-v1}, changing only the state vector (unrealized PnL, episode progress, and scaled balance-sheet features). Table~\ref{tab:phase1_iter2} reports the comparison.
+
+\begin{table}[h]
+\centering
+\caption{Iteration 2 versus Iteration 1 on the same 26 test months, same budget, fee and seed.}
+\label{tab:phase1_iter2}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Method} & \textbf{Mean $\Delta W$} & \textbf{Trades/mo} & \textbf{Months identical to B1b} \\
+\midrule
+A1 PPO, 3-D state (Iter.\,1) & 76.91 & 19.1 & 26 / 26 \\
+A2 PPO, 5-D state (Iter.\,2) & 0.00  & 0.0  & 0 / 26 \\
+B1b buy-max-hold             & 76.91 & 19.1 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The richer state \emph{did} break the buy-and-hold collapse --- the Iteration-2 policy matches B1b on zero months --- but it converged to the opposite corner: a cautious, mostly-flat policy. Inspection of the policy's action distribution over a representative test month shows a mean Hold probability of 0.66 (Buy 0.12, Sell 0.22), so the deterministic (argmax) evaluation never trades; sampling actions stochastically yields a small positive mean $\Delta W$ of +\$1.87. On month-by-month wealth the flat agent still beats the fully-invested benchmark in 8 of 26 months --- the months when SPY fell.
+
+\section{Analysis and key findings}
+\label{sec:analysis_simple}
+
+\paragraph{1. The reward, not the state, sets the incentive.} Under $r_t = \Delta W_t$ in a mostly-rising test window, full investment is near-optimal, and the 3-D agent found exactly that. Adding entry and time context (Iteration 2) did not create trading skill; it moved the policy along the exposure axis, from always-invested to almost-never-invested. Both extremes are rational responses to a risk-neutral reward estimated from noisy monthly episodes --- the training window (2018--2022) contains the COVID crash and the 2022 bear market, where staying flat avoids large negative rewards.
+
+\paragraph{2. Baseline design is a result in itself.} The single most informative row in this chapter is B1b. Without the fair fully-invested benchmark, Iteration 1 would have been reported as ``PPO beats buy-and-hold by 10$\times$'' (against B1); with it, the correct statement is ``PPO rediscovered buy-and-hold.''
+
+\paragraph{3. What Iteration 3 must change.} Because the state upgrade alone shifted exposure rather than timing, the next iteration targets the objective: a reward of the form $r_t = \Delta W_t - \lambda D_t$ (penalising drawdown $D_t$) gives the agent a reason to hold \emph{selectively} --- invested in calm regimes, flat in falling ones --- which neither extreme policy can satisfy. The masked-action rate (3.9\% in Iteration 1) and the accounting identity (exact in every run) carry forward unchanged as standing diagnostics.
+
+\paragraph{Scope.} These are single-seed results at a fixed budget, on monthly episodes of daily bars. Multi-seed confidence intervals, minute-bar episodes ($T{=}390$), and the drawdown-penalised reward are the planned extensions, in that order.

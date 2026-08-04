@@ -1,0 +1,88 @@
+\chapter{System Architecture \& Implementation}
+\label{ch:implementation_simple}
+
+This chapter describes how the mathematical model of Chapter~3 becomes running Python code. The implementation framework translates the Markov Decision Process (MDP) established in Chapter~3 into a modular execution system built on Gymnasium and PyTorch, separating market state handling, policy network evaluation, transaction verification, and performance evaluation. Everything in this chapter is verifiable in the public repository (\url{https://github.com/TheFinix13/dissertation-project}, branch \texttt{simple-modelling-iteration1}).
+
+\section{Overview of system design}
+\label{sec:system_overview_simple}
+
+Figure~\ref{fig:environment_cycle} shows the single loop everything else plugs into. The policy network $\pi_\theta(a\mid s)$ proposes a discrete action $a_t$; the trading environment (\texttt{TradingEnv}, a Gymnasium \texttt{gym.Env} subclass) executes the action against the market data stream, then returns the next state $s_{t+1}$ and the reward $R_t$. Training is nothing more than running this cycle many times and adjusting $\theta$ so actions that increased wealth become more probable.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{environment_cycle}
+  \caption{The environment cycle. The policy network exchanges actions for states and rewards with the Gymnasium trading environment, which wraps the market data stream.}
+  \label{fig:environment_cycle}
+\end{figure}
+
+\section{Environment engine (\texttt{TradingEnv})}
+\label{sec:env_engine_simple}
+
+The core environment subclasses \texttt{gym.Env} and handles market data loading, position state tracking, order execution checks, and state vector formulation. To handle experimental progression alongside Chapter~3, the codebase scales incrementally from the minimal baseline to further iterations.
+
+\subsection{Iteration 1 baseline engine (\texttt{TradingEnv-v0})}
+\label{sec:tradingenv_v0}
+
+The first engine (\texttt{experiments/iteration1/env.py}) works on a 3-dimensional state comprising the one-step price return, total liquid cash, and total shares held:
+\begin{equation}
+  s_t = \bigl[\, \Delta P_t,\; C_t,\; n_t \,\bigr]^\top .
+\end{equation}
+The action set is $\mathcal{A} = \{0:\text{Hold},\ 1:\text{Buy one share},\ 2:\text{Sell one share}\}$ with a feasibility mask (Section~\ref{sec:transition_mechanics}). Wealth is marked to market as $W_t = C_t + n_t P_t$ and the per-step reward is the wealth change $r_t = W_{t+1} - W_t$.
+
+\subsection{Iteration 2 extended engine (\texttt{TradingEnv-v1})}
+\label{sec:tradingenv_v1}
+
+The 3-D state gives the agent its balance sheet and one-minute momentum, but leaves three gaps. \textbf{Gap A (position value):} the network sees $C_t$ and $n_t$ but neural networks are poor at multiplying inputs on the fly, so it cannot judge the dollar exposure $n_t P_t$ against its cash. \textbf{Gap B (entry context):} once holding, the agent has amnesia about its purchase price, so it cannot distinguish locking in a profit from cutting a loss. \textbf{Gap C (time):} without knowing how far the episode has progressed, a Buy at the first bar looks identical to a Buy at the last bar.
+
+\texttt{TradingEnv-v1} (\texttt{experiments/iteration1/env\_v1.py}) closes the gaps with a scaled 5-dimensional state:
+\begin{equation}
+  s_t = \Bigl[\, \Delta P_t,\; \mathrm{PnL}_t,\; \tau_t,\; \tfrac{C_t}{C_0},\; \tfrac{n_t P_t}{C_0} \,\Bigr]^\top ,
+\end{equation}
+where $\mathrm{PnL}_t$ is the unrealized return of the open position against its average entry price (zero when flat), $\tau_t = t/T \in [0,1]$ is episode progress, and the last two entries express cash and position market value as fractions of starting capital $C_0$ so all features live on comparable scales. Actions, fees, masking and the reward are byte-identical to Iteration 1, so any performance difference between the two engines is attributable to the state representation alone.
+
+\section{State transition mechanics}
+\label{sec:transition_mechanics}
+
+When the agent issues action $a_t$, the environment performs the following checked transitions, with transaction cost rate $c = 0.0005$ (5 basis points):
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Buy} ($a_t{=}1$): valid if $C_t \geq P_t(1+c)$; then $C_{t+1} = C_t - P_t(1+c)$ and $n_{t+1} = n_t + 1$.
+  \item \textbf{Sell} ($a_t{=}2$): valid if $n_t \geq 1$; then $C_{t+1} = C_t + P_t(1-c)$ and $n_{t+1} = n_t - 1$. When $n$ returns to zero the entry-cost accumulator resets.
+  \item \textbf{Hold} ($a_t{=}0$): balances unchanged.
+\end{itemize}
+Infeasible requests are exposed to the agent through an action mask and, if requested anyway, are executed as Hold. The rate at which the trained policy requests infeasible actions is reported in Chapter~5 as a constraint-awareness diagnostic.
+
+\section{Algorithm implementations}
+\label{sec:algorithms_simple}
+
+Five algorithms are implemented, deliberately spanning the value-based and policy-based families so that the choice of policy-gradient methods for trading is evidenced rather than asserted.
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Tabular Q-learning} (\texttt{run\_cartpole\_qlearning.py}). The Bellman update $Q(s,a) \leftarrow Q(s,a) + \alpha\,[\,r + \gamma \max_{a'} Q(s',a') - Q(s,a)\,]$ applied to a lookup table. It requires hand-binning the continuous state ($6\times6\times12\times12$ bins for CartPole), which is precisely why the table cannot scale to trading states.
+  \item \textbf{DQN} (Stable-Baselines3). Replaces the table with a network $Q_\phi$ trained by mean-squared error to the Bellman target, with experience replay and a frozen target network.
+  \item \textbf{REINFORCE} --- implemented \emph{from scratch} in PyTorch (\texttt{experiments/phase0\_games/reinforce.py}), not through a library, so the update is fully auditable: the per-episode loss is $L(\theta) = -\sum_t \log \pi_\theta(a_t\mid s_t)\, G_t$ with discounted return $G_t$ normalised for variance reduction.
+  \item \textbf{A2C} (Stable-Baselines3). Actor--critic: the critic $V_\phi$ replaces the Monte-Carlo return with an advantage estimate, trading REINFORCE's variance for bias.
+  \item \textbf{PPO} (Stable-Baselines3). Clipped policy gradient, $\min(\rho_t A_t,\ \mathrm{clip}(\rho_t, 1\pm\epsilon) A_t)$ with $\epsilon = 0.2$, preventing any single update from destroying the policy. PPO is the algorithm carried forward into the trading experiments.
+\end{enumerate}
+
+\section{Phase 0: the game correctness sandbox}
+\label{sec:phase0_sandbox}
+
+A trading agent that loses money is ambiguous: the market may be unlearnable, or the code may be wrong. A game removes the ambiguity because the correct outcome is known. Phase 0 therefore validates every algorithm implementation on three Gymnasium games of increasing difficulty before any market data is touched:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{CartPole-v1}: 4-D continuous state, 2 discrete actions, $+1$ per step upright (cap 500, solved $\approx 475$). The basic sanity check.
+  \item \textbf{FlappyBird-v0}: 12-feature state, 2 actions, sparse pipe rewards --- a harder exploration problem.
+  \item \textbf{LunarLander-v3}: 8-D state, 4 discrete engine actions, shaped landing reward (solved $\approx 200$) --- the closest game analogue to managing a position with several discrete trade actions.
+\end{itemize}
+
+Each suite (\texttt{experiments/phase0\_games/}) runs Random, REINFORCE, A2C, PPO and DQN under one fixed seed and evaluation protocol (30 greedy episodes), writing per-episode learning curves and mean evaluation returns to JSON. Results appear in Chapter~5.
+
+\section{Data pipeline and episode construction}
+\label{sec:data_pipeline_simple}
+
+Market data is SPY daily adjusted close, 2018--2024, fetched once by \texttt{experiments/iteration1/fetch\_spy\_daily.py} and frozen to disk. One episode is one calendar month of daily closes ($T \approx 18$--$23$ steps). This is stated honestly: it is not the 390-minute intraday session of Chapter~3's idealised episode; the environment API is horizon-agnostic, so minute bars are a drop-in upgrade. Months are split chronologically --- the first 58 months train, the final 26 months (November 2022 -- December 2024) test --- and are never shuffled, so no future information leaks into training.
+
+\section{Testing and reproducibility}
+\label{sec:testing_simple}
+
+Three properties are enforced by unit tests (\texttt{experiments/iteration1/test\_env.py}) on both engines: (i) the \emph{accounting identity} --- summed per-step rewards must equal the total wealth change of the episode to within $10^{-6}$; (ii) \emph{mask correctness} --- Buy is masked without sufficient cash, Sell is masked without shares, and an illegal request executes as Hold; (iii) \emph{feature correctness} --- the v1 unrealized-PnL and episode-progress features take their analytically expected values on a hand-constructed price path. Every training run pins its seed, budget, fee and data split inside the emitted results JSON, and every chart is regenerated deterministically from those JSONs by scripts under \texttt{reports/builders/}.

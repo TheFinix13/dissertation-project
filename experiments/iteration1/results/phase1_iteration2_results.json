@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "env": "OneStockDiscreteEnvV1 (5-D scaled state: dP, PnL, tau, C/C0, nP/C0)",
+    "same_as_iteration1": "data split, fee, cash, timesteps, seed",
+    "n_test": 26,
+    "fee": 0.0005,
+    "initial_cash": 10000.0,
+    "ppo_timesteps": 80000,
+    "seed": 42,
+    "model": "experiments/iteration1/results/ppo_spy_daily_iter2.zip"
+  },
+  "summary": {
+    "A2_ppo_iter2_5d": {
+      "n_episodes": 26,
+      "mean_delta_w": 0.0,
+      "std_delta_w": 0.0,
+      "mean_trades": 0.0,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true
+    },
+    "B1b_buy_max_hold": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true
+    }
+  },
+  "behaviour": {
+    "months_identical_to_buy_max": 0,
+    "n_test_months": 26,
+    "win_months_vs_buy_max": 8
+  }
+}

@@ -1,0 +1,16 @@
+=== Random ===
+  eval mean: -183.4
+=== REINFORCE (scratch policy gradient) ===
+  eval mean: 15.3
+=== A2C (actor–critic) ===
+  eval mean: -41.2
+=== PPO ===
+  eval mean: 176.4
+=== DQN (value-based comparator) ===
+  eval mean: 177.6
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/phase0_games/results/lunarlander/suite_metrics.json
+  random        mean_eval=-183.4
+  reinforce     mean_eval=15.3
+  a2c           mean_eval=-41.2
+  ppo           mean_eval=176.4
+  dqn           mean_eval=177.6

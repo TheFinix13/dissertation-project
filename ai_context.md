@@ -1,5 +1,5 @@
 # ai_context.md · uncertainty-aware-portfolio-drl
-Last updated: 2026-07-30 (supervisor-directed simple-modelling reset underway.)
+Last updated: 2026-08-04 (simple-modelling track: Phase 0 multi-algo done, Iteration 2 run, Ch4/Ch5 drafted.)
 
 Read this first in a fresh chat. Strictly technical state summary for the
 EEEM004 dissertation implementation. Deeper history: `reports/PROJECT_STATUS.md`
@@ -91,6 +91,33 @@ and `docs/CHECKPOINT.md`.
   `reports/generated/charts/phase1_spy_daily_{delta_w,wealth_path}.png`.
   Runner: `experiments/iteration1/run_phase1_spy_daily.py`. Doer notes:
   `docs/going_beyond_recorder.md`.
+- **Phase 0 multi-algorithm games (NEW 2026-08-04).** Random / tabular
+  Q-learning / DQN / scratch-REINFORCE / A2C / PPO across three games,
+  seed 42, 30-episode greedy eval. CartPole: random **28.8**, REINFORCE
+  **292.2**, Q-table / DQN / A2C / PPO all **500** (Q-table needs
+  6×6×12×12 binning — the anti-scaling argument). Flappy: random
+  **−7.4**, PPO best **12.6**. LunarLander-v3 (150k steps): random
+  **−183.4**, REINFORCE 15.3, A2C −41.2, PPO **176.4**, DQN 177.6
+  (solved ≈ 200). Suites: `experiments/phase0_games/{suite,common,reinforce}.py`,
+  runners `run_{cartpole,flappy,lunarlander}_suite.py`,
+  `run_cartpole_qlearning.py`. Charts:
+  `reports/generated/charts/phase0_{cartpole,flappy,lunarlander}_{comparison,curves}.png`.
+  Viva doc: `docs/phase0_games_explained.md`.
+- **Phase 1 Iteration 2 (NEW 2026-08-04).** `env_v1.py` 5-D scaled state
+  $[\Delta P, \mathrm{PnL}, \tau, C/C_0, nP/C_0]$; same split/fee/budget/seed
+  as Iter 1. **Honest finding:** breaks the buy-max collapse (0/26 months
+  identical to B1b) but converges mostly-flat — deterministic ΔW **0.0**
+  (0 trades; mean Hold prob 0.66), stochastic ΔW **+$1.87**, beats B1b in
+  8/26 (falling) months. v1 accounting + feature unit tests pass.
+  Results: `experiments/iteration1/results/phase1_iteration2_results.json`.
+  Next lever per Ch5 analysis: reward $\Delta W - \lambda D_t$.
+- **Simple-modelling Ch4+Ch5 drafted (NEW 2026-08-04).** Standalone LaTeX
+  (does NOT touch the v0.17 build): `latex/simple_modelling/{main.tex,
+  ch4_implementation_simple.tex,ch5_results_simple.tex}` → `main.pdf`
+  (10 pp) + Word export `Chapter4-5_simple_modelling.docx`. All numbers
+  real (no placeholder metrics).
+- Branch `simple-modelling-iteration1` **pushed to origin** (visible on
+  GitHub since 2026-08-04).
 - Action plan + meeting memo: `docs/meeting_action_plan.md`,
   `docs/nguyen_meeting_memo_jul30.md` (Phase 0+1 numbers filled).
 - **Canonical dissertation = LaTeX in `latex/`.** PDF: `latex/main.pdf`. Word: `dissertation.docx` at repo root (rebuilt via `latex/build_docx.sh`). Title: *AI-Driven Portfolio Protection: Balancing Growth and Limiting Large Losses Using Confidence Signals*. Author: Fiyinfoluwa Akano, URN 6962514. Ch 2 literature rebuild (71 bib entries, critical-comparison table Section 2.6.1, three-role
@@ -143,7 +170,7 @@ and `docs/CHECKPOINT.md`.
 | Phase-2 results (committed) | `experiments/results/per_cell/*.json` (2,749 cells incl. ablation v0.17), `experiments/results/wf_curves/*.csv` |
 | Stats outputs (NEW v0.17) | `reports/generated/stats/phase2_statistical_tests.{json,md}`, `reports/generated/stats/forecaster_calibration_metrics.json`, `reports/generated/stats/spy_phase2_case_study.{json,md}`, `reports/generated/stats/spy_ablation_stats.json` |
 | Chart suite | `reports/generated/charts/*.{png,pdf}` (10 charts dual-emit v0.17), `reports/builders/plot_phase2_charts.py`, `reports/builders/build_forecaster_calibration.py`, `reports/builders/gen_spy_repr_curve.py` |
-| Simple-modelling track | branch `simple-modelling-iteration1`; `experiments/{phase0_cartpole,iteration1}/**`; `docs/{tutor_sl_to_rl_training_loop,iteration1_experiment_plan,nguyen_meeting_memo_jul30,going_beyond_recorder}.md`; `latex/tikz/algorithm3_1_*`, `rl_training_loop_template_*` |
+| Simple-modelling track | branch `simple-modelling-iteration1` (on origin); `experiments/{phase0_cartpole,phase0_games,iteration1}/**`; `docs/{tutor_sl_to_rl_training_loop,iteration1_experiment_plan,nguyen_meeting_memo_jul30,going_beyond_recorder,phase0_games_explained}.md`; `latex/simple_modelling/**` (Ch4+Ch5 standalone); `latex/tikz/algorithm3_1_*`, `rl_training_loop_template_*`, `environment_cycle_word.png` |
 | Cursor rules | `.cursor/rules/{use-brain-box,academic-writing,cross-pollination,ai-context-routine}.mdc` |
 | Brain Box primary nodes | `~/Documents/GitHub/brain-box/school/surrey-msc-ai/dissertation-eeem004.md`, `~/Documents/GitHub/brain-box/life/finance-research/uncertainty-aware-portfolio-drl.md` |
 
@@ -157,12 +184,12 @@ and `docs/CHECKPOINT.md`.
 | **Secondary (print/formal)** | `latex/main.pdf` | Fixed 96-page PDF, same LaTeX source |
 
 Immediate sequence:
-- Bring to meeting: memo (§§1–4), Alg 3.1 PNG, SL↔RL template, CartPole
-  curve, Phase-1 ΔW bar chart — lead with the **PPO=B1b collapse** finding.
-- Ask Nguyen: next lever = drawdown/turnover penalty vs richer state vs
-  minute bars ($T=390$).
-- Optional doer extras before/after meeting: scratch REINFORCE, fee grid,
-  one SPY minute-day episode.
+- Bring to meeting: Ch4/Ch5 draft (`latex/simple_modelling/main.pdf` or
+  `Chapter4-5_simple_modelling.docx`), Phase-0 game table, Iteration-1 vs
+  Iteration-2 story (buy-max collapse → mostly-flat collapse).
+- Ask Nguyen: Iteration 3 = drawdown-penalised reward $\Delta W-\lambda D_t$
+  (Ch5 analysis argues state alone only moves exposure, not timing).
+- Then: multi-seed CIs, fee grid, one SPY minute-day ($T=390$) episode.
 
 Parked (do not start without discussion):
 - Live broker integration of any kind (forbidden in this repo per `.cursor/rules/use-brain-box.mdc`).
