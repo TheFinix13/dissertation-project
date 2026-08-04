@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "ticker": "SPY",
+    "bar": "daily",
+    "episode_def": "one calendar month of daily closes",
+    "note": "T \u2248 18\u201323, not 390. Minute-bar episodes are a later upgrade.",
+    "n_train": 58,
+    "n_test": 26,
+    "test_ids": [
+      "2022-11",
+      "2022-12",
+      "2023-01",
+      "2023-02",
+      "2023-03",
+      "2023-04",
+      "2023-05",
+      "2023-06",
+      "2023-07",
+      "2023-08",
+      "2023-09",
+      "2023-10",
+      "2023-11",
+      "2023-12",
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12"
+    ],
+    "fee": 0.0005,
+    "initial_cash": 10000.0,
+    "ppo_timesteps": 80000,
+    "model": "experiments/iteration1/results/ppo_spy_daily.zip"
+  },
+  "summary": {
+    "B0_do_nothing": {
+      "n_episodes": 26,
+      "mean_delta_w": 0.0,
+      "std_delta_w": 0.0,
+      "mean_trades": 0.0,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1_one": 0.3076923076923077,
+      "win_rate_vs_B1b_max": 0.3076923076923077
+    },
+    "B1_buy_one_hold": {
+      "n_episodes": 26,
+      "mean_delta_w": 7.968349466764266,
+      "std_delta_w": 16.672977086400607,
+      "mean_trades": 1.0,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1_one": 0.0,
+      "win_rate_vs_B1b_max": 0.3076923076923077
+    },
+    "B1b_buy_max_hold": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1_one": 0.6923076923076923,
+      "win_rate_vs_B1b_max": 0.0
+    },
+    "B2_random": {
+      "n_episodes": 26,
+      "mean_delta_w": 14.136048406161045,
+      "std_delta_w": 32.92956911364281,
+      "mean_trades": 12.846153846153847,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1_one": 0.5384615384615384,
+      "win_rate_vs_B1b_max": 0.3076923076923077
+    },
+    "A1_ppo": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1_one": 0.6923076923076923,
+      "win_rate_vs_B1b_max": 0.0
+    }
+  },
+  "doer_extras": {
+    "ppo_illegal_action_request_rate": 0.03868471953578337,
+    "ppo_illegal_requests": 20,
+    "ppo_total_eval_steps": 517,
+    "interpretation": "Fraction of deterministic PPO actions that were infeasible under cash/share constraints (env then forces Hold).",
+    "ppo_equals_b1b_buy_max_hold": true,
+    "ppo_action_identity_check": "26/26 test months identical to B1b buy-max",
+    "honest_finding": "On this daily-month SPY setup with one-share discrete actions, deterministic PPO collapsed to the fully-invested buy-and-hold policy (B1b). That is not a failure of the experiment \u2014 it is the result: without a richer state or a different objective, the learned policy is economically identical to buying max shares."
+  }
+}

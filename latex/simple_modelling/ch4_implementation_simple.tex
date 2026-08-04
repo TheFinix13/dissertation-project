@@ -1,0 +1,106 @@
+\chapter{System Architecture \& Implementation}
+\label{ch:implementation_simple}
+
+This chapter describes how the mathematical model of Chapter~3 becomes running Python code. The implementation translates the Markov Decision Process (MDP) into a modular execution system built on Gymnasium and PyTorch, separating market state handling, policy evaluation, transaction verification, and performance evaluation. Everything here is verifiable on the public orphan branch \texttt{simple-modelling-clean} of \url{https://github.com/TheFinix13/dissertation-project}.
+
+\section{Overview of system design}
+\label{sec:system_overview_simple}
+
+Figure~\ref{fig:environment_cycle} shows the single loop everything else plugs into. The policy network $\pi_\theta(a\mid s)$ proposes a discrete action $a_t$; the trading environment (a Gymnasium \texttt{gym.Env} subclass) executes the action against the market data stream and returns the next state $s_{t+1}$ and reward $R_t$. Training is running this cycle many times and adjusting $\theta$ so actions that increased wealth become more probable.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.88\textwidth]{environment_cycle}
+  \caption{Environment cycle: the policy network exchanges actions for states and rewards with the Gymnasium trading environment wrapping the market data stream.}
+  \label{fig:environment_cycle}
+\end{figure}
+
+Figure~\ref{fig:actor_critic} places the same loop in the actor--critic architecture used by A2C and PPO: a shared observation feeds a policy head (actor) and a value head (critic). The actor proposes $a_t$; the critic estimates $V(s_t)$ so the policy update can be written as an advantage rather than a raw Monte-Carlo return.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{actor_critic_architecture}
+  \caption{Actor--critic architecture used by A2C and PPO. The actor is the trading policy; the critic supplies the baseline for the advantage estimate.}
+  \label{fig:actor_critic}
+\end{figure}
+
+\section{Environment engine (\texttt{TradingEnv})}
+\label{sec:env_engine_simple}
+
+The core environment subclasses \texttt{gym.Env} and handles market data loading, position tracking, order checks, and state formulation. Experimental progression scales incrementally from the Iteration~1 baseline to Iteration~2.
+
+\subsection{Iteration 1 baseline engine (\texttt{TradingEnv-v0})}
+\label{sec:tradingenv_v0}
+
+Implemented in \texttt{experiments/iteration1/env.py}. State:
+\begin{equation}
+  s_t = \bigl[\, \Delta P_t,\; C_t,\; n_t \,\bigr]^\top .
+\end{equation}
+Action set $\mathcal{A} = \{0:\text{Hold},\ 1:\text{Buy one},\ 2:\text{Sell one}\}$ with a feasibility mask. Wealth $W_t = C_t + n_t P_t$; reward $r_t = W_{t+1} - W_t$.
+
+\subsection{Iteration 2 extended engine (\texttt{TradingEnv-v1})}
+\label{sec:tradingenv_v1}
+
+The 3-D state leaves three gaps identified in the Iteration-2 methodology notes: (A)~the network cannot multiply $n_t{\times}P_t$ on the fly to judge dollar exposure; (B)~once holding, there is no memory of the purchase price; (C)~without episode progress, a Buy at bar~1 looks identical to a Buy at bar~$T$.
+
+\texttt{TradingEnv-v1} (\texttt{experiments/iteration1/env\_v1.py}) closes the gaps with a scaled 5-D state:
+\begin{equation}
+  s_t = \Bigl[\, \Delta P_t,\; \mathrm{PnL}_t,\; \tau_t,\; \tfrac{C_t}{C_0},\; \tfrac{n_t P_t}{C_0} \,\Bigr]^\top ,
+\end{equation}
+where $\mathrm{PnL}_t$ is unrealized return vs average entry price (zero when flat) and $\tau_t = t/T \in [0,1]$. Actions, fees, masking and reward are identical to Iteration~1, so performance differences are attributable to the state alone.
+
+\section{State transition mechanics}
+\label{sec:transition_mechanics}
+
+With transaction cost $c = 0.0005$ (5\,bps):
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Buy} ($a_t{=}1$): valid if $C_t \geq P_t(1+c)$; then $C \leftarrow C - P(1+c)$, $n \leftarrow n+1$.
+  \item \textbf{Sell} ($a_t{=}2$): valid if $n \geq 1$; then $C \leftarrow C + P(1-c)$, $n \leftarrow n-1$; entry-cost reset when flat.
+  \item \textbf{Hold} ($a_t{=}0$): balances unchanged.
+\end{itemize}
+Infeasible requests are masked and, if issued anyway, executed as Hold. The rate of illegal requests after training is reported in Chapter~5 as a constraint-awareness diagnostic.
+
+\section{Algorithm implementations}
+\label{sec:algorithms_simple}
+
+Five algorithms span value-based and policy-based families so that the choice of policy-gradient methods for trading is evidenced, not asserted.
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Tabular Q-learning} (\texttt{run\_cartpole\_qlearning.py}). Bellman update on a lookup table after hand-binning CartPole ($6{\times}6{\times}12{\times}12$). Demonstrates why tables cannot scale to continuous trading states.
+  \item \textbf{DQN} (Stable-Baselines3). Network $Q_\phi$ trained by MSE to the Bellman target with replay and a frozen target net.
+  \item \textbf{REINFORCE} --- from scratch in PyTorch (\texttt{experiments/phase0\_games/reinforce.py}): $L(\theta)=-\sum_t \log\pi_\theta(a_t\mid s_t)\,G_t$. Auditable; not an API black box.
+  \item \textbf{A2C} (Stable-Baselines3). Actor--critic advantage replaces the Monte-Carlo return.
+  \item \textbf{PPO} (Stable-Baselines3). Clipped ratio $\min(\rho_t A_t,\ \mathrm{clip}(\rho_t,1\pm\epsilon)A_t)$ with $\epsilon{=}0.2$. Carried into trading.
+\end{enumerate}
+
+Figure~\ref{fig:rl_template} places the supervised training template next to the PPO update so the viva mapping (predict $\to$ score $\to$ backward $\to$ step) is explicit.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.95\textwidth]{rl_training_loop_template_word}
+  \caption{Supervised loss board (left) mapped onto the PPO policy / value loop (right).}
+  \label{fig:rl_template}
+\end{figure}
+
+\section{Phase 0: game correctness sandbox}
+\label{sec:phase0_sandbox}
+
+A trading agent that loses money is ambiguous: the market may be unlearnable, or the code may be wrong. Games remove the ambiguity because the correct outcome is known. Phase~0 validates every algorithm on three Gymnasium environments of increasing difficulty before any market data is used:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{CartPole-v1}: 4-D state, 2 actions, $+1$/step upright (cap 500; solved $\approx 475$).
+  \item \textbf{FlappyBird-v0}: 12-feature state, 2 actions, sparse pipe rewards.
+  \item \textbf{LunarLander-v3}: 8-D state, 4 discrete engines, shaped landing reward (solved $\approx 200$).
+\end{itemize}
+
+Suites live under \texttt{experiments/phase0\_games/}. Results are in Chapter~5.
+
+\section{Data pipeline and episode construction}
+\label{sec:data_pipeline_simple}
+
+Market data is SPY daily adjusted close, 2018--2024, fetched by \texttt{fetch\_spy\_daily.py} and frozen on disk. One episode $=$ one calendar month of daily closes ($T \approx 18$--$23$). This is stated honestly: it is not the 390-minute intraday session of the idealised Chapter~3 episode; the environment API is horizon-agnostic, so minute bars are a drop-in upgrade. Months split chronologically --- 58 train, 26 test (Nov 2022 -- Dec 2024) --- and are never shuffled.
+
+\section{Testing and reproducibility}
+\label{sec:testing_simple}
+
+Unit tests (\texttt{experiments/iteration1/test\_env.py}) enforce on both engines: (i)~accounting identity --- summed rewards equal total $\Delta W$ within $10^{-6}$; (ii)~mask correctness --- Buy/Sell illegality and forced Hold; (iii)~v1 feature correctness --- analytic $\mathrm{PnL}$ and $\tau$ on a hand-built price path. Every training run pins seed, budget, fee and split inside its results JSON; charts regenerate from those JSONs via \texttt{reports/builders/}.

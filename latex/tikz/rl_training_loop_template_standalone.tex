@@ -1,0 +1,84 @@
+% Standalone — RL training loop in Nguyen's supervised-learning board style
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{fancyvrb}
+
+\pagestyle{empty}
+\begin{document}
+
+\section*{From supervised learning to our RL training loop}
+\noindent\small
+Dr Nguyen's board shows classification as four beats:
+\textbf{predict $\rightarrow$ score $\rightarrow$ differentiate $\rightarrow$ update}.
+The same beats appear in our trading agent; only the data and the score change.
+
+\vspace{0.55em}
+\noindent\textbf{Supervised objective (his board)}
+\[
+\min_{\theta}\frac{1}{N}\sum_{n=1}^{N}\ell\bigl(f(x_n;\theta),y_n\bigr)
+\]
+
+\noindent\textbf{RL objective (Iteration~1 trading)}
+\[
+\max_{\theta}\frac{1}{K}\sum_{k=1}^{K}\sum_{t=0}^{T-1}\gamma^{t}r_t^{(k)}
+\qquad\text{with}\quad
+a_t\sim\pi_\theta(a_t\mid s_t),\quad
+r_t=W_{t+1}-W_t,\quad
+W_t=C_t+n_tP_t.
+\]
+
+\vspace{0.35em}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\centering\textbf{His board (classification)}\par\vspace{0.3em}
+\begin{Verbatim}[fontsize=\scriptsize,frame=single,framesep=4pt]
+net = ResNet18()
+opt = Adam(...)
+
+# data (x, y) fixed
+preds = net(x)           # f(x; theta)
+loss  = MSE(preds, y)/N
+
+opt.zero_grad()
+loss.backward()          # grad loss
+opt.step()               # theta <- theta - a*grad
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering\textbf{Ours (trading / PPO)}\par\vspace{0.3em}
+\begin{Verbatim}[fontsize=\scriptsize,frame=single,framesep=4pt]
+policy = PolicyNet()     # pi_theta
+critic = ValueNet()      # V_phi
+opt_pi, opt_V = Adam(), Adam()
+
+# data created by acting
+B = ROLLOUT(prices, pi)
+A = advantages(B, V)
+L_pi = - PPO_CLIP(pi, B, A)
+L_V  = MSE(V(s), returns)
+
+opt_pi.zero_grad(); L_pi.backward(); opt_pi.step()
+opt_V.zero_grad();  L_V.backward();  opt_V.step()
+\end{Verbatim}
+\end{minipage}
+
+\vspace{0.7em}
+\noindent\textbf{Key translation}
+\begin{itemize}\setlength\itemsep{0.12em}
+  \item Fixed labels \(y_n\) become rewards \(r_t\) collected online.
+  \item One loss \(\ell\) becomes policy objective \(L^{\mathrm{CLIP}}\) plus value loss \(L^{V}\).
+  \item Minimise prediction error becomes maximise expected wealth change (via PPO).
+  \item Dataset independent of \(\theta\) becomes trajectories that depend on \(\pi_\theta\).
+\end{itemize}
+
+\vspace{0.25em}
+\noindent\footnotesize
+\textit{Use with Algorithm~3.1.} Algorithm~3.1 is the full day-loop.
+This figure is the compact ``how to get the policy'' template under
+\textbf{Objective function $\rightarrow$ How to get policy}.
+
+\end{document}

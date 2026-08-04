@@ -1,0 +1,55 @@
+# Python
+venv/
+.venv/
+.venv311/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+
+# Secrets / local env
+.env
+.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Word lock files (do NOT ignore the actual artifacts)
+~$*.docx
+~$*.doc
+
+# Matplotlib cache
+.mplconfig/
+
+# Trained model snapshots
+trained_models/
+
+# LaTeX build artifacts (everything except the source)
+latex/*.aux
+latex/*.bbl
+latex/*.bcf
+latex/*.blg
+latex/*.fdb_latexmk
+latex/*.fls
+latex/*.lof
+latex/*.log
+latex/*.lot
+latex/*.out
+latex/*.run.xml
+latex/*.synctex.gz
+latex/*.toc
+latex/main.pdf
+latex/main.docx
+latex/chapters/*.aux
+latex/simple_modelling/*.aux
+latex/simple_modelling/*.log
+latex/simple_modelling/*.out
+latex/simple_modelling/*.toc
+latex/tikz/*.aux
+latex/tikz/*.log
+texput.log
+
+# Generated Word build (reproducible via latex/build_docx.sh)
+/dissertation.docx
+latex/_docx_build/
