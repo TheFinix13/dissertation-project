@@ -188,9 +188,11 @@ upgrade after the reward iteration.
 | Thing | Path |
 |---|---|
 | This explanation | `docs/EXPLAIN_THE_EXPERIMENTS.md` |
+| **Pseudocode (show this first)** | `docs/phase0_pseudocode.md` + Word PNG `latex/tikz/phase0_pseudocode_word.png` |
 | CartPole one-pager | `docs/phase0_cartpole_explained.md` |
 | Games + algorithms | `docs/phase0_games_explained.md` |
 | Meeting memo | `docs/nguyen_meeting_memo_jul30.md` |
+| Scratch REINFORCE code | `experiments/phase0_games/reinforce.py` |
 | Ch4 / Ch5 drafts | `latex/simple_modelling/Chapter_4_Implementation.docx`, `Chapter_5_Empirical_Results.docx` |
 | CartPole chart | `reports/generated/charts/phase0_cartpole_comparison.png` |
 | Trading chart | `reports/generated/charts/phase1_spy_daily_delta_w.png` |
