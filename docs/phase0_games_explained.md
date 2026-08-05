@@ -1,5 +1,7 @@
 # Phase 0 games explained — viva-ready notes
-Last updated: 2026-08-04 · branch `simple-modelling-iteration1`
+Last updated: 2026-08-05 · branch `simple-modelling-clean`
+
+Full plain-English walkthrough: `docs/EXPLAIN_THE_EXPERIMENTS.md`.
 
 Why games before trading (Nguyen, Recording 47): a game has a **known correct
 outcome**, so if the RL loop fails we know the *code* is wrong, not the market.
