@@ -1,0 +1,34 @@
+data: train=60 val=12 test=24 months (2018-01..2025-12)
+
+admissibility guard: S3 x risk-aware rejected = True
+
+stage 2: test split (24 months), 80,000 steps, seeds [42, 43, 44, 45, 46, 47], lambda = 0.1
+
+  S4_risk  (10-D, reward=risk_aware, actions=slice)
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027
+      B1b_true_bah     dW= +180.25  trades=  2.0  expo=0.91  ddI=0.031
+      B2_random        dW=  +22.73  trades= 13.3  expo=0.30  ddI=0.013
+    reinforce
+      seed 42: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (10.5s)
+      seed 43: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.9s)
+      seed 44: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.8s)
+      seed 45: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.8s)
+      seed 46: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.8s)
+      seed 47: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.8s)
+    dqn
+      seed 42: dW=  +65.85  trades=  4.1  expo=0.14  ddI=0.008  cond=state  (32.2s)
+      seed 43: dW=  +38.80  trades=  3.5  expo=0.09  ddI=0.005  cond=state  (32.3s)
+      seed 44: dW=  +78.31  trades=  7.4  expo=0.40  ddI=0.014  cond=state  (31.8s)
+      seed 45: dW=  +35.20  trades=  9.7  expo=0.19  ddI=0.010  cond=state  (31.6s)
+      seed 46: dW=  +54.17  trades=  5.0  expo=0.20  ddI=0.009  cond=state  (31.6s)
+      seed 47: dW=  +45.08  trades=  2.9  expo=0.05  ddI=0.002  cond=state  (31.7s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.0s)
+      seed 43: dW= +128.90  trades=  4.0  expo=0.65  ddI=0.022  cond=state  (20.1s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.2s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.2s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.4s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.4s)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/final_results_risk.json

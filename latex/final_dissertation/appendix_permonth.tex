@@ -1,49 +1,58 @@
 \chapter{Per-Month Test Results}
 \label{app:permonth}
 
-Wealth change $\Delta W$ in dollars for every held-out test month and
-every method (seed 42; $C_0 = \$10{,}000$; fee 5 bps). Generated
-directly from \texttt{full\_ablation\_results.json}; B0 do-nothing is
-identically zero and omitted. Months where REINFORCE equals
-buy-and-hold to the cent reflect identical executed action sequences.
+Wealth change $\Delta W$ in dollars for every held-out test month, at
+seed 42, with $C_0 = \$10{,}000$ and a 5-basis-point fee. The
+learned columns use the nine-feature state and the wealth-change reward
+except the final one, which uses the risk-aware reward at
+$\lambda = 0.10$ (Section~\ref{sec:res_risk}). B0 do-nothing is
+identically zero and is omitted.
+
+Two patterns are visible by inspection and are discussed in
+Section~\ref{sec:res_final}. Months where REINFORCE equals the slice
+schedule to the cent are months in which it executed an identical
+action sequence, which is what a mask-determined policy does. And every
+column beats buy-and-hold in the same months, namely the months in which
+the market fell, because holding less is what they all have in common.
+
+This table is generated from the committed results files by
+\texttt{make\_tables.py} rather than transcribed.
 
 \begin{table}[h]
 \centering
-\caption{Per-month $\Delta W$ (\$) on the 26 held-out test months.}
+\caption{Per-month $\Delta W$ (\$) on the 24 held-out test months.}
 \label{tab:permonth}
 \small
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-\textbf{Month} & \textbf{B1b buy\&hold} & \textbf{REINFORCE} & \textbf{Deep Q} & \textbf{PPO} & \textbf{Random} \\
+\textbf{Month} & \textbf{B1b buy\&hold} & \textbf{B1a slice sched.} & \textbf{REINFORCE} & \textbf{Deep Q} & \textbf{PPO} & \textbf{Deep Q (risk)} & \textbf{Random} \\
 \midrule
-2022-11 & 636.79 & 636.79 & 645.75 & 243.35 & 233.11 \\
-2022-12 & -381.15 & -381.15 & -299.17 & -154.18 & 26.35 \\
-2023-01 & 417.34 & 417.34 & 425.28 & 194.82 & 83.54 \\
-2023-02 & -382.32 & -382.32 & -230.41 & -126.52 & -59.94 \\
-2023-03 & 388.38 & 388.38 & 301.21 & 87.75 & 200.79 \\
-2023-04 & 125.73 & 125.73 & 116.98 & 47.27 & -34.12 \\
-2023-05 & 151.10 & 151.10 & 123.44 & 43.74 & 46.37 \\
-2023-06 & 342.53 & 342.53 & 319.81 & 133.13 & 157.41 \\
-2023-07 & 294.37 & 294.37 & 267.37 & 102.76 & 3.13 \\
-2023-08 & 26.90 & 26.90 & -80.74 & -12.57 & 22.29 \\
-2023-09 & -419.31 & -419.31 & -286.25 & -135.77 & -72.98 \\
-2023-10 & -273.74 & -273.74 & -198.85 & -47.53 & 3.10 \\
-2023-11 & 456.48 & 456.48 & 422.93 & 186.11 & 66.66 \\
-2023-12 & 333.98 & 333.98 & 313.55 & 126.57 & 47.29 \\
-2024-01 & 200.01 & 200.01 & 170.11 & 82.00 & 66.03 \\
-2024-02 & 231.14 & 231.14 & 193.81 & 94.80 & 8.43 \\
-2024-03 & 222.86 & 222.86 & 189.73 & 78.75 & 118.77 \\
-2024-04 & -305.31 & -305.31 & -308.99 & -107.59 & -101.08 \\
-2024-05 & 226.38 & 226.38 & 211.84 & 126.56 & 61.49 \\
-2024-06 & 179.23 & 179.23 & 163.28 & 85.78 & 33.37 \\
-2024-07 & -86.15 & -86.15 & -112.32 & 9.12 & -28.66 \\
-2024-08 & 594.48 & 594.48 & 537.46 & 182.13 & 5.01 \\
-2024-09 & 404.85 & 404.85 & 386.29 & 131.06 & 69.32 \\
-2024-10 & -96.25 & -96.25 & -73.17 & -1.91 & -54.59 \\
-2024-11 & 225.92 & 225.92 & 233.51 & 154.31 & 100.80 \\
-2024-12 & -259.37 & -259.37 & -228.47 & -76.61 & -14.65 \\
+2024-01 & 206.23 & 282.35 & 282.35 & 120.09 & 0.00 & 0.00 & 229.59 \\
+2024-02 & 375.56 & 305.79 & 305.79 & 56.17 & 0.00 & 0.00 & -72.42 \\
+2024-03 & 220.74 & 267.59 & 267.59 & 48.81 & 0.00 & 0.00 & 173.81 \\
+2024-04 & -396.08 & -325.47 & -325.47 & -81.08 & 0.00 & 0.00 & -93.26 \\
+2024-05 & 529.49 & 366.11 & 366.11 & 345.48 & 0.00 & 215.50 & 197.28 \\
+2024-06 & 334.03 & 264.80 & 264.80 & 200.78 & 0.00 & 0.00 & 45.19 \\
+2024-07 & 90.21 & 3.05 & 3.05 & 50.76 & 0.00 & 0.00 & 55.74 \\
+2024-08 & 370.28 & 651.47 & 651.47 & 552.59 & 0.00 & 339.72 & 144.05 \\
+2024-09 & 414.15 & 487.66 & 487.66 & 289.70 & 0.00 & 189.46 & 32.47 \\
+2024-10 & -9.64 & -26.18 & -26.18 & 145.85 & 0.00 & 0.00 & -29.48 \\
+2024-11 & 541.25 & 431.90 & 431.90 & 126.95 & 0.00 & 325.13 & 112.05 \\
+2024-12 & -267.80 & -297.22 & -297.22 & -6.93 & 0.00 & 0.00 & -114.59 \\
+2025-01 & 283.57 & 188.10 & 188.10 & 32.85 & 0.00 & -64.04 & 96.06 \\
+2025-02 & -69.99 & -148.04 & -148.04 & 36.74 & 0.00 & 80.04 & -277.80 \\
+2025-03 & -398.41 & -320.38 & -320.38 & -136.58 & 0.00 & -143.50 & -361.54 \\
+2025-04 & -124.50 & 243.72 & 243.72 & 61.66 & 0.00 & 281.59 & -185.72 \\
+2025-05 & 543.11 & 479.42 & 479.42 & 419.72 & 0.00 & 0.00 & 488.82 \\
+2025-06 & 444.52 & 414.11 & 414.11 & 16.10 & 0.00 & 0.00 & 128.87 \\
+2025-07 & 223.40 & 167.96 & 167.96 & 62.20 & 0.00 & 0.00 & 54.81 \\
+2025-08 & 364.88 & 255.00 & 255.00 & 158.01 & 0.00 & 193.74 & 108.11 \\
+2025-09 & 423.09 & 345.46 & 345.46 & 170.10 & 0.00 & 162.72 & 152.98 \\
+2025-10 & 193.41 & 175.59 & 175.59 & -126.71 & 0.00 & 0.00 & -124.94 \\
+2025-11 & -9.26 & 90.48 & 90.48 & -152.98 & 0.00 & 0.00 & -199.47 \\
+2025-12 & 43.83 & 10.78 & 10.78 & -25.71 & 0.00 & 0.00 & -15.15 \\
 \midrule
-\textbf{Mean} & 125.19 & 125.19 & 123.23 & 55.67 & 37.97 \\
+\textbf{Mean} & \textbf{180.25} & \textbf{179.75} & \textbf{179.75} & \textbf{98.52} & \textbf{0.00} & \textbf{65.85} & \textbf{22.73} \\
 \bottomrule
 \end{tabular}
 \end{table}

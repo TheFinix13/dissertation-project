@@ -300,18 +300,20 @@ this project's design guards against explicitly:
   \item \textbf{Weak baselines.} Much published work beats only strawman
         alternatives. The baseline that matters is buy-and-hold,
         \emph{properly capitalised} --- deploying the same capital the
-        agent may deploy. Section~\ref{sec:res_pilot} shows a live
-        example where an unfair baseline would have converted a null
-        result into a spurious ten-fold victory.
+        agent may deploy. Section~\ref{sec:defects} reports a live example
+        from this project's own earlier code, where a baseline named
+        buy-and-hold in fact deployed capital a tenth at a time and so
+        understated the benchmark it stood for.
   \item \textbf{Look-ahead leakage.} Shuffling time-series data before
         splitting lets fragments of the future into training. All splits
         in this project are strictly chronological
         (Figure~\ref{fig:split}).
   \item \textbf{Ignored transaction costs.} Costless backtests reward
         hyperactive trading that fees would destroy. Here, fees live
-        \emph{inside} the reward, so the agent pays them during learning
-        --- and Section~\ref{sec:res_fees} shows the value-based agent
-        measurably adapting its behaviour to them.
+        \emph{inside} the reward, so the agent pays them during learning,
+        and Section~\ref{sec:res_fees} sweeps the assumed cost to test
+        whether the agent's behaviour, not merely its profit, responds to
+        it.
   \item \textbf{Backtest overfitting.} Repeatedly tuning on the same
         held-out period converts test data into training data
         \cite{bailey2014}. Our defence is procedural: fixed budgets and

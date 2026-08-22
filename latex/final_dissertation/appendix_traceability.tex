@@ -64,14 +64,16 @@ TD target
 \addlinespace
 Replay buffer, target sync, $\varepsilon$-greedy anneal
  (Sec.~\ref{sec:dqn})
- & \texttt{dqn\_trading.py}: \texttt{deque(50k)}, sync every 500
+ & \texttt{agents.py}: \texttt{deque(50k)}, sync every 500
    steps, linear $\varepsilon\!: 1.0 \to 0.05$
- & training curves stabilise (Fig.~\ref{fig:res_curves}) \\
+ & next-state mask stored in the buffer, so the target maximises over
+   legal actions only \\
 \addlinespace
 PPO clipped surrogate, Eq.~(\ref{eq:ppo_clip})
- & Stable-Baselines3 \texttt{PPO} (reference implementation)
- & benchmarked library; protocol asymmetry documented in
-   Sec.~\ref{sec:impl_ppo} \\
+ & \texttt{sb3-contrib} \texttt{MaskablePPO} (reference implementation)
+ & benchmarked library, masked through the same
+   \texttt{action\_masks()} call as the from-scratch methods
+   (Sec.~\ref{sec:impl_ppo}) \\
 \addlinespace
 Chronological split, no shuffling (Sec.~\ref{sec:protocol})
  & \texttt{fetch\_spy\_daily.py}: month grouping, 70/30 cut in time

@@ -1,0 +1,96 @@
+data: train=60 val=12 test=24 months (2018-01..2025-12)
+
+fee sensitivity on validation (12 months), 80,000 steps, seeds [42, 43, 44, 45, 46, 47]
+
+  fee = 0 bps
+      B1b_true_bah     dW= +177.09
+    reinforce
+      seed 42: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (10.1s)
+      seed 43: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.8s)
+      seed 44: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.8s)
+      seed 45: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.7s)
+      seed 46: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.7s)
+      seed 47: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.9s)
+    dqn
+      seed 42: dW=  +87.91  trades= 15.2  expo=0.46  ddI=0.014  cond=state  (31.7s)
+      seed 43: dW= +129.08  trades= 13.3  expo=0.63  ddI=0.023  cond=state  (31.5s)
+      seed 44: dW= +128.21  trades=  6.7  expo=0.35  ddI=0.010  cond=state  (40.8s)
+      seed 45: dW=  +73.17  trades=  8.1  expo=0.23  ddI=0.008  cond=state  (31.8s)
+      seed 46: dW= +133.83  trades= 10.3  expo=0.73  ddI=0.026  cond=state  (31.5s)
+      seed 47: dW=  +95.78  trades= 11.8  expo=0.29  ddI=0.012  cond=state  (31.4s)
+
+  fee = 5 bps
+      B1b_true_bah     dW= +166.92
+    reinforce
+      seed 42: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.7s)
+      seed 43: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.7s)
+      seed 44: dW= +130.10  trades= 20.8  expo=0.74  ddI=0.027  cond=MASK-ONLY  (9.6s)
+      seed 45: dW= +130.10  trades= 20.8  expo=0.74  ddI=0.027  cond=MASK-ONLY  (9.7s)
+      seed 46: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.5s)
+      seed 47: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (9.5s)
+    dqn
+      seed 42: dW= +117.43  trades=  9.2  expo=0.52  ddI=0.016  cond=state  (31.2s)
+      seed 43: dW=  +83.51  trades=  7.2  expo=0.30  ddI=0.010  cond=state  (31.3s)
+      seed 44: dW=  +83.61  trades=  7.1  expo=0.37  ddI=0.015  cond=state  (31.3s)
+      seed 45: dW=  +53.23  trades=  9.2  expo=0.23  ddI=0.010  cond=state  (31.5s)
+      seed 46: dW= +110.46  trades= 10.9  expo=0.37  ddI=0.013  cond=state  (31.3s)
+      seed 47: dW=  +68.72  trades=  7.2  expo=0.16  ddI=0.007  cond=state  (31.5s)
+
+  fee = 10 bps
+      B1b_true_bah     dW= +156.76
+    reinforce
+      seed 42: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.7s)
+      seed 43: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.6s)
+      seed 44: dW=  +76.31  trades=  3.0  expo=0.44  ddI=0.016  cond=state  (9.7s)
+      seed 45: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.7s)
+      seed 46: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.6s)
+      seed 47: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.8s)
+    dqn
+      seed 42: dW=  +91.83  trades= 10.8  expo=0.65  ddI=0.024  cond=state  (31.7s)
+      seed 43: dW=  +30.87  trades=  6.2  expo=0.21  ddI=0.008  cond=state  (31.5s)
+      seed 44: dW= +113.06  trades= 12.5  expo=0.44  ddI=0.015  cond=state  (31.5s)
+      seed 45: dW=  +70.72  trades=  5.9  expo=0.24  ddI=0.009  cond=state  (31.6s)
+      seed 46: dW= +101.98  trades=  6.2  expo=0.59  ddI=0.022  cond=state  (31.2s)
+      seed 47: dW=  +57.13  trades= 11.8  expo=0.48  ddI=0.017  cond=state  (31.5s)
+
+  fee = 25 bps
+      B1b_true_bah     dW= +126.33
+    reinforce
+      seed 42: dW=  +12.67  trades= 20.8  expo=0.74  ddI=0.030  cond=MASK-ONLY  (9.7s)
+      seed 43: dW= +126.80  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.6s)
+      seed 44: dW= +126.80  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.7s)
+      seed 45: dW=  +12.67  trades= 20.8  expo=0.74  ddI=0.030  cond=MASK-ONLY  (9.7s)
+      seed 46: dW= +126.80  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.9s)
+      seed 47: dW= +126.80  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (9.7s)
+    dqn
+      seed 42: dW=  +66.08  trades=  5.4  expo=0.60  ddI=0.021  cond=state  (31.4s)
+      seed 43: dW=   -1.14  trades=  3.0  expo=0.29  ddI=0.013  cond=state  (31.6s)
+      seed 44: dW=  +31.79  trades=  2.4  expo=0.17  ddI=0.006  cond=state  (31.8s)
+      seed 45: dW=  +27.68  trades=  2.8  expo=0.18  ddI=0.007  cond=state  (31.6s)
+      seed 46: dW=  +47.90  trades=  6.5  expo=0.44  ddI=0.018  cond=state  (31.6s)
+      seed 47: dW=  +21.79  trades=  3.5  expo=0.16  ddI=0.007  cond=state  (31.5s)
+
+  fee = 50 bps
+      B1b_true_bah     dW=  +75.83
+    reinforce
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.5s)
+      seed 43: dW=  +76.29  trades=  5.0  expo=0.83  ddI=0.031  cond=MASK-ONLY  (9.6s)
+      seed 44: dW=  +18.96  trades=  2.0  expo=0.23  ddI=0.009  cond=MASK-ONLY  (9.6s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.6s)
+      seed 46: dW=  +76.29  trades=  5.0  expo=0.83  ddI=0.031  cond=MASK-ONLY  (9.7s)
+      seed 47: dW=  +76.29  trades=  5.0  expo=0.83  ddI=0.031  cond=MASK-ONLY  (9.7s)
+    dqn
+      seed 42: dW=  +41.41  trades=  1.2  expo=0.11  ddI=0.004  cond=state  (31.6s)
+      seed 43: dW=  +51.30  trades=  3.2  expo=0.27  ddI=0.011  cond=state  (31.4s)
+      seed 44: dW=  +26.09  trades=  0.6  expo=0.07  ddI=0.003  cond=state  (31.4s)
+      seed 45: dW=   +9.90  trades=  0.6  expo=0.05  ddI=0.003  cond=state  (31.6s)
+      seed 46: dW=   +6.72  trades=  2.2  expo=0.23  ddI=0.010  cond=state  (31.6s)
+      seed 47: dW=  -37.53  trades=  3.5  expo=0.35  ddI=0.019  cond=state  (31.6s)
+
+  behavioural response to cost
+      reinforce  trades 5.0 -> 10.3 -> 4.7 -> 10.3 -> 2.8  (change +2.2, seed noise 15.8, FLAT)
+                 dW     +178 -> +155 -> +144 -> +89 -> +41
+      dqn        trades 10.9 -> 8.5 -> 8.9 -> 3.9 -> 1.9  (change +9.0, seed noise 8.5, responds)
+                 dW     +108 -> +86 -> +78 -> +32 -> +16
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/fee_results.json

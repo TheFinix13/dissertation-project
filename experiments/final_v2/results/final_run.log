@@ -4,5 +4,194 @@ admissibility guard: S3 x risk-aware rejected = True
 
 stage 1: selecting lambda on validation (12 months, dqn)
   lambda = 0.0
-      seed 42: dW= +112.68  trades= 17.4  expo=0.55  ddI=0.019  (20.8s)
-      seed 43: dW=  +79.73  trades= 10.3  expo=0.50  ddI=0.020  (19.7s)
+      seed 42: dW= +155.59  trades=  8.8  expo=0.70  ddI=0.022  cond=state  (19.7s)
+      seed 43: dW=  +48.65  trades= 12.1  expo=0.37  ddI=0.016  cond=state  (18.6s)
+      seed 44: dW=  +54.94  trades=  5.1  expo=0.24  ddI=0.008  cond=state  (18.4s)
+      seed 45: dW=  +57.90  trades= 10.2  expo=0.45  ddI=0.018  cond=state  (18.6s)
+      seed 46: dW=  +93.80  trades=  7.8  expo=0.46  ddI=0.017  cond=state  (18.4s)
+      seed 47: dW=  +59.21  trades= 10.0  expo=0.45  ddI=0.016  cond=state  (18.4s)
+  lambda = 0.05
+      seed 42: dW= +124.45  trades= 14.1  expo=0.68  ddI=0.024  cond=state  (18.4s)
+      seed 43: dW=  +98.35  trades=  6.0  expo=0.30  ddI=0.009  cond=state  (18.8s)
+      seed 44: dW=  +48.33  trades=  3.5  expo=0.21  ddI=0.007  cond=state  (18.5s)
+      seed 45: dW= +114.51  trades=  7.7  expo=0.53  ddI=0.017  cond=state  (18.6s)
+      seed 46: dW=  +74.52  trades=  3.1  expo=0.22  ddI=0.006  cond=state  (19.0s)
+      seed 47: dW=  +72.50  trades=  9.3  expo=0.46  ddI=0.014  cond=state  (18.5s)
+  lambda = 0.1
+      seed 42: dW=  +32.07  trades=  3.1  expo=0.12  ddI=0.005  cond=state  (18.4s)
+      seed 43: dW=  +88.65  trades=  7.8  expo=0.40  ddI=0.015  cond=state  (18.5s)
+      seed 44: dW=   -1.10  trades=  3.7  expo=0.02  ddI=0.002  cond=state  (18.5s)
+      seed 45: dW=  +86.35  trades=  9.2  expo=0.52  ddI=0.018  cond=state  (18.5s)
+      seed 46: dW= +122.52  trades=  8.8  expo=0.63  ddI=0.022  cond=state  (18.6s)
+      seed 47: dW=  +75.33  trades=  7.2  expo=0.36  ddI=0.011  cond=state  (18.8s)
+  lambda = 0.25
+      seed 42: dW=  +47.24  trades=  3.2  expo=0.05  ddI=0.002  cond=state  (18.6s)
+      seed 43: dW=  +12.14  trades=  3.8  expo=0.04  ddI=0.003  cond=state  (18.6s)
+      seed 44: dW=  +28.17  trades=  2.8  expo=0.07  ddI=0.003  cond=state  (18.6s)
+      seed 45: dW=   +8.78  trades=  0.9  expo=0.01  ddI=0.000  cond=state  (18.6s)
+      seed 46: dW=  +23.10  trades=  5.3  expo=0.27  ddI=0.014  cond=state  (18.6s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+  lambda = 0.5
+      seed 42: dW=   +1.44  trades=  0.2  expo=0.00  ddI=0.000  cond=state  (18.6s)
+      seed 43: dW=   +5.04  trades=  0.7  expo=0.01  ddI=0.000  cond=state  (18.6s)
+      seed 44: dW=   +1.29  trades=  0.2  expo=0.00  ddI=0.000  cond=state  (18.7s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.5s)
+      seed 46: dW=   +2.64  trades=  0.8  expo=0.01  ddI=0.000  cond=state  (18.6s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.5s)
+  lambda = 1.0
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.5s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.7s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+  lambda = 2.0
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.4s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.6s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (18.5s)
+
+  unpenalised mean dW = +78.35, seed spread = 106.94
+  return floor = -28.59; lambda values clearing it: [0.05, 0.1, 0.25, 0.5, 1.0, 2.0]
+  selected lambda = 2.0
+
+stage 2: test split (24 months), 80,000 steps, seeds [42, 43, 44, 45, 46, 47], lambda = 2.0
+
+  S3_wealth  (9-D, reward=wealth_change, actions=slice)
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027
+      B1b_true_bah     dW= +180.25  trades=  2.0  expo=0.91  ddI=0.031
+      B2_random        dW=  +22.73  trades= 13.3  expo=0.30  ddI=0.013
+    reinforce
+      seed 42: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.6s)
+      seed 43: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.8s)
+      seed 44: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.6s)
+      seed 45: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.7s)
+      seed 46: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.6s)
+      seed 47: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.6s)
+    dqn
+      seed 42: dW=  +98.52  trades=  9.7  expo=0.46  ddI=0.015  cond=state  (31.3s)
+      seed 43: dW=  +57.70  trades=  7.5  expo=0.29  ddI=0.012  cond=state  (31.4s)
+      seed 44: dW=  +87.18  trades=  6.7  expo=0.34  ddI=0.014  cond=state  (31.7s)
+      seed 45: dW=  +52.47  trades=  7.7  expo=0.20  ddI=0.010  cond=state  (31.4s)
+      seed 46: dW= +111.81  trades= 10.3  expo=0.41  ddI=0.014  cond=state  (31.5s)
+      seed 47: dW=  +40.38  trades=  7.2  expo=0.17  ddI=0.009  cond=state  (31.5s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.2s)
+      seed 43: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+      seed 44: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+      seed 45: dW=  +45.06  trades=  2.0  expo=0.23  ddI=0.008  cond=MASK-ONLY  (20.3s)
+      seed 46: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+      seed 47: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.0s)
+
+  S4_wealth  (10-D, reward=wealth_change, actions=slice)
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027
+      B1b_true_bah     dW= +180.25  trades=  2.0  expo=0.91  ddI=0.031
+      B2_random        dW=  +22.73  trades= 13.3  expo=0.30  ddI=0.013
+    reinforce
+      seed 42: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.7s)
+      seed 43: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.7s)
+      seed 44: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.7s)
+      seed 45: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.6s)
+      seed 46: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (9.7s)
+      seed 47: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (9.7s)
+    dqn
+      seed 42: dW=  +81.99  trades=  6.8  expo=0.50  ddI=0.017  cond=state  (31.6s)
+      seed 43: dW=  +87.89  trades=  5.4  expo=0.26  ddI=0.009  cond=state  (31.7s)
+      seed 44: dW= +124.37  trades=  7.7  expo=0.58  ddI=0.021  cond=state  (31.5s)
+      seed 45: dW=  +34.90  trades=  6.0  expo=0.21  ddI=0.012  cond=state  (31.7s)
+      seed 46: dW=  +58.04  trades=  7.6  expo=0.21  ddI=0.010  cond=state  (31.7s)
+      seed 47: dW=  +79.69  trades= 10.9  expo=0.36  ddI=0.014  cond=state  (31.7s)
+    ppo
+      seed 42: dW=  +85.77  trades=  3.0  expo=0.44  ddI=0.015  cond=state  (20.1s)
+      seed 43: dW= +155.03  trades= 20.9  expo=0.75  ddI=0.025  cond=MASK-ONLY  (20.0s)
+      seed 44: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+      seed 45: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+      seed 46: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+      seed 47: dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027  cond=MASK-ONLY  (20.1s)
+
+  S4_risk  (10-D, reward=risk_aware, actions=slice)
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW= +179.75  trades=  5.0  expo=0.84  ddI=0.027
+      B1b_true_bah     dW= +180.25  trades=  2.0  expo=0.91  ddI=0.031
+      B2_random        dW=  +22.73  trades= 13.3  expo=0.30  ddI=0.013
+    reinforce
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.6s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.9s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.6s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.7s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.6s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (9.6s)
+    dqn
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (31.6s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (31.8s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (31.7s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (31.6s)
+      seed 46: dW=   -0.29  trades=  0.1  expo=0.00  ddI=0.000  cond=state  (31.6s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (31.4s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.1s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.0s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.0s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.0s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (19.9s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.0s)
+
+  S3_wealth_share  (9-D, reward=wealth_change, actions=share)
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW=  +94.69  trades= 18.1  expo=0.50  ddI=0.018
+      B1b_true_bah     dW= +180.25  trades=  2.0  expo=0.91  ddI=0.031
+      B2_random        dW=   +5.45  trades= 13.3  expo=0.08  ddI=0.004
+    reinforce
+      seed 42: dW=  +94.69  trades= 18.1  expo=0.50  ddI=0.018  cond=MASK-ONLY  (9.7s)
+      seed 43: dW=  +93.86  trades= 20.9  expo=0.50  ddI=0.018  cond=MASK-ONLY  (9.7s)
+      seed 44: dW=  +94.69  trades= 18.1  expo=0.50  ddI=0.018  cond=MASK-ONLY  (9.7s)
+      seed 45: dW=  +94.69  trades= 18.1  expo=0.50  ddI=0.018  cond=MASK-ONLY  (9.7s)
+      seed 46: dW=   -5.14  trades= 20.4  expo=0.03  ddI=0.002  cond=MASK-ONLY  (9.7s)
+      seed 47: dW=  +94.69  trades= 18.1  expo=0.50  ddI=0.018  cond=MASK-ONLY  (9.8s)
+    dqn
+      seed 42: dW=  +74.31  trades=  9.5  expo=0.27  ddI=0.009  cond=state  (31.7s)
+      seed 43: dW=  +46.91  trades= 15.6  expo=0.14  ddI=0.005  cond=state  (31.8s)
+      seed 44: dW=  +52.15  trades=  7.4  expo=0.14  ddI=0.005  cond=state  (31.6s)
+      seed 45: dW=  +50.52  trades= 10.1  expo=0.13  ddI=0.005  cond=state  (31.5s)
+      seed 46: dW=  +93.55  trades= 10.1  expo=0.28  ddI=0.009  cond=state  (31.6s)
+      seed 47: dW=  +31.93  trades=  9.5  expo=0.10  ddI=0.004  cond=state  (31.8s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.1s)
+      seed 43: dW=  +90.07  trades= 20.9  expo=0.46  ddI=0.016  cond=state  (19.9s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.1s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.1s)
+      seed 46: dW=  +64.45  trades=  8.1  expo=0.31  ddI=0.010  cond=state  (20.1s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (20.2s)
+
+  S3_wealth_slice10  (9-D, reward=wealth_change, actions=slice)
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023
+      B1b_true_bah     dW= +180.25  trades=  2.0  expo=0.91  ddI=0.031
+      B2_random        dW=  +10.36  trades= 13.6  expo=0.14  ddI=0.006
+    reinforce
+      seed 42: dW=   +8.92  trades= 20.5  expo=0.04  ddI=0.002  cond=MASK-ONLY  (9.7s)
+      seed 43: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (9.7s)
+      seed 44: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (9.6s)
+      seed 45: dW= +135.77  trades= 20.9  expo=0.67  ddI=0.023  cond=MASK-ONLY  (9.7s)
+      seed 46: dW= +135.77  trades= 20.9  expo=0.67  ddI=0.023  cond=MASK-ONLY  (9.6s)
+      seed 47: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (9.6s)
+    dqn
+      seed 42: dW=  +98.66  trades= 10.7  expo=0.35  ddI=0.011  cond=state  (31.5s)
+      seed 43: dW=  +55.71  trades= 11.3  expo=0.14  ddI=0.005  cond=state  (31.6s)
+      seed 44: dW=  +61.99  trades=  9.2  expo=0.34  ddI=0.013  cond=state  (31.6s)
+      seed 45: dW=  +56.82  trades=  8.7  expo=0.19  ddI=0.007  cond=state  (31.5s)
+      seed 46: dW=  +98.05  trades= 15.4  expo=0.59  ddI=0.021  cond=state  (31.5s)
+      seed 47: dW=  +92.98  trades= 11.6  expo=0.35  ddI=0.012  cond=state  (31.7s)
+    ppo
+      seed 42: dW=  +71.90  trades=  5.0  expo=0.34  ddI=0.011  cond=state  (20.1s)
+      seed 43: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (20.2s)
+      seed 44: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (20.0s)
+      seed 45: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (20.0s)
+      seed 46: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (20.1s)
+      seed 47: dW= +141.31  trades= 11.0  expo=0.69  ddI=0.023  cond=MASK-ONLY  (20.1s)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/final_results.json

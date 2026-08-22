@@ -100,13 +100,14 @@ between using an algorithm and understanding one.
   \item \textbf{Risk-aware rewards.} Replacing $r_t = \Delta W_t$ with a
         drawdown-penalised variant or the differential Sharpe ratio
         \cite{moody2001} changes the incentive that currently makes
-        buy-and-hold optimal. The preliminary run of
-        Section~\ref{sec:res_riskaware} already shows the direction: at
-        $\lambda = 0.25$, Deep Q's drawdown falls four-fold (6.0\% to
-        1.4\%) with Sharpe rising to 0.68, while REINFORCE flips to the
-        all-cash corner. The full study is a $\lambda$ sweep tracing the
-        return-risk frontier each algorithm can reach, with multiple
-        seeds.
+        buy-and-hold optimal. Section~\ref{sec:res_risk} reports one point
+        on that frontier and shows the shape of the difficulty: the
+        penalty weight controls a trade-off that collapses quickly, with
+        abstention rather than better timing as the agent's easiest reply.
+        The natural continuation is a reward that penalises variability
+        without rewarding inactivity, such as the differential Sharpe ratio
+        \cite{moody2001}, evaluated across the frontier rather than at a
+        single weight.
   \item \textbf{Intraday horizons.} Minute-bar episodes ($T{=}390$) via
         the same environment API, testing whether the family-level
         behavioural differences persist at higher frequency, where

@@ -1,38 +1,47 @@
 \chapter{Empirical Results \& Analysis}
 \label{ch:results}
 
-This chapter reports every experiment in the order the methodology was
-built: algorithm validation on games with known outcomes
-(Section~\ref{sec:res_phase0}); a pilot study with a deliberately minimal
-state whose failure motivates the final design
-(Section~\ref{sec:res_pilot}); and the main comparison of from-scratch
-REINFORCE and Deep Q-learning on the complete 9-feature state
-(Section~\ref{sec:res_main}), followed by the fee-sensitivity study
-(Section~\ref{sec:res_fees}), a preliminary risk-aware-reward experiment
-(Section~\ref{sec:res_riskaware}) and the consolidated analysis
-(Section~\ref{sec:res_analysis}). All numbers are produced by committed
-scripts from cached data; none are illustrative placeholders. Complete
-per-month results for every method appear in
+This chapter reports every experiment in the order the argument requires.
+Section~\ref{sec:res_phase0} validates the learning implementations on
+tasks whose correct answer is known. Sections~\ref{sec:res_calibration} to
+\ref{sec:res_ladder} then use the validation year to settle three things
+that must be settled before the held-out months are spent: how coarse the
+action model may be, whether the learners use their observations at all,
+and whether each rung of the state ladder changes what is learned.
+Section~\ref{sec:res_final} reports the held-out test months, evaluated
+once. Section~\ref{sec:res_analysis} draws the findings together.
+
+All numbers are produced by committed scripts from cached data; none are
+illustrative. Complete per-month results appear in
 Appendix~\ref{app:permonth}.
 
 For a reader keeping only one question in mind, let it be this one:
 \emph{did any learned agent do better than simply buying at the start of
-the month and holding to the end?} Everything in this chapter is
-organised to answer that question fairly --- and the honest answer turns
-out to be more interesting than a yes or a no.
+the month and holding to the end?} The answer is no, and the interesting
+part of this chapter is the evidence for \emph{why} not, which turns out to
+be a property of the problem as posed rather than a failure of the
+implementations.
 
 \section{Experimental setup}
 \label{sec:res_setup}
 
-\paragraph{Data and split.} SPY daily closes 2018--2024; one calendar
-month of daily bars per episode; chronological split of 58 training / 26
-held-out test months (test $=$ November 2022 -- December 2024).
+\paragraph{Data and split.} SPY daily auto-adjusted OHLCV bars,
+January 2018 to December 2025, one calendar month of daily bars per
+episode, 96 episodes split chronologically into 60 training months
+(2018--2022), 12 validation months (2023) and 24 held-out test months
+(2024--2025). Market features are computed on the continuous series before
+the episodes are cut (Section~\ref{sec:data}).
 
 \paragraph{Protocol.} Initial cash $C_0 = \$10{,}000$; proportional fee
-$c = 5$ bps; trade slice $\Delta = 0.1\,C_0$; training budget 80{,}000
-environment steps per method per seed; seeds $\{42, 43, 44\}$; greedy
-masked evaluation. Metrics and baselines as defined in
-Section~\ref{sec:protocol}.
+$c = 5$ basis points; trade slice $\Delta = 0.25\,C_0$ as calibrated in
+Section~\ref{sec:res_calibration}; 80{,}000 environment steps per method
+per seed; seeds $\{42,\dots,47\}$; greedy masked evaluation. Metrics and
+reference strategies are as defined in Section~\ref{sec:protocol}.
+
+\paragraph{What the validation year is spent on.} Three decisions are taken
+on 2023 and on nothing else: the trade slice, the reward scale, and where
+the state ladder stops. Each is reported below with the rule that decided
+it. The test months are read once, in Section~\ref{sec:res_final}.
 
 \section{Phase 0: algorithm validation on games}
 \label{sec:res_phase0}
@@ -88,351 +97,580 @@ PPO                     & \textbf{500.0} & \textbf{12.6} & 176.4 \\
   \label{fig:res_phase0_others}
 \end{figure}
 
-\section{Pilot study: the minimal state collapses to buy-and-hold}
-\label{sec:res_pilot}
+The conclusion carried forward is narrow but necessary: the update rules
+work. Any failure to learn on market data is therefore a statement about
+the market problem, not about the code, and that distinction is what makes
+the negative results below interpretable.
 
-The pilot used the minimal 3-feature state
-$s = [\Delta P, C, n]$ with whole-share actions and the same wealth-change
-reward, split, fee and budget. Three policy-gradient optimisers ---
-from-scratch REINFORCE, A2C and PPO --- were trained on the identical MDP.
+\section{Calibrating the action model}
+\label{sec:res_calibration}
+
+The first validation experiment involves no learning at all, and it
+changed the experimental design.
+
+Because a Buy commits a fixed fraction of initial capital, becoming fully
+invested takes $C_0/\Delta$ purchases. A monthly episode is about 21 bars
+long. The slice therefore does not merely set how finely the agent can
+adjust its position: it caps the average exposure attainable within an
+episode, and so caps the return attainable, regardless of skill. That
+ceiling can be measured directly, by running the policy that accumulates as
+fast as the action model allows, which bounds every policy at that
+granularity.
 
 \begin{table}[h]
 \centering
-\caption{Pilot (minimal 3-D state, whole shares): all learned policies
-execute an action sequence identical to fully-invested buy-and-hold on
-every one of the 26 test months.}
-\label{tab:res_pilot}
-\begin{tabular}{lrrr}
+\caption{Attainable exposure ceiling by trade slice, on the 12 validation
+months (mean episode length 20.8 bars). The ceiling is measured by the
+fastest legal accumulation policy, so no policy at that granularity can
+exceed it. Buy-and-hold attains exposure 0.910 and $+\$166.92$.}
+\label{tab:res_calibration}
+\begin{tabular}{rrrrc}
 \toprule
-\textbf{Method} & \textbf{Mean $\Delta W$ (\$)} & \textbf{Trades/mo} & \textbf{Months identical to buy-max} \\
+\textbf{Slice $\Delta$} & \textbf{Buys to full} &
+\textbf{Ceiling exposure} & \textbf{Ceiling $\Delta W$} &
+\textbf{Reaches target} \\
 \midrule
-Buy-max-hold (baseline) & 76.91 & 19.1 & 26/26 (by definition) \\
-REINFORCE (scratch)     & 76.91 & 19.1 & 26/26 \\
-A2C                     & 76.91 & 19.1 & 26/26 \\
-PPO                     & 76.91 & 19.1 & 26/26 \\
+$0.05\,C_0$ & 20 & 0.450 & $+\$95.49$  & no \\
+$0.10\,C_0$ & 10 & 0.690 & $+\$121.79$ & no \\
+$0.25\,C_0$ & 4  & 0.838 & $+\$167.39$ & \textbf{yes} \\
+$0.50\,C_0$ & 2  & 0.886 & $+\$162.77$ & yes \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Two lessons shaped the final design. \emph{Baseline design is itself a
-result}: against a naive one-share buy-and-hold baseline (mean
-$\Delta W = \$7.97$), any of these agents would have appeared to win
-$10\times$; only the fair fully-invested baseline reveals that they had
-simply rediscovered buy-and-hold. \emph{The collapse is a property of the
-objective and the state, not of any single optimiser}: three different
-policy-gradient methods found the same optimum. The final model therefore
-enriches the state (Section~\ref{sec:state}) and adds a value-based
-learner as a structurally different second method.
+The consequence is stark. At $\Delta = 0.1\,C_0$, the slice used earlier in
+this project, the best attainable mean exposure is 0.690 against
+buy-and-hold's 0.910, and the best attainable monthly profit is
+$+\$121.79$ against buy-and-hold's $+\$166.92$. An agent at that
+granularity cannot beat buy-and-hold in a rising market however well it
+trades. Any earlier claim that an agent ``failed to beat the benchmark''
+under that setting was therefore reporting arithmetic as though it were a
+result about learning.
 
-\section{Main results: the algorithm ablation on the complete state}
-\label{sec:res_main}
+Applying the rule declared in Section~\ref{sec:actions} --- the smallest
+slice whose exposure ceiling reaches 90\% of buy-and-hold's, here 0.819 ---
+selects $\Delta = 0.25\,C_0 = \$2{,}500$. The criterion is stated on
+exposure rather than on return because the exposure ceiling rises
+monotonically with the slice while the return ceiling does not:
+$0.50\,C_0$ holds more on average than $0.25\,C_0$ yet earns slightly less,
+because a coarser slice buys at a different set of prices. Selecting on the
+non-monotone quantity would make the choice depend on the particular path
+2023 happened to take. The coarser slice is retained as a comparison row in
+Section~\ref{sec:res_final}, so its cost is measured rather than merely
+avoided.
 
-Table~\ref{tab:res_main} and Figure~\ref{fig:res_main} report the full
-ablation on the 26 held-out months: the two priority methods (from-scratch
-REINFORCE and Deep Q) and the PPO stretch row, against all baselines,
-under a matched 80k-step budget (primary seed 42; seed spread in
-Table~\ref{tab:res_seeds}).
+\section{Do the learners use their state?}
+\label{sec:res_conditioning}
+
+The second validation experiment asks a question that returns cannot
+answer. A policy that buys whenever a Buy is legal requires no market
+information whatsoever, and in a rising market it performs well. Reward
+alone cannot distinguish such a policy from one that has learned something,
+so the conditioning diagnostic of Section~\ref{sec:protocol} is reported
+alongside it.
+
+The question was prompted by an anomaly. In the first ladder run, trained
+agents at rungs from one feature to twelve returned monthly profits that
+were not merely similar but identical to several decimal places, and
+identical to a reference strategy's. Policies reading different
+observations do not agree to that precision.
 
 \begin{table}[h]
 \centering
-\caption{Algorithm ablation on 26 held-out SPY test months (seed 42, 80k
-steps each). $\Delta W$ in dollars. Sharpe on monthly returns; MDD on the
-concatenated test equity curve. ``Id.\ B1b'' counts months whose executed
-action sequence is identical to buy-and-hold. Accounting identity held to
-$<10^{-6}$ for every method on every month; the illegal-action rate was
-zero for all evaluated policies.}
-\label{tab:res_main}
+\caption{Conditioning diagnostic on the 12 validation months at the
+nine-feature state, six seeds. ``State-dependent'' counts the seeds whose
+policy chose different actions in states offering the same legal choices.
+The reward scale is learner-side preprocessing only; the environment emits
+dollars in both columns.}
+\label{tab:res_conditioning}
+\begin{tabular}{llrrc}
+\toprule
+\textbf{Method} & \textbf{Reward scale} & \textbf{Mean $\Delta W$} &
+\textbf{Seed spread} & \textbf{State-dependent} \\
+\midrule
+REINFORCE & dollars              & $+\$100.64$ & \$121.71 & \textbf{0 / 6} \\
+REINFORCE & fraction of capital  & $+\$106.24$ & \$85.51  & 1 / 6 \\
+Deep Q    & dollars              & $+\$69.92$  & \$83.88  & \textbf{6 / 6} \\
+Deep Q    & fraction of capital  & $+\$48.19$  & \$124.04 & 5 / 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{REINFORCE does not read its state.} In none of the six seeds
+does the trained policy distinguish two states that offer the same legal
+actions. It converges instead to one of two rules: buy whenever a Buy is
+legal, or never trade. Its per-seed profits are
+$\{+0.1,\, +119.2,\, +119.2,\, +121.8,\, +121.8,\, +121.8\}$, and
+$+\$121.79$ is exactly the slice-schedule benchmark's figure. The nine
+features are present, computed correctly and passed to the network, and the
+network ignores them.
+
+This is a consequence of the algorithm meeting this particular reward
+rather than a defect. In a month whose price rises, the return following a
+Buy exceeds the episode average more often than not, so the gradient step
+raises the log-probability of Buy in whatever state it was taken. Repeated
+across many episodes, this pushes the Buy logit up regardless of the state
+that accompanied it, and the softmax saturates on a state-independent
+action. Plain REINFORCE carries no baseline and no value function to
+separate ``this action was good'' from ``this month was good''; the
+variance limitation visible on CartPole in Section~\ref{sec:res_phase0}
+appears here as a collapse to a constant policy.
+
+The consequence for this dissertation is specific and it must be stated
+plainly: \emph{REINFORCE cannot inform a comparison between state
+representations}, because it does not use the representation. Its rows in
+the next section are reported for completeness and interpreted only as
+evidence about the algorithm.
+
+\paragraph{Deep Q-learning does read its state.} In all six seeds the
+learned policy chooses differently in states offering identical legal
+actions. Its exposure varies within and across months rather than saturating
+at a corner. It is therefore the method through which the ladder can be
+read, and the fact that its mean profit is \emph{lower} than REINFORCE's is
+the beginning of the substantive finding rather than a mark against it: it
+is deviating from full exposure on the basis of what it observes, and in a
+year the market spent rising, deviation costs money.
+
+\paragraph{Reward scaling was tested and rejected.} A competing explanation
+for the large seed spread was numerical conditioning: Q-values estimate a
+sum of dollar rewards across a month, reaching the low hundreds, while the
+network is initialised near zero, so a squared-error loss produces very
+large early gradients. Dividing the reward by initial capital rescales the
+targets to the order of $0.02$ without altering the MDP. It does not help.
+REINFORCE is unaffected, as its within-episode standardisation of returns
+predicts, and Deep Q-learning is made worse on all three measures: mean
+profit falls from $+\$69.92$ to $+\$48.19$, the seed spread rises from
+\$83.88 to \$124.04, and one seed loses state-dependence entirely. The
+reward therefore remains in dollars exactly as
+Equation~(\ref{eq:reward}) defines it, and the observed variance is a
+property of the problem rather than of the units.
+
+\section{The ladder: does more information help?}
+\label{sec:res_ladder}
+
+Chapter~3 argued the state ladder from information requirements, each rung
+resolving a situation its predecessor could not distinguish. This section
+tests whether those additions change what is learned. The reward and the
+action model are held fixed throughout, so any difference between adjacent
+rows is attributable to the information added between them.
+
+\begin{table}[h]
+\centering
+\caption{The ladder on the 12 validation months, six seeds per cell, at the
+calibrated slice. Spread is the range across seeds. ``St.-dep.'' counts
+state-dependent seeds. Reference: B1a slice schedule $+\$167.39$,
+buy-and-hold $+\$166.92$, random legal $+\$64.99$, do-nothing \$0.}
+\label{tab:res_ladder}
 \small
-\begin{tabular}{lrrrrrrr}
+\begin{tabular}{llrrcrrcr}
 \toprule
-\textbf{Method} & \textbf{Mean $\Delta W$} & \textbf{Std} & \textbf{Trades/mo}
- & \textbf{Win vs B1b} & \textbf{Sharpe} & \textbf{MDD} & \textbf{Id.\ B1b} \\
+& & \multicolumn{3}{c}{\textbf{REINFORCE}} & \multicolumn{4}{c}{\textbf{Deep Q-learning}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-9}
+\textbf{Rung} & \textbf{Dim.} & \textbf{Mean $\Delta W$} & \textbf{Spread} &
+\textbf{St.-dep.} & \textbf{Mean $\Delta W$} & \textbf{Spread} &
+\textbf{St.-dep.} & \textbf{Expo.} \\
 \midrule
-B0 do-nothing       & 0.00    & 0.00   & 0.0  & 31\%\,$^{\ast}$ & ---  & 0.0\% & 0/26 \\
-B2 random (masked)  & 37.97   & 80.43  & 14.2 & 31\%  & 0.47$^{\dagger}$ & 0.9\% & 0/26 \\
-B1b buy-and-hold    & 125.19  & 309.87 & 11.0 & ---   & 0.40 & 6.0\% & 26/26 \\
-REINFORCE (scratch) & 125.19  & 309.87 & 11.0 & 0\%   & 0.40 & 6.0\% & 26/26 \\
-Deep Q (scratch)    & 123.23  & 273.97 & 13.2 & 35\%  & 0.45 & 4.8\% & 0/26 \\
-PPO (SB3)           & 55.67   & 110.45 & 4.0  & 31\%  & 0.50 & 1.9\% & 0/26 \\
+$S_0$   & 1  & $+161.18$ & 37.3  & 0/6 & $+68.68$  & 159.4 & 5/6 & 0.50 \\
+$S_1$   & 3  & $+119.29$ & 125.7 & 0/6 & $-2.43$   & 16.4  & 5/6 & 0.06 \\
+$S_2$   & 4  & $+161.18$ & 37.3  & 0/6 & $+64.47$  & 139.6 & 6/6 & 0.36 \\
+$S_{3a}$& 5  & $+127.98$ & 124.6 & 1/6 & $+102.59$ & 28.8  & 6/6 & 0.56 \\
+$S_3$   & 9  & $+154.96$ & 37.3  & 0/6 & $+86.16$  & 64.2  & 6/6 & 0.33 \\
+$S_4$   & 10 & $+148.75$ & 37.3  & 0/6 & $+83.86$  & 155.2 & 6/6 & 0.38 \\
+$S_5$   & 12 & $+163.88$ & 19.1  & 2/6 & $+40.20$  & 69.7  & 6/6 & 0.29 \\
 \bottomrule
 \end{tabular}
-
-\vspace{2pt}
-{\footnotesize $^{\ast}$B0 ``wins'' only in falling months, by not being
-invested. $^{\dagger}$Sharpe ratios of low-exposure strategies (B2, PPO)
-are inflated by construction: near-zero exposure gives tiny variance.
-Sharpe comparisons are meaningful only between strategies of comparable
-exposure.}
 \end{table}
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.85\textwidth]{ablation_delta_w}
-  \caption{Mean test-month wealth change by method (error bars: one
-  standard deviation across months).}
-  \label{fig:res_main}
-\end{figure}
+\paragraph{The declared stopping rule terminates at the first rung.} The
+rule fixed in Section~\ref{sec:protocol} was to stop at the first rung
+whose successor moves mean profit, intra-episode drawdown and trade count
+by less than the across-seed spread. Applied to each learner separately and
+to both pooled, it stops at $S_0$. No pair of adjacent rungs differs by
+more than the variation between seeds of the same rung.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\textwidth]{ablation_wealth_paths}
-  \caption{Wealth paths on the strongest rising test month (2022-11,
-  left) and the weakest falling month (2023-09, right). REINFORCE
-  overlays buy-and-hold exactly. Deep Q tracks it in the rising month but
-  exits progressively during the decline. PPO (seed 42) stays lightly
-  invested in both.}
-  \label{fig:res_paths}
-\end{figure}
+It is important to be precise about what that does and does not mean. It
+does not mean a one-feature state is informationally sufficient; the
+arguments of Section~\ref{sec:state_admissible} are unaffected by any
+experiment, and $S_0$ remains a state in which the agent cannot tell
+whether it holds a position. What it means is that the experiment lacks the
+power to distinguish the rungs, because the outcome varies more with the
+random seed than with the representation.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{ablation_exposure_down_month}
-  \caption{Exposure (position value as a fraction of $C_0$) during the
-  falling month 2023-09. Both agents ramp to near-full investment; as the
-  decline develops, Deep Q trims exposure from $\approx 0.9$ to
-  $\approx 0.4$ while buy-and-hold remains pinned at $\approx 1.0$ until
-  forced terminal liquidation.}
-  \label{fig:res_exposure}
-\end{figure}
+\paragraph{Why the variance is so large: bimodality, not noise.} The spread
+is not the ordinary scatter of a noisy estimator. REINFORCE's per-seed
+outcomes concentrate on a handful of values that recur across unrelated
+rungs, because the policies it finds are corners: fully committed, or
+inert. A mean between two corners describes neither, which is why the
+seed count was raised from three to six and why the table reports the
+spread rather than a standard error.
 
-\paragraph{REINFORCE rediscovers buy-and-hold --- exactly.}
-The REINFORCE policy's executed trades match fully-invested buy-and-hold
-to the cent on all 26 test months (win rate vs.\ B1b $= 0$ because the
-wealth paths are identical; Figure~\ref{fig:res_paths}, dashed line).
-Even with entry, clock, trend and risk features available, the
-Monte-Carlo policy gradient converges to ``invest everything immediately
-and hold.'' This is not an implementation failure; it is the risk-neutral
-optimum. Under $r_t = \Delta W_t$, expected return is maximised by
-maximum exposure whenever expected drift is positive --- and the
-2018--2022 training window drifts upward on average. The 9-feature state
-changes what the policy \emph{could} express, but not what the objective
-\emph{rewards}.
+\paragraph{No rung beats an unconditional benchmark.} Every Deep Q row
+falls below the slice schedule's $+\$167.39$, and its mean exposure sits
+between 0.06 and 0.56 against the attainable 0.838. The agent is not
+failing to trade; it is choosing to hold less than it could, on the basis of
+features it demonstrably reads, in a year when holding more would have paid.
+Adding information does not reverse this, and $S_5$, the richest state
+tested, produces the lowest Deep Q profit of any rung.
 
-\paragraph{Deep Q deviates --- modestly, and in the direction of risk
-control.} The DQN policy executes a different action sequence in every
-month, wins against buy-and-hold in 9/26 months (predominantly falling
-ones), and achieves lower monthly standard deviation (274 vs.\ 310),
-lower maximum drawdown (4.8\% vs.\ 6.0\%) and higher monthly Sharpe
-(0.45 vs.\ 0.40), at a cost of \$1.96/month of mean return.
-Figure~\ref{fig:res_exposure} shows the mechanism on the worst test
-month: both agents ramp to near-full investment, but as the decline
-develops Deep Q sells down to $\approx 40\%$ exposure while buy-and-hold
-stays fully invested. Mechanistically, bootstrapped one-step targets make
-DQN sensitive to short-horizon state distinctions (local volatility,
-negative momentum) that the Monte-Carlo return signal averages away; the
-learned behaviour is ``fully invested by default, trim around
-turbulence.''
+\paragraph{Why this is the predicted outcome.}
+Section~\ref{sec:reward} stated the reason before any of these runs: under
+a risk-neutral objective on an asset with positive drift, the optimal policy
+is unconditional maximum exposure. If the best available policy does not
+depend on the state, then no state can be better than the smallest one, and
+additional features can only add parameters to estimate and variance to the
+estimate. The ladder does not fail to show an effect; it shows that the
+\emph{objective} leaves no effect to find. An agent that discovers
+buy-and-hold under this reward has solved the problem as posed, and the
+richer states are solutions to a problem nobody asked it.
 
-\paragraph{PPO is bimodal across seeds.} Because a two-mode claim needs
-more than three samples, PPO was run on five seeds. On seeds 43, 44 and
-45 it converged to \emph{exact} buy-and-hold (26/26 identical months,
-$\Delta W = \$125.19$); on seeds 42 and 46 it converged to a cautious
-low-exposure policy ($\Delta W \approx \$56$, $\approx 4$ trades/month,
-MDD $\approx 1.9\%$) --- each mode replicated at least twice, with
-nothing in between. Both corners are rational under the risk-neutral
-objective; which one PPO reaches depends on its early rollouts, because
-ratio clipping deliberately limits how far each update can move the
-policy --- slow movement stabilises training but can freeze the policy
-near wherever the early data pointed. This seed sensitivity is itself an
-ablation finding: the two scratch methods were directionally consistent
-across all seeds; the clipped method was not.
+This is the sense in which the ladder is a design argument that survives its
+own null result. The features are justified by what the agent must be able
+to distinguish, and the experiment shows that distinguishing is not what
+this reward pays for. It follows that the productive axis is the reward, not
+the state, which is what the next section tests.
+
+\section{Held-out results}
+\label{sec:res_final}
+
+The 24 test months, January 2024 to December 2025, are evaluated once. Every
+configuration below was fixed before these months were read: the state ladder
+stops where Section~\ref{sec:res_ladder} left it, the action model is the
+calibrated slice, and the penalty weight was chosen on validation as described
+in Section~\ref{sec:res_risk}.
 
 \begin{table}[h]
 \centering
-\caption{Seed spread: mean $\Delta W$ in dollars (months identical to
-buy-and-hold in parentheses). PPO was additionally run on seeds 45--46
-to test the bimodality claim.}
-\label{tab:res_seeds}
+\caption{Held-out test results, 24 months, six seeds per learned row. Spread is
+the range across seeds. ``St.-dep.'' counts seeds whose policy reads its
+observation. Drawdown is the mean intra-episode maximum. The three upper blocks
+vary state and reward at the calibrated slice; the lower block varies the action
+model at the frozen state and reward.}
+\label{tab:res_final}
 \small
-\begin{tabular}{lccccc}
+\begin{tabular}{llrrrrrrc}
 \toprule
-\textbf{Method} & \textbf{Seed 42} & \textbf{Seed 43} & \textbf{Seed 44}
- & \textbf{Seed 45} & \textbf{Seed 46} \\
+\textbf{Configuration} & \textbf{Method} & \textbf{Mean $\Delta W$} &
+\textbf{Spread} & \textbf{Expo.} & \textbf{Trades} & \textbf{Draw.} &
+\textbf{Sharpe} & \textbf{St.-dep.} \\
 \midrule
-REINFORCE & 125.19 (26/26) & 119.96 (0/26) & 118.52 (0/26) & --- & --- \\
-Deep Q    & 123.23 (0/26)  & 98.89 (0/26)  & 118.48 (7/26) & --- & --- \\
-PPO       & 55.67 (0/26)   & 125.19 (26/26) & 125.19 (26/26)
-          & 125.19 (26/26) & 56.48 (0/26) \\
+\multicolumn{9}{l}{\emph{Reference strategies (calibrated slice)}} \\
+& B0 do-nothing      & $0.00$    & ---    & 0.000 & 0.0  & 0.0000 & 0.000 & --- \\
+& B1a slice schedule & $+179.75$ & ---    & 0.841 & 5.0  & 0.0274 & \textbf{0.684} & --- \\
+& B1b buy-and-hold   & $\mathbf{+180.25}$ & --- & 0.913 & 2.0 & 0.0310 & 0.638 & --- \\
+& B2 random legal    & $+22.73$  & ---    & 0.304 & 13.3 & 0.0133 & 0.124 & --- \\
+\midrule
+\multicolumn{9}{l}{\emph{$S_3$, wealth-change reward} --- the baseline cell} \\
+& REINFORCE & $+171.51$ & 24.7  & 0.810 & 10.3 & 0.0266 & 0.675 & 0/6 \\
+& Deep Q    & $+74.68$  & 71.4  & 0.312 & 8.2  & 0.0124 & 0.507 & \textbf{6/6} \\
+& PPO       & $+127.35$ & 179.8 & 0.598 & 3.7  & 0.0195 & 0.562 & 0/6 \\
+\midrule
+\multicolumn{9}{l}{\emph{$S_4$, wealth-change reward} --- adds drawdown to the state only} \\
+& REINFORCE & $+167.39$ & 24.7  & 0.794 & 13.0 & 0.0263 & 0.670 & 0/6 \\
+& Deep Q    & $+77.81$  & 89.5  & 0.354 & 7.4  & 0.0140 & 0.505 & \textbf{6/6} \\
+& PPO       & $+159.97$ & 94.0  & 0.759 & 7.3  & 0.0250 & 0.671 & 1/6 \\
+\midrule
+\multicolumn{9}{l}{\emph{$S_4$, risk-aware reward}, $\lambda = 0.10$ --- adds drawdown to state and reward} \\
+& REINFORCE & $+167.39$ & 24.7  & 0.794 & 13.0 & 0.0263 & 0.670 & 0/6 \\
+& Deep Q    & $+52.90$  & 43.1  & 0.178 & 5.4  & \textbf{0.0082} & 0.416 & \textbf{6/6} \\
+& PPO       & $+21.48$  & 128.9 & 0.108 & 0.7  & 0.0037 & 0.107 & 1/6 \\
+\midrule
+\multicolumn{9}{l}{\emph{Action model}, $S_3$ and wealth-change reward held fixed} \\
+whole share & REINFORCE & $+77.91$  & 99.8  & 0.422 & 19.0 & 0.0151 & 0.427 & 0/6 \\
+(B1a $+94.69$) & Deep Q & $+58.23$  & 61.6  & 0.177 & 10.4 & 0.0061 & 0.541 & \textbf{6/6} \\
+            & PPO       & $+25.75$  & 90.1  & 0.128 & 4.8  & 0.0044 & 0.211 & 2/6 \\
+\addlinespace
+slice $0.1\,C_0$ & REINFORCE & $+117.40$ & 132.4 & 0.578 & 15.9 & 0.0196 & 0.550 & 0/6 \\
+(B1a $+141.31$) & Deep Q & $+77.37$  & 42.9  & 0.327 & 11.2 & 0.0117 & 0.504 & \textbf{6/6} \\
+            & PPO       & $+129.74$ & 69.4  & 0.635 & 10.0 & 0.0214 & 0.627 & 1/6 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Across seeds, REINFORCE sits at or within a few dollars of the
-buy-and-hold corner every time (its seed-43/44 variants differ only by a
-handful of early-month trades); Deep Q consistently lands nearby with
-more trading and equal-or-better risk metrics; PPO oscillates between
-the two rational corners.
+\paragraph{No learned agent beats buy-and-hold, on either measure.} The best
+learned return is REINFORCE's $+\$171.51$ against buy-and-hold's $+\$180.25$,
+and the best learned Sharpe ratio is $0.675$ against the slice schedule's
+$0.684$. Neither gap is large, and neither has the wrong sign. Every method wins
+in roughly a third of individual months, which is what a lower-exposure strategy
+does in a market that falls in about a third of its months; it is not evidence
+of timing.
 
-\paragraph{Training dynamics.} Figure~\ref{fig:res_curves} shows episode
-returns during training for the scratch methods. Unlike the Phase-0
-games, the curves do not ``rise and saturate'': each training episode is
-a randomly drawn month whose achievable return is dominated by that
-month's drift, so the reward signal is noisy by construction. This is the
-practical face of the high-variance problem analysed in
-Section~\ref{sec:pg_derivation}, and a key difference between trading and
-game benchmarks: the environment's randomness overwhelms the visible
-learning signal, and evaluation on held-out data --- not the training
-curve --- is the only trustworthy progress measure.
+\paragraph{The policy-gradient methods do not read their state.} REINFORCE is
+mask-determined in all six seeds and PPO in all six at $S_3$, reproducing on the
+test months exactly what Section~\ref{sec:res_conditioning} found on validation.
+REINFORCE's near-benchmark return is therefore not a near-miss at beating the
+market; it is the arithmetic of a policy that buys whenever a Buy is legal, which
+is what B1a already is. Its apparent respectability and PPO's enormous seed
+spread of \$179.75 have the same cause: both are choosing between corners rather
+than conditioning on anything.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{ablation_training_curves}
-  \caption{Training-episode returns (smoothed) for the scratch methods.
-  Month-to-month drift dominates the visible signal; learning progress is
-  measured on held-out months, not on this curve.}
-  \label{fig:res_curves}
-\end{figure}
+That the same collapse afflicts a modern stabilised method as well as the
+textbook one is worth stating, because it rules out the most obvious
+explanation. REINFORCE's variance alone cannot be the cause, since PPO's
+clipped surrogate and value baseline exist precisely to control that variance
+and it collapses anyway. What the two share is that they optimise a policy
+directly against a reward whose best unconditional answer is already very good.
+
+\paragraph{Deep Q-learning reads its state, and uses it to hold less.} It is
+state-dependent in every seed of every cell, and it is also the weakest earner,
+at $+\$74.68$ against $+\$180.25$. The two facts are one fact. Its mean exposure
+is $0.312$ against the attainable $0.841$, and its drawdown is correspondingly
+lower, $0.0124$ against buy-and-hold's $0.0310$.
+
+The question that matters is whether that is risk management or merely
+abstention, and it has a quantitative answer. Deep Q earns $41.4\%$ of
+buy-and-hold's return while incurring $39.9\%$ of its drawdown. The ratio of
+those two figures is $0.96$: the drawdown reduction exceeds the return sacrifice
+by four percent, which is inside the seed spread on both quantities. Reducing
+drawdown by holding less is something any investor can do without a neural
+network, by holding less. The agent has not found a way to hold the same
+exposure through smaller losses, and its Sharpe ratio, $0.507$ against
+buy-and-hold's $0.638$, records that the trade was not worth making.
+
+\paragraph{Adding drawdown to the state alone changes nothing.} Comparing the
+first two blocks answers the question Chapter~3 deliberately left open: does
+representing risk history help even when the reward does not ask for it? For
+Deep Q the answer is no, $+\$74.68$ against $+\$77.81$ with a seed spread of
+\$71 and \$89, so the difference is a small fraction of the noise. Exposure,
+trade count, drawdown and Sharpe are likewise unchanged. PPO's figure rises from
+$+\$127.35$ to $+\$159.97$, but with spreads of \$180 and \$94 that movement
+carries no weight, and it is in any case a method that ignores the feature in
+five of six seeds.
+
+This is the cleanest vindication of the decision to keep drawdown out of the
+core state. Had it been included by default, as originally proposed, this table
+would have contained no comparison capable of showing that it earns nothing on
+its own, and a reader would have had to take the inclusion on trust.
+
+\paragraph{The action model matters more than the state.} The lower block is the
+largest effect in the table. Holding state and reward fixed and changing only how
+a Buy is sized moves REINFORCE from $+\$77.91$ to $+\$171.51$, a range wider than
+anything the state axis produces. The explanation is the ceiling of
+Section~\ref{sec:res_calibration}: under whole-share trading the fastest legal
+accumulation reaches exposure $0.502$ and $+\$94.69$, and under the tenth-slice
+model $0.694$ and $+\$141.31$. REINFORCE tracks those ceilings closely, at
+$0.422$ and $0.578$ exposure, because tracking the ceiling is what a
+buy-when-legal policy does.
+
+Deep Q is the exception, and instructively so: it earns $+\$58.23$, $+\$77.37$
+and $+\$74.68$ across the three action models, essentially flat. An agent that
+has already decided to hold about a third of capital is indifferent to how
+finely it could have held more. The action model constrains the policies that
+saturate exposure and is irrelevant to the one that does not.
+
+\section{The risk-aware reward}
+\label{sec:res_risk}
+
+\paragraph{Choosing the penalty weight, and a rule that had to be repaired.}
+The weight $\lambda$ was selected on validation, and the first attempt to select
+it failed in a way worth reporting rather than quietly correcting. The rule as
+originally declared was to take the largest $\lambda$ whose mean wealth change
+stayed within one across-seed spread of the unpenalised agent. On the validation
+months that agent earned $+\$78.35$ with an across-seed spread of \$106.94, so
+the tolerance exceeded the entire quantity it was meant to protect and the floor
+fell to $-\$28.59$. Every candidate cleared it, including those that stopped
+trading altogether, and the rule selected $\lambda = 2.0$ and an agent that never
+opened a position in any month. An additive tolerance expressed as a multiple of
+the noise is vacuous once the noise is larger than the signal.
+
+The rule was therefore restated multiplicatively and with a participation
+requirement: take the largest $\lambda$ retaining at least half the unpenalised
+agent's mean wealth change \emph{and} at least half its mean exposure. The second
+condition is what excludes the degenerate answer, because an agent holding
+nothing has no drawdown, and reporting abstention as risk management would be a
+category error. Both the superseded rule and its outcome are recorded in the
+results file.
+
+\begin{table}[h]
+\centering
+\caption{Penalty-weight sweep on the 12 validation months, Deep Q-learning, six
+seeds. The unpenalised agent earns $+\$78.35$ at exposure $0.445$ with mean
+intra-episode drawdown $0.0163$. Floors: $\Delta W \ge +\$39.17$ and exposure
+$\ge 0.223$.}
+\label{tab:res_lambda}
+\begin{tabular}{rrrrrc}
+\toprule
+$\lambda$ & \textbf{Mean $\Delta W$} & \textbf{Exposure} &
+\textbf{Drawdown} & \textbf{$\Delta$ drawdown} & \textbf{Clears floors} \\
+\midrule
+0.05 & $+88.78$ & 0.401 & 0.0128 & $-21.5\%$  & yes \\
+0.10 & $+67.30$ & 0.344 & 0.0124 & $-24.0\%$  & \textbf{yes (selected)} \\
+0.25 & $+19.90$ & 0.074 & 0.0035 & $-78.4\%$  & no \\
+0.50 & $+1.73$  & 0.002 & 0.0001 & $-99.4\%$  & no \\
+1.00 & $0.00$   & 0.000 & 0.0000 & $-100\%$   & no \\
+2.00 & $0.00$   & 0.000 & 0.0000 & $-100\%$   & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The sweep shows why the participation condition is needed. The trade-off is
+usable over a narrow range and then collapses: between $\lambda = 0.10$ and
+$\lambda = 0.25$ exposure falls from $0.344$ to $0.074$ and the agent
+substantially stops trading, and by $\lambda = 0.50$ it has stopped. The penalty
+is $\lambda\,C_0$ per unit of fractional drawdown, so at $\lambda = 0.5$ a one
+percent deepening of drawdown costs \$50 against a typical daily wealth change of
+a few tens of dollars. Once the penalty outweighs the return term, the optimal
+policy is to hold cash, and the agent finds it.
+
+\paragraph{On the test months, the penalty buys nothing risk-adjusted.} At the
+selected weight, Deep Q's drawdown falls from $0.0124$ to $0.0082$, a reduction
+of $34\%$, and its return falls from $+\$74.68$ to $+\$52.90$, a reduction of
+$29\%$. Its Sharpe ratio falls from $0.507$ to $0.416$. Measured against
+buy-and-hold, the ratio of drawdown retained to return retained is $0.90$,
+against $0.96$ for the unpenalised agent: a marginal improvement, well inside the
+seed spread.
+
+The honest reading is that the reward change works exactly as its algebra says it
+must, and that this is not the same as working as intended. Penalising increases
+in drawdown does reduce drawdown. It reduces it by reducing participation, which
+is the cheapest way for the agent to comply, and it does not induce the behaviour
+the experiment was looking for, which was the same exposure carried through
+smaller losses. PPO's collapse to $0.7$ trades per month and $0.108$ exposure is
+the same effect in more extreme form.
+
+This is a negative result about a specific reward, not about risk-sensitive
+reinforcement learning. A penalty on downside deviation gives the agent no credit
+for return earned per unit of risk, so abstention always dominates. Objectives
+that reward the ratio rather than penalising the numerator, such as the
+differential Sharpe ratio of Moody and Saffell \cite{moody2001}, do not have this
+degenerate solution, and Chapter~6 identifies that as the natural continuation.
 
 \section{Fee sensitivity}
 \label{sec:res_fees}
 
-To test whether the learned behaviours respond to economic friction,
-REINFORCE and Deep Q were retrained (seed 42) at three fee levels and
-evaluated at the same fee (Table~\ref{tab:res_fees},
-Figure~\ref{fig:res_fees}).
+The 5-basis-point assumption is defensible for a retail investor in a highly
+liquid instrument, but it is favourable, and a result that survives only at an
+optimistic cost is not a result. The fee is therefore swept from frictionless to
+deliberately punitive, on validation.
 
 \begin{table}[h]
 \centering
-\caption{Fee sensitivity (seed 42, retrained and evaluated per fee
-level). Mean $\Delta W$ in dollars; trades per month in parentheses.}
+\caption{Fee sensitivity on the 12 validation months at the nine-feature state,
+six seeds. Buy-and-hold trades twice per month, so its cost is nearly
+fee-independent in relative terms; the agents trade far more.}
 \label{tab:res_fees}
-\begin{tabular}{lccc}
+\begin{tabular}{rrrrrrr}
 \toprule
-\textbf{Method} & \textbf{0 bps} & \textbf{5 bps} & \textbf{20 bps} \\
+\textbf{Fee} & \textbf{B1b $\Delta W$} & \textbf{REINF.\ $\Delta W$} &
+\textbf{Trades} & \textbf{Deep Q $\Delta W$} & \textbf{Trades} &
+\textbf{Exposure} \\
 \midrule
-B1b buy-and-hold & 135.32 (11.0) & 125.19 (11.0) & 94.86 (11.0) \\
-REINFORCE        & 135.32 (11.0) & 125.19 (11.0) & 94.86 (11.0) \\
-Deep Q           & 111.09 (19.8) & 123.23 (13.2) & 65.90 (6.1) \\
+0 bps  & $+177.09$ & $+177.56$ & 5.0  & $+108.00$ & 10.9 & 0.448 \\
+5 bps  & $+166.92$ & $+154.96$ & 10.3 & $+86.16$  & 8.5  & 0.325 \\
+10 bps & $+156.76$ & $+143.74$ & 4.7  & $+77.60$  & 8.9  & 0.436 \\
+25 bps & $+126.33$ & $+88.76$  & 10.3 & $+32.35$  & 3.9  & 0.306 \\
+50 bps & $+75.83$  & $+41.31$  & 2.8  & $+16.32$  & 1.9  & 0.181 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{ablation_fee_sensitivity}
-  \caption{Mean $\Delta W$ under increasing proportional fees.}
-  \label{fig:res_fees}
-\end{figure}
+\paragraph{Profit is fee-sensitive, as it must be.} Every strategy earns less as
+costs rise, and the learned agents lose ground faster than buy-and-hold does,
+because they trade between five and ten times as often. At 50 basis points Deep
+Q retains $15\%$ of its frictionless profit while buy-and-hold retains $43\%$.
+Nothing about that is surprising; it is arithmetic.
 
-Two observations. First, REINFORCE tracks buy-and-hold identically at
-every fee level --- consistent with its collapse: a policy that trades
-exactly like buy-and-hold pays exactly buy-and-hold's fees. Second,
-Deep Q \emph{adapts its trading intensity to the fee}: 19.8 trades/month
-when trading is free, 13.2 at 5 bps, and only 6.1 at 20 bps. The
-direction of the adaptation is economically correct (the fee enters the
-reward, and the agent learns to economise on it), although at 20 bps the
-residual trading still costs more than it saves relative to buy-and-hold
---- risk trimming is not free, and a risk-neutral objective gives the
-agent no credit for the variance it removes.
+\paragraph{Behaviour is the informative measure, and it separates the methods.}
+An agent that has represented the cost of trading should trade less as trading
+becomes more expensive. Deep Q's trade count falls monotonically in the trend,
+from $10.9$ per month at zero cost to $1.9$ at fifty basis points, a change of
+$9.0$ against a maximum across-seed spread of $8.5$, and its exposure falls with
+it. It has learned that trading is expensive.
 
-\section{Preliminary evidence: a risk-aware reward}
-\label{sec:res_riskaware}
+REINFORCE has not. Its trade count over the same tenfold increase in cost reads
+$5.0$, $10.3$, $4.7$, $10.3$, $2.8$: no trend, and the movement is smaller than
+the seed noise of $15.8$. The pattern is exactly what the conditioning
+diagnostic predicts, because the two corner policies it alternates between
+involve about $5$ and about $21$ trades per month, so its average bounces
+according to which corner each seed happened to reach. A policy that does not
+read its state cannot read the cost of acting either.
 
-The analysis so far repeatedly traces behaviour back to the risk-neutral
-reward. As a first, deliberately exploratory test of that attribution,
-both scratch methods were retrained (seed 42, all else identical) on a
-drawdown-penalised reward,
-\[
-r'_t \;=\; \Delta W_t \;-\; \lambda \,\max\!\bigl(0,\; D_t - D_{t-1}\bigr),
-\qquad D_t = \max_{u \le t} W_u - W_t,\quad \lambda = 0.25,
-\]
-which charges the agent a quarter of every new dollar of drawdown from
-its peak wealth. Crucially, evaluation still uses the \emph{true} wealth
-metrics, so Table~\ref{tab:res_riskaware} is directly comparable to
-Table~\ref{tab:res_main}.
-
-\begin{table}[h]
-\centering
-\caption{Risk-aware preliminary (seed 42, $\lambda = 0.25$; trained on
-the shaped reward, evaluated on true wealth metrics).}
-\label{tab:res_riskaware}
-\small
-\begin{tabular}{lrrrrr}
-\toprule
-\textbf{Method} & \textbf{Mean $\Delta W$} & \textbf{Std}
- & \textbf{Trades/mo} & \textbf{Sharpe} & \textbf{MDD} \\
-\midrule
-B1b buy-and-hold (reference) & 125.19 & 309.87 & 11.0 & 0.40 & 6.0\% \\
-REINFORCE (risk-aware)       & 0.00   & 0.00   & 0.0  & ---  & 0.0\% \\
-Deep Q (risk-aware)          & 49.48  & 73.22  & 10.1 & \textbf{0.68} & \textbf{1.4\%} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The outcome sharpens the dissertation's central claim in an unexpected
-way. REINFORCE does not become a risk manager --- it \emph{jumps to the
-opposite corner}, converging to total abstention (zero trades, zero
-wealth change): under its episodic Monte-Carlo signal, once drawdowns are
-taxed at $\lambda = 0.25$ the all-cash policy dominates, and the
-corner-seeking character of the optimiser is unchanged --- only the
-corner moves. Deep Q, by contrast, delivers precisely the trade the
-shaped reward requests: maximum drawdown collapses from 6.0\% to 1.4\%
-and the monthly Sharpe ratio rises from 0.40 to 0.68, in exchange for
-roughly 60\% of the mean return. One seed and one $\lambda$ make this
-preliminary evidence, not a study --- but the direction confirms both
-the reward-attribution argument and the family-level behavioural
-difference, and defines the obvious next experiment (a $\lambda$ sweep,
-Chapter~6).
+This is the fee study's real contribution. Fees were placed inside the reward so
+that the agent would pay them while learning
+(Section~\ref{sec:reward}), and this table shows that placement working for one
+method and having no behavioural effect on another, for a reason now
+independently established.
 
 \section{Analysis and key findings}
 \label{sec:res_analysis}
 
-\paragraph{1. The reward, not the state (or the algorithm), sets the
-incentive.} The pilot and the final model bracket this cleanly. With a
-minimal state, every optimiser collapsed to buy-and-hold. With the
-complete state, the Monte-Carlo policy gradient \emph{still} chose
-buy-and-hold --- because under a risk-neutral wealth-change reward in a
-rising regime, buy-and-hold is (near-)optimal, and REINFORCE optimises
-exactly that objective. Beating buy-and-hold on raw return in this setup
-would be evidence of a bug or of leakage, not of skill.
+\paragraph{1. The reward is the binding constraint, not the state.} Under
+$r_t = \Delta W_t$ on an asset that drifts upward, the best policy is
+unconditional maximum exposure, so no state can be better than the smallest and
+extra features add only parameters and variance. This was stated in
+Section~\ref{sec:reward} before any run, and three independent results now
+support it: the ladder does not separate rungs from one feature to twelve
+(Section~\ref{sec:res_ladder}); adding drawdown to the state without adding it to
+the reward changes nothing beyond seed noise (Section~\ref{sec:res_final}); and
+both direct policy optimisers converge on policies that ignore the state
+entirely. The state design of Chapter~3 is not thereby refuted, because
+admissibility is not an empirical question. What is refuted is the assumption
+that a better representation is what this agent was missing.
 
-\paragraph{2. Algorithm families respond differently to the same
-objective.} Under a matched budget, data split, fee and seed: REINFORCE's
-episodic Monte-Carlo signal drives it to the exposure corner; Deep Q's
-per-step bootstrapping yields a policy that reacts to local state, buys
-measurable risk reduction at negligible return cost, and adapts its
-trading intensity to transaction fees; PPO's clipped updates make its
-destination seed-dependent, landing on either rational corner. This
-family-level behavioural characterisation is the central empirical
-finding of the dissertation.
+\paragraph{2. Algorithm family determines whether the state is used at all.}
+The two policy-gradient methods are mask-determined in almost every seed; the
+value-based method is state-dependent in every seed of every cell. This is the
+most robust behavioural finding in the chapter, it holds on validation and test
+alike, and it has a methodological consequence that reaches beyond this project:
+a comparison between state representations is meaningless for a method that does
+not read its state, and reward alone cannot reveal that, because in a rising
+market the state-blind policy scores well. Reporting the conditioning diagnostic
+alongside returns is what made this visible, and it was added only after
+identical wealth changes across a twelvefold difference in state dimension
+prompted the question.
 
-\paragraph{3. Honest baselines remain the load-bearing methodology.}
-Every headline in this chapter depends on the fully-invested baseline
-being present. The same table with only a one-share or do-nothing
-baseline would report a spurious $10\times$ victory. Equally, the Sharpe
-column shows how a naive risk-adjusted comparison can mislead: the
-random and PPO (seed 42) rows post the highest Sharpe ratios simply
-because low exposure shrinks variance faster than it shrinks mean.
+\paragraph{3. Lower drawdown by lower exposure is not risk management.} Deep Q
+attains $41\%$ of buy-and-hold's return at $40\%$ of its drawdown, and the
+risk-aware reward moves both figures down together. Because the ratio barely
+changes and the Sharpe ratio falls, the honest description is de-risking rather
+than skill. Reporting mean exposure beside every return is what makes this
+checkable; without it, a table showing a threefold drawdown reduction would look
+like an achievement.
 
-\paragraph{4. What a risk-aware reward would change.} Deep Q's behaviour
---- exposure trimming that reduces drawdown at small return cost --- is
-exactly the behaviour a reward of the form
-$r_t = \Delta W_t - \lambda D_t$ (drawdown-penalised) would
-\emph{explicitly} pay for. Under the current risk-neutral reward, that
-behaviour survives only where the value function finds it locally
-profitable; under a risk-aware reward it would be globally incentivised.
-This is the single highest-leverage extension (Chapter~6).
+\paragraph{4. Baselines and action models decide what a result means.} Three
+findings in this chapter exist only because the benchmarks were constructed
+carefully. The corrected buy-and-hold is $21.6\%$ stronger than the
+dollar-cost-average that had been carrying its name
+(Section~\ref{sec:defects}). The exposure ceiling shows that under the original
+trade slice no agent could have beaten it regardless of skill
+(Section~\ref{sec:res_calibration}). And reporting the slice schedule alongside
+buy-and-hold is what reveals REINFORCE's near-benchmark return to be that
+schedule rather than a near-miss at market timing. Weak or mislabelled baselines
+would have turned each of these into a positive result.
 
-\paragraph{Scope.} Single asset; daily bars in monthly episodes; three
-seeds; a risk-neutral reward; PPO from a reference library rather than
-from scratch. Consequences and remedies are discussed in Chapter~6.
+\paragraph{5. Variance is a finding, not a nuisance.} The learned outcomes are
+bimodal across seeds rather than scattered around a mean, which is why the seed
+count was raised to six and why ranges are reported rather than standard errors.
+It is also why the ladder's stopping rule terminates immediately: the rule
+compares differences against seed spread, and the spread is larger than any
+difference. A study of this design reporting a single seed could have shown
+almost any conclusion it wished.
 
-\paragraph{Chapter summary (plain language).} Both home-built learners
-passed their video-game driving test, so their behaviour on markets can
-be trusted to reflect the problem, not bugs. On real market data the
-policy-gradient learner concluded that the best plan was to buy
-immediately and hold --- exactly matching the passive strategy, trade for
-trade --- and the mathematics says that conclusion is \emph{correct} for
-the reward it was given, since on average the market drifted upward. The
-value-based learner found something subtler: it stayed almost fully
-invested but sold down during turbulent stretches, losing about \$2 a
-month of profit in exchange for noticeably smaller worst-case losses ---
-and when trading fees were raised, it traded less, all of its own accord.
-The modern PPO method landed on one of two sensible answers depending on
-its random starting conditions. Finally, a first experiment with a
-reward that punishes losses directly showed the value-based learner
-cutting its worst losses four-fold --- while the policy-gradient learner
-simply switched from ``always fully invested'' to ``never invest at
-all.'' None of this ``beats the market'' --- and the study was designed
-so that saying so honestly is its central strength. What these findings
-mean, and what they do not, is the subject of the final chapter.
+\paragraph{Scope.} A single asset, daily bars in monthly episodes, three
+algorithms, a long-only three-action space, and 24 held-out months in a period
+that rose overall. The negative results above are conditional on that setting, and
+in particular on a reward that pays only for expected wealth. Chapter~6 sets out
+which of these limits are incidental and which are load-bearing.
+
+\paragraph{Chapter summary (plain language).} The short version is that none of
+the three learners beat simply buying at the start of the month and holding, and
+that the reasons are more interesting than the verdict.
+
+Two of the three never used the market information they were given at all. They
+settled on a blanket rule --- buy whenever there is cash, or never buy --- and a
+diagnostic added for the purpose confirmed they were making the same choice
+regardless of what the market was doing. One of them scores respectably, but only
+because buying whenever possible is a decent strategy in a market that rose; it
+is not evidence of skill, and the same agent ignores the cost of trading even
+when that cost is made ten times larger.
+
+The third learner did read the market, and used it to stay mostly out. It ended
+up with roughly 40\% of the market's return and roughly 40\% of the market's
+worst losses, which is what anyone gets by investing 40\% of their money. Asking
+it explicitly to avoid losses made it invest even less, which is the cheapest way
+to comply rather than the intended lesson.
+
+The most useful discovery was not about learning at all. The original rules let
+the agent commit only a tenth of its money per day, so in a twenty-one-day month
+it could never become as invested as the benchmark, and could never have won
+whatever it learned. Fixing that mattered more than any change to what the agent
+could see.
