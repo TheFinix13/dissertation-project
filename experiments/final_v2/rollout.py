@@ -108,6 +108,43 @@ def summarize(rows: Sequence[dict], initial_cash: float = 10_000.0) -> dict:
     }
 
 
+def mask_determined(factory, episodes: Sequence[dict], policy: Policy) -> dict:
+    """Is the policy actually conditioning on the state, or only on the mask?
+
+    A policy can score well while ignoring its observation entirely: "buy
+    whenever a Buy is legal" needs no market information at all. Reward alone
+    cannot distinguish that from a policy that has learned something, so this
+    records, for each pattern of legal actions encountered, the set of actions
+    the policy chose when that pattern held.
+
+    If every mask pattern maps to exactly one action, the policy is a lookup
+    table on feasibility and its observation is decorative. `fraction_determined`
+    is then 1.0. Values below 1.0 mean the policy chose differently in different
+    states that offered the same choices, which is the minimum evidence that the
+    state is being used.
+    """
+    seen: dict[tuple, set] = {}
+    for ep in episodes:
+        env = factory(ep)
+        obs, _ = env.reset()
+        done = False
+        while not done:
+            mask = env.action_masks()
+            action = int(policy(obs, mask))
+            seen.setdefault(tuple(bool(m) for m in mask), set()).add(action)
+            obs, _, term, trunc, _ = env.step(action)
+            done = term or trunc
+
+    single = sum(1 for actions in seen.values() if len(actions) == 1)
+    return {
+        "mask_patterns": len(seen),
+        "patterns_with_single_action": single,
+        "fraction_determined": single / max(1, len(seen)),
+        "state_dependent": single < len(seen),
+        "detail": {str(list(k)): sorted(v) for k, v in seen.items()},
+    }
+
+
 def win_rate(rows: Sequence[dict], reference: Sequence[dict]) -> float:
     wins = sum(1 for a, b in zip(rows, reference)
                if a["delta_w"] > b["delta_w"] + 1e-9)

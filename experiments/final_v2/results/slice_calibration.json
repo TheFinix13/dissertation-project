@@ -1,0 +1,51 @@
+{
+  "study": "trade-slice calibration against the exposure ceiling",
+  "rule": "smallest slice whose attainable exposure ceiling reaches 90% of buy-and-hold's exposure",
+  "exposure_target_fraction": 0.9,
+  "exposure_threshold": 0.819023491009434,
+  "requires_training": false,
+  "requires_test_data": false,
+  "split_used": "val",
+  "mean_episode_length": 20.833333333333332,
+  "buy_and_hold": {
+    "mean_exposure": 0.9100261011215932,
+    "mean_delta_w": 166.91987081754692
+  },
+  "grid": [
+    {
+      "slice_frac": 0.05,
+      "steps_to_full": 20,
+      "mean_exposure": 0.4495600132288484,
+      "mean_delta_w": 95.48707038771757,
+      "mdd_intra_mean": 0.017739791666841743,
+      "reaches_target": false
+    },
+    {
+      "slice_frac": 0.1,
+      "steps_to_full": 10,
+      "mean_exposure": 0.6902906257445043,
+      "mean_delta_w": 121.78662585604798,
+      "mdd_intra_mean": 0.02681790702087288,
+      "reaches_target": false
+    },
+    {
+      "slice_frac": 0.25,
+      "steps_to_full": 4,
+      "mean_exposure": 0.8378516901224704,
+      "mean_delta_w": 167.39044502485316,
+      "mdd_intra_mean": 0.02942909424313563,
+      "reaches_target": true
+    },
+    {
+      "slice_frac": 0.5,
+      "steps_to_full": 2,
+      "mean_exposure": 0.8856035193981694,
+      "mean_delta_w": 162.7697848067528,
+      "mdd_intra_mean": 0.03069828708630551,
+      "reaches_target": true
+    }
+  ],
+  "chosen_slice_frac": 0.25,
+  "chosen_slice_dollars": 2500.0,
+  "note": "the ceiling is measured by the fastest legal accumulation policy, so it bounds every policy at that granularity"
+}

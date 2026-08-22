@@ -36,11 +36,27 @@ import agents
 import data as data_mod
 from baselines import BASELINES
 from env import make_env_factory
-from rollout import evaluate, identical_months, summarize, win_rate
+from rollout import (evaluate, identical_months, mask_determined, summarize,
+                     win_rate)
 
-SEEDS = (42, 43, 44)
+#: Six seeds rather than three. The first ladder run showed that the learned
+#: policies are bimodal across seeds, landing either on a fully-committed or on a
+#: do-nothing corner, so a three-seed mean is a summary of a distribution it
+#: cannot describe and its spread is dominated by which corner happened to come
+#: up. Six is still small, but it is enough to report how often each mode occurs
+#: rather than only an average between them.
+SEEDS = (42, 43, 44, 45, 46, 47)
+
 INITIAL_CASH = 10_000.0
 FEE = 0.0005
+
+#: Trade slice, chosen by `calibrate_slice.py` on the validation split. A tenth
+#: of capital, used earlier in the project, needs ten steps to reach full
+#: exposure and so caps mean exposure near 0.69 across a 21-bar month, against
+#: buy-and-hold's 0.91. Under that setting no agent can beat buy-and-hold however
+#: well it trades, and reporting that it failed to would report arithmetic as a
+#: result about learning.
+SLICE_FRAC = 0.25
 
 
 # --------------------------------------------------------------- provenance
@@ -85,7 +101,7 @@ class Config:
         rung: str | None = None,
         risk_lambda: float = 0.0,
         action_model: str = "slice",
-        slice_frac: float = 0.10,
+        slice_frac: float = SLICE_FRAC,
         fee: float = FEE,
     ):
         self.name = name
@@ -157,6 +173,7 @@ def train_one(
     *,
     seed: int,
     total_timesteps: int,
+    reward_scale: float = 1.0,
 ) -> tuple[Callable, dict]:
     """Train one agent. Returns (greedy policy, training trace)."""
     factory = cfg.factory()
@@ -165,14 +182,16 @@ def train_one(
 
     if algo == "reinforce":
         res = agents.train_reinforce(factory, train_episodes, obs_dim=obs_dim,
-                                     total_timesteps=total_timesteps, seed=seed)
+                                     total_timesteps=total_timesteps, seed=seed,
+                                     reward_scale=reward_scale)
         policy = agents.make_reinforce_policy(res.model)
         trace = {"episode_delta_w": res.episode_delta_w,
                  "episode_returns": res.episode_returns,
                  "episode_timesteps": res.episode_timesteps}
     elif algo == "dqn":
         res = agents.train_dqn(factory, train_episodes, obs_dim=obs_dim,
-                               total_timesteps=total_timesteps, seed=seed)
+                               total_timesteps=total_timesteps, seed=seed,
+                               reward_scale=reward_scale)
         policy = agents.make_dqn_policy(res.model)
         trace = {"episode_delta_w": res.episode_delta_w,
                  "episode_returns": res.episode_returns,
@@ -203,22 +222,28 @@ def evaluate_agent(
     *,
     seeds: Sequence[int] = SEEDS,
     total_timesteps: int,
+    reward_scale: float = 1.0,
     log=print,
 ) -> dict:
     """Train `algo` once per seed and evaluate each on `eval_episodes`."""
     per_seed = []
     for seed in seeds:
-        policy, trace = train_one(algo, cfg, train_episodes,
-                                  seed=seed, total_timesteps=total_timesteps)
+        policy, trace = train_one(algo, cfg, train_episodes, seed=seed,
+                                  total_timesteps=total_timesteps,
+                                  reward_scale=reward_scale)
         # Evaluation always scores the wealth change, so a risk-trained agent
         # and a wealth-trained agent are compared on the same quantity.
-        rows = evaluate(cfg.factory(risk_lambda=0.0), eval_episodes, policy)
+        eval_factory = cfg.factory(risk_lambda=0.0)
+        rows = evaluate(eval_factory, eval_episodes, policy)
         summary = summarize(rows, INITIAL_CASH)
         summary["win_rate_vs_ref"] = win_rate(rows, reference_rows)
         summary["months_identical_to_ref"] = identical_months(rows, reference_rows)
+        conditioning = mask_determined(eval_factory, eval_episodes, policy)
+        summary["state_dependent"] = conditioning["state_dependent"]
         per_seed.append({
             "seed": seed,
             "summary": summary,
+            "conditioning": conditioning,
             "train": trace,
             "per_month": [
                 {"id": r["episode_id"], "delta_w": r["delta_w"],
@@ -231,6 +256,7 @@ def evaluate_agent(
             f"trades={summary['mean_trades']:5.1f}  "
             f"expo={summary['mean_exposure']:.2f}  "
             f"ddI={summary['mdd_intra_mean']:.3f}  "
+            f"cond={'state' if conditioning['state_dependent'] else 'MASK-ONLY'}  "
             f"({trace['wall_seconds']}s)")
 
     return {"per_seed": per_seed, "across_seeds": aggregate(per_seed)}
@@ -251,6 +277,9 @@ def aggregate(per_seed: Sequence[dict]) -> dict:
             "max": float(vals.max()),
             "spread": float(vals.max() - vals.min()),
         }
+    out["n_state_dependent"] = sum(1 for s in per_seed
+                                   if s["summary"].get("state_dependent"))
+    out["n_seeds"] = len(per_seed)
     out["accounting_ok"] = all(s["summary"]["accounting_ok"] for s in per_seed)
     out["max_accounting_gap"] = max(s["summary"]["max_accounting_gap"] for s in per_seed)
     out["illegal_rate"] = max(s["summary"]["illegal_rate"] for s in per_seed)

@@ -90,7 +90,17 @@ def train_reinforce(
     gamma: float = 0.99,
     lr: float = 1e-3,
     hidden: int = 128,
+    reward_scale: float = 1.0,
 ) -> TrainResult:
+    """Plain REINFORCE, exactly as derived in Chapter 3.
+
+    `reward_scale` divides the reward before the update. It is learner-side
+    preprocessing, not a change to the MDP: the environment still emits dollars
+    and every reported metric is in dollars. REINFORCE standardises its returns
+    within each episode anyway, so the scale is close to irrelevant here; the
+    argument exists so that both learners expose the same knob and the
+    conditioning experiment can vary it uniformly.
+    """
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
 
@@ -112,7 +122,7 @@ def train_reinforce(
             action = dist.sample()
             log_probs.append(dist.log_prob(action))
             obs, reward, term, trunc, info = env.step(int(action.item()))
-            rewards.append(float(reward))
+            rewards.append(float(reward) * reward_scale)
             dws.append(float(info["dw"]))
             global_t += 1
             done = term or trunc
@@ -156,7 +166,23 @@ def train_dqn(
     eps_end: float = 0.05,
     eps_decay_frac: float = 0.5,
     learn_start: int = 1_000,
+    reward_scale: float = 1.0,
 ) -> TrainResult:
+    """Deep Q-learning, exactly as derived in Chapter 3.
+
+    `reward_scale` divides the reward before it enters the replay buffer. It is
+    learner-side preprocessing and does not change the MDP or any reported
+    metric, which stay in dollars.
+
+    Unlike REINFORCE, this method is sensitive to the scale. Q here estimates a
+    sum of dollar rewards over a month, so targets reach the low hundreds, and a
+    squared-error loss on targets of that size produces gradients three to four
+    orders of magnitude larger than a network initialised near zero expects.
+    Dividing by the initial capital puts the targets near 0.02 instead, which is
+    the range the default learning rate was chosen for. Whether this actually
+    matters for the results is settled on the validation split rather than
+    assumed; see `run_conditioning.py`.
+    """
     torch.manual_seed(seed)
     random.seed(seed)
     rng = np.random.default_rng(seed)
@@ -196,7 +222,7 @@ def train_dqn(
             action = act(obs, mask, epsilon(global_t))
             next_obs, reward, term, trunc, info = env.step(action)
             done = term or trunc
-            buffer.append((obs, action, float(reward), next_obs,
+            buffer.append((obs, action, float(reward) * reward_scale, next_obs,
                            np.asarray(info["mask"], dtype=bool), float(done)))
             obs = next_obs
             ep_reward += float(reward)

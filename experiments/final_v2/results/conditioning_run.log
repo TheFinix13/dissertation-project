@@ -1,0 +1,60 @@
+data: train=60 val=12 test=24 months (2018-01..2025-12)
+
+conditioning diagnostic on validation (12 months), 80,000 steps, seeds [42, 43, 44, 45, 46, 47]
+  B0_do_nothing    dW=   +0.00  expo=0.00
+  B1a_slice_bah    dW= +121.79  expo=0.69
+  B1b_true_bah     dW= +166.92  expo=0.91
+  B2_random        dW=  +38.39  expo=0.16
+
+  reinforce, reward in dollars
+      seed 42: dW=   +0.08  trades= 20.7  expo=0.04  ddI=0.002  cond=MASK-ONLY  (10.7s)
+      seed 43: dW= +121.79  trades= 11.0  expo=0.69  ddI=0.027  cond=MASK-ONLY  (10.1s)
+      seed 44: dW= +121.79  trades= 11.0  expo=0.69  ddI=0.027  cond=MASK-ONLY  (10.1s)
+      seed 45: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  cond=MASK-ONLY  (10.0s)
+      seed 46: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  cond=MASK-ONLY  (10.1s)
+      seed 47: dW= +121.79  trades= 11.0  expo=0.69  ddI=0.027  cond=MASK-ONLY  (10.1s)
+      spread=121.71  mean=+100.64  state-dependent in 0/6 seeds
+      per-seed dW: +0.1, +119.2, +119.2, +121.8, +121.8, +121.8
+
+  reinforce, reward in fraction_of_capital
+      seed 42: dW= +121.79  trades= 11.0  expo=0.69  ddI=0.027  cond=MASK-ONLY  (10.0s)
+      seed 43: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  cond=MASK-ONLY  (10.1s)
+      seed 44: dW=  +36.27  trades= 20.4  expo=0.21  ddI=0.007  cond=state  (10.1s)
+      seed 45: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  cond=MASK-ONLY  (10.1s)
+      seed 46: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  cond=MASK-ONLY  (10.1s)
+      seed 47: dW= +121.79  trades= 11.0  expo=0.69  ddI=0.027  cond=MASK-ONLY  (10.0s)
+      spread=85.51  mean=+106.24  state-dependent in 1/6 seeds
+      per-seed dW: +36.3, +119.2, +119.2, +119.2, +121.8, +121.8
+
+  dqn, reward in dollars
+      seed 42: dW=  +70.30  trades= 11.8  expo=0.39  ddI=0.013  cond=state  (33.1s)
+      seed 43: dW=  +54.55  trades= 13.1  expo=0.14  ddI=0.004  cond=state  (33.3s)
+      seed 44: dW= +105.94  trades= 10.4  expo=0.35  ddI=0.012  cond=state  (33.8s)
+      seed 45: dW=  +23.55  trades= 11.8  expo=0.22  ddI=0.009  cond=state  (33.8s)
+      seed 46: dW= +107.43  trades= 13.8  expo=0.64  ddI=0.025  cond=state  (33.8s)
+      seed 47: dW=  +57.77  trades= 14.1  expo=0.42  ddI=0.017  cond=state  (33.5s)
+      spread=83.88  mean=+69.92  state-dependent in 6/6 seeds
+      per-seed dW: +23.5, +54.5, +57.8, +70.3, +105.9, +107.4
+
+  dqn, reward in fraction_of_capital
+      seed 42: dW=   +6.67  trades=  9.5  expo=0.06  ddI=0.004  cond=state  (33.5s)
+      seed 43: dW= +124.04  trades= 18.8  expo=0.64  ddI=0.024  cond=state  (33.5s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (33.4s)
+      seed 45: dW=  +61.89  trades=  6.4  expo=0.39  ddI=0.016  cond=state  (33.3s)
+      seed 46: dW=  +75.08  trades= 20.7  expo=0.18  ddI=0.007  cond=state  (32.8s)
+      seed 47: dW=  +21.45  trades= 19.7  expo=0.09  ddI=0.004  cond=state  (33.3s)
+      spread=124.04  mean=+48.19  state-dependent in 5/6 seeds
+      per-seed dW: +0.0, +6.7, +21.5, +61.9, +75.1, +124.0
+
+  summary
+      cell                              mean dW    spread  state-dep
+      reinforce__dollars                +100.64    121.71  0/6
+      reinforce__fraction_of_capital    +106.24     85.51  1/6
+      dqn__dollars                       +69.92     83.88  6/6
+      dqn__fraction_of_capital           +48.19    124.04  5/6
+
+  verdict
+      reinforce: spread 121.7 -> 85.5; state-dependent 0/6 -> 1/6
+      dqn: spread 83.9 -> 124.0; state-dependent 6/6 -> 5/6
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/conditioning_results.json

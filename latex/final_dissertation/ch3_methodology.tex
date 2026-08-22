@@ -38,7 +38,7 @@ $W_t = C_t + h_t P_t$  & mark-to-market wealth; \; $C_0$: initial cash \\
 $c_t,\; v_t$           & cash and exposure as fractions of $C_0$ \\
 $\mathrm{dd}_t$        & fall from peak wealth within the episode (rung $S_4$) \\
 $c$                    & proportional fee rate (5 basis points $=$ 0.05\%) \\
-$\Delta = 0.1\,C_0$    & fixed monetary trade slice \\
+$\Delta = 0.25\,C_0$    & fixed monetary trade slice \\
 $\lambda$              & weight on the drawdown penalty in the risk-aware reward \\
 $\gamma$               & discount factor \\
 $\tau$                 & a trajectory (one episode); also the clock feature $t/T$ \\
@@ -487,19 +487,43 @@ early in the sample and a large one late in it, which is a
 representational defect rather than a market fact.
 
 We therefore treat the asset as divisible, as with a fractional-share
-broker or a cryptocurrency: a Buy converts a fixed monetary slice
-$\Delta = 0.1\,C_0$ of cash into asset units at the current price, and a
-Sell liquidates up to the same slice of position value. Ten consecutive
-Buys move the portfolio from all-cash to approximately fully invested, and
-the meaning of one action is constant throughout.
+broker or a cryptocurrency: a Buy converts a fixed monetary slice $\Delta$
+of cash into asset units at the current price, and a Sell liquidates up to
+the same slice of position value. The meaning of one action is then
+constant throughout the sample.
 
-Because state design and action design are separate representational
-axes, changing both at once would make any difference in behaviour
-impossible to attribute. The action model is therefore fixed at
-$\Delta = 0.1\,C_0$ before the agents are compared, and the whole-share
-alternative is retained as a single controlled comparison at the frozen
-state (Section~\ref{sec:protocol}) rather than crossed with every rung of
-the ladder.
+\paragraph{How coarse may the slice be?} The size of $\Delta$ looks like a
+free parameter and is not. Reaching full investment takes $C_0/\Delta$
+Buys, and an episode is only about 21 bars long, so $\Delta$ places a
+ceiling on the \emph{average} exposure attainable within a month, and hence
+on the return attainable, however skilful the policy. With
+$\Delta = 0.1\,C_0$ the fastest legal accumulation reaches a mean exposure
+of 0.69 against buy-and-hold's 0.91, so an agent at that granularity cannot
+beat buy-and-hold in a rising market no matter what it learns. Reporting
+such an agent as having failed to beat the benchmark would report
+arithmetic as though it were a result about learning.
+
+The slice is therefore calibrated rather than assumed, by a rule that needs
+no training and no test data: take the smallest $\Delta$ whose attainable
+exposure ceiling reaches 90\% of buy-and-hold's exposure, keeping the finest
+control over position size that still leaves the benchmark reachable. On the
+validation months this selects
+\[
+\Delta \;=\; 0.25\,C_0 \;=\; \$2{,}500,
+\]
+whose ceiling is a mean exposure of 0.838. The full calibration is reported
+in Chapter~5, and $\Delta = 0.1\,C_0$ is retained there as a comparison row,
+so the cost of the coarser action set is measured rather than merely
+avoided.
+
+\paragraph{Actions as a separate axis.} Because state design and action
+design are separate representational choices, varying both at once would
+make any difference in behaviour impossible to attribute. The action model
+is therefore fixed at the calibrated slice before the agents are compared,
+and the two alternatives, whole-share trading and the coarser slice, are
+retained as controlled comparisons at the frozen state
+(Section~\ref{sec:protocol}) rather than crossed with every rung of the
+ladder.
 
 \paragraph{Execution and fees.} With proportional fee rate $c$ (5 basis
 points), a Buy spending $x$ dollars acquires $x / (P_t(1+c))$ units, and a
@@ -537,17 +561,17 @@ every experiment (the ``accounting identity'' test).
 
 \paragraph{A fully numeric example.} Let $C_0 = \$10{,}000$, price
 $P_t = \$500$, fee $c = 0.0005$. The agent Buys one slice
-($\Delta = \$1{,}000$): it acquires $1000 / (500 \times 1.0005) = 1.999$
+($\Delta = \$2{,}500$): it acquires $2500 / (500 \times 1.0005) = 4.998$
 units, and its wealth drops immediately by the fee's worth,
-$r_t \approx -\$0.50$. Overnight the price rises 1\% to \$505: holding
-$1.999$ units, $r_{t+1} = 1.999 \times \$5 \approx +\$10.00$. If it then
+$r_t \approx -\$1.25$. Overnight the price rises 1\% to \$505: holding
+$4.998$ units, $r_{t+1} = 4.998 \times \$5 \approx +\$25.00$. If it then
 Sells the slice at \$505, it receives
-$1.999 \times 505 \times 0.9995 \approx \$1{,}009$, paying another
-$\approx\$0.50$ fee. Net effect of the round trip: about $+\$9.00$ ---
-the \$10 price gain minus \$1 of fees. The same trip on a flat price
-loses \$1. The agent is never told any of this; it must discover from
-such rewards that trading has a price and only pays when the market moves
-favourably.
+$4.998 \times 505 \times 0.9995 \approx \$2{,}523$, paying another
+$\approx\$1.26$ fee. Net effect of the round trip: about $+\$22.50$ ---
+the \$25 price gain less about \$2.50 of fees. The same trip on a flat
+price loses \$2.50. The agent is never told any of this; it must discover
+from such rewards that trading has a price and only pays when the market
+moves favourably.
 
 \paragraph{On the choice of a risk-neutral reward.} Equation
 (\ref{eq:reward}) pays for expected wealth and is silent about risk: a
@@ -950,14 +974,14 @@ representation are each varied one at a time.
 ladder of Section~\ref{sec:state_rationale} terminates at the first rung
 where the next rung changes mean $\Delta W$, intra-episode maximum
 drawdown and trades per month by less than the spread observed across
-seeds $\{42, 43, 44\}$. Fixing the criterion in advance makes the stopping
+seeds $\{42,\dots,47\}$. Fixing the criterion in advance makes the stopping
 point a result rather than a consequence of the time available.
 
 \paragraph{Standing diagnostics.} (i) the accounting identity
 $\sum_t \Delta W_t = W_T - W_0$ in every episode, checked on the wealth
 change rather than the reward, since under (\ref{eq:risk_reward}) the two
 differ by the penalty; (ii) the illegal-action proposal rate; (iii) all
-learned results reported over seeds $\{42, 43, 44\}$.
+learned results reported over seeds $\{42,\dots,47\}$.
 
 \paragraph{Chapter summary (plain language).} The trading problem is now
 fully specified. Each month the agent starts with \$10,000 in cash and
@@ -966,8 +990,15 @@ just moved, whether that move is part of a trend, how choppy the market
 is, how far price sits from its recent average, how wide the day's range
 was, how much cash it holds, what its position is worth, whether that
 position is up or down, and how many days remain. It may hold, buy a
-\$1,000 slice, or sell one; it pays a small fee on every trade; and it is
+\$2,500 slice, or sell one; it pays a small fee on every trade; and it is
 scored by the change in its total wealth.
+
+The size of that slice was not picked for neatness. A quarter of capital
+takes four purchases to become fully invested, and a trading month is only
+about twenty-one days, so a smaller slice would leave the agent unable to
+become invested quickly enough to match simply buying and holding, which
+would guarantee it looked worse than the benchmark for reasons of
+arithmetic rather than skill.
 
 Those nine numbers were not chosen by taste. Each one answers a situation
 the previous version of the state could not tell apart, and one candidate

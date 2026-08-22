@@ -192,10 +192,16 @@ def main() -> None:
 
     s3, s4 = resolve_rung("S3"), resolve_rung("S4")
     cells = [
+        # State and reward axes, at the calibrated action model.
         Config("S3_wealth", s3, rung="S3"),
         Config("S4_wealth", s4, rung="S4"),
         Config("S4_risk", s4, rung="S4", risk_lambda=lam),
+        # Action axis, at the frozen state and reward. `share` changes what one
+        # action means as the price level drifts; `slice10` keeps the meaning
+        # fixed but coarsens it enough that buy-and-hold becomes unreachable, so
+        # the two rows separate the two ways an action set can be inadequate.
         Config("S3_wealth_share", s3, rung="S3", action_model="share"),
+        Config("S3_wealth_slice10", s3, rung="S3", slice_frac=0.10),
     ]
 
     print(f"\nstage 2: test split ({len(parts['test'])} months), "
@@ -217,6 +223,7 @@ def main() -> None:
             "S4_wealth": "adds drawdown to the state, reward unchanged",
             "S4_risk": "adds drawdown to the state and to the reward",
             "S3_wealth_share": "baseline state and reward, whole-share actions",
+            "S3_wealth_slice10": "baseline state and reward, tenth-of-capital slice",
             "excluded": ("S3 x risk-aware: reward depends on peak wealth, "
                          "which the state omits"),
         },

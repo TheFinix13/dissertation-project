@@ -168,7 +168,7 @@ evidenced in the results file.
 
 \paragraph{Trade execution and the action model.} Under the default slice
 model a Buy spends $\min(C_t,\, \Delta)$ dollars with
-$\Delta = 0.1\,C_0$, acquiring $x/(P_t(1+c))$ units, and a Sell liquidates
+$\Delta = 0.25\,C_0$, acquiring $x/(P_t(1+c))$ units, and a Sell liquidates
 $\min(h_t P_t,\, \Delta)$ of position value, crediting $u P_t (1-c)$. Under
 the whole-share model a Buy spends one share price and a Sell releases one
 unit. Both are implemented, selected by a constructor argument, because
@@ -415,9 +415,9 @@ Target sync & --- & every 500 steps & --- \\
 Exploration & sampling from $\pi_\theta$ & $\varepsilon$: $1.0 \to 0.05$ (first 50\%) & entropy bonus \\
 Masking & renormalised softmax & masked $\max$, mask stored & \texttt{action\_masks()} \\
 Budget & 80{,}000 env steps & 80{,}000 env steps & 80{,}000 env steps \\
-Seeds & \{42, 43, 44\} & \{42, 43, 44\} & \{42, 43, 44\} \\
+Seeds & \{42,\dots,47\} & \{42,\dots,47\} & \{42,\dots,47\} \\
 \midrule
-Environment & \multicolumn{3}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.1\,C_0$;
+Environment & \multicolumn{3}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.25\,C_0$;
   windows $k{=}5$, $m{=}20$, $n{=}14$} \\
 Selection & \multicolumn{3}{l}{ladder stopping point and $\lambda$ chosen on the
   2023 validation months only} \\
