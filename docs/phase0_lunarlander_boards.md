@@ -49,7 +49,7 @@ policy = PolicyNet(obs=8, actions=4)
 critic = ValueNet(obs=8)
 
 B = ROLLOUT(env, policy)
-A = returns(B) - critic(B.s)
+A = returns(B) - critic(B.s)           # A = G − V(s)
 L_pi = - sum( log_prob(a|s) * A )
 L_V  = MSE( critic(s), returns )
 
@@ -88,7 +88,7 @@ Same reason as Flappy, worse:
 
 | Why | Explanation |
 |---|---|
-| 8-D continuous state | Binning explodes (e.g. 6 bins⁸ ≈ 1.7M+ cells, still coarse) |
+| 8 continuous numbers in the state | Binning explodes (e.g. 6 bins⁸ ≈ 1.7M+ cells, still coarse) |
 | 4 actions | Table width grows too |
 | Shaped + sparse terminal rewards | Hard to fill the table |
 

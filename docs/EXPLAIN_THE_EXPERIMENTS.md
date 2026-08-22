@@ -117,7 +117,13 @@ One stock (SPY). Each step the agent may:
 - **Hold**, **Buy one share**, or **Sell one share** (illegal moves blocked).
 
 State (3 numbers): recent price change, cash, number of shares.  
-Reward: change in wealth \(W = \text{cash} + \text{shares}×\text{price}\).  
+Reward: change in wealth
+
+```text
+W  =  cash  +  shares × price
+r  =  W_next − W
+```
+
 Episode: one calendar month of daily prices (honest: not yet 390 minutes).
 
 Baselines (each has a clear objective):
@@ -133,6 +139,13 @@ action sequence on all 26 test months**. Under “just maximise ΔW”, it
 rediscovered fully invested buy-and-hold. That is not a failure of the
 experiment — it is the scientific result. Without B1b we would have falsely
 claimed a win against the weak one-share baseline.
+
+### The algorithm ablation (why-PPO evidence)
+We then re-ran **scratch REINFORCE and A2C on the identical MDP** (same data,
+fee, seed, 80k-step budget). All three policy methods collapsed to the *same*
+buy-max policy on **26/26** months. So the collapse is a property of the
+**objective**, not of PPO — three optimisers found the same optimum.
+Full note: `docs/phase1_why_ppo.md`.
 
 ### Iteration 2 — richer state
 We added: unrealized profit/loss, time through the month, and scaled cash /
@@ -171,7 +184,10 @@ for a *policy*. We showed Q-learning only on binned CartPole as a contrast.
 
 **Q: Why is PPO better than REINFORCE?**  
 A: REINFORCE is noisy; PPO clips updates and uses a critic, so it is more stable.
-Our Flappy/Lunar numbers show PPO more consistent.
+Our Flappy/Lunar numbers show PPO more consistent. On the trading MDP itself,
+REINFORCE, A2C and PPO all found the same buy-max optimum (the ablation) —
+which tells us the objective is the binding constraint, and we keep PPO for
+its stability on the harder problems ahead.
 
 **Q: Did the trading agent beat the market?**  
 A: Not yet in a meaningful way. Iteration 1 copied buy-and-hold; Iteration 2

@@ -51,10 +51,13 @@ versions live in Chapter~\ref{ch:methodology}.
   adjustable dials (parameters), tuned gradually so its outputs improve
   against an objective.
 
-  \item[Training / test split] The data is cut in two by date: the agent
-  learns only on the earlier part (2018--Oct 2022) and is examined only
-  on the later part (Nov 2022--Dec 2024), which it has never seen ---
-  like a mock exam written after the revision period ended.
+  \item[Training / validation / test split] The data is cut into three parts
+  by date. The agent learns on the earliest (2018--2022); every tuning
+  decision is made by looking only at the middle part (2023); and the final
+  examination uses the latest part (2024--2025), which nothing in the design
+  was allowed to see. The middle part is what makes the last part a real
+  exam rather than a rehearsal: without it, the choices would have been made
+  by peeking at the answers.
 
   \item[Baseline] A simple non-learning strategy every agent must be
   compared against. The important one here is \emph{buy-and-hold}:
@@ -91,6 +94,19 @@ versions live in Chapter~\ref{ch:methodology}.
   \item[Masking] Greying-out impossible actions (selling what you do not
   own; buying with no cash) so the agent can neither attempt nor learn
   from illegal moves.
+
+  \item[Mask-determined (state-blind) policy] An agent whose choices can be
+  predicted from the greyed-out actions alone, without looking at anything
+  else it was shown. Such an agent is following a habit --- ``buy whenever
+  buying is allowed'' --- rather than making a decision, and in a rising
+  market the habit scores well, which is why profit alone cannot reveal it.
+  Detecting this is what Section~\ref{sec:res_conditioning} is for.
+
+  \item[Admissible state] A state description that is legally usable in this
+  framework: the score can be worked out from it, the next state follows from
+  it, and it says enough to choose an action. The test has teeth --- it is the
+  reason drawdown had to be added to the state before it could be added to
+  the reward.
 
   \item[Accounting identity] The bookkeeping check that the sum of all
   daily scores in a month exactly equals the month's true profit. It is

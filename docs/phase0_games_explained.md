@@ -1,7 +1,8 @@
 # Phase 0 games explained — viva-ready notes
-Last updated: 2026-08-05 · branch `simple-modelling-clean`
+Last updated: 2026-08-06 · branch `simple-modelling-clean`
 
-Full plain-English walkthrough: `docs/EXPLAIN_THE_EXPERIMENTS.md`.
+Full plain-English walkthrough: `docs/EXPLAIN_THE_EXPERIMENTS.md`  
+Board-style pseudocode: `docs/phase0_cartpole_boards.md` (then Flappy, LunarLander)
 
 Why games before trading (Nguyen, Recording 47): a game has a **known correct
 outcome**, so if the RL loop fails we know the *code* is wrong, not the market.
@@ -18,18 +19,32 @@ Trading has no ground truth, so we validate the loop on games first.
 ## The five algorithms (one sentence each)
 
 1. **Random** — no learning; the floor every method must beat.
-2. **Tabular Q-learning** — a lookup table updated by the Bellman rule
-   \(Q(s,a) \leftarrow Q(s,a) + \alpha[r + \gamma \max_{a'}Q(s',a') - Q(s,a)]\).
+2. **Tabular Q-learning** — a lookup table updated by the Bellman rule:
+
+   ```text
+   Q(s,a)  ←  Q(s,a)  +  α · [ r + γ · max Q(s',a') − Q(s,a) ]
+   ```
+
    Only works after hand-binning CartPole's continuous state — the table idea
    cannot scale to trading states, which motivates everything after it.
 3. **DQN** — replaces the table with a neural network trained by MSE to the
    Bellman target (experience replay + frozen target net). Value-based.
 4. **REINFORCE** — the simplest *policy* method; implemented from scratch here
-   (`reinforce.py`, no SB3): loss \(= -\sum_t \log\pi_\theta(a_t|s_t)\,G_t\).
-   High variance but the direct ancestor of what we use in trading.
-5. **A2C / PPO** — actor–critic policy gradients; PPO adds the clipped ratio
-   \(\min(\rho_t A_t,\ \mathrm{clip}(\rho_t,1\pm\epsilon)A_t)\) so one update
-   can't destroy the policy. PPO is the algorithm carried into Phase 1.
+   (`reinforce.py`, no SB3):
+
+   ```text
+   loss  =  − sum_t  log π_θ(a_t | s_t)  ·  G_t
+   ```
+
+5. **A2C / PPO** — actor–critic policy gradients; PPO clips the probability
+   ratio so one update can't destroy the policy:
+
+   ```text
+   score  =  min( ρ · A ,  clip(ρ) · A )
+   # ρ = π_new / π_old
+   ```
+
+   PPO is the algorithm carried into Phase 1.
 
 ## Value-based vs policy-based (the viva question)
 
@@ -43,9 +58,9 @@ policy-based RL for trading.
 
 | Game concept | Trading equivalent |
 |---|---|
-| Pole angle / lander position | \(s_t = [\Delta P_t, C_t, n_t]\) |
+| Pole angle / lander position | `s = [ΔP, C, n]` |
 | Push left/right, flap | Hold / Buy one / Sell one |
-| +1 per step upright | \(r_t = W_{t+1} - W_t\) |
+| +1 per step upright | `r = W_next − W` |
 | Episode = one game | Episode = one trading period |
 | Solved threshold 475 | Beat buy-and-hold honestly |
 

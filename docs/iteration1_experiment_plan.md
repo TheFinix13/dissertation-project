@@ -39,10 +39,16 @@ Do not touch trading code until this works.
 
 - One stock (SPY).
 - Actions: Hold / Buy **one** / Sell **one**.
-- State: \(s_t=[\Delta P_t, C_t, n_t]^\top\)  
-  (Nguyen rejected compressing cash+shares into a vague \(H\in\{0,1\}\).)
-- Reward: \(r_t=W_{t+1}-W_t\), \(W_t=C_t+n_tP_t\).
-- Horizon: one trading day = one episode, \(T=390\) minute steps (state this in the report).
+- State: `s = [ΔP, C, n]`  
+  (Nguyen rejected compressing cash+shares into a vague Hold flag `H ∈ {0,1}`.)
+- Reward / wealth:
+
+  ```text
+  W  =  C  +  n · P
+  r  =  W_next − W
+  ```
+
+- Horizon: one trading day = one episode, `T = 390` minute steps (state this in the report).
 
 ### A. Baselines and their objectives
 
@@ -51,21 +57,21 @@ Do not touch trading code until this works.
 | B0 | Do-nothing | always Hold | preserve cash; no market exposure |
 | B1 | Buy-and-hold | Buy once at first affordable bar, then Hold | capture full-day price move with 1 share |
 | B2 | Random-masked | uniform over feasible actions | chance baseline |
-| A1 | PPO (Alg 3.1) | learned \(\pi_\theta\) | maximise expected \(\sum_t (W_{t+1}-W_t)\) |
+| A1 | PPO (Alg 3.1) | learned `π_θ` | maximise expected sum of `(W_next − W)` |
 
-Same \(C_0\), fee \(c\), test days for every method.
+Same starting cash `C0`, fee `c`, test days for every method.
 
 ### B. Implement
 
 1. Chronological day split (no shuffle across days).
 2. Modules: `env_iteration1.py`, `baselines_iteration1.py`, `train_ppo_iteration1.py`, `eval_iteration1.py`.
-3. Tiny budget first: 3 seeds, 20–50 epochs, \(c=0.0005\).
+3. Tiny budget first: 3 seeds, 20–50 epochs, fee `c = 0.0005`.
 
 ### C. Results
 
 - Table: mean ΔW, std, win-rate vs B1, mean trades/day.
-- Fig: \(W_t\) vs minute for B1 vs A1 on one test day.
-- Honesty checks: \(\sum r_t \approx W_T-W_0\); mask never allows illegal Buy/Sell; B0 with \(n_0=0\) has ΔW=0.
+- Fig: wealth `W` vs minute for B1 vs A1 on one test day.
+- Honesty checks: `sum r ≈ W_final − W_start`; mask never allows illegal Buy/Sell; B0 with zero shares has ΔW = 0.
 
 Losing to buy-and-hold on Iteration 1 is fine.
 Not understanding why is not.
@@ -76,5 +82,12 @@ Not understanding why is not.
 
 Nguyen: once the pipeline works, changing the reward/loss is like swapping MSE for cross-entropy.
 
-Examples (later): drawdown penalty \(W_{t+1}-W_t-\lambda D_t\); different fee; continuous sizing.
+Examples (later):
+
+```text
+r  =  (W_next − W)  −  λ · D
+# wealth change minus a drawdown penalty
+```
+
+Different fee; continuous sizing.
 Each variant is a new row in the experiment table — not a rewrite of the whole dissertation.

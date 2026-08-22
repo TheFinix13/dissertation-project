@@ -8,7 +8,7 @@ correctly?” Show you **understood**, then **did something extra**.
 
 | Extra | Why it matters | Where |
 |---|---|---|
-| Explicit \(C_t,n_t\) not vague \(H\) | He asked; we fixed and coded it | `env.py` |
+| Explicit cash `C` + shares `n` (not vague Hold flag `H`) | He asked; we fixed and coded it | `env.py` |
 | Accounting identity tests | Proves reward = ΔW always | `test_env.py` |
 | Feasibility mask + illegal-action rate | Shows constraint thinking | Phase-1 results JSON |
 | Chronological month split | No shuffle leakage | `fetch_spy_daily.py` |
@@ -24,12 +24,16 @@ correctly?” Show you **understood**, then **did something extra**.
    - Proves the update is not a black-box API (he attacked that).  
    - Keep SB3 for the main table; show REINFORCE as “I can derive it”.
 
-2. **Reward variant row** (his MSE→CE analogy)  
-   - A1: \(r_t=\Delta W_t\)  
-   - A1λ: \(r_t=\Delta W_t-\lambda D_t\) (intraday / in-month drawdown)  
-   - Same network, same data — only the score changes.
+2. **Reward variant row** (his MSE→CE analogy)
 
-3. **Fee sensitivity** \(c\in\{0, 5bps, 20bps\}\)  
+   ```text
+   A1:   r  =  ΔW
+   A1λ:  r  =  ΔW  −  λ · D     # drawdown penalty
+   ```
+
+   Same network, same data — only the score changes.
+
+3. **Fee sensitivity** `c ∈ {0, 5bps, 20bps}`  
    - Table of mean ΔW — shows economic thinking, not only ML.
 
 4. **Failure notebook**  
@@ -37,7 +41,7 @@ correctly?” Show you **understood**, then **did something extra**.
      write 5 sentences on *why* (overtrading, missed drift, etc.).
 
 5. **Minute-bar upgrade plan with one real day**  
-   - Download one SPY day at 1-min; run same env with \(T\approx 390\);  
+   - Download one SPY day at 1-min; run same env with `T ≈ 390`;  
      prove the API is horizon-agnostic.
 
 ## What NOT to add yet (looks like scope creep / recording again)

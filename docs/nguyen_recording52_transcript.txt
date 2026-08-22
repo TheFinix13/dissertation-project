@@ -1,0 +1,1804 @@
+[00:00] Okay.
+[00:30] So, I looked into some of the algorithms, I started learning about them and then we found
+[00:59] how to implement them with Blackiebird.
+[01:02] Okay.
+[01:03] Let's start with...
+[01:08] Temple policy, yep.
+[01:13] Okay.
+[01:16] Okay.
+[01:17] So...
+[01:18] Maybe you can just tell me.
+[01:23] Oh.
+[01:24] What do you want to write?
+[01:26] The implementation of the studio code.
+[01:30] Yeah, you want to write.
+[01:32] Okay.
+[01:33] Okay.
+[01:34] Okay.
+[01:35] Okay.
+[01:36] Okay.
+[01:37] Okay.
+[01:38] Okay.
+[01:39] Okay.
+[01:40] Okay.
+[01:41] So now to go for the computer.
+[01:45] This is...
+[01:46] camera person is playing these three walls.
+[01:53] Okay.
+[01:54] Okay.
+[01:55] Okay.
+[01:56] Okay.
+[01:57] Okay.
+[01:58] Okay.
+[01:59] Okay.
+[02:00] Okay.
+[02:01] Okay.
+[02:02] Okay.
+[02:03] Okay.
+[02:04] Okay.
+[02:05] Okay.
+[02:06] Okay.
+[02:07] Okay.
+[02:08] Okay.
+[02:09] Okay.
+[02:10] Okay.
+[02:11] Okay.
+[02:12] All right.
+[02:13] Maybe we'll come back with one more time.
+[02:14] A to C after twisting.
+[02:21] Which is like a mix of A to C and this .
+[02:31] So it's like a very weird method.
+[02:34] I thought it was just amazing when I enter.
+[02:39] So you might order them?
+[02:45] Yeah.
+[02:46] So I did it with each word.
+[02:49] It couldn't work with like a tabular Q-learning so you had to discredit this or something.
+[03:00] Discredit?
+[03:01] What do you mean discredit?
+[03:03] There was a video explaining the discreditization or discreet.
+[03:10] Yeah, discreet.
+[03:11] Discretization.
+[03:12] Yeah.
+[03:13] Discretization.
+[03:14] I use this for reinforcement.
+[03:16] You have controlaged platform and update required without programming so that we don't has other
+[03:28] formula where we've built work with Then we've built specific slides on ECHP saying then we
+[03:34] got screen copy copy copy copy copy copy copy copy copy copy copy copy copy copy copy copy copy�� premium
+[03:39] As you can see, on the paper we should have the policy and the state and the discounted
+[03:55] award, machine program, the trajectory award, and you have loss which is to block, abilities
+[04:20] and the state of the next hg. That's because the loss function is...
+[04:27] So what is the trajectory? What's in the wrong area?
+[04:33] I think it's more of a buffer that stores the state, the actual, the next state, the award,
+[04:41] and then the next state.
+[04:43] So you store something?
+[04:48] Yeah.
+[04:50] Can you explain more about that?
+[04:53] The rollout?
+[04:54] Yeah.
+[04:55] It's an empty space or just an empty array that stores the entire days trajectory, in our case
+[05:07] with BWP.
+[05:08] I know, I understand what a trajectory is, but what is the run-up?
+[05:13] You just defined it as an empty array.
+[05:20] So I just thought what's going to be like the buffer, or like what's going to represent
+[05:28] the trajectory in the code.
+[05:30] To be honest, I have no idea what you mean, just an empty array.
+[05:34] So I'm talking, you know, when we are talking about implementation, at least you should also
+[05:39] tell me the intuition, not just, okay, this step we assign this empty array, next step we
+[05:45] plus one, the next step we multiply by two.
+[05:49] So what does this mean?
+[05:52] I don't need that much detail, but I need like why do you need to do that?
+[05:58] Why do you need to?
+[06:00] To multiply by two, to divide by three, to do whatever, so why?
+[06:04] Well, why do you need to roll out is to have something that, uh...
+[06:11] It's 12 hours.
+[06:13] Okay, go on.
+[06:16] So, yeah, go on.
+[06:18] So, and then you get G's discount reward.
+[06:21] What's that?
+[06:23] Where's that?
+[06:24] Where's that coming from?
+[06:26] Discounted credits?
+[06:28] That's the basic, uh, equation for the force, or for simple quality gradient.
+[06:39] Okay, for what, the discount reward function, what is that?
+[06:44] It's the sum of collated rewards over the trajectory.
+[06:49] Sum of, okay.
+[06:53] So, we have, uh, uh, uh, uh, uh, look at the, uh, mass set of things.
+[07:06] Uh, what is that?
+[07:08] Yes.
+[07:09] Yes.
+[07:10] So, let's see.
+[07:13] Let's see.
+[07:14] Let's see.
+[07:16] Let's see.
+[07:18] Let's see.
+[07:20] Thank you.
+[07:23] Thank you.
+[07:27] Thank you.
+[07:29] Thank you.
+[07:31] Thank you.
+[07:33] Thank you.
+[07:35] Thank you.
+[07:37] Thank you.
+[07:39] Thank you.
+[07:40] Thank you.
+[07:42] Thank you.
+[07:43] Thank you.
+[07:44] Thank you.
+[07:45] Thank you.
+[07:46] Thank you.
+[07:47] Thank you.
+[07:48] Thank you.
+[07:49] I must be back on this house and the rules.
+[07:52] No, no, no. I'm talking about the A law.
+[07:55] So you multiply first and take the log, or you take the log of the policy and then multiply.
+[08:05] Cool.
+[08:06] Well, what do you mean, log?
+[08:09] What I mean is...
+[08:12] Okay.
+[08:13] So you write something like log A and B.
+[08:17] So what do you mean? Do you mean like log A time B?
+[08:23] Or do you mean like log A time B?
+[08:27] Oh.
+[08:29] Oh, log A time B.
+[08:32] Log A time B.
+[08:34] Why?
+[08:47] So you can see this is a lot of things.
+[08:49] And you...
+[08:51] ...
+[08:53] ...
+[08:54] ...
+[08:55] ...
+[08:57] ...
+[08:59] ...
+[09:00] ...
+[09:01] ...
+[09:02] ...
+[09:16] ...
+[09:17] ...
+[09:18] ...
+[09:19] ...
+[09:20] 
+[09:20] 
+[09:20] 
+[09:20] !
+[09:21] 
+[09:21] 
+[09:21] 
+[09:21] 
+[09:21] !
+[09:49] ...
+[09:50] 
+[09:50] !
+[09:51] 
+[09:51] !
+[09:52] 
+[09:52] 
+[09:52] !
+[09:53] 
+[09:53] 
+[09:53] 
+[09:53] 
+[09:53] 
+[09:53] 
+[09:53] !
+[10:19] ...
+[10:21] !
+[10:22] !
+[10:23] 
+[10:23] !
+[10:24] !
+[10:25] 
+[10:25] 
+[10:49] !
+[10:50] 
+[10:50] !
+[10:51] 
+[10:51] !
+[10:52] 
+[10:52] !
+[10:53] 
+[10:53] !
+[10:54] !
+[10:55] !
+[10:56] 
+[10:56] !
+[10:57] 
+[10:57] !
+[10:58] 
+[10:58] !
+[10:59] 
+[10:59] !
+[11:00] 
+[11:00] !
+[11:01] !
+[11:02] !
+[11:03] 
+[11:03] !
+[11:04] !
+[11:05] !
+[11:06] !
+[11:07] !
+[11:08] !
+[11:09] !
+[11:10] !
+[11:11] !
+[11:12] !
+[11:13] !
+[11:14] !
+[11:15] !
+[11:16] !
+[11:17] !
+[11:18] !
+[11:19] !
+[11:20] !
+[11:21] !
+[11:22] 
+[11:52] !
+[11:53] !
+[11:54] !
+[11:55] !
+[11:56] !
+[11:57] !
+[11:58] 
+[12:28] Z!
+[12:30] Yep!
+[12:31] Just
+[12:34] You've never heard so...
+[12:36] ...
+[12:38] ...
+[12:39] ...
+[12:40] ...
+[12:41] ...
+[12:42] ...
+[12:43] ...
+[12:46] ...
+[12:49] ...
+[12:50] ...
+[12:51] ...
+[12:53] ...
+[12:55] ...
+[12:56] So you need to calculate your attribute function and maximize it.
+[13:03] So why your attribute function is having a lock?
+[13:06] Why is that having a policy there?
+[13:10] So PyTorch, coming to...
+[13:14] I think PyTorch naturally does minimizations.
+[13:23] So...
+[13:28] So using a negative...
+[13:33] Why do we have a lock lift?
+[13:35] Why do we have a policy there?
+[13:37] In the objective function, I didn't see anything about the policy.
+[13:42] So the policy is encoded into the action or something.
+[13:48] I think the objective function is not correct here.
+[13:53] Why do we have a policy?
+[13:55] Where is Tina?
+[13:57] Where is the policy?
+[13:59] On that nature and change it?
+[14:03] My plans are moving around with him?
+[14:05] For two hours are moving around with him.
+[14:07] When he uses these controls andahahards are moving around with him.
+[14:11] On that nature on what he wants to take right after him is moving around with him.
+[14:15] Thank you.
+[14:45] Thank you.
+[15:15] Thank you.
+[15:45] Thank you.
+[16:15] Thank you.
+[16:17] Thank you.
+[16:19] Thank you.
+[16:21] Thank you.
+[16:23] Thank you.
+[16:25] Thank you.
+[16:27] Thank you.
+[16:29] Thank you.
+[16:31] Thank you.
+[16:33] So which means you are writing the formulation in mask in one way and you do some, you know,
+[16:49] you do it in other ways. So you are selling a product and the product is not actually the one that you are selling.
+[16:57] Or maybe with some explanation or maybe one of them would be incorrect.
+[17:09] Because right now they are not consistent.
+[17:27] So you see that the g that you write is exactly the objective function.
+[17:33] So why do you have time?
+[17:35] I don't know.
+[17:37] I don't know.
+[17:39] I don't know.
+[17:41] I don't know.
+[17:43] Are you sure that the objective function you are writing is correct?
+[17:49] I was thinking so.
+[17:55] You can check your laptop or whatever to check the objective function first.
+[18:01] Because we need to ensure that which one is correct first.
+[18:05] Right.
+[18:25] Okay.
+[18:29] Okay.
+[18:32] Okay.
+[18:33] Okay.
+[18:35] Okay.
+[18:37] Okay.
+[18:39] Okay.
+[18:41] Okay.
+[18:43] Okay.
+[18:45] Okay.
+[18:47] Okay.
+[18:49] Alright.
+[18:51] All right.
+[19:21] So what did you write in your report about objective function?
+[19:31] Of the trading?
+[19:34] Because it doesn't matter whether that's the trading or it's a game.
+[19:38] Everything is the same.
+[19:40] As long as you can define the state in action, everything will be the same.
+[19:45] So that one uses a PPO but it's also to maximize the cumulative returns.
+[19:52] So what's the difference?
+[19:54] Why do you think there's a difference?
+[19:57] The trading in this one?
+[19:59] Oh, like the reinforced algorithm or PPO?
+[20:04] Whatever.
+[20:05] It's not different considering it uses the same or it almost has the same objective function.
+[20:14] Yeah.
+[20:15] So that's what I mean by a PPO function.
+[20:16] Which means the same.
+[20:17] So what did you write in your report?
+[20:24] So the GT is the discount and rewards.
+[20:50] And then...
+[20:51] 
+[20:51] And then you write it explicitly that this was the old formula.
+[21:13] So...
+[21:14] But TITA was in the reward function.
+[21:18] So where is TITA?
+[21:19] Where is TAO?
+[21:20] Or it's not TAO, it should be PI.
+[21:22] But in the policy, they don't use the notation in PI, right?
+[21:35] So where is the policy?
+[21:37] Because if you write like this, which one relates to the policy?
+[21:51] Because if nothing relates to the policy, which means nothing relates to TITA.
+[21:55] So which means everything is just a constant of TITA.
+[21:58] So if it's a constant with respect to TITA, there's no point to optimize.
+[22:21] So if you run up in your report, what's the accumulated reward plus G?
+[22:28] Yeah.
+[22:29] I just saw that you wrote it.
+[22:31] Yeah.
+[22:32] Yeah.
+[22:33] G is what's on the board right now.
+[22:36] Okay, go up.
+[22:37] Yeah.
+[22:38] So that's G.
+[22:40] Right.
+[22:41] And then what's next?
+[22:42] So what's 3.7.4.3, the section?
+[22:47] What's that?
+[22:48] The policy objective.
+[22:50] Yeah.
+[22:51] So what's the difference between this one and the G up there?
+[22:57] This just, you know, gets the expected symbol or it states itself in full that the agent optimizes
+[23:09] the expected return up cross G.
+[23:12] So I have no idea what you are talking about.
+[23:17] Can you elaborate further?
+[23:20] Oh.
+[23:21] What I mean is, okay, I don't want you to become a recorder and a speaker.
+[23:28] What I want you to understand the problem.
+[23:31] So you just read what is written there.
+[23:33] I don't need that.
+[23:34] I keep telling you again and again many times.
+[23:38] I don't want you to read whatever available.
+[23:41] I want you to explain it in your, you know, with your understanding.
+[23:44] Okay.
+[23:45] Um, G is the total expected return.
+[23:48] Yeah.
+[23:49] Across this single day.
+[23:50] And then what's this one?
+[23:52] And what's the difference with G?
+[23:55] I would say, uh, the objective is to find the optimal parameters that make G give you the maximum
+[24:08] or to have the maximum G.
+[24:10] Yeah, I know.
+[24:11] That's the, uh, intuition.
+[24:13] But the problem now is you already have G there.
+[24:16] Where is pi or theta?
+[24:17] Where is pi or theta in G?
+[24:20] So that's why I'm asking what's the difference when you look at the formulation, what's the difference between this one and this one?
+[24:31] Just by looking at the notation, what is the difference?
+[24:36] The only difference is the expected return to the policy.
+[24:40] Do you have expected return here?
+[24:42] No.
+[24:43] Why?
+[24:44] Uh, the only difference is the expected return to the policy.
+[24:46] Do you have expected return here?
+[24:47] No.
+[24:48] Uh, because I'm going to write it down empirically.
+[24:53] Yeah, I know.
+[24:54] But even if you write empirically, why there's no expected, expectation, yeah.
+[24:59] So, which one is the empirical expectation?
+[25:04] Mm-hmm.
+[25:05] Yeah, so, pretty much, we have expected return here.
+[25:10] Yeah, so, pretty much, we have expected return here.
+[25:15] Yeah, so, pretty much, when you write like n, where's n?
+[25:20] Like the low?
+[25:22] Or?
+[25:23] No, no, no.
+[25:24] What way?
+[25:25] You know, you rewrite the previous one.
+[25:26] Oh.
+[25:27] Uh, one over n?
+[25:28] Yeah.
+[25:29] Okay.
+[25:30] That's just one over n.
+[25:32] And so, the one over n, you know, is the equivalent to that expectation.
+[25:36] That's the average?
+[25:38] No, that's my question.
+[25:40] So, you just divide by n, so that's kind of empirical expectation.
+[25:45] Mm-hmm.
+[25:46] Mm-hmm.
+[25:47] Mm-hmm.
+[25:48] That's it.
+[25:49] That's the empirical expectation.
+[25:51] Yeah.
+[25:52] 
+[25:52] Mm-hmm.
+[25:53] Uh, I would be sad.
+[25:54] I think there's some misunderstanding here.
+[25:55] That's what I'm saying.
+[25:56] Mm-hmm.
+[25:57] Uh, if we're trying to, uh, have this answer here.
+[26:03] Because that's what I'm saying.
+[26:09] I think there is a reason to stand in the gas
+[26:14] for I'm saying
+[26:15] if we're trying to have this inside here
+[26:24] that is that is
+[26:25] it most likely comes from breaking down
+[26:30] what the reward function is
+[26:32] if we're trying to get the policy
+[26:35] from inside here
+[26:37] it's most likely going to be here
+[26:40] right in the reward function
+[26:42] are you trying to break it down more?
+[26:46] well the thing is
+[26:47] the reward is very wrong
+[26:48] and now you're still saying that
+[26:51] oh
+[27:03] you are insisting that just divide by n and that's it
+[27:12] what do you mean by mean or average?
+[27:14] you need to sum them up and divide
+[27:17] that's the number
+[27:18] yeah so that's the expectation notation
+[27:21] but you just say oh I just divide
+[27:23] which means that you have only one and you just divide by n
+[27:26] so what's the meaning of it?
+[27:29] so this turns into both of the things
+[27:33] yeah so which means you have double sum
+[27:35] so here I think it's very clear here
+[27:38] you already wrote it here
+[27:39] you have a double sum
+[27:40] so you wrote it
+[27:46] and now you write it
+[27:48] and you argue that this one is correct
+[27:50] so which means this one is completely wrong
+[27:52] one small notation
+[27:56] it costs a lot
+[27:57] okay
+[27:57] okay so where's the log?
+[28:02] and where is pi?
+[28:04] pi
+[28:05] well pi
+[28:08] we call something like rc
+[28:11] right?
+[28:18] is that correct?
+[28:19] well what do you mean by that?
+[28:22] it's parameter
+[28:24] the reward function is
+[28:25] parameterized by pi
+[28:27] and that's theta
+[28:29] by theta
+[28:30] so you're talking that the reward function is parameterized by theta
+[28:33] yes
+[28:34] so theta is the parameter of
+[28:36] the reward function
+[28:38] the reward model
+[28:39] right?
+[28:42] because that's the way you write
+[28:44] yeah
+[28:44] but
+[28:45] so what's the outcome of your algorithm?
+[28:48] so you want to find theta
+[28:50] the best theta
+[28:51] yeah
+[28:51] right?
+[28:52] theta is for reward
+[28:53] so which means in the beginning
+[28:54] you just find the reward function
+[28:55] where it is
+[28:57] you just told me that you want to find a policy function
+[28:59] okay
+[29:00] so we
+[29:04] okay
+[29:05] so the app use
+[29:07] of
+[29:08] reinforce
+[29:09] is to give you
+[29:11] a
+[29:13] policy distribution
+[29:15] yes
+[29:16] okay
+[29:16] you mean the policy which means
+[29:18] which is the
+[29:19] yeah
+[29:19] so what now
+[29:20] so what now
+[29:20] you're telling me
+[29:21] you learn theta
+[29:22] but theta is the
+[29:23] parameter of reward
+[29:24] so you say that you want to find a policy
+[29:27] but now you find a reward
+[29:29] what I mean is
+[29:33] okay
+[29:33] thing is clear here right
+[29:35] so why you have a log thing
+[29:38] and you know
+[29:40] another thing
+[29:41] why
+[29:42] that's my question
+[29:43] very simple
+[29:45] you are telling me that
+[29:46] okay
+[29:46] like you have a double sum in your report
+[29:48] right
+[29:49] and then you know
+[29:52] where is time
+[29:53] why
+[29:53] why do you have time
+[29:54] you know
+[29:55] where is it
+[29:56] you know
+[29:57] where does it appear
+[29:58] it appears by itself
+[30:02] because it's not here
+[30:04] it's not
+[30:04] I know
+[30:05] but like
+[30:05] explain to me why
+[30:06] these two to me
+[30:08] they are inconsistent
+[30:09] GC is inconsistent
+[30:11] okay
+[30:13] can you
+[30:13] okay
+[30:14] let me
+[30:15] I think
+[30:15] so
+[30:19] the limitation
+[30:22] the coding
+[30:22] should
+[30:23] represent
+[30:23] for
+[30:24] the formulation
+[30:25] you need
+[30:26] right
+[30:27] so
+[30:28] now what you did
+[30:29] you say that
+[30:29] you want to
+[30:31] optimize
+[30:32] the accumulated reward
+[30:33] with theta
+[30:34] right
+[30:35] and then
+[30:36] maybe
+[30:37] you just said
+[30:38] oh you like
+[30:39] the empirical
+[30:40] one
+[30:41] right
+[30:42] so
+[30:42] n equals
+[30:43] one
+[30:43] to n
+[30:44] for example
+[30:45] and you have another sum
+[30:47] to equal
+[30:48] one
+[30:49] to t
+[30:50] and then what
+[30:51] then gamma
+[30:52] right
+[30:53] t
+[30:55] and then
+[30:56] the reward
+[30:57] right
+[30:58] so
+[31:00] t
+[31:00] at
+[31:01] whatever
+[31:01] so
+[31:02] where is
+[31:03] the index
+[31:03] n
+[31:04] and where
+[31:06] is
+[31:06] theta
+[31:07] and then
+[31:08] in your
+[31:09] in your
+[31:09] implementation
+[31:10] somehow
+[31:10] you calculate
+[31:11] the loss
+[31:11] you just
+[31:13] rewrite
+[31:14] whatever
+[31:14] you write
+[31:15] right
+[31:15] somehow
+[31:16] theta
+[31:17] and you multiply
+[31:17] with g
+[31:18] which means
+[31:19] what is g
+[31:20] again
+[31:20] so g
+[31:21] is the
+[31:22] one thing
+[31:22] oh
+[31:23] g or
+[31:24] something
+[31:24] yeah
+[31:25] okay
+[31:26] so
+[31:26] which means
+[31:27] you just
+[31:27] you thought
+[31:27] you actually
+[31:28] mean
+[31:28] you
+[31:29] so where is
+[31:33] the sum
+[31:33] where is
+[31:35] the average
+[31:36] where is
+[31:37] what is
+[31:38] the tau
+[31:38] so
+[31:40] what I mean
+[31:43] is
+[31:44] can you explain
+[31:44] me
+[31:44] why from here
+[31:46] you get to here
+[31:46] how
+[31:47] you get to
+[31:59] why do you need to take
+[32:01] a
+[32:01] what you need to do
+[32:03] because that's
+[32:03] that's what you should
+[32:04] understand
+[32:05] like
+[32:05] why
+[32:06] you just
+[32:09] ask
+[32:10] you are learning
+[32:12] the limitation
+[32:13] right
+[32:14] so which mean
+[32:15] that you need to know
+[32:16] like what
+[32:16] what you need to do
+[32:18] so what you need to do
+[32:19] is
+[32:20] I feel like writing like this
+[32:27] is
+[32:27] very misleading
+[32:28] it's very hard for you to understand
+[32:30] what
+[32:31] is going on
+[32:32] is it that let's use the
+[32:34] e-symbol
+[32:35] the expected instead
+[32:36] I mean
+[32:37] everything is just your notation
+[32:38] it doesn't matter
+[32:39] like
+[32:40] how do you
+[32:41] you know
+[32:41] why do we
+[32:43] go from that to that
+[32:45] so
+[32:46] there is an example
+[32:48] just saying
+[32:49] when you do the classification loss
+[32:50] it's very straightforward
+[32:52] you calculate a loss
+[32:53] so in by thought
+[32:54] in the limitation
+[32:55] you do the same thing
+[32:56] but now here
+[32:58] you are telling me one thing
+[32:59] and you do differently
+[33:00] or are they the same
+[33:05] so if they are the same
+[33:06] what you spend to me
+[33:07] how
+[33:08] you can make them the same
+[33:14] I understand that you learned the tutorial
+[33:18] and
+[33:18] did you make it works?
+[33:21] the floppy bird with
+[33:22] reinforcements the lowest results
+[33:25] but like did you make it work?
+[33:26] like did you try to
+[33:28] visualize it
+[33:29] yeah
+[33:30] and it's played by itself
+[33:33] so everything is working
+[33:34] yeah
+[33:34] it actually worked
+[33:35] floppy bird works
+[33:36] and then with the different
+[33:38] algorithms too
+[33:39] so all of the algorithms
+[33:40] yeah
+[33:41] and they are working
+[33:42] yeah
+[33:42] okay
+[33:43] yeah so now
+[33:44] I made a notebook
+[33:46] I could send it to you
+[33:47] it's okay
+[33:48] I just want you to play around
+[33:50] you know
+[33:50] play with it
+[33:51] so you gain experience
+[33:53] but now we really get back to the world
+[33:55] so
+[33:56] you said that you have some objective function
+[33:58] right
+[33:59] and then how?
+[34:02] let me see
+[34:06] get that
+[34:07] yeah
+[34:12] yeah
+[34:15] yeah
+[34:17] yeah
+[34:18] yeah
+[34:20] yeah
+[34:22] yeah
+[34:24] yeah
+[34:25] yeah
+[34:25] yeah
+[34:26] yeah
+[34:27] yeah
+[34:28] yeah
+[34:28] yeah
+[34:29] yeah
+[34:29] yeah
+[34:30] yeah
+[34:30] yeah
+[34:31] yeah
+[34:32] yeah
+[34:32] yeah
+[34:32] Thank you.
+[35:02] Thank you.
+[35:32] Thank you.
+[35:34] Thank you.
+[35:36] Thank you.
+[35:38] Thank you.
+[35:40] Thank you.
+[35:42] Thank you.
+[35:44] Okay, so maybe that's the question that you should answer by yourself.
+[35:49] Or maybe that's the reason why maybe you said that some methods will not work as good as you expect.
+[35:57] Maybe because some of the wrong implementation.
+[35:59] So actually you need to optimize something.
+[36:02] But then when you calculate, it's not the thing that you want to optimize.
+[36:07] So maybe that's make it also work, but not working very well.
+[36:13] Okay, so after you get the L, then what did you do next?
+[36:26] After calculating the loss?
+[36:28] Because to be honest, I have no idea of everything about you are talking about here.
+[36:34] So everything is just kind of vector and you multiply and you need to take a sum and everything.
+[36:43] Okay, and then you just optimize like that.
+[36:45] That's it.
+[36:46] You just calculate the L and then in 5.0 you just like that loss.backward.
+[36:53] And then the R down and step.
+[36:55] Yeah.
+[36:56] That's it.
+[36:57] So which means the important thing now is the loss.
+[37:01] Right?
+[37:02] Because here we maximize.
+[37:03] Okay.
+[37:04] Most of the time when we do optimization, we minimize.
+[37:08] So that's why we have a minus.
+[37:10] Yeah.
+[37:11] Okay.
+[37:12] Because maximize this one, which means minimize minus this one.
+[37:16] Okay.
+[37:17] And then why do we have this kind of thing?
+[37:22] Is it just minus or like minus log?
+[37:25] Is that what makes it maximize?
+[37:28] Yeah.
+[37:29] That's what I mean.
+[37:30] I mean like yeah, because when you have minus, which means you, you know, and by thought we
+[37:33] do the minimization.
+[37:35] Right?
+[37:36] So, but you put a minus, which means the solution will give you the maximization.
+[37:40] Yeah.
+[37:41] Right?
+[37:42] But why is that log part?
+[37:44] Why is log part there?
+[37:55] Because now you are getting very close to what you need to do.
+[38:00] So you already know how to implement all of the methods.
+[38:04] Okay?
+[38:05] Uh huh.
+[38:06] But, okay.
+[38:07] But this is just with Reinforce.
+[38:10] With PPO and Actor Critic is different.
+[38:13] I know.
+[38:14] They are different.
+[38:15] So maybe stick with Reinforce for now.
+[38:18] Okay.
+[38:19] Even with the trading?
+[38:20] Because, yeah maybe, you know, because if you have time you can just say that, oh I'm
+[38:24] going to do with PPO.
+[38:25] Okay.
+[38:26] Right?
+[38:27] Reinforce is kind of the very baseline.
+[38:28] Could they be like different ablation studies?
+[38:29] But if you don't have time, you just apply Reinforce for my learning, especially Reinforce
+[38:38] and Polygen for the trading.
+[38:40] Okay.
+[38:41] But Reinforce gave like the least results or like the most terrible ones out of all of them.
+[38:49] So, yeah.
+[38:50] Okay.
+[38:51] So the next thing I would like to ask you is what's the difference between Reinforce and Q-learning?
+[38:56] Um, Q-learning gets the expected value over states, right?
+[39:05] While Reinforce is more, the output is action probabilities.
+[39:10] Okay.
+[39:11] So then, what's the limitation of Q-learning?
+[39:16] What's the limitation, like the strengths and weaknesses of each approach?
+[39:21] Okay.
+[39:22] So Q-learning is more of a tabular or table formats where like you have to manually find the values
+[39:30] of those states.
+[39:31] So you search the table and according to what he said, you pick the one with the highest,
+[39:43] the highest value or the state with the highest value essentially that you want to use.
+[39:50] Reinforce, it gives you the, automatically gives you the, um…
+[39:58] So the policy, okay, the action.
+[39:59] Okay.
+[40:00] Yes, the action.
+[40:01] That's the definition.
+[40:02] The highest action, yeah.
+[40:03] And what is strengths and weaknesses?
+[40:04] Or you just have your weaknesses?
+[40:05] Like pros and cons?
+[40:06] Yeah.
+[40:07] Okay.
+[40:08] Okay.
+[40:09] Okay.
+[40:10] Okay.
+[40:11] So…
+[40:12] Reinforce, the con is high sample variance can make optimization slower, especially for
+[40:33] training.
+[40:34] Tell me about what you understand.
+[40:37] By high sample variance.
+[40:40] Tell me about what you understand.
+[40:43] Oh.
+[40:44] Did you spend time to learn about these kind of methods?
+[40:46] Did.
+[40:47] Or did you just listen to the guy like within one minute and you completely understand what
+[40:52] methods people spend their case to study?
+[40:54] Yeah.
+[40:55] I did have to write everything down, so that helps me understand it.
+[40:58] Yeah.
+[40:59] So if that's a case, explain to me.
+[41:01] So, I mean I'm perfect, I'm fine, like all the supervisors, if you do this, and like,
+[41:07] oh, that's good, cool, write a report.
+[41:09] And then, but to me, I value the understanding of students.
+[41:13] Because later on, you're gonna go and take interview.
+[41:16] And for interview, they ask you about Q-learning.
+[41:19] And then you say, oh, wait, wait, wait, I have my knot.
+[41:22] That's true, that's true.
+[41:24] Right, so now you have the chance to look at you or not, but now I try to challenge you,
+[41:29] so that you will remember.
+[41:30] Yeah.
+[41:31] That's how, the way I learned, you know, when I was young as well.
+[41:36] My profession at that moment challenged me a lot, and I was very scared.
+[41:40] But later on, I, you know, that helped me learn a lot as well.
+[41:43] Yes, it's necessary, it's necessary.
+[41:45] I mean, if you haven't been pushing me so far, I wouldn't have gotten this far to even
+[41:50] learn any of the other algorithms.
+[41:53] So, like previously, you said about, it's a table, a tabular, right?
+[41:59] Yeah.
+[42:00] So...
+[42:01] Well, he also said you have to manually pick it out yourself,
+[42:05] so it doesn't really automatically give you the highest value.
+[42:08] All right.
+[42:09] And then, so if you say it's a table, so what's the size of the table?
+[42:15] Oh my...
+[42:16] You have a point that the guy is saying about optimization.
+[42:24] Yes, it has some instability in terms of optimization, but I don't think, you know,
+[42:30] if I explain that, you will understand.
+[42:32] So now I explain something else.
+[42:34] Like, they have two major weaknesses.
+[42:37] So the first one is about optimization, but because, you know, maybe we skipped that one.
+[42:43] So the next one...
+[42:44] So which means you need to have a table.
+[42:46] Right?
+[42:48] So...
+[42:49] And then you need to store that table.
+[42:52] So what would happen if the table is extremely large?
+[42:56] It gets slower.
+[42:59] Yeah, and then you may be out-memory.
+[43:01] So that's why I'm asking you what the size of the table.
+[43:10] So, this one, again, I'm gonna explain to you something may not be 100% correct,
+[43:15] but this one helps you to really, you know, you don't need to memorize.
+[43:19] So for example, you know, I'm gonna do some application called mining.
+[43:24] Right?
+[43:25] So just one big problem.
+[43:26] One big problem.
+[43:27] Okay?
+[43:28] Just one big.
+[43:29] So I have this one is zero where the robot is gonna just stay now.
+[43:34] And then the robot needs to go and find...
+[43:37] You know, the robot has two actions.
+[43:39] Whether it keeps moving, but it's all stop and real.
+[43:43] Right?
+[43:44] So you're gonna end up with something.
+[43:46] So which means in this case, you have two actions.
+[43:49] So which means you move forward or you stop and real fall.
+[43:55] Or you, for example.
+[43:56] Right?
+[43:57] So you have table.
+[43:59] And maybe you have state one, state two, state three, state four.
+[44:04] So this would be the state, the location.
+[44:09] So this is action.
+[44:10] Right?
+[44:11] One, two, three, four, five.
+[44:15] Right?
+[44:16] So this is Q11.
+[44:19] Q11 is gonna, it needs to make the table.
+[44:22] And then it's gonna calculate what's the value here.
+[44:25] So which means it's calculated not the state value function like you said.
+[44:29] It should be, you know, to correct it should be action value function.
+[44:33] So it's gonna be the state plus the action.
+[44:37] Because if you, if you at this state one and if you move forward, you get some value.
+[44:43] If you just real, you get some value.
+[44:45] So which means you have to fill in all of the value in the table.
+[44:49] Right?
+[44:50] And then, you know, you would know, you know, which one, you know, after that, you're gonna
+[44:55] based on the table, you can find the best strategy to get the highest reward.
+[45:00] So I think after you get the table, it's easier for you to do.
+[45:05] Right?
+[45:06] So this is Q11.
+[45:07] Right?
+[45:08] So, is that clear?
+[45:10] Yeah.
+[45:11] So deep Q11 is almost the same, but like, you know, instead of storing a table, it's
+[45:18] how a neural network, like a machine to do a loop code, you know.
+[45:22] So you just input the state and the action, it's gonna give you the value.
+[45:27] It's kind of a retrieval system.
+[45:29] So the Q11, you need to store the table explicitly.
+[45:34] Deep Q11 is replaced the table by a deep neural network.
+[45:39] Yeah.
+[45:40] So then the problem with it is, what would happen if your state is extremely large?
+[45:46] So this table is like the number of states multiplied by the number of actions.
+[45:52] Yeah.
+[45:53] Right?
+[45:54] So what would happen if you have a thousand states and ten actions?
+[45:58] So which means your table would be like ten thousand values.
+[46:01] And if you do more and more, it's gonna explode, right?
+[46:06] Mm-hmm.
+[46:07] And this one, because we are considered like discrete, you know, we just retired.
+[46:13] And you just say, at the beginning, districtization.
+[46:16] Remember?
+[46:17] So at the beginning, when you told me something about districtization, right.
+[46:22] So which means this is location one, location two.
+[46:25] So which means you have discrete value.
+[46:28] What would happen if you have continuous value?
+[46:31] So what would be the size of the table?
+[46:36] It's gonna be infinite.
+[46:38] Hmm.
+[46:39] So which means there's nowhere to work with continuous value.
+[46:43] So that's why you need discretization.
+[46:45] You need to, you know, chunk it into a range, right?
+[46:50] So that's the limitation.
+[46:52] So if your state is continuous, if your action is continuous, queue learning may not work well.
+[46:59] Or you need to do discretization a lot of time.
+[47:03] Okay.
+[47:04] So in your case, you know, it's gonna be extremely annoying because what's the possible number of states you have?
+[47:14] A lot.
+[47:15] Because the state would be the time of the day, right?
+[47:19] Yeah.
+[47:20] The money you have, the stock you hold, right?
+[47:24] And then you have maybe two actions, for example.
+[47:26] So if you multiply, you're gonna have a huge table.
+[47:30] But maybe, you know, in the old days, in my time, we call this old, you know, very large table.
+[47:37] But with our hardware nowadays, that table is nothing.
+[47:40] But still, you know, we just talk about like extreme large scale.
+[47:45] Like if you have every second when you trade, then this one is gonna be huge.
+[47:50] Right?
+[47:51] So that's a queue, learning.
+[47:53] That's it.
+[47:54] And then the policy is simple.
+[47:56] The policy is just like, you know, like reinforced.
+[48:01] Like, okay, you input the state, and then it's gonna give you the action.
+[48:07] Right?
+[48:08] So it's got you to go.
+[48:09] Whereas, you know, for the queue, you need to get everything for the environment.
+[48:22] And after that, you're gonna go backward to find the best, you know, like possible travel to get that one.
+[48:30] So that's why we go with, you know, that's why the policy is now very popular.
+[48:35] Okay?
+[48:36] In the past, it's not very popular.
+[48:39] In the past, like, you know, the value approach is very popular.
+[48:42] Like the deep mind, they use something you can have a goal, I guess.
+[48:46] I think they use something like deep queue learning.
+[48:49] But they have, they propose a lot of level, you know, very clever tricks to train the models.
+[48:57] Actually, you get cute.
+[48:59] Anyway, so, I think you almost get everything done.
+[49:06] Okay?
+[49:07] Because after you, you try to do something with, you know, element discounting.
+[49:14] But have you tried to element all of them or just element up to the ring forks?
+[49:18] All of them.
+[49:19] All of them.
+[49:20] Yeah.
+[49:21] So how's the extra greatness compared to queue?
+[49:25] A2C and PPU were kind of the same.
+[49:28] But no, no, I'm talking about that.
+[49:30] Oh, in queue?
+[49:31] Yeah.
+[49:32] Que was...
+[49:33] Very well.
+[49:34] Yeah.
+[49:35] Right?
+[49:36] Yeah.
+[49:37] I have to do the same.
+[49:38] Yeah, I understand.
+[49:39] Because this is a small scale issue, you know, problem.
+[49:43] And problem body is easier.
+[49:44] Yeah, problem body is easier.
+[49:45] Yeah, problem body is easier.
+[49:46] You know, the number of study is small.
+[49:48] So that's why the queue will be very well.
+[49:50] Yeah.
+[49:51] It works better than reinforced too.
+[49:52] Yeah, and you train very fast as well.
+[49:54] Yeah.
+[49:55] Yeah.
+[49:56] It works faster than reinforced as well.
+[49:57] So, you could use queue learning for your problem as well.
+[50:02] I'm not saying that it's not going to be applicable.
+[50:05] But, you need to dis-retire.
+[50:07] Right?
+[50:08] And then, you know, if you implement in real life, it's not going to be a good solution.
+[50:12] Because people train every millisecond.
+[50:15] Yeah.
+[50:16] So, imagine one day, in millisecond, you know.
+[50:19] That's a lot.
+[50:20] You're going to have like maybe one million number of study, or one million number of
+[50:24] study per day.
+[50:25] And you need to store that table.
+[50:27] Or you need to train a deep queue, which is a deep neural network.
+[50:31] Yeah.
+[50:32] It's kind of a retrieval system.
+[50:33] And put the study in action, it gives you the value.
+[50:37] Right?
+[50:38] But in that case, you know, because it's huge.
+[50:40] So, the DAB model needs to be huge.
+[50:42] Yeah.
+[50:43] And you need to have a huge amount of training data.
+[50:45] Even Gemini said, queue learning might not work, but deep queue would work.
+[50:50] Yeah, deep queue may work, but you need a huge number of data.
+[50:53] So, that's the training.
+[50:56] I think you already get everything on set.
+[50:58] I think this is good.
+[51:00] So, now, so today I just want to challenge you whether you really understand your implementation
+[51:07] and the one you wrote.
+[51:09] Because this is important, okay?
+[51:11] This is what we often discuss.
+[51:14] We don't discuss the code.
+[51:16] We discuss the mathematical formulation.
+[51:19] And then, you know, someone had to intimate.
+[51:22] Okay?
+[51:23] Because, you know, I think you from civil engineering, you know, most of the time when you have discussion,
+[51:28] you discuss about like architecture, the pipeline solution.
+[51:32] No one's going to tell you, oh, this step I'm going to load up library, I'm going to divide by 10.
+[51:38] No, no one's going to do that.
+[51:40] Then, you design some unit test, right?
+[51:44] Yeah, so that's the thing.
+[51:46] It's the same, you know, exactly the same thing.
+[51:48] But because you are learning, so that's why I go a bit further to the detail.
+[51:53] But now, you know, everything is on set.
+[51:56] So, the reason I talk about Re-InFocus is because it's very simple.
+[52:01] Yeah.
+[52:02] So, you will understand, you know, this one to this one.
+[52:05] Moving to BBO, the interview, many stuff.
+[52:09] Advanced function and stuff.
+[52:11] Because that's a very hard thing, you know, to do the constraint optimization.
+[52:17] That's the thing.
+[52:18] I told you before, unconstraint is easy.
+[52:20] Constraint is harder.
+[52:22] Yeah.
+[52:23] So, the Re-Focus is unconstraint.
+[52:24] So, that's why it's very simple.
+[52:26] So, but then, you know, it gives us, I mean like, even yourself, you said, oh, Re-Focus is not good.
+[52:33] But why would people keep talking about it?
+[52:36] And it was, it is a very old oncology.
+[52:39] But why would everyone, you know, on the tutorial, would talk about Re-Focus?
+[52:44] Because it's simple.
+[52:46] It gives you the understanding.
+[52:48] And after you understand, immediately you can apply to this kind of thing.
+[52:53] Yeah.
+[52:54] So, that's the reason.
+[52:56] Okay.
+[52:57] So, again, so now, go back home and try to understand.
+[53:00] Maybe you can chat with just GPT or Google Gemini.
+[53:03] You know, they are perfect for that.
+[53:05] And then you have to tell them, okay, I have, you have to write this one, maybe in latex, or you can copy from work.
+[53:12] I have this one.
+[53:13] So, is this the objective function for Re-Focus?
+[53:17] And then, you know, when I implement, so why do I see the log?
+[53:21] Can you explain to me?
+[53:23] Right.
+[53:24] Because you are the one who is going to implement it in the future, when you graduate, you go to work.
+[53:30] You may implement some new algorithm.
+[53:34] No one will teach you how to implement it because that's new.
+[53:37] Right?
+[53:38] So, you need to understand from this one, how to come up to this one.
+[53:45] And then, chat GPT or everything will point to you.
+[53:48] Or you just, you know, I, yeah, this one is hard because blog posts, um, internet is not very good now and then because they ship to the two extremes.
+[54:01] One is like something like me, we all talk about this.
+[54:05] One is someone engineer, they all talk about implementation without talking about the formulation.
+[54:10] No one is talking about how from here to there.
+[54:14] But that's the good thing, you know, like, it's a good learning experience.
+[54:20] But now with chat GPT, I think you are under the tool to do that, you know, to understand.
+[54:25] Okay?
+[54:26] And especially it's good for you to write in your thesis.
+[54:29] What I expect a student to have a thesis is, I don't expect you to get, like, the best result.
+[54:37] I expect you to understand.
+[54:39] That's the education.
+[54:41] For the result, come on, you cannot beat other people.
+[54:45] Like, you know, when they element something, you know, like for example, Adam, so what should be the learning rate?
+[54:51] 0.001.
+[54:53] Is that a good one?
+[54:55] Are you sure?
+[54:57] So what's the best baseline?
+[54:59] Right?
+[55:00] So there's a lot of things that, you know, experienced people, they are way ahead of us.
+[55:05] And if you keep, you know, chasing like, oh, I'm going to get the best result, forget it.
+[55:10] Maybe 10 years later, some students will look at you like, how could I beat, you know, you?
+[55:17] But, you know, it's very hard because 10 years of experience, you already optimize a lot of stuff.
+[55:22] But the fundamentals stay the same.
+[55:25] So that's why I want to focus on the fundamentals.
+[55:28] It's not that you understand these kind of things, the other things you can learn later.
+[55:33] Okay?
+[55:34] So how do I do the report or the implementation in trading now?
+[55:40] Do I still use all of them?
+[55:42] Or
+[55:43] It depends on you have time or not.
+[55:46] I think, you know, you should, in the month, maybe, you know, probably time, you know, folks first.
+[55:55] Because it's simple.
+[55:57] Deep Q as well.
+[55:59] So those are the two priorities.
+[56:01] Okay.
+[56:02] Right.
+[56:03] And then if you have time, we're going to talk about PBL.
+[56:05] Okay.
+[56:06] Or like, active, right?
+[56:08] Actor wasn't so different.
+[56:10] The only thing that changed was this was an A instead of a G.
+[56:15] Yeah.
+[56:16] An A is the advantage that takes the baseline from the expected.
+[56:20] So you still use a G for like a, you also have a baseline as well.
+[56:24] And then PBL now is like a sort of a clip.
+[56:28] So it's not function was different and we had like two objectives.
+[56:32] Maximize the reward and then reduce the value of sterile.
+[56:36] Yeah.
+[56:37] So you see, if you understand the Rayforce, it's very easy to move to the other.
+[56:40] Yeah, it was.
+[56:41] And it's easy to move to PBL.
+[56:42] And then after that, you can move to GRPL, which is very common.
+[56:47] It's very hard, too.
+[56:48] Because PBL, you know, they need to calculate the high-planned function and another one, I forgot.
+[56:53] So they have to start two things in the memory.
+[56:56] Yeah.
+[56:57] So which means, you know, you need like a double number of GDUs.
+[57:01] So GRPL just like, no, I don't have a lot of GDUs because that's developed by Chinese researchers.
+[57:08] So they try to approximate and they just start one.
+[57:11] So they use only 50% number of GDUs.
+[57:15] So, yeah, so you see that when you get a fundamental, it's very easy for you to move quickly.
+[57:21] But if you just keep memory writing these kind of things in your mind, then people just say, BPO, you're just like, oh, BPO, I need to remember this thing, this thing.
+[57:30] That's not the right way to do.
+[57:33] So that, Disney, I'm trying to challenge you because I want you to understand and you can apply later in your life easier.
+[57:40] So I still need to learn more about the implementations than, uh...
+[57:45] Okay, so I think everything looks good here because, you know, we see, I challenge you to run out, but actually, you know, it's kind of, you go to the environment.
+[57:54] I'm not sure if you really understand this.
+[57:57] So you have a policy.
+[57:58] And then, now you create a new, fluffy buggy.
+[58:02] A very new one.
+[58:03] Okay, not the old one.
+[58:04] Um, like another section.
+[58:07] And then, okay, the policy just tells you, okay, you are, you know, state zero, right?
+[58:12] The policy just, oh, state zero, you should take this action.
+[58:15] And then the bug takes this action.
+[58:17] Right?
+[58:18] And then it's gonna give you some information back or whatever, you store those information about the homework, the homework, the game.
+[58:25] And then, okay, now you're in state one, right?
+[58:28] And you give the state.
+[58:30] So the state, what is the state?
+[58:32] It's not just the location of the bug.
+[58:33] It should be like the pie, right?
+[58:36] The line, the velocity.
+[58:38] Almost everything, right?
+[58:39] So it needs to know about the whole world, you know, like the whole thing is seeing, right?
+[58:43] So you input that whole state into the policy.
+[58:46] It's gonna give it, oh, you take another action.
+[58:49] So the same thing, repeat it until you finish.
+[58:52] You get one trajectory.
+[58:53] So this means that's why you need to input policy.
+[58:56] You create a new section of the game.
+[58:59] The policy will give you the action.
+[59:01] You follow the action.
+[59:02] You create one trajectory.
+[59:04] Yeah.
+[59:05] Yeah.
+[59:06] So, which means after you create a trajectory, you will end up with the reward for that whole trajectory.
+[59:11] And then you, that's why you can calculate the reward.
+[59:14] After you can calculate the reward, you plug in the object-based function, you optimize.
+[59:20] You optimize.
+[59:21] 
+[59:21] So, when I ask you about something, you don't need to redefine me.
+[59:30] You should explain to me the way that you understand.
+[59:33] I need you to understand.
+[59:35] I already understand this kind of thing.
+[59:38] Okay?
+[59:39] Don't be afraid of being wrong.
+[59:43] It's good to learn from failure.
+[59:46] That's helping to memorize more.
+[59:48] So, you see that from the very first couple of weeks ago, I think that you had no clue about implementation, about object-based function.
+[59:57] But now you see, you get a better statement.
+[59:59] And even if you don't need to have all of those things, you can kind of describe what you want to do.
+[60:06] Yeah.
+[60:07] I seem to get better at it, though.
+[60:10] Yeah, this is what we expect students to have.
+[60:13] I mean, it's fine, like, if I, you know, if I did not need to, you know, I don't need to spend time like this for you.
+[60:20] You just report to me and say, oh, good.
+[60:22] Go, huh.
+[60:23] I don't know what the supervisors are like that.
+[60:25] Yeah, I mean, like, it's okay to do like that.
+[60:28] And I don't think that university will have any, any force on us.
+[60:31] Yeah.
+[60:32] But, I mean, like, that goes, like, that goes against my philosophy.
+[60:36] So that's why I often challenge my students a lot.
+[60:40] And a lot of them, at the end, you know, they don't, they did not like me.
+[60:44] I think they liked you.
+[60:46] No, no, no.
+[60:47] I mean, like, I'm okay.
+[60:48] I don't really care whether they like me or not.
+[60:51] I just want them to learn because that's the definition of education.
+[60:55] Yeah.
+[60:56] Okay, I think it looks very good.
+[60:57] So, now you need the next action.
+[61:00] You need to understand why.
+[61:01] Why from the optimization you get to here.
+[61:04] Why there's a lot.
+[61:06] Is it the correct one or is it not?
+[61:09] Right, or is it the exact one or is it an approximation?
+[61:13] Right, and, you know, you need to explain why.
+[61:16] Okay, and after that, you can explain.
+[61:19] Now it's time for you to implement deep Q and reforce for your method.
+[61:23] So this is exactly like floppy bus.
+[61:25] You just replace the state by your state and the action by the other action.
+[61:31] But there's a, you know, there's going to be potential issue there.
+[61:35] So for, what do I want to say?
+[61:39] This one relates to hidden markup model.
+[61:49] Um, you know, in the floppy bus, the state, what's the state in the floppy bus?
+[62:05] Do you recall?
+[62:07] The position, that's why the belt velocity, which is the speed, the pipe, position, and the gap into the pipe.
+[62:18] Yeah.
+[62:19] So you see that it needs to know the whole world, right?
+[62:22] Yeah.
+[62:23] So, go back to our trading problem.
+[62:26] So, because I'm not very familiar with trading.
+[62:29] So we define the state.
+[62:31] Yeah.
+[62:32] But there's the state reflect the whole world.
+[62:35] Hmm.
+[62:36] Let me give you an example why, what would I say like that?
+[62:40] Hmm.
+[62:41] So, in floppy bus, you have the pipe.
+[62:43] Hmm.
+[62:44] Right?
+[62:45] And this is the pipe.
+[62:46] Yeah.
+[62:47] Right?
+[62:48] So when it says it's going to give all of the information about the pipe, the location, the velocity, and the location of the pipe.
+[62:55] Yeah.
+[62:56] So when we define our state in trading, we need to define everything.
+[63:03] But do we cover everything?
+[63:06] No.
+[63:07] Because there's another case, like for example, in the floppy bus, I just said, right?
+[63:11] So, imagine now the bus does not have wood eyes.
+[63:15] Hmm.
+[63:16] So instead of observing the horn string, you can observe like maybe one meter a hand.
+[63:22] Hmm.
+[63:23] Right?
+[63:24] So you don't observe to the horn word.
+[63:26] Right?
+[63:27] Or there's something you cannot observe.
+[63:29] Hmm.
+[63:30] Then what?
+[63:31] So people also develop complicated math to do.
+[63:34] But I don't want to get into that situation.
+[63:36] So I want, you know, the case that we can see the horn thing.
+[63:42] But because the trading is a completely new territory, yeah, territory to me, I don't know what should be the whole state.
+[63:51] Yeah, the whole, the whole worst thing.
+[63:53] Hmm.
+[63:54] So maybe it may not work for you.
+[63:56] You may not get good results with reinforcement learning because the state that we define is not reflecting the horn thing.
+[64:03] Hmm.
+[64:04] It's a missing thing.
+[64:06] So, Gemini suggested two themes, right?
+[64:07] Okay, so, I have like a, it said something like iteration one and iteration two.
+[64:20] So what is this simple model which is like the change in price, the cash at hand and the number of shares at that time for your entire portfolio, right?
+[64:37] Right.
+[64:38] Uh, but it said this would be incomplete because we don't know, uh, what's that two things?
+[64:47] Yeah, but the important thing is the incomplete.
+[64:50] That's what I want to say.
+[64:51] Yeah.
+[64:52] I want to avoid that.
+[64:53] Oh, okay.
+[64:56] So how to have a complete state?
+[64:59] Hmm.
+[65:00] I want to be incomplete because incomplete is going to move to another field called hidden make-up model.
+[65:06] Yeah.
+[65:07] Which, you know, you say that, uh, you know, you don't observe everything.
+[65:10] Hmm.
+[65:11] So how do you gonna deal with that?
+[65:14] So you have to build a model to predict the thing that you want to observe, what you cannot observe.
+[65:19] Oh, wow.
+[65:20] That's not the same.
+[65:22] Yeah, so, I mean, that's the intuition of the method.
+[65:26] Should I read on that?
+[65:27] Huh?
+[65:28] Should I read on that?
+[65:29] Should I read on it?
+[65:30] Like, uh, the model?
+[65:32] Should I read on it?
+[65:33] Like, uh, the model?
+[65:34] Should I read it?
+[65:35] Like, I don't understand.
+[65:36] Yeah, we, we need to make the state.
+[65:37] You need to redesign the state.
+[65:38] Like, maybe you need to work with Gemini or chat GBT.
+[65:42] That's the thing, it, it, it, it, it, it's going to be more complex.
+[65:45] Like, uh, seven to nine different attributes.
+[65:48] Yeah, we need to come with one.
+[65:50] Because if you don't have a, you have an income lit.
+[65:54] It's just going to be difficult.
+[65:56] Yeah, it's going to be difficult.
+[65:57] Oh, wow.
+[65:58] So should we?
+[65:59] I would propose that we should have a complete one, if possible.
+[66:03] And then if you have time, you can just say, in practice, you cannot observe this, you cannot observe that.
+[66:08] What would happen?
+[66:09] And then you train again and you say, oh, the method did not work.
+[66:12] So you did something else.
+[66:13] So future work, you hit the mic up.
+[66:16] More than one.
+[66:17] Okay.
+[66:18] Okay.
+[66:19] So this idea is similar to robot on a cello-graphic card.
+[66:24] You cannot know everything about the world.
+[66:26] You have limited number of sensors.
+[66:28] Right?
+[66:29] It can send a limited number of information.
+[66:31] Yeah.
+[66:32] But the world is complicated.
+[66:33] In order to work where we need like a horn word.
+[66:36] But you don't.
+[66:37] So that's why the hidden mic up model is very popular.
+[66:41] But, okay, again, I don't want to touch to that part.
+[66:45] I'm not good at that either.
+[66:46] So do you suggest we start with the 9 dimensional state?
+[66:52] Yeah, whatever.
+[66:53] You know, like you chat with GBT or, I mean, so you are using Gemini, you have a subscription, like free with student.
+[67:02] Yeah, for student, I think you get some good ones.
+[67:05] But then, you know, you know that Microsoft Office, Co-Pilot, you also get free, you know, because of the university.
+[67:14] Yeah, I've used that one, yes.
+[67:16] So in there, they have GBT 5.6, which is very good as well, if you like.
+[67:21] Pick one, you know, which one you can come to local.
+[67:25] To me, I think it's the same.
+[67:27] And then try to come up with the full state.
+[67:29] And then after that, you have a state, you have an action, you define the action, sell, hold, or buy, right?
+[67:36] And we just define maybe, yeah, because right now we just say that all you want is easy, but you know, in practice, you need.
+[67:44] Yeah, the second iteration was like.
+[67:46] Action is extremely complicated.
+[67:48] Yeah.
+[67:49] You sell, but how many?
+[67:50] Yeah, the load size.
+[67:51] You hold, but you hold is easy, but then you buy how many, so.
+[67:56] Just a lot of more states.
+[68:00] Yes, a lot of more action.
+[68:02] So that's why I feel like you pick, you pick the wrong problem for study.
+[68:07] Because for study, I think you just pick floppy, but.
+[68:11] Something well defined.
+[68:12] And you're going to focus more on the algorithm.
+[68:15] You don't focus more on the game, more on the problem.
+[68:18] So now you need to focus on the problem.
+[68:20] Problems, yeah.
+[68:21] But you know, maybe you know, if you focus on the problem and then, after you right away, you go to an interview and you talk to people who really understand about your problem, and they say, no, it's not going to, you know, the modeling is here.
+[68:34] It's not correct.
+[68:35] It's bad, right?
+[68:36] Yeah, it is.
+[68:37] Because we are not experts.
+[68:38] Yeah.
+[68:39] So our focus is for the algorithm, not the modeling there.
+[68:44] But would somebody in like the business department or like finance department know more about this?
+[68:50] Because this is more of AI or machine learning than about finance?
+[68:54] So it depends on who you're going to ask.
+[68:56] So maybe there are some people who are doing like, you know, machine learning and finance.
+[69:01] Yeah.
+[69:02] Apply machine learning for finance.
+[69:03] So they would understand more.
+[69:04] So they barely understand about these methods, but they know how, you know, they consider this one is kind of a black box.
+[69:13] So the black box, what does this black box need?
+[69:16] To just you define the state, you define the action, and then you have data.
+[69:20] And then boom, the black box will give you a good model and then you apply.
+[69:24] So, which means in that case they're going to care about the model, you know, input model.
+[69:29] Study action, data.
+[69:30] They just care about those.
+[69:32] They don't care about what's happening here.
+[69:35] For us, because we're from like electronic engineering, signal processing things, so we care about this kind of thing.
+[69:43] But there was no machine learning in finance when I checked.
+[69:46] Machine learning in finance?
+[69:49] I don't think there was when I was trying to apply.
+[69:52] No, no, we don't have that program here.
+[69:55] Yeah, okay.
+[69:56] We don't.
+[69:57] But maybe there's some research here.
+[69:59] I'm talking about research here, I'm not talking about program.
+[70:01] Oh, okay.
+[70:02] In the school.
+[70:03] Okay.
+[70:04] I think if you want to find that's why you need to study about something called Con.
+[70:10] I think you know about this one.
+[70:13] Yeah, Confinance.
+[70:15] So, that's actually the field I would want to enter if I graduate or like investment banking, one of those two.
+[70:24] But it's a bit more complicated.
+[70:25] I think they're going to have a lot of knowledge about business rather than about technical.
+[70:30] Technical, because you know that field they evolved from the very, you know, from a long time ago.
+[70:37] So they care a lot about statistics.
+[70:40] Yeah.
+[70:41] You need to understand statistics.
+[70:43] Yeah.
+[70:44] Like you have any idea about ANOVA?
+[70:46] Yeah.
+[70:47] Okay.
+[70:48] So there's a lot of stuff you need to learn, you know.
+[70:50] And these are analysis as well.
+[70:51] Because you know, statistics is kind of the root.
+[70:54] Machine learning just be on top of it.
+[70:56] And scale it to pick your product.
+[71:00] But inside the core of machine learning there's still a statistic there.
+[71:05] So that's why you sometimes you will hear something called statistical machine learning or statistical learning theory.
+[71:14] So which means those are closely related to statistics.
+[71:20] And those are very hard for you.
+[71:26] Okay.
+[71:27] How about, you know, another week?
+[71:30] Because first of September you need to submit.
+[71:35] And it's close.
+[71:37] I also need to, I'm traveling next week as well.
+[71:41] To see my mom.
+[71:42] That's not good.
+[71:43] Yeah.
+[71:44] I'm traveling to see my mom back in Nigeria.
+[71:47] So I might not be around for the entire week.
+[71:49] This is bad.
+[71:51] Yeah.
+[71:52] You need to write your report and then you have only two weeks after that.
+[71:55] So three weeks?
+[71:56] No, it's too rough.
+[71:58] Especially with this one.
+[72:01] Because, you know, when you do that one, I'm not sure if it's going to work or not.
+[72:05] No one's going to give you a terrible result.
+[72:08] Yeah, I'm thinking because, you know, I'm thinking like I'm going to give you a week to try with the finance.
+[72:16] Otherwise, we're going to switch back to some teams.
+[72:19] And it's going to change your dissertation.
+[72:22] Just focus on the reimbursement learning rather than the economics.
+[72:26] Because, you know, when we flip to for example of Luffy Bird or some other game, you can pick whatever games we have.
+[72:35] And then, you know, you present.
+[72:37] So, I think that's good.
+[72:39] Because the game is webbified.
+[72:41] It's easy to work on.
+[72:43] But now, you know, we have too many variables here.
+[72:51] Okay, so if that's the case, just try, you know, working on your problem.
+[72:55] Yeah, just try to work on your problem.
+[73:02] See if you can get a state.
+[73:04] You know, right now, you already know how to implement this.
+[73:06] So, whenever you think of your problem, think of Fluffy Bird.
+[73:10] So, your state, so what, you know, in your Fluffy Bird you observe this kind of thing.
+[73:14] So, what could be the one corresponding for example.
+[73:18] And the action is single.
+[73:19] You have three actions.
+[73:20] In Fluffy Bird, you have only one, two actions, right?
+[73:24] Touch or not touch.
+[73:25] Yeah.
+[73:26] Right.
+[73:27] Okay, so only one, only two actions.
+[73:30] So, very similar.
+[73:31] I guess if we can discuss things done, which means you already get a good thing.
+[73:36] But then you need to try and deep cue and then you need to do the ring force.
+[73:40] Because, you know, at least you need to have something to compare.
+[73:43] Yeah.
+[73:44] We should not have one method.
+[73:46] Okay.
+[73:47] Good.
+[73:48] So, next week.
+[73:50] So, next week we're not going to meet, right?
+[73:52] Yeah.
+[73:53] So, now you need to understand why you have this same intention.
+[73:56] Or we could have an online meeting.
+[73:59] It's okay.
+[74:00] Because you need to visit your family, take your time.
+[74:03] Even on this one, with two methods.
+[74:06] That's it.
+[74:07] Okay.
+[74:08] Good.
+[74:09] So, what becomes the baseline method?
+[74:10] Or is it just those two comparing?
+[74:12] Just do those.
+[74:13] Those two first.
+[74:14] Make those two methods.
+[74:15] Okay.
+[74:16] I don't think of any like compare reason because we're, yeah, I don't think so.
+[74:22] Especially if you are not even, you know, we have not even considered it's a time series.
+[74:27] Because this day, and then the next day, and then the next day.
+[74:31] But now we just want to, it's a purely reinforcement of the environment.
+[74:36] So, which means, although you have two days, but two days now we assume they're independent.
+[74:41] Yeah.
+[74:42] Just like one game.
+[74:43] Yeah.
+[74:44] You play one session, and then play another session.
+[74:47] Yeah.
+[74:48] Although they actually correlate it.
+[74:49] Okay.
+[74:50] So, there's a lot of issues.
+[74:51] So, that's why I wouldn't prefer to touch their business case.
+[74:56] Yeah.
+[74:57] It's a very difficult problem.
+[74:58] So, that's why for QAM, they still prefer some very simple methods.
+[75:03] Because the data is complex, you know, complicated enough.
+[75:07] And, you know, even just to process the data, it's already ahead of it.
+[75:13] So, that's why, you know, we need very simple methods.
+[75:17] So, well, as reinforcement learning, you know, you need to define the trajectory.
+[75:22] And it requires a huge number, like amount of data to train.
+[75:27] So, imagine if we have today, tomorrow, and another day.
+[75:30] So, which means three days in a row.
+[75:32] So, which means you have to divide your data set.
+[75:34] So, one trajectory is three days.
+[75:37] Oh.
+[75:38] Right.
+[75:39] So, in that case, and again, you know, it's not because there's some problem.
+[75:45] There's some temporal factor we have not taken into account.
+[75:48] We just break it like this.
+[75:50] Now, you have one day.
+[75:52] But if you make it three days, it's the same idea with one day.
+[75:55] So, the three days in a three days in a, then they become independent.
+[75:59] But they are not.
+[76:00] Right.
+[76:01] I have not moved to that one.
+[76:05] For me, I just know that, okay, trajectory, they're independent.
+[76:09] If they are not, then I have no idea how to do it.
+[76:14] I have not learned that part yet.
+[76:17] So, I think that's why they call it time theory.
+[76:19] There's a reason they come there.
+[76:21] Maybe it's more complicated.
+[76:23] Yeah.
+[76:24] Or they would come as something that, I know a couple of people working on it, but I don't know much.
+[76:33] None IID.
+[76:35] So, you know none IID means?
+[76:37] So, most of the things we are working on machine learning like image classification.
+[76:42] Right?
+[76:43] So, this image and that image, when I label this image, will it influence the decision when I label another image?
+[76:54] Probably no.
+[76:55] So, in machine learning, we assume that everything is independent.
+[76:59] So, they call it IID.
+[77:01] Okay?
+[77:02] None IID, which means when I make this decision, and my decision is going to influence the other decision.
+[77:09] That's none IID.
+[77:11] Or like when you have a time factor.
+[77:14] The temporal factor of time.
+[77:16] Right?
+[77:17] So, it's none IID.
+[77:18] And this one is very wrong.
+[77:19] It's not easy.
+[77:21] Anyway, yeah, good.
+[77:24] So, I'll see you in two weeks.
+[77:26] Yeah.
+[77:27] So, to doubt, give you some result, impossible, write a report.
+[77:32] Because I think everything is done now.
+[77:34] You know the methods, you know the modeling, and then you may have some result.
+[77:42] So, put everything into a report.
+[77:44] Good?
+[77:45] Yeah.
+[77:46] That's it.
+[77:47] Anything else?
+[77:48] Anything else you want to discuss today?
+[77:52] Maybe PPO or no PPO again?
+[77:56] So, right now, just focus on deep Q and reinforce.
+[77:59] Just for us.
+[78:00] Okay.
+[78:01] And you can make it work.
+[78:02] You can make it on time.
+[78:03] You finish your report, and then you have maybe one week, and draw with PPO.
+[78:07] Okay.
+[78:08] Yeah.
+[78:09] Yeah.
+[78:10] I see.
+[78:18] If possibly, we couldn't get the full state, and then we did iterations over at the end,
+[78:25] and then we did iterations over iterations.
+[78:26] Would that work in the report?
+[78:28] Interation?
+[78:29] I don't understand.
+[78:30] What is the iteration?
+[78:31] So, we did one sample with just three states, another sample with five states, the next one
+[78:40] with like maybe five actions?
+[78:41] No, no.
+[78:42] No, no.
+[78:43] Don't do that.
+[78:44] Oh, okay.
+[78:45] Don't do that.
+[78:46] Okay.
+[78:47] It's not going to work.
+[78:48] So, we should just have all the options and all the states from the gate.
+[78:54] The thing is, there's a lot of stuff that we don't know whether it's going to work or
+[78:58] not.
+[78:59] Yeah.
+[79:00] Do you want to do that and miss the deadline?
+[79:01] Or do you want to take a set for out to have something like basic for you to present?
+[79:13] I can work on them, but I don't know how it would look like that.
+[79:18] Because when you do that, then how are you going to model your policy?
+[79:22] How are you going to model all the stuff?
+[79:24] Because it keeps changing from time to time.
+[79:27] Are you able to model using parametric approach or non-parametric?
+[79:31] Oh, wow.
+[79:32] And now?
+[79:33] Okay.
+[79:34] So, that's why I'm saying that when we try to do something, do the easiest one first.
+[79:41] If you make it work, it's a checkpoint for you.
+[79:44] Then you can do whatever you want.
+[79:46] But now we don't even have that checkpoint.
+[79:49] And it depends on you.
+[79:51] This is your report.
+[79:52] This is your coursework.
+[79:53] Do you want to risk it?
+[79:55] Or do you want to have a checkpoint?
+[79:59] Okay.
+[80:00] So, the checkpoint could...
+[80:02] The deep kill and the reinforcement.
+[80:05] Yeah.
+[80:06] Yeah.
+[80:07] But for the modeling, because I know that there would be more actions than just by one,
+[80:11] or do we just specifically say...
+[80:13] Just do by one.
+[80:14] By one.
+[80:15] Okay.
+[80:16] Because...
+[80:17] Because, you know, the thing in all of the reinforcement learning, you've learned so far.
+[80:23] Right?
+[80:24] So, they have the fixed number of actions.
+[80:26] Right?
+[80:27] If you just say that when you buy, you're not buying one, how many?
+[80:32] So, it depends on the money you have and the value of the market.
+[80:37] Yeah.
+[80:38] Because...
+[80:39] So, and that number keeps changing.
+[80:40] Yeah.
+[80:41] So, which means that you don't have the fixed number of actions.
+[80:44] Yeah.
+[80:45] So, one easy way for you to do is...
+[80:47] You think that what's the maximum possible number of actions I could.
+[80:52] Right?
+[80:53] Mm-hmm.
+[80:54] But that's almost infinity.
+[80:56] Yeah.
+[80:57] Because if you have a hundred pounds and NVG has 400 per share, you can't buy one.
+[81:04] Okay.
+[81:05] So, that's why I feel like this problem is very hard, you know?
+[81:10] Mm-hmm.
+[81:11] It breaks a lot of stuff in the easy reinforcement learning.
+[81:15] Okay.
+[81:16] And for the easy reinforcement learning, we barely managed to solve everything.
+[81:21] Mm-hmm.
+[81:22] And now you move to a very different game.
+[81:24] Mm-hmm.
+[81:25] So, that's why I'm thinking of whether you should switch to a game.
+[81:28] Maybe pick some game, you know, for example, like Sudoku.
+[81:33] Mm-hmm.
+[81:34] Because Sudoku, you know, um...
+[81:38] No, no, but no.
+[81:39] Maybe just do whatever you're gonna do.
+[81:41] Um...
+[81:42] Yeah, but you're right.
+[81:44] There's another way.
+[81:45] There's another thing like, for example, we just buy one.
+[81:47] Mm-hmm.
+[81:48] But with your money, and the value of that share.
+[81:52] Yeah, yeah.
+[81:53] It just tells you to buy, but can you buy?
+[81:56] Yeah.
+[81:57] So, now I think it's just like, you can buy.
+[82:01] Consider it's not a share.
+[82:03] Consider it's kind of Bitcoin.
+[82:05] Mm-hmm.
+[82:06] So, Bitcoin, you can divide.
+[82:07] Yeah.
+[82:08] Into smaller, smaller pieces.
+[82:09] Like 0.01.
+[82:10] Yeah.
+[82:11] So, consider that one.
+[82:13] Mm-hmm.
+[82:14] Okay?
+[82:16] And for the state, wouldn't you look better to use like the simplest,
+[82:22] the simplest states?
+[82:23] You could.
+[82:24] You should.
+[82:25] You could try.
+[82:26] I...
+[82:27] Because, to be honest, I have never worked in this cap setting before.
+[82:30] Yeah.
+[82:31] So, I don't have any, like, advice at this state.
+[82:33] Okay, okay.
+[82:34] Okay.
+[82:35] Okay.
+[82:36] So, now I think the only thing we could do is just try.
+[82:38] Okay.
+[82:39] Yeah.
+[82:40] Let's try.
+[82:41] Thank you so much.
+[82:42] Okay.
+[82:43] Okay.
+[82:44] Good.
+[82:45] Got some results.
+[82:46] And how about the reports?
+[82:47] I'm going to prepare for the semester.
+[82:48] Mm-hmm.
+[82:49] All right.
+[82:50] Thank you.
+[82:51] Yeah.
+[82:52] Yeah.
+[82:53] Yeah.
+[82:54] So, in two weeks, the end time, we're going to send you to the next one, too.
+[82:59] Thank you.
+[83:00] All right.
+[83:01] Thank you.
+[83:02] Yeah.
+[83:03] Yeah.
+[83:04] So, in two weeks, the end time, we're going to send you to the next one, too.
+[83:05] Thank you.
+[83:06] All right.
+[83:07] All right.
+[83:08] 
+[83:08] Yeah.
+[83:09] Yeah.
+[83:10] So, in two weeks, the end time, we're going to send you to the next one, too.
+[83:13] Thank you.
+[83:14] All right.
+[83:15] All right.
+[83:37] All right.
+[83:40] All right.
+[83:42] All right.
+[83:44] All right.
+[83:45] All right.
+[83:46] All right.
+[83:47] All right.
+[83:48] All right.
+[83:49] All right.
+[83:50] All right.
+[83:51] All right.
+[83:52] All right.
+[83:53] All right.
+[83:54] All right.
+[83:55] All right.
+[83:56] All right.
+[83:57] All right.
+[83:58] All right.
+[83:59] All right.
+[84:00] All right.
+[84:01] All right.
+[84:02] All right.
+[84:03] All right.
+[84:04] All right.
+[84:05] All right.
+[84:06] 
+[84:06] All right.

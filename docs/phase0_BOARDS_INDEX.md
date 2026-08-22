@@ -14,4 +14,7 @@ Figures:
 - Trading template: `latex/tikz/rl_training_loop_template_word.png`
 - Games overview: `latex/tikz/phase0_board_style_word.png`
 
+**Colab demo (run live / show charts):** [`notebooks/phase0_games_colab.ipynb`](../notebooks/phase0_games_colab.ipynb)  
+— see [`notebooks/README.md`](../notebooks/README.md). Use `RUN_MODE = "cached"` in meetings.
+
 Older combined note (still useful cheat sheet): [`phase0_pseudocode.md`](phase0_pseudocode.md)

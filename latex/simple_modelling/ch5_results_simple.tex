@@ -101,6 +101,36 @@ A1 PPO (3-D state)   & 76.91  & 178.68 & 19.1 & 0\% \\
 
 \paragraph{Honest headline.} Deterministic PPO matched B1b on \textbf{all 26} test months: under pure $\Delta W$ with a 3-D state, the learned policy is ``get fully invested and stay there.'' Against the one-share baseline B1 this would look like a $10\times$ win; against fair B1b it is rediscovered buy-and-hold. Accounting identity held exactly; illegal-action request rate was 3.9\%.
 
+\subsection{Policy-family ablation: is the collapse specific to PPO?}
+\label{sec:phase1_ablation}
+
+To test whether the collapse is an artefact of the optimiser, the identical MDP, data split, fee, seed and 80{,}000-step budget were re-run with two further policy-gradient methods: a from-scratch masked REINFORCE implementation (\texttt{reinforce\_trading.py}; infeasible actions receive logit $-\infty$ before sampling) and A2C. Value-based methods were excluded by design: tabular Q-learning cannot index a continuous cash--price state, and DQN sits off the policy-based track this project follows.
+
+\begin{table}[h]
+\centering
+\caption{Policy-family ablation on the Iteration-1 MDP (26 held-out SPY months, matched 80k-step budget, seed 42).}
+\label{tab:phase1_ablation}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Method} & \textbf{Mean $\Delta W$} & \textbf{Trades/mo} & \textbf{Months identical to B1b} \\
+\midrule
+B1b buy-max-hold      & 76.91 & 19.1 & 26/26 (def.) \\
+REINFORCE (scratch)   & 76.91 & 19.1 & 26/26 \\
+A2C                   & 76.91 & 19.1 & 26/26 \\
+PPO                   & 76.91 & 19.1 & 26/26 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{phase1_algo_ablation_delta_w}
+  \caption{Policy-family ablation. REINFORCE, A2C and PPO execute the identical buy-max action sequence on every test month.}
+  \label{fig:phase1_ablation}
+\end{figure}
+
+All three optimisers converge to the same fully-invested policy, with identical executed action sequences on every test month (Table~\ref{tab:phase1_ablation}). The collapse is therefore a property of the \emph{objective} --- a risk-neutral $\Delta W$ reward in a predominantly rising window --- and not of PPO. PPO remains the primary algorithm on stability grounds: it was the only policy method consistently strong across the harder Phase-0 games, and its clipped updates guard against the destructive policy jumps unclipped methods permit.
+
 \section{Phase 1, Iteration 2: the 5-D state agent}
 \label{sec:phase1_iter2_results}
 
@@ -153,7 +183,7 @@ Accounting identity          & pass    & pass    & pass \\
 \section{Analysis and key findings}
 \label{sec:analysis_simple}
 
-\paragraph{1. The reward, not the state, sets the incentive.} Under $r_t=\Delta W_t$ in a mostly-rising test window, full investment is near-optimal and Iteration~1 found exactly that. Adding entry and time context moved the policy along the exposure axis (always-invested $\to$ almost-never-invested) without creating selective timing. Both extremes are rational responses to a risk-neutral reward estimated from noisy monthly episodes whose training window includes the COVID crash and the 2022 bear market.
+\paragraph{1. The reward, not the state (or the algorithm), sets the incentive.} Under $r_t=\Delta W_t$ in a mostly-rising test window, full investment is near-optimal and Iteration~1 found exactly that. The policy-family ablation (Section~\ref{sec:phase1_ablation}) confirms the finding is optimiser-independent: REINFORCE, A2C and PPO all converge to the identical buy-max policy. Adding entry and time context moved the policy along the exposure axis (always-invested $\to$ almost-never-invested) without creating selective timing. Both extremes are rational responses to a risk-neutral reward estimated from noisy monthly episodes whose training window includes the COVID crash and the 2022 bear market.
 
 \paragraph{2. Baseline design is itself a result.} Without fair B1b, Iteration~1 would have been reported as ``PPO beats buy-and-hold by $10\times$.'' With it, the correct statement is ``PPO rediscovered buy-and-hold.''
 

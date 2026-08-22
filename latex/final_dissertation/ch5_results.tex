@@ -281,6 +281,18 @@ $S_5$   & 12 & $+163.88$ & 19.1  & 2/6 & $+40.20$  & 69.7  & 6/6 & 0.29 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{finalv2_ladder}
+  \caption[The state ladder on validation]{The ladder on the 12 validation
+  months. Bars are means over six seeds; whiskers span the full range of seed
+  outcomes, which is wider than any difference between adjacent rungs. The
+  figures just above the axis count how many of the six seeds produced a policy
+  that actually reads its observation: REINFORCE almost never does, at any
+  rung, while Deep Q-learning always does and earns less for it.}
+  \label{fig:res_ladder}
+\end{figure}
+
 \paragraph{The declared stopping rule terminates at the first rung.} The
 rule fixed in Section~\ref{sec:protocol} was to stop at the first rung
 whose successor moves mean profit, intra-episode drawdown and trade count
@@ -386,6 +398,20 @@ slice $0.1\,C_0$ & REINFORCE & $+117.40$ & 132.4 & 0.578 & 15.9 & 0.0196 & 0.550
 \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{finalv2_wealth_paths}
+  \caption[Cumulative profit on the held-out months]{Cumulative wealth change
+  across the 24 held-out months. The heavy red line is true buy-and-hold;
+  shaded bands span all six seeds of each learner, and the solid line within a
+  band is the median seed. Three curves are visually indistinguishable at the
+  top because they are the same policy arrived at three ways: the slice
+  schedule by construction, REINFORCE and PPO by learning to buy whenever a
+  Buy is legal. Deep Q-learning is the only learner that departs from the
+  benchmark, and it departs downwards.}
+  \label{fig:res_paths}
+\end{figure}
+
 \paragraph{No learned agent beats buy-and-hold, on either measure.} The best
 learned return is REINFORCE's $+\$171.51$ against buy-and-hold's $+\$180.25$,
 and the best learned Sharpe ratio is $0.675$ against the slice schedule's
@@ -415,6 +441,20 @@ state-dependent in every seed of every cell, and it is also the weakest earner,
 at $+\$74.68$ against $+\$180.25$. The two facts are one fact. Its mean exposure
 is $0.312$ against the attainable $0.841$, and its drawdown is correspondingly
 lower, $0.0124$ against buy-and-hold's $0.0310$.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{finalv2_return_vs_exposure}
+  \caption[Return against risk taken on the held-out months]{Return plotted
+  against what was committed to earn it, on the held-out months. In both panels
+  the dashed ray joins the origin to true buy-and-hold, so a point on the ray
+  earns exactly in proportion to what it risks --- which is what an investor
+  achieves by holding a fraction of buy-and-hold and nothing else. Only a point
+  clearly \emph{above} the ray represents skill. Every learned agent sits on the
+  ray to within the range spanned by its seeds, in both panels: less return for
+  less risk, in the same proportion.}
+  \label{fig:res_scatter}
+\end{figure}
 
 The question that matters is whether that is risk management or merely
 abstention, and it has a quantitative answer. Deep Q earns $41.4\%$ of
@@ -502,6 +542,20 @@ $\lambda$ & \textbf{Mean $\Delta W$} & \textbf{Exposure} &
 \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{finalv2_lambda_frontier}
+  \caption[The drawdown penalty sweep]{The drawdown penalty on validation.
+  Left: return and participation fall together as the penalty rises, and the
+  usable range ends between $\lambda = 0.10$ and $\lambda = 0.25$; the two
+  floors are the repaired selection rule, and the vertical line marks the
+  weight chosen. Right: the same sweep plotted as drawdown against exposure.
+  The points lie along the ray through the unpenalised agent, which is the
+  visual statement of the finding --- the penalty reduces drawdown by reducing
+  how much is held, not by holding the same amount through smaller losses.}
+  \label{fig:res_lambda}
+\end{figure}
+
 The sweep shows why the participation condition is needed. The trade-off is
 usable over a narrow range and then collapses: between $\lambda = 0.10$ and
 $\lambda = 0.25$ exposure falls from $0.344$ to $0.074$ and the agent
@@ -562,6 +616,20 @@ fee-independent in relative terms; the agents trade far more.}
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{finalv2_fees}
+  \caption[Fee sensitivity]{Fee sensitivity on validation. Left: every strategy
+  earns less as costs rise, and the learners fall faster than buy-and-hold
+  because they trade more; bands span the six seeds. Right: the behavioural
+  response, which is the informative panel. Deep Q-learning trades less as
+  trading becomes more expensive, from roughly eleven trades a month to two,
+  while REINFORCE's trade count zig-zags with no relationship to cost, because
+  it is choosing between corners rather than weighing a cost against a
+  benefit.}
+  \label{fig:res_fees}
+\end{figure}
 
 \paragraph{Profit is fee-sensitive, as it must be.} Every strategy earns less as
 costs rise, and the learned agents lose ground faster than buy-and-hold does,

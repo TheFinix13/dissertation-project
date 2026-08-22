@@ -1,5 +1,5 @@
 # Phase 0 — algorithms in Nguyen’s board style
-Last updated: 2026-08-05 · branch `simple-modelling-clean`
+Last updated: 2026-08-06 · branch `simple-modelling-clean`
 
 Same four beats as his whiteboard and our trading figure:
 
@@ -7,8 +7,13 @@ Same four beats as his whiteboard and our trading figure:
 
 Only the *data* and the *score* change.
 
-Paste-ready figure (trading template): `latex/tikz/rl_training_loop_template_word.png`  
-Paste-ready figure (games algorithms): `latex/tikz/phase0_board_style_word.png`
+Paste-ready figure (trading): `latex/tikz/rl_training_loop_template_word.png`  
+Paste-ready figure (games): `latex/tikz/phase0_board_style_word.png`
+
+**Per-game walkthroughs (start here):**
+1. [`phase0_cartpole_boards.md`](phase0_cartpole_boards.md)
+2. [`phase0_flappy_boards.md`](phase0_flappy_boards.md)
+3. [`phase0_lunarlander_boards.md`](phase0_lunarlander_boards.md)
 
 ---
 
@@ -40,9 +45,11 @@ Paste-ready figure (games algorithms): `latex/tikz/phase0_board_style_word.png`
 
 **Objective**
 
-\[
-\min_\theta \frac{1}{N}\sum_n \ell\bigl(f(x_n;\theta),\, y_n\bigr)
-\]
+```text
+minimise over θ :   average loss between  f(x; θ)  and  label y
+
+# in words: make the network’s guess match the answer key
+```
 
 ```text
 net = ResNet18()
@@ -64,14 +71,14 @@ opt.step()                  # 4 UPDATE
 
 **Objective**
 
-\[
-\max_\theta \; \mathbb{E}_{\tau\sim\pi_\theta}\!\left[\sum_t \gamma^t r_t\right]
-\qquad
-a_t \sim \pi_\theta(a_t\mid s_t)
-\]
+```text
+maximise over θ :   average total discounted reward of an episode
+
+actions:   a  ~  π_θ(a | s)
+```
 
 ```text
-policy = PolicyNet()          # pi_theta(a|s)
+policy = PolicyNet()          # π_θ(a|s)
 opt    = Adam(policy)
 
 # data created by acting (no labels y)
@@ -106,9 +113,12 @@ opt.step()                               # 4 UPDATE
 
 **Objective (Bellman)**
 
-\[
-Q(s,a) \leftarrow Q(s,a) + \alpha\Bigl[r + \gamma\max_{a'}Q(s',a') - Q(s,a)\Bigr]
-\]
+```text
+Q(s, a)  ←  Q(s, a)  +  α · [ r  +  γ · max_a' Q(s', a')  −  Q(s, a) ]
+
+# new Q = old Q + step_size × (target − old Q)
+# target = reward + discounted best future Q
+```
 
 ```text
 Q = zeros(n_bins, n_actions)    # lookup table (not a net)
@@ -158,8 +168,8 @@ while training:
 ## 4) A2C — REINFORCE + a critic (less noisy)
 
 ```text
-policy = PolicyNet()           # actor  pi_theta
-critic = ValueNet()            # critic V_phi
+policy = PolicyNet()           # actor  π_θ
+critic = ValueNet()            # critic V_φ
 opt_pi, opt_V = Adam(), Adam()
 
 B = ROLLOUT(env, policy)               # data by acting
@@ -179,15 +189,14 @@ opt_V.zero_grad();  L_V.backward();  opt_V.step()
 
 **Objective**
 
-\[
-\max_\theta \; L^{\mathrm{CLIP}}(\theta)
-\;+\;
-\min_\phi \; L^{V}(\phi)
-\]
+```text
+maximise over θ :   clipped PPO score   L_CLIP(θ)
+minimise over φ :   value error         L_V(φ)
+```
 
 ```text
-policy = PolicyNet()           # pi_theta
-critic = ValueNet()            # V_phi
+policy = PolicyNet()           # π_θ
+critic = ValueNet()            # V_φ
 opt_pi, opt_V = Adam(), Adam()
 
 # data created by acting
@@ -230,6 +239,7 @@ Compare to trading template: replace `ROLLOUT(prices, pi)` with `ROLLOUT(env, pi
 | What | Where |
 |---|---|
 | This note | `docs/phase0_pseudocode.md` |
+| CartPole / Flappy / Lunar boards | `docs/phase0_*_boards.md` |
 | Trading SL↔RL figure | `latex/tikz/rl_training_loop_template_word.png` |
 | Games board figure | `latex/tikz/phase0_board_style_word.png` |
 | Scratch REINFORCE | `experiments/phase0_games/reinforce.py` |

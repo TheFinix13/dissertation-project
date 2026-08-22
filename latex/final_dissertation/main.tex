@@ -60,29 +60,42 @@ family for their patience and support throughout the year.
 Reinforcement learning (RL) promises trading agents that learn from
 experience, but markets provide no ground truth against which a broken
 implementation can be detected. This dissertation adopts an
-understanding-first methodology: the two canonical RL algorithm families
---- the Monte-Carlo policy gradient (REINFORCE) and value-based Deep
-Q-learning --- are derived from first principles, implemented from
-scratch, validated on games with known outcomes, and only then applied to
-a carefully formulated trading MDP with a complete 9-feature observable
-state, a divisible-asset action model and a fee-inclusive wealth-change
-reward. A three-algorithm ablation (adding library PPO) and a fee
-sensitivity study complete the evaluation, conducted on 26 held-out
-months of S\&P~500 ETF data against properly capitalised baselines.
-The policy-gradient agent converges to a policy identical to buy-and-hold
-on every test month --- shown to be the rational optimum under a
-risk-neutral wealth objective --- while Deep Q-learning finds a nearby
-policy with lower drawdown (4.8\% vs.\ 6.0\%) and higher monthly Sharpe
-ratio (0.45 vs.\ 0.40) at negligible return cost, and reduces its trading
-intensity threefold as fees rise. PPO proves bimodal across seeds,
-landing on either rational optimum. A pilot study demonstrates that with
-a minimal state the collapse to buy-and-hold is universal across
-policy-gradient optimisers, and that without a fully invested baseline it
-would be misreported as a ten-fold victory over the market. The
-dissertation contributes a fully traceable derivation-to-implementation
-pipeline, an honest evaluation framework for trading RL, and an empirical
-characterisation of how the algorithm families respond differently to the
-same objective.
+understanding-first methodology: the two canonical algorithm families ---
+the Monte-Carlo policy gradient (REINFORCE) and value-based Deep
+Q-learning --- are derived from first principles, implemented from scratch,
+validated on games with known outcomes, and only then applied to a trading
+MDP whose nine-feature state is justified feature by feature against stated
+admissibility criteria, paired with a divisible-asset action model and a
+fee-inclusive wealth-change reward. Library PPO is added as a third
+comparator. Evaluation uses eight years of S\&P~500 ETF data under a
+three-way chronological split, with the action model calibrated and the
+state settled on a validation year before 24 held-out months are read once,
+over six seeds and against four reference strategies.
+
+No learned agent beats buy-and-hold on return or on risk-adjusted return.
+The reason is diagnostic rather than incidental: a purpose-built test shows
+that REINFORCE in every seed, and PPO in almost every seed, converge on
+policies determined entirely by which actions are feasible, ignoring the
+state they are given, while Deep Q-learning conditions on its state in every
+run but attains only 41\% of the benchmark's return for 40\% of its
+drawdown --- de-risking by holding less, not by timing. A ladder of state
+representations from one feature to twelve produces no separation that
+exceeds the spread across seeds, which is the predicted consequence of the
+objective: under a risk-neutral wealth reward on a drifting asset the best
+policy is unconditional, so a richer state has nothing to earn. Adding a
+drawdown penalty makes this worse, because abstention is the cheapest way to
+comply.
+
+An audit of the project's own earlier implementation found twelve defects,
+three invalidating, including a benchmark labelled buy-and-hold that
+deployed capital a tenth at a time and an action granularity that placed the
+benchmark beyond reach in principle; both flattered the results, and
+correcting them replaced an apparent risk-adjusted victory with a measurable
+shortfall. The contributions are a traceable derivation-to-implementation
+pipeline, an admissibility-driven account of state design in which the
+criteria decide concrete cases, a diagnostic for whether a learned policy
+uses its state at all, and an evaluation framework under which a negative
+result is interpretable rather than merely disappointing.
 \end{abstract}
 
 \tableofcontents

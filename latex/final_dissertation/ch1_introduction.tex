@@ -76,8 +76,11 @@ algorithm ablation.
 
 \begin{enumerate}
   \item[\textbf{O1}] Formulate single-asset trading as an episodic MDP
-        with a complete observable state, a divisible-asset action model,
-        and a wealth-change reward with explicit transaction costs.
+        whose state is complete with respect to the defined environment,
+        with a divisible-asset action model and a wealth-change reward
+        including explicit transaction costs, and justify each element of
+        the state against stated admissibility criteria rather than by
+        appeal to plausibility.
   \item[\textbf{O2}] Derive, from first principles, the policy-gradient
         (REINFORCE) learning rule --- including why the implemented loss
         contains a log-probability term --- and the Deep Q-learning rule,
@@ -88,10 +91,11 @@ algorithm ablation.
   \item[\textbf{O4}] Evaluate both methods on held-out real market data
         against properly capitalised passive and random baselines, under
         a chronological split, matched budgets and multiple seeds.
-  \item[\textbf{O5}] Analyse the failure and success modes observed ---
-        in particular reward-induced policy collapse to buy-and-hold ---
-        and articulate the limitations of the formulation, including
-        partial observability and non-IID data.
+  \item[\textbf{O5}] Analyse the behaviour observed, in particular
+        reward-induced collapse onto policies that ignore the state, and
+        establish whether apparent risk reduction reflects timing or merely
+        reduced participation; then articulate the limitations of the
+        formulation, including partial observability and non-IID data.
 \end{enumerate}
 
 These objectives were agreed through supervision and deliberately weight
@@ -108,22 +112,42 @@ whose behaviour cannot be explained.
         Deep Q-learning for a masked, divisible-asset trading MDP, with
         every loss line traceable to a stated equation (the traceability
         map is Appendix~\ref{app:trace}).
-  \item A complete 9-feature state design with explicit rationale, and a
-        pilot study demonstrating empirically why minimal states induce
-        degenerate policies.
-  \item An honest evaluation framework --- fully invested buy-and-hold
-        baseline, chronological splits, fee-inclusive rewards, accounting
-        identity verified per episode --- under which the central finding
-        is established: under a risk-neutral wealth reward, the policy
-        gradient converges to buy-and-hold exactly, while Deep Q-learning
-        finds a nearby policy with measurably better risk-adjusted
-        characteristics (lower drawdown, higher Sharpe ratio) at
-        negligible return cost.
-  \item A three-algorithm ablation (REINFORCE, Deep Q, PPO) and a fee
-        sensitivity study showing that the value-based agent adapts its
-        trading intensity to transaction costs, while the clipped policy
-        gradient is bimodal across seeds --- both behaviours explained
-        mechanistically from the update rules.
+  \item A nine-feature state derived as a ladder of increasing
+        informational completeness, in which each feature answers a
+        situation its predecessor could not distinguish, and in which
+        admissibility criteria decide two otherwise similar cases in
+        opposite directions: the episode's running profit is excluded
+        because it is recoverable from features already present, while
+        drawdown must be supplied explicitly because a running maximum is a
+        property of the path. The environment enforces the criteria at
+        construction, so an inadmissible state-reward pairing cannot be
+        instantiated.
+  \item A diagnostic for whether a learned policy uses its state at all,
+        together with the finding it produced: the two policy-gradient
+        methods converge on policies determined entirely by which actions
+        are feasible, in almost every seed and at every rung from one
+        feature to twelve, while the value-based method conditions on its
+        state in every run. Because a state-blind policy scores well in a
+        rising market, return alone cannot detect this, and a comparison
+        between state representations is meaningless for a method that
+        ignores the representation.
+  \item An evaluation framework built to make negative results
+        interpretable: two passive references reported separately, mean
+        exposure beside every return, drawdown measured within episodes as
+        well as across them, the accounting identity verified per episode,
+        and selection rules evaluated in code. Under it, the central finding
+        is that no learned agent beats buy-and-hold on return or on
+        risk-adjusted return, and that the binding constraint is the reward
+        rather than the state: a risk-neutral objective on a drifting asset
+        makes the best policy unconditional, so richer states have nothing
+        to earn.
+  \item An audit of the project's own earlier implementation that found
+        twelve defects, three of them invalidating, including a benchmark
+        named buy-and-hold that in fact deployed capital a tenth at a time,
+        and an action model whose granularity made the benchmark
+        unreachable in principle. Both had biased results in the flattering
+        direction, and quantifying them is what turned an apparent
+        near-victory into a measurable shortfall.
 \end{itemize}
 
 \section{Scope and non-goals}
@@ -162,9 +186,11 @@ each builds strictly on its predecessor:
         mathematics becomes verified code: environment, agents, tests,
         and the exact hyperparameters used.
   \item \textbf{Chapter~\ref{ch:results}} reports the experiments in the
-        order the methodology was built: game validation, the pilot
-        collapse study, the main algorithm ablation, and the fee
-        sensitivity study, with analysis of every finding.
+        order the argument requires: validation of the learners on games
+        with known answers; three studies on the validation year that
+        calibrate the action model, establish whether the learners use their
+        state, and test the ladder; then the held-out months, evaluated
+        once; then fee sensitivity and the consolidated analysis.
   \item \textbf{Chapter~\ref{ch:conclusions}} closes with achievements
         against objectives, an honest critical appraisal, future work,
         and a reflection on project management.

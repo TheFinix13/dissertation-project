@@ -449,8 +449,8 @@ Selection & \multicolumn{3}{l}{ladder stopping point and $\lambda$ chosen on the
 
 Every claim in Chapter~5 is regenerable from committed code and cached
 data. Specifically: (i) all random number generators, in Python, NumPy and
-PyTorch, are seeded, and results are reported over three seeds rather than a
-favourable one; (ii) the data pipeline caches its output, so experiments
+PyTorch, are seeded, and results are reported over all six seeds rather than
+a favourable one; (ii) the data pipeline caches its output, so experiments
 never silently retrain on differently-prepared data; (iii) each experiment
 writes a JSON record containing the configuration, per-month results,
 training traces, diagnostics and provenance, the last including the git

@@ -25,7 +25,7 @@ env = make("FlappyBird-v0")   # use_lidar=False in our suite
 ## 1) REINFORCE on Flappy ✅
 
 ```text
-policy = PolicyNet(obs=12, actions=2)
+policy = PolicyNet(obs=12, actions=2)   # π_θ
 opt    = Adam(policy)
 
 traj = ROLLOUT(env, policy)            # act until death
@@ -49,7 +49,7 @@ critic = ValueNet(obs=12)
 opt_pi, opt_V = Adam(), Adam()
 
 B = ROLLOUT(env, policy)
-A = returns(B) - critic(B.s)
+A = returns(B) - critic(B.s)           # A = G − V(s)
 
 L_pi = - sum( log_prob(a|s) * A )
 L_V  = MSE( critic(s), returns )
@@ -89,8 +89,8 @@ opt_V.zero_grad();  L_V.backward();  opt_V.step()
 
 | Why | Explanation |
 |---|---|
-| State is 12-D continuous | No natural small bin grid like CartPole’s 4-D |
-| Curse of dimensionality | Even 5 bins per dim → \(5^{12}\) ≈ 244 million cells |
+| State is 12 continuous numbers | No natural small bin grid like CartPole’s 4 numbers |
+| Curse of dimensionality | Even 5 bins per number → 5¹² ≈ 244 million cells |
 | Sparse reward | Most cells never visited → table stays empty |
 
 ```text
@@ -99,7 +99,7 @@ Q = zeros(huge_bins, 2)    # memory / sample nightmare
 ```
 
 **What we say to Nguyen:**  
-“Tabular Q needs a finite index. Flappy’s 12-D features make a table explode.  
+“Tabular Q needs a finite index. Flappy’s 12 features make a table explode.  
 That is exactly why DQN (network Q) or policy gradients are used.”
 
 ---
@@ -113,7 +113,7 @@ buf = ReplayBuffer()
 a = eps_greedy(Q(s))
 s2, r, done = env.step(a)
 buf.add(...)
-y = r + gamma * max(Q_bar(s2))
+y = r + gamma * max(Q_bar(s2))     # Bellman target
 L = MSE(Q(s,a), y)
 opt.zero_grad(); L.backward(); opt.step()
 ```

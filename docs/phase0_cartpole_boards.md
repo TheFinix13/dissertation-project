@@ -3,7 +3,7 @@ Last updated: 2026-08-06 · branch `simple-modelling-clean`
 
 Four beats every time: **predict → score → differentiate → update**
 
-Paste figure: `latex/tikz/rl_training_loop_template_word.png` (his board vs ours)  
+Paste figure: `latex/tikz/rl_training_loop_template_word.png`  
 Games figure: `latex/tikz/phase0_board_style_word.png`
 
 ---
@@ -15,7 +15,7 @@ Games figure: `latex/tikz/phase0_board_style_word.png`
 | State `s` | 4 numbers: cart pos, cart vel, pole angle, pole ang-vel |
 | Actions | `0` left · `1` right |
 | Reward | `+1` every step pole stays up |
-| Done | pole falls, cart off track, or `t = 500` |
+| Done | pole falls, cart off track, or t = 500 |
 | Solved | mean return ≈ **475–500** (random ≈ **29**) |
 
 ```text
@@ -34,15 +34,16 @@ The only special case: **tabular** Q-learning needs binning (see §4).
 ## 1) REINFORCE on CartPole ✅  
 *(from scratch — `experiments/phase0_games/reinforce.py`)*
 
-**Objective**
-
-\[
-\max_\theta\;\mathbb{E}\Big[\sum_t \gamma^t r_t\Big]
-\quad a_t\sim\pi_\theta(a_t\mid s_t)
-\]
+**Objective (read this like the whiteboard)**
 
 ```text
-policy = PolicyNet(obs=4, actions=2)   # pi_theta
+maximise over θ :   average of  [ sum of  γ^t · r_t  over the episode ]
+
+actions:   a_t  ~  π_θ(a | s)     # sample from the policy
+```
+
+```text
+policy = PolicyNet(obs=4, actions=2)   # π_θ
 opt    = Adam(policy)
 
 # --- one episode ---
@@ -65,17 +66,18 @@ opt.step()                             # 4 UPDATE
 
 **Our result:** mean eval ≈ **292** (beats random 29; below PPO’s 500).
 
-**Say to Nguyen:** “No labels. Score = −logπ × return. Same four beats as his ResNet board.”
+**Say to Nguyen:** “No labels. Score = −log π × return. Same four beats as his ResNet board.”
 
 ---
 
 ## 2) Actor–Critic (A2C) on CartPole ✅
 
-REINFORCE is noisy because `G` varies a lot. Add a **critic** `V_φ(s)`:
+REINFORCE is noisy because `G` varies a lot. Add a **critic** V_φ(s):
 
-\[
-A_t = G_t - V_\phi(s_t)
-\]
+```text
+advantage:   A_t  =  G_t  −  V_φ(s_t)
+# “how much better was this action than average for this state?”
+```
 
 ```text
 policy = PolicyNet(obs=4, actions=2)   # actor
@@ -116,8 +118,12 @@ opt_pi.zero_grad(); L_pi.backward(); opt_pi.step()
 opt_V.zero_grad();  L_V.backward();  opt_V.step()
 ```
 
-**Clip idea (one line):**  
-`ρ = π_new(a|s) / π_old(a|s)` — don’t trust huge policy jumps; clip `ρ` near 1.
+**Clip idea (one line):**
+
+```text
+ρ = π_new(a|s)  /  π_old(a|s)
+# don’t trust huge policy jumps — clip ρ near 1 (e.g. between 0.8 and 1.2)
+```
 
 **Our result:** mean eval ≈ **500** (solved).
 
@@ -127,17 +133,21 @@ opt_V.zero_grad();  L_V.backward();  opt_V.step()
 
 ## 4) Tabular Q-learning on CartPole ✅ *with binning*
 
-**Can it work?** Yes — **only after** we turn continuous `s ∈ ℝ⁴` into bins.
+**Can it work?** Yes — **only after** we turn continuous `s` (4 real numbers) into bins.
 
 **Why binning?** A Q-table needs a finite index. Raw cart position is continuous → infinite cells.
 
 We used bins `6 × 6 × 12 × 12`.
 
-**Bellman update**
+**Bellman update (whiteboard form)**
 
-\[
-Q(s,a)\leftarrow Q(s,a)+\alpha\bigl[r+\gamma\max_{a'}Q(s',a')-Q(s,a)\bigr]
-\]
+```text
+Q(s, a)  ←  Q(s, a)  +  α · [ r  +  γ · max_over_a' Q(s', a')  −  Q(s, a) ]
+
+# in words:
+#   new Q  =  old Q  +  step_size × (target − old Q)
+#   target =  reward + discounted best future Q
+```
 
 ```text
 Q = zeros(n_bins, 2)                   # table, not a net

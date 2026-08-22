@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "purpose": "Policy-family ablation: same MDP, split, fee, cash, seed and timestep budget \u2014 only the learning algorithm changes. Justifies the PPO choice with same-MDP evidence.",
+    "ticker": "SPY",
+    "bar": "daily",
+    "episode_def": "one calendar month of daily closes",
+    "n_train": 58,
+    "n_test": 26,
+    "fee": 0.0005,
+    "initial_cash": 10000.0,
+    "timesteps_budget": 80000,
+    "seed": 42,
+    "ppo_source": "loaded existing Iteration-1 model (run_phase1_spy_daily.py)",
+    "reinforce_note": "Scratch masked Monte-Carlo policy gradient (experiments/iteration1/reinforce_trading.py); trained to the same env-step budget as the SB3 agents.",
+    "excluded": "Tabular Q (continuous state cannot be indexed) and DQN (value-based; off the policy track Nguyen locked \u2014 Phase-0 comparator only).",
+    "timings_s": {
+      "reinforce_s": 15.9,
+      "a2c_s": 22.4
+    }
+  },
+  "summary": {
+    "B0_do_nothing": {
+      "n_episodes": 26,
+      "mean_delta_w": 0.0,
+      "std_delta_w": 0.0,
+      "mean_trades": 0.0,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.3076923076923077,
+      "months_identical_to_B1b": 0
+    },
+    "B1_buy_one_hold": {
+      "n_episodes": 26,
+      "mean_delta_w": 7.968349466764266,
+      "std_delta_w": 16.672977086400607,
+      "mean_trades": 1.0,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.3076923076923077,
+      "months_identical_to_B1b": 0
+    },
+    "B1b_buy_max_hold": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.0,
+      "months_identical_to_B1b": 26
+    },
+    "B2_random": {
+      "n_episodes": 26,
+      "mean_delta_w": 14.136048406161045,
+      "std_delta_w": 32.92956911364281,
+      "mean_trades": 12.846153846153847,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.3076923076923077,
+      "months_identical_to_B1b": 0
+    },
+    "A1_reinforce": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.0,
+      "months_identical_to_B1b": 26
+    },
+    "A1_a2c": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.0,
+      "months_identical_to_B1b": 26
+    },
+    "A1_ppo": {
+      "n_episodes": 26,
+      "mean_delta_w": 76.91437997553966,
+      "std_delta_w": 178.68257812675407,
+      "mean_trades": 19.115384615384617,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "win_rate_vs_B1b_max": 0.0,
+      "months_identical_to_B1b": 26
+    }
+  }
+}
