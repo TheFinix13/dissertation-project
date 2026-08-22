@@ -15,27 +15,45 @@ library performs any part of the final-model training.
 \section{Architecture overview}
 \label{sec:arch}
 
-The system separates four concerns, each in its own module:
+The system separates six concerns, each in its own module:
 
 \begin{enumerate}
-  \item \textbf{Data pipeline} (\texttt{fetch\_spy\_daily.py}): downloads
-        and splits market data into episode arrays; run once, cached to disk.
-  \item \textbf{Environment} (\texttt{env\_full.py}): a Gymnasium
-        \texttt{gym.Env} implementing the MDP --- state construction, trade
-        execution, fees, masking, termination.
-  \item \textbf{Agents} (\texttt{reinforce\_trading.py},
-        \texttt{dqn\_trading.py}): the two from-scratch learners, exposing
-        a common \texttt{policy(obs, mask) $\to$ action} interface after
-        training.
-  \item \textbf{Evaluation harness} (\texttt{run\_final\_experiments.py}):
-        trains every method under an identical budget and evaluates all
-        methods and baselines on identical held-out episodes, writing JSON
-        results and charts.
+  \item \textbf{Feature registry} (\texttt{features.py}): the single
+        definition of every feature, its canonical ordering, the rolling
+        window lengths, and the ladder of Section~\ref{sec:state_rationale}
+        expressed as named subsets. Nothing else in the codebase decides
+        what a state contains.
+  \item \textbf{Data pipeline} (\texttt{data.py}): downloads OHLCV bars,
+        computes market features on the continuous series, cuts monthly
+        episodes and applies the three-way chronological split; run once and
+        cached to disk.
+  \item \textbf{Environment} (\texttt{env.py}): a Gymnasium
+        \texttt{gym.Env} implementing the MDP --- state assembly, trade
+        execution, fees, masking, termination and the admissibility guard.
+  \item \textbf{Agents} (\texttt{agents.py}): the two from-scratch
+        learners, exposing a common
+        \texttt{policy(obs, mask) $\to$ action} interface after training,
+        plus a thin adapter that gives the third-party PPO the same
+        interface.
+  \item \textbf{Reference strategies and rollout}
+        (\texttt{baselines.py}, \texttt{rollout.py}): the four benchmarks
+        and the single episode-runner and metric summariser they share with
+        the learned agents.
+  \item \textbf{Experiment harness} (\texttt{harness.py}, driving
+        \texttt{run\_ladder.py} and \texttt{run\_final.py}): trains every
+        method under an identical budget and writes a JSON record of the
+        configuration, per-month results, diagnostics and provenance.
 \end{enumerate}
 
-Because baselines, learned agents and diagnostics all flow through the same
-\texttt{run\_episode} function, no method can be advantaged by a differing
-evaluation path. Figure~\ref{fig:pipeline} summarises the flow.
+Two properties of this arrangement do methodological work rather than
+merely organising code. Because baselines, learned agents and diagnostics
+all flow through the same \texttt{run\_episode} function, no method can be
+advantaged by a differing evaluation path. And because both experiment
+scripts obtain their environments from the same \texttt{harness.Config}
+object, any difference between two reported rows must appear in the
+configuration dictionary stored alongside them; there is no route by which
+two rows could differ in a way the results file does not record.
+Figure~\ref{fig:pipeline} summarises the flow.
 
 \begin{figure}[h]
   \centering
@@ -50,61 +68,130 @@ evaluation path. Figure~\ref{fig:pipeline} summarises the flow.
 \section{Data pipeline}
 \label{sec:data}
 
-Daily adjusted closes for SPY (the S\&P~500 ETF) from January 2018 to
-December 2024 are retrieved via the \texttt{yfinance} API. SPY is chosen
-deliberately: it is among the most liquid instruments in the world, so
-the frictionless-execution assumption of the environment (trades fill at
-the closing price) is least violated; and as a broad index fund it
-carries no single-company idiosyncrasies. Days are grouped into calendar
-months; months with fewer than 15 trading days are dropped. The result is
-84 monthly episodes, split \emph{chronologically}
-(Figure~\ref{fig:split}): the first 58 months form the training set and
-the most recent 26 months (November 2022 -- December 2024) the test set.
-The split is never shuffled, so the test period is strictly in the future
-of every training sample --- the temporal analogue of avoiding data
-leakage (Section~\ref{sec:bg_trading}). Episode arrays and metadata are
-cached as \texttt{.npz}/\texttt{.json}, making every experiment exactly
-reproducible offline.
+Daily auto-adjusted OHLCV bars for SPY (the S\&P~500 ETF) covering
+January 2018 to December 2025 are retrieved via the \texttt{yfinance} API.
+SPY is chosen deliberately: it is among the most liquid instruments in the
+world, so the frictionless-execution assumption of the environment (trades
+fill at the closing price) is least violated, and as a broad index fund it
+carries no single-company idiosyncrasies. The full open, high, low, close
+and volume record is retained rather than the closing price alone, because
+the daily high and low are what make range-based risk representable at all
+(Section~\ref{sec:state_def}).
+
+\paragraph{Features are computed before episodes are cut.} The pipeline
+computes every market feature on the continuous price series and only then
+slices it into months. This ordering is the whole point of the module.
+Computing a 20-day trend reference inside a monthly episode would leave the
+first day of every month with no history to average, so the agent would be
+told the market has no trend and no volatility at precisely the moment it
+chooses its opening position. Momentum does not reset because a new month
+has begun.
+
+Making that ordering work requires one further step. A rolling window
+needs history \emph{before} the first day it is reported for, so the
+pipeline fetches a warm-up lead from September 2017, computes features
+across the join, and only then discards the lead. The longest window in
+use is 20 bars, so \texttt{WARMUP\_BARS} is 21 and the pipeline refuses to
+proceed if fewer lead bars are available than that. It also asserts that no
+missing value survives into any retained episode, which is the check that
+would catch a silently shortened lead.
+
+\paragraph{Episodes and the split.} Days are grouped into calendar months
+and months with fewer than 15 trading days are dropped, giving 96 monthly
+episodes. These are split chronologically and on calendar boundaries
+(Figure~\ref{fig:split}): 60 training months (2018--2022), 12 validation
+months (2023) and 24 test months (2024--2025). The split is never
+shuffled, so the test period lies strictly in the future of every training
+sample, which is the temporal analogue of avoiding data leakage
+(Section~\ref{sec:bg_trading}).
+
+The validation year exists to carry decisions. The saturation study that
+fixes where the state ladder stops, and the choice of the penalty weight
+$\lambda$, are both settled on 2023 and never on the test years. Under the
+two-way split used earlier in the project there was no way to make that
+separation, and therefore no way to demonstrate that a design choice had
+not been influenced by the months used to report the final numbers.
+Episode arrays and metadata are cached as \texttt{.npz} and \texttt{.json},
+so every experiment is reproducible offline and no run can silently train
+on differently-prepared data.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.95\textwidth]{chrono_split}
-  \caption{Chronological train/test split of the 84 monthly episodes.}
+  \caption{Chronological three-way split of the 96 monthly episodes:
+  60 training months, 12 validation months and 24 held-out test months.}
   \label{fig:split}
 \end{figure}
 
-The seven-year window is not homogeneous, which is a feature: training
+The eight-year window is not homogeneous, which is deliberate. Training
 data includes the 2018 volatility spikes, the 2020 COVID crash and
-rebound, and the 2022 bear market; the held-out test window covers the
-late-2022 trough and the 2023--24 recovery. An agent trained on this
-window has seen falling markets --- it cannot blame its test behaviour on
-never having met one.
+rebound, and the 2022 bear market; validation covers the 2023 recovery;
+and the held-out test window covers 2024 and 2025. An agent trained on
+this window has met falling markets, so it cannot excuse its test
+behaviour by never having seen one.
 
 \section{The trading environment}
 \label{sec:env_impl}
 
-\texttt{FullStateTradingEnv} subclasses \texttt{gym.Env} with
-\texttt{observation\_space} $= \mathbb{R}^9$ and
+\texttt{TradingEnv} subclasses \texttt{gym.Env} with
 \texttt{action\_space} $=$ \texttt{Discrete(3)}. Internally it tracks cash
-$C_t$, fractional units $h_t$, and the cost basis of the open position
-(average-cost accounting), from which the nine state features of
-Table~\ref{tab:state} are computed on demand.
+$C_t$, fractional units $h_t$, the cost basis of the open position
+(average-cost accounting) and the running peak of wealth, from which the
+account features are computed on demand.
 
-\paragraph{Trade execution.} A Buy spends
-$\min(C_t,\, \Delta)$ dollars with $\Delta = 0.1\,C_0$, acquiring
-$x / (P_t(1+c))$ units; a Sell liquidates $\min(h_t P_t,\, \Delta)$ of
-position value, crediting $u P_t (1-c)$. Residual position value below the
-\$1 minimum trade size is flushed to cash to avoid dust accumulating
-outside the mask logic.
+\paragraph{The environment receives features rather than computing them.}
+The constructor takes a precomputed market matrix aligned to its price
+series and validates its width against the feature registry. This is a
+structural guarantee rather than a convenience: an environment that never
+computes a rolling window cannot truncate one at an episode boundary. The
+defect described in Section~\ref{sec:defects} is not fixed here so much as
+made unrepresentable.
+
+\paragraph{The observed feature set is selectable.} The constructor takes
+a list of feature names and emits observations in the canonical order of
+\texttt{features.py} filtered by that list, so
+\texttt{observation\_space} is $\mathbb{R}^9$ for the state of
+Table~\ref{tab:state} and $\mathbb{R}^{10}$ for the risk-aware extension.
+Every rung of the ladder therefore runs through one code path, which means a
+measured difference between two rungs cannot be an implementation
+difference between two environments.
+
+\paragraph{Admissibility is enforced at construction.} If
+\texttt{risk\_lambda} is positive and \texttt{drawdown} is not among the
+requested features, the constructor raises. The argument of
+Section~\ref{sec:risk_extension} is therefore checked by the program rather
+than asserted in prose: the inadmissible pairing of $S_3$ with a
+risk-aware reward cannot be instantiated, whether by a script, by a
+command-line argument or by mistake. \texttt{run\_final.py} attempts the
+construction deliberately and records that it was refused, so the guard is
+evidenced in the results file.
+
+\paragraph{Trade execution and the action model.} Under the default slice
+model a Buy spends $\min(C_t,\, \Delta)$ dollars with
+$\Delta = 0.1\,C_0$, acquiring $x/(P_t(1+c))$ units, and a Sell liquidates
+$\min(h_t P_t,\, \Delta)$ of position value, crediting $u P_t (1-c)$. Under
+the whole-share model a Buy spends one share price and a Sell releases one
+unit. Both are implemented, selected by a constructor argument, because
+Section~\ref{sec:actions} treats action representation as an experimental
+axis in its own right. Residual position value below the \$1 minimum trade
+size is flushed to cash, so that ``flat'' means flat and dust cannot
+accumulate outside the mask logic.
 
 \paragraph{Masking and safety.} \texttt{action\_masks()} returns the legal
 action set each step. If a caller nevertheless submits an illegal action,
 the environment executes Hold instead and flags the event in \texttt{info};
-the evaluation harness accumulates this as the illegal-action diagnostic.
+the harness accumulates this as the illegal-action diagnostic.
+
+\paragraph{Reward and its bookkeeping.} \texttt{info} carries the pure
+wealth change \texttt{dw} and the risk penalty separately from the returned
+reward. This separation is what allows the accounting identity to be
+checked under a shaped reward, and it lets a risk-trained agent be
+\emph{evaluated} on wealth change so that it is compared with the other
+agents on the same quantity it will ultimately be judged by.
 
 \paragraph{Termination.} At the final bar the environment force-liquidates
-any open position at the closing price (fee applied), implementing the
-mandatory end-of-episode liquidation of Section~\ref{sec:actions}.
+any open position at the closing price with the fee applied, implementing
+the mandatory end-of-episode liquidation of Section~\ref{sec:actions}.
 
 \section{From-scratch REINFORCE}
 \label{sec:impl_reinforce}
@@ -173,35 +260,128 @@ $Q_\phi(s,a)$, exactly as the semi-gradient TD rule prescribes
 \section{PPO ablation row}
 \label{sec:impl_ppo}
 
-The third ablation method, PPO, uses the reference Stable-Baselines3
-implementation \cite{raffin2021sb3} (\texttt{MlpPolicy}; learning rate
-$3{\times}10^{-4}$,
-rollout $n_{\mathrm{steps}}{=}512$, batch 64, 8 epochs, $\gamma{=}0.99$,
-$\epsilon{=}0.2$), trained through a thin sampler wrapper
-(\texttt{MonthSamplerFullEnv}) whose \texttt{reset()} draws a random
-training month --- the same episode distribution the scratch methods see.
+The third method, PPO, uses a reference implementation rather than a
+from-scratch one, because its role is to answer whether a modern stabilised
+policy-gradient method behaves differently on this problem, and a
+hand-written approximation of PPO would confound that question with the
+quality of the reimplementation.
 
-One protocol asymmetry is worth stating openly. The scratch methods are
-\emph{mask-aware}: illegal logits or Q-values are removed before action
-selection during both training and evaluation. SB3's PPO has no native
-mask support, so during training the environment's forced-Hold override
-handles illegal proposals, and during evaluation an illegal deterministic
-action falls back to Hold. This mirrors the pilot-study protocol and, if
-anything, mildly disadvantages PPO; the illegal-proposal rate is reported
-with the results so the effect is quantified rather than hidden.
+\paragraph{Masking, and why the library choice matters.} Plain PPO from
+Stable-Baselines3 \cite{raffin2021sb3} has no native action masking. Using
+it would leave the policy free to place probability mass on infeasible
+trades and rely on the environment's forced-Hold override to absorb them,
+which is a materially different learning problem from the one REINFORCE and
+Deep Q-learning solve: their distributions are renormalised over legal
+actions before any action is sampled. Comparing a masked learner with an
+unmasked one and attributing the difference to the algorithm would be
+unsound. PPO is therefore taken from \texttt{sb3-contrib} in its
+\texttt{MaskablePPO} form \cite{raffin2021sb3}, which applies the same
+feasibility constraint through the same \texttt{action\_masks()} call, so
+all three methods face an identical action space at every step.
+
+\paragraph{Matching the episode distribution and the seed.} SB3 treats an
+environment as one long-running task, whereas the trading problem is a
+distribution over months. A thin wrapper (\texttt{MonthSampler}) draws a
+new training month on every \texttt{reset()} from a generator seeded by the
+run seed. The seeding is the point. In the earlier implementation this
+sampler was seeded to a constant, so changing the run seed altered only the
+network initialisation and left the sequence of months identical; PPO's
+reported seed-to-seed spread then measured less variation than the other two
+methods' did, and the three were not comparable on stability. The wrapper
+now takes the run seed, so every method's spread reflects the same two
+sources of variation: initialisation and the order in which months are seen.
+
+\section{What verification found}
+\label{sec:defects}
+
+Verification is reported here as a result rather than a formality, because
+it changed the experiment. An audit of the earlier implementation, carried
+out before the final runs, found twelve defects, of which three were severe
+enough to invalidate the numbers the earlier version produced. Two were
+quantified directly on the real data by a dedicated script.
+
+\paragraph{Rolling features were truncated at episode boundaries.} The
+earlier environment computed momentum and volatility inside each episode
+from that episode's prices alone. Every month therefore opened with a
+momentum of exactly zero and a volatility of exactly zero, values that were
+not measurements but artefacts of where the calendar had been cut. On the
+real series, 43\% of each episode's steps carried a window that was
+partially or wholly unfilled. The agent was being trained to open positions
+on the basis of a feature that was, at that moment, guaranteed to be blank.
+
+\paragraph{The buy-and-hold benchmark was not buy-and-hold.} The earlier
+baseline bought one slice whenever a Buy was legal, inside an environment
+whose slice was a tenth of capital. Such a policy needs ten steps to become
+fully invested and so averages roughly 0.69 exposure across a month rather
+than 1.0. It is a ten-day dollar-cost average wearing the name of
+buy-and-hold, and because the asset drifts upward it is systematically
+weaker than the strategy it was labelled as. Measured on the test months,
+true buy-and-hold earns 21.6\% more than the policy previously reported
+under that name. Every agent compared against it was flattered by the
+difference. Both are now reported, under names that say what they are, and
+buy-and-hold is pinned to the slice action model so that it means the same
+thing even in configurations where the agent trades whole shares.
+
+\paragraph{The risk-aware reward was not measurable from the state.} The
+earlier experiment penalised drawdown while observing a state that did not
+contain it, which is the violation Section~\ref{sec:state_admissible}
+describes. The result was not an MDP, so the derivations of Chapter~3 did
+not apply to it and its outcome could not be interpreted. This is now
+prevented by construction rather than corrected by convention.
+
+The remaining nine defects were smaller but pointed the same way: closing
+prices retained while the rest of the OHLCV record was discarded; a two-way
+split with no validation set; data ending a year earlier than available; the
+PPO seeding and masking asymmetries described above; drawdown measured only
+across months and never within one; a feature that carried no information;
+and an accounting check applied to the shaped reward, where it must fail for
+a correct environment, rather than to the wealth change. Each is recorded
+with its fix, and the audit is what motivated rebuilding the experiment
+package rather than patching it.
+
+The general lesson is worth stating, because it is the one an examiner is
+entitled to ask about. None of these defects announced itself. Every one
+produced plausible numbers, and the two quantified above both biased results
+in the flattering direction. They were found by asking what each component
+was supposed to guarantee and then testing that specific claim, which is
+why the following section describes the tests in terms of the properties
+they defend rather than the functions they call.
 
 \section{Verification and testing}
 \label{sec:testing}
 
 Two layers of verification precede any market experiment.
 
-\paragraph{Unit tests.} Eight environment tests
-(\texttt{test\_env\_full.py}) assert: the accounting identity
-$\sum_t r_t = W_T - W_0$ under random legal play; zero wealth change and
-zero trades for do-nothing; the exact fee charge on a flat-price Buy;
-forced liquidation leaving zero units; Sell masked while flat with the
-illegal-action override engaging; Buy masked once cash is exhausted; state
-shape and clock boundary values ($\tau_0 = 0$, $\tau_T = 1$). All pass.
+\paragraph{Unit tests.} Twenty-one tests (\texttt{test\_v2.py}) are
+organised around the properties they defend rather than the functions they
+exercise. All pass.
+
+\emph{Feature contracts.} No feature may use data from after the bar it is
+reported for; the test truncates the series at $t$, recomputes, and requires
+the values at $t$ to be unchanged. Rolling features must be continuous
+across a month boundary; the test computes them on a continuous series and
+on the concatenation of its monthly pieces and requires the first to differ
+from the second, which is the presence of the defect being asserted as
+absent from the pipeline.
+
+\emph{MDP contracts.} The accounting identity
+$\sum_t \Delta W_t = W_T - W_0$ must hold under random legal play, checked
+against the wealth change rather than the reward. With $\lambda = 0$ the
+reward must equal the wealth change exactly. With $\lambda > 0$ and
+\texttt{drawdown} absent, construction must raise.
+
+\emph{Feature relationships.} The episode's running profit must be exactly
+recoverable from cash and exposure, which is the arithmetic that justifies
+excluding it. Drawdown must \emph{not} be recoverable: the test exhibits two
+states that agree on every other feature and differ in drawdown, so its
+inclusion is shown to be necessary rather than argued to be.
+
+\emph{Behavioural contracts.} Sell is masked while flat and Buy once cash is
+exhausted; the illegal-action override engages and is reported; forced
+liquidation leaves zero units; the clock runs from 0 to 1; the two action
+models differ in the direction claimed; each reference strategy attains the
+exposure its description promises; and the data pipeline's three splits are
+non-empty, disjoint and chronologically ordered.
 
 \paragraph{Algorithm validation on known-outcome tasks (Phase 0).} Before
 touching market data, the same algorithm implementations were validated on
@@ -217,23 +397,30 @@ methodological requirement of the project.
 
 \begin{table}[h]
 \centering
-\caption{Hyperparameters and budgets for the final experiments.}
+\caption{Hyperparameters and budgets for the final experiments. $d$ is the
+observation width, 9 for the state of Table~\ref{tab:state} and 10 for the
+risk-aware extension.}
 \label{tab:hparams}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{llll}
 \toprule
-\textbf{Setting} & \textbf{REINFORCE} & \textbf{Deep Q} \\
+\textbf{Setting} & \textbf{REINFORCE} & \textbf{Deep Q} & \textbf{MaskablePPO} \\
 \midrule
-Network & MLP $9{-}128{-}128{-}3$, $\tanh$ & MLP $9{-}128{-}128{-}3$, ReLU \\
-Optimiser / lr & Adam, $10^{-3}$ & Adam, $10^{-3}$ \\
-Discount $\gamma$ & 0.99 & 0.99 \\
-Update cadence & once per episode & every step after warm-up \\
-Replay / batch & --- & 50k buffer, batch 64 \\
-Target sync & --- & every 500 steps \\
-Exploration & sampling from $\pi_\theta$ & $\varepsilon$: $1.0 \to 0.05$ (first 50\%) \\
-Budget & 80{,}000 env steps & 80{,}000 env steps \\
-Seeds & \{42, 43, 44\} & \{42, 43, 44\} \\
+Network & MLP $d{-}128{-}128{-}3$, $\tanh$ & MLP $d{-}128{-}128{-}3$, ReLU & MLP $128{-}128$ \\
+Optimiser / lr & Adam, $10^{-3}$ & Adam, $10^{-3}$ & Adam, $3{\times}10^{-4}$ \\
+Discount $\gamma$ & 0.99 & 0.99 & 0.99 \\
+Update cadence & once per episode & every step after warm-up & every 2{,}048 steps \\
+Replay / batch & --- & 50k buffer, batch 64 & batch 64, 10 epochs \\
+Target sync & --- & every 500 steps & --- \\
+Exploration & sampling from $\pi_\theta$ & $\varepsilon$: $1.0 \to 0.05$ (first 50\%) & entropy bonus \\
+Masking & renormalised softmax & masked $\max$, mask stored & \texttt{action\_masks()} \\
+Budget & 80{,}000 env steps & 80{,}000 env steps & 80{,}000 env steps \\
+Seeds & \{42, 43, 44\} & \{42, 43, 44\} & \{42, 43, 44\} \\
 \midrule
-Environment & \multicolumn{2}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.1\,C_0$; windows $k{=}5$, $m{=}10$} \\
+Environment & \multicolumn{3}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.1\,C_0$;
+  windows $k{=}5$, $m{=}20$, $n{=}14$} \\
+Selection & \multicolumn{3}{l}{ladder stopping point and $\lambda$ chosen on the
+  2023 validation months only} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -242,26 +429,44 @@ Environment & \multicolumn{2}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.1\,
 \label{sec:repro}
 
 Every claim in Chapter~5 is regenerable from committed code and cached
-data. Specifically: (i) all random number generators (Python, NumPy,
-PyTorch) are seeded, and results are reported over three seeds rather
-than a favourable one; (ii) the data pipeline caches its output, so
-experiments never silently retrain on different data; (iii) each
-experiment writes a JSON record containing the configuration, per-month
-results, training curves and timings alongside the charts; and (iv) all
-experiments run on CPU in minutes (REINFORCE $\approx$ 25\,s, DQN
-$\approx$ 70\,s, PPO $\approx$ 35\,s per seed; the entire ablation
-including the fee-sensitivity study in $\approx$ 12 minutes) --- a
-deliberate property: every result in this dissertation can be regenerated
-from scratch during a viva demonstration.
+data. Specifically: (i) all random number generators, in Python, NumPy and
+PyTorch, are seeded, and results are reported over three seeds rather than a
+favourable one; (ii) the data pipeline caches its output, so experiments
+never silently retrain on differently-prepared data; (iii) each experiment
+writes a JSON record containing the configuration, per-month results,
+training traces, diagnostics and provenance, the last including the git
+commit and whether the working tree was clean when the run started, so a
+result can always be traced to the exact code that produced it; and (iv) the
+whole suite runs on CPU in about an hour, with no result depending on
+specialised hardware. That last property is deliberate: every number in this
+dissertation can be regenerated from scratch during a viva demonstration.
 
-\paragraph{Chapter summary (plain language).} The mathematics of
-Chapter~3 now exists as four small, separately testable programs: one
-that fetches and organises seven years of real price data; one that
-simulates the trading month (the ``game board''), charging fees and
-enforcing the rules; and two learners built from the ground up, each of
-whose central lines of code is a direct transcription of a derived
-equation. Before being allowed near market data, both learners had to
-prove themselves on video games with known answers, and the simulator had
-to pass eight accounting tests --- including that its per-step rewards
-always sum exactly to the month's true profit. The next chapter reports
-what happened when they traded.
+Two selection decisions are also recorded in the results files rather than
+described only in prose. The ladder's stopping rule and the rule for
+choosing $\lambda$ are both evaluated in code, each carries a flag
+recording that it was declared before the runs, and each stores the
+comparisons it made. A reader can therefore check that the stopping point
+follows from the stated criterion instead of taking that on trust.
+
+\paragraph{Chapter summary (plain language).} The mathematics of Chapter~3
+now exists as a handful of small, separately testable programs: one that
+fetches and organises eight years of real market data; one that simulates
+the trading month, charging fees and enforcing the rules; two learners
+built from the ground up, each of whose central lines of code is a direct
+transcription of a derived equation; and a harness that runs every method
+and every benchmark through exactly the same evaluation path.
+
+Two design decisions in that code are doing more work than they appear to.
+The simulator is handed its market indicators rather than computing them,
+which makes it structurally incapable of the boundary defect described
+above. And it refuses to be built at all if the score it is asked to use
+depends on something the agent cannot see, so the consistency argument of
+Chapter~3 is enforced by the program instead of promised in prose.
+
+Before being allowed near market data, both learners had to prove
+themselves on video games with known answers, and the simulator had to pass
+twenty-one tests, including that its per-step wealth changes always sum
+exactly to the month's true profit. Those checks were not a formality: they
+turned up twelve real defects in the earlier version of this work, two of
+which had been quietly making the results look better than they were. The
+next chapter reports what happened once they were fixed.

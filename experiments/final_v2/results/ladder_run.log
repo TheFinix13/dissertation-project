@@ -1,0 +1,23 @@
+data: train=60 val=12 test=24 months (2018-01..2025-12)
+ladder study: evaluating on the val split (12 months), 80,000 steps, seeds [42, 43, 44]
+
+  reference strategies
+      B0_do_nothing    dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000
+      B1a_slice_bah    dW= +121.79  trades= 11.0  expo=0.69  ddI=0.027
+      B1b_true_bah     dW= +166.92  trades=  2.0  expo=0.91  ddI=0.032
+      B2_random        dW=  +38.39  trades= 13.8  expo=0.16  ddI=0.006
+
+  S0  (1-D: ret_1)
+      limitation: cannot tell whether it holds anything, or whether it can afford to buy
+    reinforce
+      seed 42: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  (19.3s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  (17.4s)
+      seed 44: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  (17.5s)
+    dqn
+      seed 42: dW= +118.89  trades= 19.7  expo=0.67  ddI=0.026  (59.1s)
+      seed 43: dW= +109.84  trades= 20.8  expo=0.59  ddI=0.023  (62.1s)
+      seed 44: dW= +119.20  trades= 20.8  expo=0.67  ddI=0.026  (61.4s)
+
+  S1  (3-D: ret_1, cash_frac, shares_raw)
+      limitation: knows the unit count but not what that position is worth
+    reinforce

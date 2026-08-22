@@ -80,7 +80,13 @@ BASELINES: dict[str, dict] = {
     },
     "B1b_true_bah": {
         "policy": lambda: policy_buy_when_legal,
-        "env_overrides": {"slice_frac": 1.0},
+        # `action_model` is pinned as well as the slice. Buy-and-hold is a
+        # market benchmark, not a policy drawn from the agent's action set, so it
+        # must mean the same thing in every configuration. Left unpinned, a
+        # whole-share configuration would silently reduce it to one share per
+        # step, which reaches only about half exposure across a month and is
+        # indistinguishable from B1a.
+        "env_overrides": {"slice_frac": 1.0, "action_model": "slice"},
         "description": "fully invested at the first bar, held to liquidation",
     },
     "B2_random": {
