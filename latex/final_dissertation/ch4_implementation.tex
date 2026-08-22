@@ -39,10 +39,13 @@ The system separates six concerns, each in its own module:
         (\texttt{baselines.py}, \texttt{rollout.py}): the four benchmarks
         and the single episode-runner and metric summariser they share with
         the learned agents.
-  \item \textbf{Experiment harness} (\texttt{harness.py}, driving
-        \texttt{run\_ladder.py} and \texttt{run\_final.py}): trains every
-        method under an identical budget and writes a JSON record of the
-        configuration, per-month results, diagnostics and provenance.
+  \item \textbf{Experiment harness} (\texttt{harness.py}) and the four
+        scripts it drives: \texttt{calibrate\_slice.py} sizes the action
+        model, \texttt{run\_conditioning.py} diagnoses the variance of the
+        measurement, \texttt{run\_ladder.py} runs the saturation study on
+        validation, and \texttt{run\_final.py} spends the test months. Each
+        writes a JSON record of the configuration, per-month results,
+        diagnostics and provenance.
 \end{enumerate}
 
 Two properties of this arrangement do methodological work rather than
@@ -382,6 +385,22 @@ liquidation leaves zero units; the clock runs from 0 to 1; the two action
 models differ in the direction claimed; each reference strategy attains the
 exposure its description promises; and the data pipeline's three splits are
 non-empty, disjoint and chronologically ordered.
+
+\paragraph{A diagnostic for whether the state is used at all.} One check
+deserves separate mention, because it was added in response to the first
+set of results rather than written in advance, and because it changed how
+those results are read. \texttt{mask\_determined} records, for every pattern
+of legal actions the policy encounters, which actions it chose while that
+pattern held. If each pattern maps to exactly one action, the policy is a
+function of feasibility alone and its observation is unused.
+
+The motivation was an anomaly rather than a suspicion. Across ladder rungs
+from one feature to twelve, several trained agents returned wealth changes
+that were not merely similar but bit-for-bit identical to a reference
+strategy's, which is not something two policies reading different
+observations would do. The diagnostic confirmed the explanation, and it is
+reported for every learned row in Chapter~5 because a method that ignores
+its state cannot inform a comparison between states.
 
 \paragraph{Algorithm validation on known-outcome tasks (Phase 0).} Before
 touching market data, the same algorithm implementations were validated on

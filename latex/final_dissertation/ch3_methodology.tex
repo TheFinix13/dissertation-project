@@ -956,6 +956,19 @@ the $M{=}24$ test months:
         describes month-to-month consistency and is reported separately,
         because it is a different quantity from the one above and not a
         conservative approximation of it.
+  \item \textbf{Policy conditioning}: whether the policy uses its
+        observation at all. This is not a performance measure and it is
+        reported because performance cannot substitute for it. A policy that
+        buys whenever a Buy is legal needs no market information
+        whatsoever, yet in a rising market it scores well; return alone
+        cannot distinguish it from a policy that has learned something. For
+        each pattern of legal actions encountered, the set of actions the
+        policy chose under that pattern is recorded. If every pattern maps
+        to a single action, the policy is a lookup table on feasibility and
+        its state is decorative, and any comparison between state
+        representations is then meaningless for that method. The measure is
+        reported for every learned row, alongside the returns, so a reader
+        can see which comparisons carry information.
 \end{itemize}
 
 \paragraph{Admissible configurations.} State and reward cannot be crossed
