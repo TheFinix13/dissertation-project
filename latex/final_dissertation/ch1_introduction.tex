@@ -1,0 +1,190 @@
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{Motivation}
+\label{sec:intro_motivation}
+
+Sequential decision-making under uncertainty is a defining problem of
+machine intelligence: an agent must act now, on incomplete information,
+to influence outcomes it will only observe later. Reinforcement learning
+(RL) is the branch of machine learning built for exactly this setting.
+Its successes are among the best known in the field --- backgammon played
+at expert level from self-play \cite{tesauro1995}, Atari games mastered
+from raw pixels \cite{mnih2015}, and the game of Go, long considered out
+of reach, won against a world champion \cite{silver2016}. In each case
+the recipe is the same: an agent tries actions, observes consequences,
+receives a numerical score, and gradually shifts its behaviour toward
+whatever earns more of that score.
+
+In everyday terms, reinforcement learning is how one might train a pet:
+nobody hands the animal a manual, but rewarded behaviour is repeated and
+unrewarded behaviour fades. The technical content of this dissertation
+is, at heart, a precise answer to two questions that this analogy leaves
+open: \emph{what exactly should the learner be shown} (the state),
+and \emph{what exactly should count as the reward} --- because, as our
+results will demonstrate, the answers determine everything the agent
+ultimately does.
+
+Financial trading is one of RL's most natural --- and most unforgiving
+--- testbeds. A trading agent observes market and portfolio information,
+chooses among actions with immediate costs and delayed consequences, and
+receives an unambiguous scalar verdict: the change in its wealth. The
+mapping onto the RL formalism is almost mechanical, which is why a large
+applied literature exists \cite{moody2001, deng2017, liu2020finrl}.
+
+Trading is also unforgiving for a subtler reason, and this reason shapes
+the entire methodology of the present work. In games, the correct outcome
+is known: a CartPole balancer either balances or does not; a Go program
+either wins or loses. In markets, no oracle labels the right action, so a
+\emph{broken learning implementation can masquerade as a mediocre trading
+strategy indefinitely} --- there is no error message, only a plausible-looking
+equity curve. Worse, decades of financial economics
+\cite{fama1970} warn that beating a simple passive strategy using public
+price history alone should be rare; an experiment that appears to do so
+easily is more likely to contain a bug or an unfair comparison than a
+discovery \cite{bailey2014}. This dissertation therefore adopts an
+\emph{understanding-first} methodology: derive each learning rule from
+first principles, implement it from scratch, validate it on games with
+known outcomes, and only then apply it to market data --- with baselines
+designed so that honest conclusions are detectable.
+
+\section{Problem statement}
+\label{sec:intro_problem}
+
+We study single-asset trading formulated as an episodic Markov Decision
+Process (MDP): one calendar month of daily prices is one episode; the
+agent begins each episode holding only cash and must end it in cash. At
+each trading day it observes a \emph{complete} state --- nine numbers
+summarising the market's recent behaviour, the time remaining in the
+episode, and its own balance sheet --- and chooses one of three actions:
+hold, buy a fixed slice of the asset, or sell a slice. Its reward at each
+step is the change in its total wealth, with realistic transaction fees
+deducted. The learning problem is to find, from experience alone, the
+decision rule that maximises expected end-of-month wealth.
+
+Two canonical algorithm families are implemented from scratch and
+compared under identical conditions: the Monte-Carlo policy gradient
+(REINFORCE~\cite{williams1992}), which learns the decision rule directly,
+and value-based Deep Q-learning \cite{mnih2015}, which learns the value
+of each action and acts greedily on those values. A third row --- PPO
+\cite{schulman2017ppo}, the stabilised modern policy gradient, via a
+reference library implementation \cite{raffin2021sb3} --- completes the
+algorithm ablation.
+
+\section{Objectives}
+\label{sec:intro_objectives}
+
+\begin{enumerate}
+  \item[\textbf{O1}] Formulate single-asset trading as an episodic MDP
+        with a complete observable state, a divisible-asset action model,
+        and a wealth-change reward with explicit transaction costs.
+  \item[\textbf{O2}] Derive, from first principles, the policy-gradient
+        (REINFORCE) learning rule --- including why the implemented loss
+        contains a log-probability term --- and the Deep Q-learning rule,
+        and implement both from scratch in PyTorch.
+  \item[\textbf{O3}] Validate both implementations on control tasks with
+        known outcomes (CartPole, Flappy Bird, LunarLander) before any
+        market experiment.
+  \item[\textbf{O4}] Evaluate both methods on held-out real market data
+        against properly capitalised passive and random baselines, under
+        a chronological split, matched budgets and multiple seeds.
+  \item[\textbf{O5}] Analyse the failure and success modes observed ---
+        in particular reward-induced policy collapse to buy-and-hold ---
+        and articulate the limitations of the formulation, including
+        partial observability and non-IID data.
+\end{enumerate}
+
+These objectives were agreed through supervision and deliberately weight
+\emph{depth of understanding} over breadth of features: a smaller system
+in which every equation, every line of code and every reported number can
+be defended, rather than a larger system assembled from library calls
+whose behaviour cannot be explained.
+
+\section{Contributions}
+\label{sec:intro_contributions}
+
+\begin{itemize}
+  \item A fully derived, from-scratch implementation of REINFORCE and
+        Deep Q-learning for a masked, divisible-asset trading MDP, with
+        every loss line traceable to a stated equation (the traceability
+        map is Appendix~\ref{app:trace}).
+  \item A complete 9-feature state design with explicit rationale, and a
+        pilot study demonstrating empirically why minimal states induce
+        degenerate policies.
+  \item An honest evaluation framework --- fully invested buy-and-hold
+        baseline, chronological splits, fee-inclusive rewards, accounting
+        identity verified per episode --- under which the central finding
+        is established: under a risk-neutral wealth reward, the policy
+        gradient converges to buy-and-hold exactly, while Deep Q-learning
+        finds a nearby policy with measurably better risk-adjusted
+        characteristics (lower drawdown, higher Sharpe ratio) at
+        negligible return cost.
+  \item A three-algorithm ablation (REINFORCE, Deep Q, PPO) and a fee
+        sensitivity study showing that the value-based agent adapts its
+        trading intensity to transaction costs, while the clipped policy
+        gradient is bimodal across seeds --- both behaviours explained
+        mechanistically from the update rules.
+\end{itemize}
+
+\section{Scope and non-goals}
+\label{sec:intro_scope}
+
+It is as important to state what this project is \emph{not}. It is not an
+attempt to produce a profitable trading system: the efficient-market
+null hypothesis \cite{fama1970}, the single asset, and the daily-bar
+granularity all argue against that reading, and Chapter~\ref{ch:results}
+shows why apparent profitability claims in this setting demand suspicion
+before celebration. It is also not a survey of every RL algorithm:
+methods are included only where they earn their place in the ablation
+logic (REINFORCE as the transparent foundation, Deep Q as the
+structurally different value-based family, PPO as the stabilised
+descendant). The deliverable is a defensible scientific account: a
+carefully formulated problem, correctly derived and implemented learners,
+and an evaluation whose conclusions survive scrutiny.
+
+\section{Dissertation structure and how to read it}
+\label{sec:intro_structure}
+
+The chapters follow the order in which the work must be understood, and
+each builds strictly on its predecessor:
+
+\begin{itemize}
+  \item \textbf{Chapter~\ref{ch:background}} reviews the background: what
+        an MDP is, how the two algorithm families work and where they
+        came from, what is known about applying RL to trading, and the
+        evaluation pitfalls this project is designed to avoid.
+  \item \textbf{Chapter~\ref{ch:methodology}} is the mathematical core:
+        the trading MDP is formulated precisely, and both learning rules
+        are derived step by step from the objective --- including the
+        complete answer to why a logarithm appears in the policy-gradient
+        loss.
+  \item \textbf{Chapter~\ref{ch:implementation}} shows how the
+        mathematics becomes verified code: environment, agents, tests,
+        and the exact hyperparameters used.
+  \item \textbf{Chapter~\ref{ch:results}} reports the experiments in the
+        order the methodology was built: game validation, the pilot
+        collapse study, the main algorithm ablation, and the fee
+        sensitivity study, with analysis of every finding.
+  \item \textbf{Chapter~\ref{ch:conclusions}} closes with achievements
+        against objectives, an honest critical appraisal, future work,
+        and a reflection on project management.
+  \item \textbf{Appendices} provide the equation-to-code traceability map
+        (\ref{app:trace}), the complete per-month results
+        (\ref{app:permonth}), and a plain-language glossary
+        (\ref{app:glossary}).
+\end{itemize}
+
+A reader without a technical background can follow the storyline through
+the chapter introductions, the plain-language summary that closes each
+chapter, and the glossary; the mathematics in
+Chapters~\ref{ch:methodology}--\ref{ch:implementation} deepens, but never
+replaces, that narrative.
+
+\paragraph{Chapter summary (plain language).} This project teaches two
+classic learning algorithms, built from the ground up, to trade a stock
+fund with imaginary money on real historical prices. Because markets
+never tell you what the right decision was, the project's first rule is
+honesty: prove the learners work on video games first, make them show
+their working at every step, and compare them against the simplest
+sensible strategy --- just buying and holding. The next chapter explains
+the ideas this is built on.

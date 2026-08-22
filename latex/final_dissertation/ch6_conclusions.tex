@@ -1,0 +1,188 @@
+\chapter{Conclusions \& Future Work}
+\label{ch:conclusions}
+
+\section{Achievements against objectives}
+\label{sec:conc_objectives}
+
+All five objectives of Section~\ref{sec:intro_objectives} were met.
+\textbf{O1}: the trading MDP was formulated with a complete 9-feature
+observable state, a divisible-asset Discrete(3) action model with
+feasibility masking, and a fee-inclusive wealth-change reward whose
+telescoping property ($\sum r_t = W_T - W_0$) was verified numerically in
+every episode. \textbf{O2}: both learning rules were derived from first
+principles --- including the likelihood-ratio derivation explaining the
+$\log\pi_\theta$ term --- and implemented from scratch in PyTorch with no
+RL library in the training path. \textbf{O3}: both implementations were
+validated on CartPole, Flappy Bird and LunarLander, clearing random
+floors on all three. \textbf{O4}: both were evaluated on 26 held-out
+months of SPY data against do-nothing, random and fully invested
+buy-and-hold baselines, under a chronological split, matched 80k-step
+budgets and three seeds; a PPO row and a three-level fee sensitivity
+study completed the ablation. \textbf{O5}: the observed behaviours were
+analysed mechanistically, and the limitations below are stated openly.
+
+\section{Principal findings}
+\label{sec:conc_findings}
+
+\begin{enumerate}
+  \item \textbf{Under a risk-neutral wealth reward, the rational policy
+  is buy-and-hold --- and REINFORCE finds exactly that.} In the pilot
+  (minimal state) three different policy-gradient optimisers produced
+  action sequences identical to fully invested buy-and-hold on all 26
+  test months; with the complete 9-feature state, REINFORCE still
+  converged to the identical-to-the-cent buy-and-hold policy. The
+  collapse is a property of the \emph{objective}, not of any optimiser
+  or of the state alone. This is the empirical face of an old
+  theoretical point \cite{moody2001}: the reward function defines the
+  incentive, and an agent can only be blamed for optimising what it was
+  asked to optimise.
+  \item \textbf{The algorithm families respond differently to the
+  same incentive.} Deep Q-learning, trained on the same MDP, budget and
+  data, learned a near-fully-invested policy that trades around local
+  turbulence: lower monthly volatility (274 vs.\ 310), lower maximum
+  drawdown (4.8\% vs.\ 6.0\%) and higher monthly Sharpe (0.45 vs.\ 0.40)
+  than buy-and-hold, at a mean cost of \$1.96/month --- and it adapted
+  its trading intensity to transaction fees (19.8 trades/month at zero
+  fee, 6.1 at 20 bps). PPO, whose clipping deliberately limits policy
+  movement, was bimodal across seeds: exact buy-and-hold on two seeds, a
+  cautious low-exposure policy on the third.
+  \item \textbf{Evaluation design is a result in itself.} Without the
+  properly capitalised buy-and-hold baseline, every learned agent in this
+  dissertation would have been reported as beating the market by an order
+  of magnitude --- the precise failure mode the financial machine-learning
+  methodology literature warns of \cite{bailey2014, lopezdeprado2018}.
+  With it, the honest conclusion is recoverable.
+\end{enumerate}
+
+\section{Critical appraisal and limitations}
+\label{sec:conc_appraisal}
+
+\paragraph{What is limited.} (i) A single asset and a single market
+regime window; conclusions about the 2022--2024 test period need not
+transfer to other assets or eras. (ii) Daily bars in monthly episodes
+rather than the intraday $T{=}390$ horizon originally envisaged; the
+environment API is horizon-agnostic, but the empirical claims hold only
+at the tested granularity. (iii) Three seeds bound, but do not
+eliminate, run-to-run variance --- and the PPO bimodality shows that seed
+sensitivity is a real phenomenon here, not a formality. (iv) Episodes
+are treated as independent although consecutive months are correlated
+(non-IID); the MDP framework used here has no mechanism for that
+temporal structure. (v) The state, however deliberately designed,
+remains a partial observation of the market: the problem is strictly a
+POMDP \cite{kaelbling1998}, and no belief-state or recurrent machinery
+was used. (vi) Execution is idealised (fills at the close, unlimited
+liquidity at the quoted price); for SPY at these trade sizes the
+idealisation is mild, but it is an idealisation.
+
+\paragraph{What could have been done differently.} With hindsight, two
+choices would change. First, the pilot's whole-share action model was a
+foreseeable dead end --- the divisibility problem it created (fixed
+actions becoming infeasible as prices moved) consumed implementation time
+that the final divisible-slice model dissolved immediately. Second, the
+risk-neutral reward could have been paired from the outset with a
+risk-aware variant as a designed experiment; the project discovered the
+right question (``what happens to Deep Q's trimming behaviour when the
+reward pays for it?'') only after the ablation results arrived, leaving
+it as future work rather than a delivered chapter.
+
+\paragraph{What the project got right, in hindsight.} Validating
+implementations on games before markets caught errors where they were
+diagnosable; the fully invested baseline converted a would-be false
+positive into the central finding; fee-inclusive rewards made the fee
+sensitivity study possible at all; and deriving the losses before
+implementing them was, per the supervision process, the difference
+between using an algorithm and understanding one.
+
+\section{Future work}
+\label{sec:conc_future}
+
+\begin{itemize}
+  \item \textbf{Risk-aware rewards.} Replacing $r_t = \Delta W_t$ with a
+        drawdown-penalised variant or the differential Sharpe ratio
+        \cite{moody2001} changes the incentive that currently makes
+        buy-and-hold optimal. The preliminary run of
+        Section~\ref{sec:res_riskaware} already shows the direction: at
+        $\lambda = 0.25$, Deep Q's drawdown falls four-fold (6.0\% to
+        1.4\%) with Sharpe rising to 0.68, while REINFORCE flips to the
+        all-cash corner. The full study is a $\lambda$ sweep tracing the
+        return-risk frontier each algorithm can reach, with multiple
+        seeds.
+  \item \textbf{Intraday horizons.} Minute-bar episodes ($T{=}390$) via
+        the same environment API, testing whether the family-level
+        behavioural differences persist at higher frequency, where
+        fee pressure and state dynamics are sharper.
+  \item \textbf{Partial observability.} Recurrent policies, or an
+        explicit regime model in the spirit of hidden Markov models
+        \cite{rabiner1989}, to address the POMDP structure acknowledged
+        throughout.
+  \item \textbf{Continuous actions and portfolios.} Replacing the fixed
+        trade slice with a continuous allocation, and extending to
+        multi-asset weight vectors with risk-adjusted objectives
+        \cite{markowitz1952, jiang2017}.
+  \item \textbf{Value-based refinements.} Double Q-learning
+        \cite{vanhasselt2016} to control the overestimation bias that
+        masked TD targets partially mitigate here.
+\end{itemize}
+
+\section{Reflection on project management}
+\label{sec:conc_pm}
+
+The project followed a staged plan agreed in supervision, summarised in
+Table~\ref{tab:conc_plan}. Two properties of the plan proved decisive.
+First, \emph{stage gates with demonstrable artefacts}: no stage began
+until the previous one produced something checkable (passing tests,
+learning curves, result tables), which localised every fault to the stage
+that introduced it. Second, \emph{descoping as a deliberate act}: the
+most consequential replanning decision was narrowing an early
+multi-component ambition (uncertainty-aware portfolio management with a
+forecasting subsystem) to a single, fully understood trading MDP with two
+from-scratch algorithms. The decision was made with the supervisor,
+explicitly trading breadth of feature count for depth of understanding
+--- a trade this dissertation's examinable content vindicates.
+
+\begin{table}[h]
+\centering
+\caption{Project stages and their exit artefacts.}
+\label{tab:conc_plan}
+\small
+\begin{tabular}{llp{6.2cm}}
+\toprule
+\textbf{Period (2026)} & \textbf{Stage} & \textbf{Exit artefact} \\
+\midrule
+Feb--Apr & Foundations \& literature & working notes; supervised
+derivation exercises; scope agreed \\
+May--Jun & Phase 0: games & from-scratch REINFORCE/DQN clearing random
+floors on three games; suite metrics \\
+Jun--Jul & Pilot trading MDP & minimal-state environment + tests; the
+buy-and-hold collapse result and fair-baseline lesson \\
+late Jul & Supervision checkpoint & recorded feedback; corrected
+objective derivation set as homework; final-model scope fixed \\
+Aug & Final model \& ablation & 9-feature environment (8/8 tests),
+three-algorithm ablation, fee study, all charts \\
+Aug--Sep & Write-up & this document, written methodology-first as
+advised; abstract last \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Risk management was handled by construction rather than by contingency
+tables: the riskiest claim in any learning project --- ``the
+implementation is correct'' --- was retired early by the game-validation
+gate; the riskiest scientific claim --- ``the agent beats the market''
+--- was constrained by baselines designed to make it hard to assert
+falsely. Weekly supervision meetings served as checkpoints, and the final
+experiment suite was engineered to be regenerable in minutes on a laptop
+CPU, so that every claim in this dissertation can be demonstrated live at
+the viva.
+
+\paragraph{Closing summary (plain language).} Two learning programs were
+built from nothing, taught to play games, and then set loose on seven
+years of real market prices with imaginary money. One concluded that the
+best strategy was the simplest: buy immediately and hold --- which, for
+the goal it was given, is mathematically the right answer. The other
+learned to step partially out of the market when conditions turned rough,
+accepting slightly smaller profits for noticeably smaller losses, and
+learned to trade less when trading cost more. Neither beat the market,
+and the project was designed so that this honest answer would be
+detectable --- because in this field, the experiments that claim
+otherwise are usually the ones with the mistake.

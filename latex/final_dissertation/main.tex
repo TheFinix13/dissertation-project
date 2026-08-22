@@ -1,0 +1,107 @@
+% Final dissertation — EEEM004, University of Surrey, 2025/26
+% Format per Project Handbook: A4, Times 11pt body, 1.5 line spacing,
+% justified, IEEE references.
+\documentclass[11pt,a4paper]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath}   % Times-like text and math
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{graphicx}
+\graphicspath{{../../reports/generated/charts/}{figs/}}
+\usepackage{booktabs}
+\let\Bbbk\relax                    % newtxmath already defines it
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\title{An Understanding-First Reinforcement Learning Agent for
+Single-Asset Trading:\\ From-Scratch Policy Gradients and Deep
+Q-Learning on a Complete-State Market MDP}
+\author{Fiyinfoluwa Akano \\ 6962514 \\[1ex]
+School of Computer Science and Electronic Engineering\\
+University of Surrey}
+\date{September 2026 \\[1ex] \copyright 2026 Fiyinfoluwa Akano}
+
+\begin{document}
+
+\maketitle
+
+% ---------- Statement of originality ----------
+\chapter*{Statement of Originality}
+\addcontentsline{toc}{chapter}{Statement of Originality}
+This report and the work to which it refers are the results of my own
+efforts. Any ideas, data, images or text resulting from the work of
+others (whether published or unpublished) are fully identified as such
+within the work and attributed to their originator in the text or
+bibliography. This report has not been submitted in whole or in part for
+any other academic degree or professional qualification. I agree that the
+University has the right to submit my work to the plagiarism detection
+service TurnitinUK for originality checks.
+
+\vspace{2em}
+\noindent Fiyinfoluwa Akano \hfill September 2026
+
+% ---------- Acknowledgements ----------
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+I thank my supervisor, Mr.\ Nguyen, whose insistence that every equation
+be derived before it is implemented --- and that every result be checked
+against the simplest honest alternative --- shaped not only this
+dissertation but the way I now approach technical work. I also thank my
+family for their patience and support throughout the year.
+
+% ---------- Abstract ----------
+\begin{abstract}
+Reinforcement learning (RL) promises trading agents that learn from
+experience, but markets provide no ground truth against which a broken
+implementation can be detected. This dissertation adopts an
+understanding-first methodology: the two canonical RL algorithm families
+--- the Monte-Carlo policy gradient (REINFORCE) and value-based Deep
+Q-learning --- are derived from first principles, implemented from
+scratch, validated on games with known outcomes, and only then applied to
+a carefully formulated trading MDP with a complete 9-feature observable
+state, a divisible-asset action model and a fee-inclusive wealth-change
+reward. A three-algorithm ablation (adding library PPO) and a fee
+sensitivity study complete the evaluation, conducted on 26 held-out
+months of S\&P~500 ETF data against properly capitalised baselines.
+The policy-gradient agent converges to a policy identical to buy-and-hold
+on every test month --- shown to be the rational optimum under a
+risk-neutral wealth objective --- while Deep Q-learning finds a nearby
+policy with lower drawdown (4.8\% vs.\ 6.0\%) and higher monthly Sharpe
+ratio (0.45 vs.\ 0.40) at negligible return cost, and reduces its trading
+intensity threefold as fees rise. PPO proves bimodal across seeds,
+landing on either rational optimum. A pilot study demonstrates that with
+a minimal state the collapse to buy-and-hold is universal across
+policy-gradient optimisers, and that without a fully invested baseline it
+would be misreported as a ten-fold victory over the market. The
+dissertation contributes a fully traceable derivation-to-implementation
+pipeline, an honest evaluation framework for trading RL, and an empirical
+characterisation of how the algorithm families respond differently to the
+same objective.
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\input{ch1_introduction}
+\input{ch2_background}
+\input{ch3_methodology}
+\input{ch4_implementation}
+\input{ch5_results}
+\input{ch6_conclusions}
+
+\appendix
+\input{appendix_traceability}
+\input{appendix_permonth}
+\input{appendix_glossary}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

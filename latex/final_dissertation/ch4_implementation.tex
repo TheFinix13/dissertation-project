@@ -1,0 +1,267 @@
+\chapter{System Design \& Implementation}
+\label{ch:implementation}
+
+This chapter describes how the mathematical formulation of Chapter~3 is
+realised in code. The guiding requirement, set explicitly by the
+supervision process, is that every implemented line be traceable to a
+stated equation: the policy-gradient loss in the code \emph{is}
+Equation~\ref{eq:reinforce_loss}; the temporal-difference loss
+\emph{is} Equation~\ref{eq:dqn_loss}. Both learning algorithms are
+implemented from scratch in PyTorch \cite{paszke2019} with the Adam
+optimiser \cite{kingma2015adam}; environments follow the Gymnasium API
+\cite{brockman2016gym, towers2024gymnasium}. No reinforcement-learning
+library performs any part of the final-model training.
+
+\section{Architecture overview}
+\label{sec:arch}
+
+The system separates four concerns, each in its own module:
+
+\begin{enumerate}
+  \item \textbf{Data pipeline} (\texttt{fetch\_spy\_daily.py}): downloads
+        and splits market data into episode arrays; run once, cached to disk.
+  \item \textbf{Environment} (\texttt{env\_full.py}): a Gymnasium
+        \texttt{gym.Env} implementing the MDP --- state construction, trade
+        execution, fees, masking, termination.
+  \item \textbf{Agents} (\texttt{reinforce\_trading.py},
+        \texttt{dqn\_trading.py}): the two from-scratch learners, exposing
+        a common \texttt{policy(obs, mask) $\to$ action} interface after
+        training.
+  \item \textbf{Evaluation harness} (\texttt{run\_final\_experiments.py}):
+        trains every method under an identical budget and evaluates all
+        methods and baselines on identical held-out episodes, writing JSON
+        results and charts.
+\end{enumerate}
+
+Because baselines, learned agents and diagnostics all flow through the same
+\texttt{run\_episode} function, no method can be advantaged by a differing
+evaluation path. Figure~\ref{fig:pipeline} summarises the flow.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{system_pipeline}
+  \caption{System architecture: four decoupled modules. The evaluation
+  harness scores every learned agent and every baseline through one
+  shared episode-runner, so no method can gain from a differing
+  evaluation path.}
+  \label{fig:pipeline}
+\end{figure}
+
+\section{Data pipeline}
+\label{sec:data}
+
+Daily adjusted closes for SPY (the S\&P~500 ETF) from January 2018 to
+December 2024 are retrieved via the \texttt{yfinance} API. SPY is chosen
+deliberately: it is among the most liquid instruments in the world, so
+the frictionless-execution assumption of the environment (trades fill at
+the closing price) is least violated; and as a broad index fund it
+carries no single-company idiosyncrasies. Days are grouped into calendar
+months; months with fewer than 15 trading days are dropped. The result is
+84 monthly episodes, split \emph{chronologically}
+(Figure~\ref{fig:split}): the first 58 months form the training set and
+the most recent 26 months (November 2022 -- December 2024) the test set.
+The split is never shuffled, so the test period is strictly in the future
+of every training sample --- the temporal analogue of avoiding data
+leakage (Section~\ref{sec:bg_trading}). Episode arrays and metadata are
+cached as \texttt{.npz}/\texttt{.json}, making every experiment exactly
+reproducible offline.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.95\textwidth]{chrono_split}
+  \caption{Chronological train/test split of the 84 monthly episodes.}
+  \label{fig:split}
+\end{figure}
+
+The seven-year window is not homogeneous, which is a feature: training
+data includes the 2018 volatility spikes, the 2020 COVID crash and
+rebound, and the 2022 bear market; the held-out test window covers the
+late-2022 trough and the 2023--24 recovery. An agent trained on this
+window has seen falling markets --- it cannot blame its test behaviour on
+never having met one.
+
+\section{The trading environment}
+\label{sec:env_impl}
+
+\texttt{FullStateTradingEnv} subclasses \texttt{gym.Env} with
+\texttt{observation\_space} $= \mathbb{R}^9$ and
+\texttt{action\_space} $=$ \texttt{Discrete(3)}. Internally it tracks cash
+$C_t$, fractional units $h_t$, and the cost basis of the open position
+(average-cost accounting), from which the nine state features of
+Table~\ref{tab:state} are computed on demand.
+
+\paragraph{Trade execution.} A Buy spends
+$\min(C_t,\, \Delta)$ dollars with $\Delta = 0.1\,C_0$, acquiring
+$x / (P_t(1+c))$ units; a Sell liquidates $\min(h_t P_t,\, \Delta)$ of
+position value, crediting $u P_t (1-c)$. Residual position value below the
+\$1 minimum trade size is flushed to cash to avoid dust accumulating
+outside the mask logic.
+
+\paragraph{Masking and safety.} \texttt{action\_masks()} returns the legal
+action set each step. If a caller nevertheless submits an illegal action,
+the environment executes Hold instead and flags the event in \texttt{info};
+the evaluation harness accumulates this as the illegal-action diagnostic.
+
+\paragraph{Termination.} At the final bar the environment force-liquidates
+any open position at the closing price (fee applied), implementing the
+mandatory end-of-episode liquidation of Section~\ref{sec:actions}.
+
+\section{From-scratch REINFORCE}
+\label{sec:impl_reinforce}
+
+The policy network is a two-hidden-layer MLP
+($9 \to 128 \to 128 \to 3$, $\tanh$ activations). Sampling uses a masked
+categorical distribution: illegal logits are set to $-10^9$ before the
+softmax, so probability mass is renormalised over legal actions only ---
+the network is never trained on, and can never propose, an illegal trade.
+
+One gradient update is performed per episode. The core of the training
+loop is four lines, in exact correspondence with the derivation of
+Section~\ref{sec:pg_derivation}:
+
+\begin{verbatim}
+# rewards-to-go, standardised within the episode
+G[t] = r[t] + gamma * G[t+1]
+G = (G - G.mean()) / (G.std() + 1e-8)
+loss = -(log_probs * G).sum()      # L(theta) = -sum_t log pi(a|s) * G_t
+loss.backward(); optimizer.step()  # gradient ascent on J
+\end{verbatim}
+
+The returns tensor carries no gradient (it is data, not a function of
+$\theta$ in the surrogate loss), matching Step~6 of the derivation.
+
+\section{From-scratch Deep Q-learning}
+\label{sec:impl_dqn}
+
+The Q-network is an MLP of the same capacity
+($9 \to 128 \to 128 \to 3$, ReLU). The implementation contains the three
+standard DQN components, each present for a reason stated in
+Section~\ref{sec:dqn}:
+
+\begin{itemize}
+  \item \textbf{Replay buffer} (50k transitions, uniform sampling,
+        minibatch 64): breaks the temporal correlation of consecutive
+        market steps.
+  \item \textbf{Target network} (synchronised every 500 steps): stabilises
+        the bootstrapped TD target.
+  \item \textbf{Masked $\varepsilon$-greedy} ($\varepsilon: 1.0 \to 0.05$
+        over the first half of training): exploration restricted to legal
+        actions; the $\max$ in the TD target is likewise taken over the
+        \emph{stored} legal-action mask of the next state.
+\end{itemize}
+
+Storing the next-state mask in the buffer is a subtle but necessary
+detail: without it, the target could bootstrap from an action that is
+illegal in $s_{t+1}$ (e.g.\ Sell while flat), silently overestimating value.
+
+The core update, in exact correspondence with
+Equation~(\ref{eq:dqn_loss}):
+
+\begin{verbatim}
+q_next = target_net(s_next)               # Q_phi-minus(s', .)
+q_next[~mask_next] = -1e9                 # max over LEGAL actions only
+y = r + gamma * (1 - done) * q_next.max(dim=1).values
+loss = mse(qnet(s).gather(1, a), y.detach())   # TD loss on Bellman targets
+loss.backward(); optimizer.step()
+\end{verbatim}
+
+\noindent The \texttt{y.detach()} matters: the target is data, not a
+function to differentiate through --- gradients flow only into
+$Q_\phi(s,a)$, exactly as the semi-gradient TD rule prescribes
+\cite{sutton2018}.
+
+\section{PPO ablation row}
+\label{sec:impl_ppo}
+
+The third ablation method, PPO, uses the reference Stable-Baselines3
+implementation \cite{raffin2021sb3} (\texttt{MlpPolicy}; learning rate
+$3{\times}10^{-4}$,
+rollout $n_{\mathrm{steps}}{=}512$, batch 64, 8 epochs, $\gamma{=}0.99$,
+$\epsilon{=}0.2$), trained through a thin sampler wrapper
+(\texttt{MonthSamplerFullEnv}) whose \texttt{reset()} draws a random
+training month --- the same episode distribution the scratch methods see.
+
+One protocol asymmetry is worth stating openly. The scratch methods are
+\emph{mask-aware}: illegal logits or Q-values are removed before action
+selection during both training and evaluation. SB3's PPO has no native
+mask support, so during training the environment's forced-Hold override
+handles illegal proposals, and during evaluation an illegal deterministic
+action falls back to Hold. This mirrors the pilot-study protocol and, if
+anything, mildly disadvantages PPO; the illegal-proposal rate is reported
+with the results so the effect is quantified rather than hidden.
+
+\section{Verification and testing}
+\label{sec:testing}
+
+Two layers of verification precede any market experiment.
+
+\paragraph{Unit tests.} Eight environment tests
+(\texttt{test\_env\_full.py}) assert: the accounting identity
+$\sum_t r_t = W_T - W_0$ under random legal play; zero wealth change and
+zero trades for do-nothing; the exact fee charge on a flat-price Buy;
+forced liquidation leaving zero units; Sell masked while flat with the
+illegal-action override engaging; Buy masked once cash is exhausted; state
+shape and clock boundary values ($\tau_0 = 0$, $\tau_T = 1$). All pass.
+
+\paragraph{Algorithm validation on known-outcome tasks (Phase 0).} Before
+touching market data, the same algorithm implementations were validated on
+games where success is unambiguous: CartPole-v1, Flappy Bird and
+LunarLander-v3. Every learner clears its random floor (e.g.\ CartPole:
+random 28.8 vs.\ REINFORCE 292 and DQN 500/500). A learning algorithm that
+cannot solve a game with a known answer cannot be trusted on markets,
+where the correct answer is unknown --- this ordering was a fixed
+methodological requirement of the project.
+
+\section{Experimental configuration}
+\label{sec:config}
+
+\begin{table}[h]
+\centering
+\caption{Hyperparameters and budgets for the final experiments.}
+\label{tab:hparams}
+\begin{tabular}{lll}
+\toprule
+\textbf{Setting} & \textbf{REINFORCE} & \textbf{Deep Q} \\
+\midrule
+Network & MLP $9{-}128{-}128{-}3$, $\tanh$ & MLP $9{-}128{-}128{-}3$, ReLU \\
+Optimiser / lr & Adam, $10^{-3}$ & Adam, $10^{-3}$ \\
+Discount $\gamma$ & 0.99 & 0.99 \\
+Update cadence & once per episode & every step after warm-up \\
+Replay / batch & --- & 50k buffer, batch 64 \\
+Target sync & --- & every 500 steps \\
+Exploration & sampling from $\pi_\theta$ & $\varepsilon$: $1.0 \to 0.05$ (first 50\%) \\
+Budget & 80{,}000 env steps & 80{,}000 env steps \\
+Seeds & \{42, 43, 44\} & \{42, 43, 44\} \\
+\midrule
+Environment & \multicolumn{2}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.1\,C_0$; windows $k{=}5$, $m{=}10$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Reproducibility}
+\label{sec:repro}
+
+Every claim in Chapter~5 is regenerable from committed code and cached
+data. Specifically: (i) all random number generators (Python, NumPy,
+PyTorch) are seeded, and results are reported over three seeds rather
+than a favourable one; (ii) the data pipeline caches its output, so
+experiments never silently retrain on different data; (iii) each
+experiment writes a JSON record containing the configuration, per-month
+results, training curves and timings alongside the charts; and (iv) all
+experiments run on CPU in minutes (REINFORCE $\approx$ 25\,s, DQN
+$\approx$ 70\,s, PPO $\approx$ 35\,s per seed; the entire ablation
+including the fee-sensitivity study in $\approx$ 12 minutes) --- a
+deliberate property: every result in this dissertation can be regenerated
+from scratch during a viva demonstration.
+
+\paragraph{Chapter summary (plain language).} The mathematics of
+Chapter~3 now exists as four small, separately testable programs: one
+that fetches and organises seven years of real price data; one that
+simulates the trading month (the ``game board''), charging fees and
+enforcing the rules; and two learners built from the ground up, each of
+whose central lines of code is a direct transcription of a derived
+equation. Before being allowed near market data, both learners had to
+prove themselves on video games with known answers, and the simulator had
+to pass eight accounting tests --- including that its per-step rewards
+always sum exactly to the month's true profit. The next chapter reports
+what happened when they traded.

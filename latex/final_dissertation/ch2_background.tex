@@ -1,0 +1,391 @@
+\chapter{Background \& Literature Review}
+\label{ch:background}
+
+This chapter reviews the ideas this dissertation is built on. It begins
+with what reinforcement learning is and how it differs from the more
+familiar kinds of machine learning; formalises the Markov Decision
+Process, the mathematical object every later chapter manipulates; then
+traces the two algorithm families compared in this project --- value-based
+methods (Q-learning to DQN) and policy-gradient methods (REINFORCE to
+PPO) --- from their origins to their modern forms. The second half turns
+to the application domain: what the literature reports about
+reinforcement learning for trading, the recurring evaluation mistakes
+that make much of that literature unreliable, and the partial-observability
+question that markets pose. The chapter closes by stating the gap this
+project occupies.
+
+\section{From trial and error to a formal framework}
+\label{sec:bg_intro}
+
+Most machine learning taught at masters level is \emph{supervised}: a
+model is shown inputs together with correct answers (this image is a cat;
+this email is spam) and learns to reproduce the labelling. Reinforcement
+learning \cite{sutton2018} removes the answer sheet. The learner --- the
+\emph{agent} --- interacts with a world --- the \emph{environment} --- in
+a loop: it observes the situation, chooses an action, and receives back
+two things only: a new situation and a numerical \emph{reward}. Nobody
+ever tells it which action was correct; it must discover, by trial and
+error, which behaviour accumulates the most reward over time.
+
+Two consequences of removing the answer sheet drive everything in this
+dissertation. First, \emph{credit assignment}: when reward arrives late
+(the month's profit is only known at the month's end), the agent must
+work out which of its many earlier decisions deserve the credit or the
+blame. Second, \emph{verification}: with no labels, there is no
+training-set accuracy to inspect, so a defective implementation produces
+no error --- only quietly wrong behaviour. The first consequence
+motivates the mathematics of Chapter~\ref{ch:methodology}; the second
+motivates this project's game-first validation discipline
+(Chapter~\ref{ch:implementation}), because games are the rare setting
+where the correct outcome of learning \emph{is} known.
+
+The field's landmark systems illustrate the paradigm's reach:
+TD-Gammon learned expert backgammon purely from self-play
+\cite{tesauro1995}; DQN reached human-level play across dozens of Atari
+games from raw pixels \cite{mnih2015}; AlphaGo defeated a world champion
+at Go \cite{silver2016}. All three learned from a scalar score alone ---
+precisely the position a trading agent is in, where the score is money.
+
+\section{The Markov Decision Process}
+\label{sec:bg_mdp}
+
+The standard formalism for sequential decision problems is the Markov
+Decision Process (MDP), whose foundations trace to Bellman's dynamic
+programming \cite{bellman1957}; the modern treatment followed throughout
+this dissertation is Sutton and Barto \cite{sutton2018}. An MDP is a
+tuple
+\[
+(\mathcal{S}, \mathcal{A}, P, R, \gamma),
+\]
+where $\mathcal{S}$ is the set of \emph{states} the world can be in,
+$\mathcal{A}$ the set of \emph{actions} available, $P(s' \mid s, a)$ the
+\emph{transition dynamics} (the probability of landing in state $s'$
+after taking action $a$ in state $s$), $R$ the \emph{reward function},
+and $\gamma \in (0,1]$ a \emph{discount factor} that down-weights distant
+rewards. The agent's behaviour is a \emph{policy} $\pi(a \mid s)$: a rule
+(possibly probabilistic) for choosing actions in each state. The learning
+goal is to find a policy maximising the expected \emph{return} --- the
+cumulative discounted reward
+$G_t = \sum_{k \ge 0} \gamma^k r_{t+k}$.
+
+\paragraph{The Markov property.} The definition requires that the state
+summarise \emph{all decision-relevant history}: given the present state,
+the past adds nothing. In plain terms, a chess board satisfies this ---
+one photograph of the board is enough to play on; how the pieces got
+there is irrelevant. A poorly chosen trading state violates it: if the
+agent is shown only today's price change but its profit depends on the
+price it originally paid, then something decision-relevant is hidden, and
+the theory's guarantees quietly lapse. This single observation drives the
+central design decision of this project --- the \emph{complete} state of
+Section~\ref{sec:state} --- and its most important limitation analysis
+(Section~\ref{sec:bg_pomdp}).
+
+\paragraph{Value functions and the Bellman equation.} Two functions
+organise the solution space. The state-value function
+$V^\pi(s) = \mathbb{E}_\pi[\, G_t \mid s_t = s\,]$ scores how good a
+situation is under policy $\pi$; the action-value function
+$Q^\pi(s,a) = \mathbb{E}_\pi[\, G_t \mid s_t = s, a_t = a\,]$ scores how
+good an action is in that situation. The optimal action-value function
+obeys Bellman's recursion,
+\begin{equation}
+Q^\ast(s,a) \;=\; \mathbb{E}\!\left[\, r + \gamma \max_{a'} Q^\ast(s', a')
+\;\middle|\; s, a \right],
+\label{eq:bg_bellman}
+\end{equation}
+which reads: the value of acting now is the immediate reward plus the
+discounted value of acting optimally afterwards. Equation
+(\ref{eq:bg_bellman}) is not merely notation --- it is the operating
+principle of the entire value-based family reviewed next, and its
+sampled, approximate form is the loss function our Deep Q implementation
+minimises (Section~\ref{sec:dqn}).
+
+\paragraph{Exploration versus exploitation.} A learner that always takes
+the action it currently believes best may never discover a better one; a
+learner that experiments forever never banks its knowledge. Every
+algorithm in this dissertation embodies a stance on this dilemma:
+value-based methods explore explicitly (taking a random action with
+probability $\varepsilon$), while policy-gradient methods explore
+implicitly, by sampling actions from a probabilistic policy that only
+gradually sharpens.
+
+\section{Value-based methods: from Q-learning to DQN}
+\label{sec:bg_value}
+
+The value-based family answers ``what should I do?'' indirectly: learn
+how much each action is \emph{worth}, then pick the most valuable. Its
+lineage begins with temporal-difference (TD) learning \cite{sutton1988},
+which updates value estimates from the difference between successive
+predictions rather than waiting for final outcomes, and reaches its
+canonical form in Q-learning \cite{watkins1992}: after each transition
+$(s, a, r, s')$, update
+\begin{equation}
+Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \Bigl[\,
+r + \gamma \max_{a'} Q(s', a') - Q(s,a) \Bigr],
+\label{eq:bg_qlearning}
+\end{equation}
+nudging the stored value toward the Bellman target with learning rate
+$\alpha$. Remarkably, this converges to $Q^\ast$ for finite MDPs
+regardless of how actions were chosen during learning (it is
+\emph{off-policy}), provided every state--action pair is visited
+sufficiently often \cite{watkins1992}.
+
+\paragraph{The table problem.} Tabular Q-learning stores one number per
+state--action pair, which is fine for a small grid-world and hopeless for
+anything continuous. An intuition used repeatedly in this project's
+supervision: imagine a haulage robot whose state is its position in a
+mine. Discretise the mine coarsely and the table is small but the robot
+is blind to distinctions that matter; discretise finely and the table
+outgrows memory --- and either way, experience at one location teaches
+nothing about the location one metre away, because table cells share
+nothing. Our own Phase-0 experiments reproduce this on CartPole: tabular
+Q-learning succeeds \emph{only after} the 4-dimensional continuous state
+is hand-binned, and the approach is a non-starter for the 9-dimensional
+continuous trading state (Section~\ref{sec:res_phase0}).
+
+\paragraph{Function approximation and its dangers.} The remedy is to
+replace the table with a function approximator --- a neural network
+$Q_\phi(s,a)$ --- that \emph{generalises} across nearby states. The cost
+is that convergence guarantees weaken substantially: the combination of
+function approximation, bootstrapping and off-policy data (the ``deadly
+triad'') can diverge \cite{tsitsiklis1997, sutton2018}. Deep Q-learning
+(DQN) \cite{mnih2015} demonstrated that two mechanisms restore practical
+stability: \emph{experience replay} \cite{lin1992} --- storing
+transitions in a buffer and training on random minibatches, which breaks
+the strong temporal correlation of consecutive experiences --- and a
+periodically frozen \emph{target network}, which stops the regression
+target from chasing its own updates. Both mechanisms are implemented from
+scratch in this project (Section~\ref{sec:impl_dqn}), and both matter
+doubly for market data, whose consecutive samples are even more
+correlated than game frames. Refinements such as double Q-learning
+\cite{vanhasselt2016} address residual overestimation bias; they are
+noted as extensions rather than implemented, to keep the from-scratch
+implementation minimal and fully understood.
+
+\section{Policy-gradient methods: REINFORCE and its descendants}
+\label{sec:bg_pg}
+
+The policy-gradient family answers ``what should I do?'' directly: write
+the policy as a differentiable function $\pi_\theta(a \mid s)$ --- in
+practice a neural network whose weights are $\theta$ --- and adjust
+$\theta$ by gradient ascent on the expected return $J(\theta)$. The
+foundational algorithm is REINFORCE \cite{williams1992}. Its enabling
+mathematical step is the likelihood-ratio (score-function) identity
+$\nabla_\theta p_\theta = p_\theta \nabla_\theta \log p_\theta$, which
+converts the gradient of an expectation \emph{over} a distribution into
+an expectation \emph{of} a gradient --- something that can be estimated
+from sampled episodes. This identity is the sole reason a
+$\log \pi_\theta$ term appears in every policy-gradient loss; the full
+six-step derivation, each step labelled exact or approximate, is given in
+Section~\ref{sec:pg_derivation}.
+
+REINFORCE's virtue is transparency: it is unbiased and involves no
+bootstrapping, no replay, and no auxiliary networks. Its vice is
+\emph{variance}: each gradient estimate is scaled by a full Monte-Carlo
+return, a noisy quantity, so learning is slow and unstable. The
+subsequent thirty years of policy-gradient research can be read as a
+sequence of patches on this one weakness:
+
+\begin{itemize}
+  \item \textbf{Baselines and advantage.} Subtracting a state-dependent
+        baseline $b(s)$ from the return leaves the gradient unbiased but
+        can reduce variance dramatically; learning that baseline with a
+        second network (a \emph{critic}) gives actor-critic methods
+        \cite{konda2000}, whose modern parallel form is A2C/A3C
+        \cite{mnih2016}. Generalised advantage estimation
+        \cite{schulman2016gae} tunes the bias--variance trade-off of the
+        advantage signal itself.
+  \item \textbf{Constrained updates.} Even with a good advantage signal,
+        a single large policy update can be destructive, because the data
+        was collected under the \emph{old} policy. Trust-region methods
+        \cite{schulman2015trpo} bound the update size formally; Proximal
+        Policy Optimization (PPO) \cite{schulman2017ppo} achieves a
+        similar effect by simply \emph{clipping} the update ratio, and
+        has become the default policy-gradient method in applied work,
+        including most trading-RL frameworks \cite{liu2020finrl}.
+\end{itemize}
+
+This project retains REINFORCE as the primary policy-gradient method
+precisely \emph{because} it is the un-obscured foundation: every design
+element of the successors is a response to a weakness REINFORCE exhibits
+transparently, and our Phase-0 results reproduce those weaknesses on cue
+(CartPole: REINFORCE 292 vs.\ PPO 500,
+Section~\ref{sec:res_phase0}). PPO is retained as the ablation's third
+row so the patched descendant can be compared with its ancestor on the
+same problem.
+
+\section{Choosing between the families}
+\label{sec:bg_families}
+
+The two families make opposite engineering trade-offs, summarised in
+Table~\ref{tab:bg_families}. Neither dominates: the value-based route
+updates from every single step and reuses old experience, but bootstraps
+(estimates built on estimates) and only \emph{derives} a policy
+indirectly; the policy-gradient route optimises the actual objective with
+unbiased gradients, but needs whole episodes per update and discards
+experience once used. Comparing structurally different learners on the
+\emph{same} problem is therefore scientifically informative --- if both
+converge to the same behaviour, that behaviour likely reflects the
+problem's true optimum rather than an algorithmic artefact. This logic is
+the core experimental design of Chapter~\ref{ch:results}.
+
+\begin{table}[h]
+\centering
+\caption{The two algorithm families compared in this project.}
+\label{tab:bg_families}
+\small
+\begin{tabular}{lll}
+\toprule
+ & \textbf{Value-based (Deep Q)} & \textbf{Policy-gradient (REINFORCE)} \\
+\midrule
+Learns            & action values $Q_\phi(s,a)$ & the policy $\pi_\theta(a|s)$ itself \\
+Update timing     & every environment step      & once per completed episode \\
+Data reuse        & replay buffer (off-policy)  & fresh rollouts only (on-policy) \\
+Estimator bias    & biased while learning (bootstraps) & unbiased \\
+Estimator variance& low (one-step targets)      & high (full Monte-Carlo returns) \\
+Exploration       & explicit ($\varepsilon$-greedy) & implicit (stochastic policy) \\
+Failure style     & divergence/overestimation   & noisy, slow convergence \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Reinforcement learning for trading}
+\label{sec:bg_trading}
+
+Applying RL to trading is an old idea with a well-documented set of
+pitfalls. The foundational work is Moody and Saffell's \emph{direct
+reinforcement} \cite{moody2001}, which trains a trading policy directly
+by gradient methods and --- presciently for this project --- argues that
+the \emph{objective} must be risk-adjusted (they propose a differential
+Sharpe ratio), because maximising raw profit incentivises maximum
+exposure. That is an early recognition of the theme our results confirm
+empirically: \emph{the reward function defines the incentive}, and an
+agent can only be blamed for optimising what it was actually asked to
+optimise. Deng et al.\ \cite{deng2017} extended direct RL with deep
+recurrent representations; Jiang et al.\ \cite{jiang2017} treat
+multi-asset portfolio management with deep RL on cryptocurrency data.
+Modern open frameworks, notably FinRL \cite{liu2020finrl}, standardise
+Gym-style market environments and default to PPO-family agents ---
+convenient, but, as this dissertation argues, convenience without
+derivation invites exactly the silent failures that motivated our
+from-scratch requirement.
+
+\paragraph{A close reading of the nearest prior work.} The study closest
+to ours is Th\'eate and Ernst \cite{theate2021}, who benchmark a trading
+DQN (TDQN) against buy-and-hold and classic active strategies across 30
+instruments. Read critically, their own results anticipate this
+dissertation's central finding. Their headline is that TDQN
+``outperforms benchmark strategies on average'' --- but the strategies it
+beats on average are the \emph{active} ones (trend-following posts a
+\emph{negative} average Sharpe on their testbench), while, in their own
+words, TDQN ``only barely surpasses the buy and hold strategy on these
+particular bullish markets.'' Most tellingly, on the S\&P~500 ETF ---
+the very asset studied here --- their reported test Sharpe for TDQN is
+0.834, \emph{identical} to buy-and-hold's 0.834; they observe that TDQN's
+performance ``is identical or very close to the passive trading
+strategies for multiple stocks'' because the agent ``efficiently learns
+to tend toward a passive trading strategy.'' They further report
+substantial run-to-run variance and overfitting on volatile single names
+(Tesla). In short: a careful prior study, honestly read, already shows
+value-based RL converging toward passivity on index products under
+profit-seeking objectives --- a result their framing treats as a
+footnote, and this dissertation places at the centre, explains
+mechanistically, and reproduces with fully derived implementations.
+
+\paragraph{Evaluation pitfalls.} Surveys of the area \cite{fischer2018}
+and the financial machine-learning methodology literature
+\cite{bailey2014, lopezdeprado2018} repeatedly flag failure modes that
+this project's design guards against explicitly:
+
+\begin{enumerate}
+  \item \textbf{Weak baselines.} Much published work beats only strawman
+        alternatives. The baseline that matters is buy-and-hold,
+        \emph{properly capitalised} --- deploying the same capital the
+        agent may deploy. Section~\ref{sec:res_pilot} shows a live
+        example where an unfair baseline would have converted a null
+        result into a spurious ten-fold victory.
+  \item \textbf{Look-ahead leakage.} Shuffling time-series data before
+        splitting lets fragments of the future into training. All splits
+        in this project are strictly chronological
+        (Figure~\ref{fig:split}).
+  \item \textbf{Ignored transaction costs.} Costless backtests reward
+        hyperactive trading that fees would destroy. Here, fees live
+        \emph{inside} the reward, so the agent pays them during learning
+        --- and Section~\ref{sec:res_fees} shows the value-based agent
+        measurably adapting its behaviour to them.
+  \item \textbf{Backtest overfitting.} Repeatedly tuning on the same
+        held-out period converts test data into training data
+        \cite{bailey2014}. Our defence is procedural: fixed budgets and
+        hyperparameters chosen on games, one evaluation protocol declared
+        in advance, multiple seeds reported.
+\end{enumerate}
+
+\paragraph{The efficient-market null hypothesis.} Financial economics
+supplies the prior against which any trading result must be read: in a
+broadly efficient market \cite{fama1970}, persistent excess return over
+buy-and-hold from public price history alone should not be expected, and
+the risk--return trade-off \cite{markowitz1952} implies that reducing
+risk, not only raising return, is a legitimate form of success (measured
+here by the Sharpe ratio \cite{sharpe1994} and maximum drawdown). This
+dissertation therefore treats ``the agent rediscovers buy-and-hold'' as a
+scientifically meaningful finding rather than a failure --- and treats
+any easy-looking victory as a signal to audit the experiment, not to
+celebrate.
+
+\section{Partial observability and hidden state}
+\label{sec:bg_pomdp}
+
+The MDP formalism assumes the agent sees a state satisfying the Markov
+property. When decision-relevant structure is hidden --- as it plainly is
+in markets, where order flow, news, and the strategies of other
+participants never appear in a price series --- the problem is formally a
+\emph{Partially Observable} MDP (POMDP) \cite{kaelbling1998}. The
+principled treatment maintains a \emph{belief state}: a probability
+distribution over what the hidden variables might be, updated as
+observations arrive. The closely related hidden Markov model
+\cite{rabiner1989} formalises the special case where an unobserved
+discrete regime (e.g.\ ``calm market'' vs.\ ``turbulent market'')
+generates the observations --- a natural reading of financial data, and
+one raised explicitly in this project's supervision as the honest way to
+think about what a price-only state misses.
+
+Exact POMDP solutions are intractable for all but tiny problems
+\cite{kaelbling1998}; practical systems either learn a memory (recurrent
+policies) or --- the route taken here --- \emph{engineer the observation
+to be as complete as practically possible} and state the residual gap
+honestly. Chapter~\ref{ch:methodology} designs a state that includes
+everything the agent can legitimately know (market summary statistics,
+the episode clock, and its full balance sheet); Chapter~\ref{ch:conclusions}
+returns to the POMDP view as the principal direction for future work.
+
+\section{Summary and gap}
+\label{sec:bg_gap}
+
+The literature offers, on one side, two mature algorithm families whose
+mechanics and trade-offs are well understood on games
+(Sections~\ref{sec:bg_value}--\ref{sec:bg_families}); on the other, a
+trading-RL corpus of genuine ideas \cite{moody2001, deng2017, theate2021}
+interleaved with results weakened by the evaluation pitfalls of
+Section~\ref{sec:bg_trading}. Between them sits a gap that is
+methodological rather than algorithmic: \emph{few works formulate one
+careful trading MDP and subject structurally different, fully understood
+learners to an evaluation designed to make honest conclusions
+detectable}. That is the gap this dissertation occupies: a single
+formulation (Chapter~\ref{ch:methodology}); from-scratch implementations
+whose every line is traceable to a derived equation
+(Chapter~\ref{ch:implementation}, Appendix~\ref{app:trace}); validation
+on known-outcome games first; and an evaluation against properly
+capitalised baselines under chronological splits, fee-inclusive rewards
+and multiple seeds (Chapter~\ref{ch:results}).
+
+\paragraph{Chapter summary (plain language).} Reinforcement learning
+means learning by trial and error from a numerical score. Two big
+families exist: one learns \emph{how much each choice is worth} and picks
+the most valuable; the other learns \emph{the choosing rule itself} and
+nudges it toward whatever scored well. People have applied both to
+trading for decades, but published results are often flattered by unfair
+comparisons --- weak opponents, peeking at the future, ignoring trading
+costs. Markets also hide information no price chart contains, which the
+theory calls partial observability. This project's plan follows directly:
+build one honest trading problem, implement both families from the ground
+up, prove them on games first, and compare them fairly. The next chapter
+builds that problem precisely.

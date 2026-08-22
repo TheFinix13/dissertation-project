@@ -1,0 +1,324 @@
+% ============================================================
+% References — every entry is a canonical, verifiable source.
+% Grouped: RL foundations / value-based / policy-gradient /
+% RL-for-trading / finance & evaluation / POMDP-HMM / tooling.
+% ============================================================
+
+% ---------- RL foundations ----------
+
+@book{bellman1957,
+  author    = {Richard Bellman},
+  title     = {Dynamic Programming},
+  publisher = {Princeton University Press},
+  year      = {1957}
+}
+
+@book{sutton2018,
+  author    = {Richard S. Sutton and Andrew G. Barto},
+  title     = {Reinforcement Learning: An Introduction},
+  edition   = {2nd},
+  publisher = {MIT Press},
+  year      = {2018}
+}
+
+@article{sutton1988,
+  author  = {Richard S. Sutton},
+  title   = {Learning to predict by the methods of temporal differences},
+  journal = {Machine Learning},
+  volume  = {3},
+  number  = {1},
+  pages   = {9--44},
+  year    = {1988}
+}
+
+@article{tesauro1995,
+  author  = {Gerald Tesauro},
+  title   = {Temporal difference learning and {TD-Gammon}},
+  journal = {Communications of the ACM},
+  volume  = {38},
+  number  = {3},
+  pages   = {58--68},
+  year    = {1995}
+}
+
+@article{silver2016,
+  author  = {David Silver and Aja Huang and Chris J. Maddison and Arthur Guez and Laurent Sifre and George van den Driessche and Julian Schrittwieser and Ioannis Antonoglou and Veda Panneershelvam and Marc Lanctot and Sander Dieleman and Dominik Grewe and John Nham and Nal Kalchbrenner and Ilya Sutskever and Timothy Lillicrap and Madeleine Leach and Koray Kavukcuoglu and Thore Graepel and Demis Hassabis},
+  title   = {Mastering the game of {Go} with deep neural networks and tree search},
+  journal = {Nature},
+  volume  = {529},
+  number  = {7587},
+  pages   = {484--489},
+  year    = {2016}
+}
+
+% ---------- Value-based methods ----------
+
+@article{watkins1992,
+  author  = {Christopher J. C. H. Watkins and Peter Dayan},
+  title   = {Q-learning},
+  journal = {Machine Learning},
+  volume  = {8},
+  number  = {3--4},
+  pages   = {279--292},
+  year    = {1992}
+}
+
+@article{lin1992,
+  author  = {Long-Ji Lin},
+  title   = {Self-improving reactive agents based on reinforcement learning, planning and teaching},
+  journal = {Machine Learning},
+  volume  = {8},
+  number  = {3--4},
+  pages   = {293--321},
+  year    = {1992}
+}
+
+@article{mnih2015,
+  author  = {Volodymyr Mnih and Koray Kavukcuoglu and David Silver and Andrei A. Rusu and Joel Veness and Marc G. Bellemare and Alex Graves and Martin Riedmiller and Andreas K. Fidjeland and Georg Ostrovski and Stig Petersen and Charles Beattie and Amir Sadik and Ioannis Antonoglou and Helen King and Dharshan Kumaran and Daan Wierstra and Shane Legg and Demis Hassabis},
+  title   = {Human-level control through deep reinforcement learning},
+  journal = {Nature},
+  volume  = {518},
+  number  = {7540},
+  pages   = {529--533},
+  year    = {2015}
+}
+
+@inproceedings{vanhasselt2016,
+  author    = {Hado van Hasselt and Arthur Guez and David Silver},
+  title     = {Deep reinforcement learning with double {Q}-learning},
+  booktitle = {Proceedings of the 30th AAAI Conference on Artificial Intelligence},
+  pages     = {2094--2100},
+  year      = {2016}
+}
+
+@article{tsitsiklis1997,
+  author  = {John N. Tsitsiklis and Benjamin {Van Roy}},
+  title   = {An analysis of temporal-difference learning with function approximation},
+  journal = {IEEE Transactions on Automatic Control},
+  volume  = {42},
+  number  = {5},
+  pages   = {674--690},
+  year    = {1997}
+}
+
+% ---------- Policy-gradient methods ----------
+
+@article{williams1992,
+  author  = {Ronald J. Williams},
+  title   = {Simple statistical gradient-following algorithms for connectionist reinforcement learning},
+  journal = {Machine Learning},
+  volume  = {8},
+  number  = {3--4},
+  pages   = {229--256},
+  year    = {1992}
+}
+
+@inproceedings{konda2000,
+  author    = {Vijay R. Konda and John N. Tsitsiklis},
+  title     = {Actor-critic algorithms},
+  booktitle = {Advances in Neural Information Processing Systems 12},
+  pages     = {1008--1014},
+  year      = {2000}
+}
+
+@inproceedings{mnih2016,
+  author    = {Volodymyr Mnih and Adri{\`a} Puigdom{\`e}nech Badia and Mehdi Mirza and Alex Graves and Timothy Lillicrap and Tim Harley and David Silver and Koray Kavukcuoglu},
+  title     = {Asynchronous methods for deep reinforcement learning},
+  booktitle = {Proceedings of the 33rd International Conference on Machine Learning (ICML)},
+  pages     = {1928--1937},
+  year      = {2016}
+}
+
+@inproceedings{schulman2015trpo,
+  author    = {John Schulman and Sergey Levine and Pieter Abbeel and Michael Jordan and Philipp Moritz},
+  title     = {Trust region policy optimization},
+  booktitle = {Proceedings of the 32nd International Conference on Machine Learning (ICML)},
+  pages     = {1889--1897},
+  year      = {2015}
+}
+
+@inproceedings{schulman2016gae,
+  author    = {John Schulman and Philipp Moritz and Sergey Levine and Michael Jordan and Pieter Abbeel},
+  title     = {High-dimensional continuous control using generalized advantage estimation},
+  booktitle = {Proceedings of the 4th International Conference on Learning Representations (ICLR)},
+  year      = {2016}
+}
+
+@article{schulman2017ppo,
+  author  = {John Schulman and Filip Wolski and Prafulla Dhariwal and Alec Radford and Oleg Klimov},
+  title   = {Proximal policy optimization algorithms},
+  journal = {arXiv preprint arXiv:1707.06347},
+  year    = {2017}
+}
+
+% ---------- RL for trading ----------
+
+@article{moody2001,
+  author  = {John Moody and Matthew Saffell},
+  title   = {Learning to trade via direct reinforcement},
+  journal = {IEEE Transactions on Neural Networks},
+  volume  = {12},
+  number  = {4},
+  pages   = {875--889},
+  year    = {2001}
+}
+
+@article{deng2017,
+  author  = {Yue Deng and Feng Bao and Youyong Kong and Zhiquan Ren and Qionghai Dai},
+  title   = {Deep direct reinforcement learning for financial signal representation and trading},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  volume  = {28},
+  number  = {3},
+  pages   = {653--664},
+  year    = {2017}
+}
+
+@article{jiang2017,
+  author  = {Zhengyao Jiang and Dixing Xu and Jinjun Liang},
+  title   = {A deep reinforcement learning framework for the financial portfolio management problem},
+  journal = {arXiv preprint arXiv:1706.10059},
+  year    = {2017}
+}
+
+@article{liu2020finrl,
+  author  = {Xiao-Yang Liu and Hongyang Yang and Qian Chen and Runjia Zhang and Liuqing Yang and Bowen Xiao and Christina Dan Wang},
+  title   = {{FinRL}: A deep reinforcement learning library for automated stock trading in quantitative finance},
+  journal = {arXiv preprint arXiv:2011.09607},
+  year    = {2020}
+}
+
+@article{theate2021,
+  author  = {Thibaut Th{\'e}ate and Damien Ernst},
+  title   = {An application of deep reinforcement learning to algorithmic trading},
+  journal = {Expert Systems with Applications},
+  volume  = {173},
+  pages   = {114632},
+  year    = {2021}
+}
+
+@techreport{fischer2018,
+  author      = {Thomas G. Fischer},
+  title       = {Reinforcement learning in financial markets --- a survey},
+  institution = {FAU Discussion Papers in Economics, Friedrich-Alexander University Erlangen-N{\"u}rnberg},
+  number      = {12/2018},
+  year        = {2018}
+}
+
+% ---------- Finance and evaluation methodology ----------
+
+@article{markowitz1952,
+  author  = {Harry Markowitz},
+  title   = {Portfolio selection},
+  journal = {The Journal of Finance},
+  volume  = {7},
+  number  = {1},
+  pages   = {77--91},
+  year    = {1952}
+}
+
+@article{fama1970,
+  author  = {Eugene F. Fama},
+  title   = {Efficient capital markets: A review of theory and empirical work},
+  journal = {The Journal of Finance},
+  volume  = {25},
+  number  = {2},
+  pages   = {383--417},
+  year    = {1970}
+}
+
+@article{sharpe1994,
+  author  = {William F. Sharpe},
+  title   = {The {Sharpe} ratio},
+  journal = {The Journal of Portfolio Management},
+  volume  = {21},
+  number  = {1},
+  pages   = {49--58},
+  year    = {1994}
+}
+
+@article{bailey2014,
+  author  = {David H. Bailey and Jonathan M. Borwein and Marcos L{\'o}pez de Prado and Qiji Jim Zhu},
+  title   = {Pseudo-mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance},
+  journal = {Notices of the American Mathematical Society},
+  volume  = {61},
+  number  = {5},
+  pages   = {458--471},
+  year    = {2014}
+}
+
+@book{lopezdeprado2018,
+  author    = {Marcos L{\'o}pez de Prado},
+  title     = {Advances in Financial Machine Learning},
+  publisher = {Wiley},
+  year      = {2018}
+}
+
+% ---------- Partial observability / HMM ----------
+
+@article{kaelbling1998,
+  author  = {Leslie Pack Kaelbling and Michael L. Littman and Anthony R. Cassandra},
+  title   = {Planning and acting in partially observable stochastic domains},
+  journal = {Artificial Intelligence},
+  volume  = {101},
+  number  = {1--2},
+  pages   = {99--134},
+  year    = {1998}
+}
+
+@article{rabiner1989,
+  author  = {Lawrence R. Rabiner},
+  title   = {A tutorial on hidden {Markov} models and selected applications in speech recognition},
+  journal = {Proceedings of the IEEE},
+  volume  = {77},
+  number  = {2},
+  pages   = {257--286},
+  year    = {1989}
+}
+
+% ---------- Tooling ----------
+
+@article{brockman2016gym,
+  author  = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and Jie Tang and Wojciech Zaremba},
+  title   = {{OpenAI Gym}},
+  journal = {arXiv preprint arXiv:1606.01540},
+  year    = {2016}
+}
+
+@article{towers2024gymnasium,
+  author  = {Mark Towers and Ariel Kwiatkowski and Jordan Terry and John U. Balis and Gianluca {De Cola} and Tristan Deleu and Manuel Goul{\~a}o and Andreas Kallinteris and Markus Krimmel and Arjun KG and others},
+  title   = {Gymnasium: A standard interface for reinforcement learning environments},
+  journal = {arXiv preprint arXiv:2407.17032},
+  year    = {2024}
+}
+
+@inproceedings{paszke2019,
+  author    = {Adam Paszke and Sam Gross and Francisco Massa and Adam Lerer and James Bradbury and Gregory Chanan and Trevor Killeen and Zeming Lin and Natalia Gimelshein and Luca Antiga and Alban Desmaison and Andreas K{\"o}pf and Edward Yang and Zachary DeVito and Martin Raison and Alykhan Tejani and Sasank Chilamkurthy and Benoit Steiner and Lu Fang and Junjie Bai and Soumith Chintala},
+  title     = {{PyTorch}: An imperative style, high-performance deep learning library},
+  booktitle = {Advances in Neural Information Processing Systems 32 (NeurIPS)},
+  year      = {2019}
+}
+
+@inproceedings{kingma2015adam,
+  author    = {Diederik P. Kingma and Jimmy Ba},
+  title     = {Adam: A method for stochastic optimization},
+  booktitle = {Proceedings of the 3rd International Conference on Learning Representations (ICLR)},
+  year      = {2015}
+}
+
+@article{raffin2021sb3,
+  author  = {Antonin Raffin and Ashley Hill and Adam Gleave and Anssi Kanervisto and Maximilian Ernestus and Noah Dormann},
+  title   = {Stable-Baselines3: Reliable reinforcement learning implementations},
+  journal = {Journal of Machine Learning Research},
+  volume  = {22},
+  number  = {268},
+  pages   = {1--8},
+  year    = {2021}
+}
+
+@book{wilder1978,
+  author    = {Wilder, J. Welles},
+  title     = {New Concepts in Technical Trading Systems},
+  publisher = {Trend Research},
+  address   = {Greensboro, NC},
+  year      = {1978}
+}

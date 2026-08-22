@@ -53,3 +53,17 @@ texput.log
 # Generated Word build (reproducible via latex/build_docx.sh)
 /dissertation.docx
 latex/_docx_build/
+
+# LaTeX build artefacts (regenerable; figure PDFs are kept because they are included)
+*.aux
+*.blg
+*.bbl
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+latex/**/*.log
+latex/**/*.build.log
