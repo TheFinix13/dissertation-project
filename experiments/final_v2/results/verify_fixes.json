@@ -1,0 +1,104 @@
+{
+  "data": {
+    "counts": {
+      "train": 60,
+      "val": 12,
+      "test": 24
+    },
+    "train_span": [
+      "2018-01",
+      "2022-12"
+    ],
+    "val_span": [
+      "2023-01",
+      "2023-12"
+    ],
+    "test_span": [
+      "2024-01",
+      "2025-12"
+    ],
+    "market_features": [
+      "ret_1",
+      "mom_k",
+      "vol_k",
+      "ma_gap",
+      "atr_norm",
+      "rel_vol",
+      "vol_ratio"
+    ]
+  },
+  "defect_1_episode_boundary_truncation": {
+    "n_episodes_checked": 95,
+    "mean_frac_of_episode_affected": 0.4310064583134558,
+    "max_frac_of_episode_affected": 0.47368421052631576,
+    "mean_days_affected": 9.0,
+    "day0_momentum_was_always_zero": true,
+    "day0_volatility_was_always_zero": true,
+    "mean_true_day0_momentum_abs": 0.015428767737868939,
+    "worst_abs_error": {
+      "momentum": 0.06759405716395284,
+      "volatility": 0.038983452659951574,
+      "trend_gap": 0.0348801156211761
+    },
+    "note": "windows compared at the earlier settings (mom 5, vol 5, MA 10) so the difference isolates truncation rather than the new window lengths (now mom 5, vol 5, MA 20)"
+  },
+  "defect_2_baseline_was_dollar_cost_average": {
+    "B1a_slice_bah": {
+      "n_episodes": 24,
+      "mean_delta_w": 141.3058549788021,
+      "std_delta_w": 229.39744917824632,
+      "mean_trades": 11.0,
+      "mean_fees_paid": 10.070690771625163,
+      "mean_exposure": 0.694405505855511,
+      "sharpe_monthly": 0.6159870368436602,
+      "mdd_monthly_pnl": 0.0319093747498167,
+      "mdd_intra_mean": 0.023498909225838836,
+      "mdd_intra_max": 0.05519675856544903,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "B1b_true_bah": {
+      "n_episodes": 24,
+      "mean_delta_w": 180.25165623915322,
+      "std_delta_w": 282.5681862212002,
+      "mean_trades": 2.0,
+      "mean_fees_paid": 10.09017341357586,
+      "mean_exposure": 0.9127863195496241,
+      "sharpe_monthly": 0.6379049908259966,
+      "mdd_monthly_pnl": 0.046714814312852626,
+      "mdd_intra_mean": 0.031005970666879934,
+      "mdd_intra_max": 0.12052707819031105,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "B0_do_nothing": {
+      "n_episodes": 24,
+      "mean_delta_w": 0.0,
+      "std_delta_w": 0.0,
+      "mean_trades": 0.0,
+      "mean_fees_paid": 0.0,
+      "mean_exposure": 0.0,
+      "sharpe_monthly": 0.0,
+      "mdd_monthly_pnl": 0.0,
+      "mdd_intra_mean": 0.0,
+      "mdd_intra_max": 0.0,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "understatement_mean_delta_w": 38.94580126035112,
+    "understatement_pct": 21.60634863109321,
+    "months_true_beats_slice": 17,
+    "n_test_months": 24,
+    "slice_win_rate_vs_true": 0.2916666666666667
+  },
+  "integrity": {
+    "episodes_checked": 96,
+    "max_accounting_gap": 0.0,
+    "accounting_ok": true,
+    "mean_intra_episode_drawdown_buy_and_hold": 0.03358947881903194,
+    "max_intra_episode_drawdown_buy_and_hold": 0.2211374335998869
+  }
+}
