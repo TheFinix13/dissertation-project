@@ -277,6 +277,47 @@ microstructure and fee regimes. Earlier historical data are therefore
 left to future work as an additional robustness test of how well the
 trained agents generalise across market regimes.
 
+\subsection{The Simulated Market Model}
+
+Even the full 2018--2025 period yields only 60 training episodes, and
+Chapter 5 shows this is far too few for the networks to learn rather
+than memorise. The study therefore also defines a simulated market, and
+uses it as the primary source of training data. The idea follows a
+standard pattern in reinforcement learning: when real experience is
+scarce, generate experience from a model of the task and keep the real
+data for a final test~\cite{silver2016}.
+
+The simulated market has three \textbf{regimes}: up, down, and flat. An
+episode is a sequence of 21 daily bars drawn entirely from one regime
+\(m\). Within the regime, daily log-returns are independent draws from a
+normal distribution,
+
+\[r_{t} = \ln\frac{P_{t}}{P_{t - 1}} \sim \mathcal{N}\left( \mu_{m},\sigma_{m}^{2} \right),\]
+
+so the price follows a geometric random walk whose drift \(\mu_{m}\) and
+volatility \(\sigma_{m}\) belong to the regime. High and low prices
+extend each day's move by random wicks sized to match the real average
+true range, and volume is drawn from a lognormal distribution. The
+regime parameters are estimated from the real training months only;
+Chapter 4 reports the fitted values.
+
+The model is deliberately the simplest one that supports a controlled
+experiment. Because the generator's regime is known for every episode,
+the evaluation can report how a policy behaves in rising, falling, and
+flat markets separately, which no historical test period can guarantee
+to provide. Because episodes are generated, the training set can be as
+large and as balanced as the experiment requires. And because
+consecutive generated episodes share nothing, the independence
+assumption of Section 3.2.2, which is a simplification for real months,
+holds exactly in simulation.
+
+The cost of this simplicity is realism. Real returns are not
+independent across days, volatility clusters within months, and regimes
+change mid-month. A policy trained on the simulated market therefore
+faces a domain gap when applied to real data, and Chapter 5 measures
+that gap directly by evaluating the simulation-trained agents on the
+real held-out months.
+
 It should also be noted that real financial markets are more complex
 than any MDP and cannot be assumed to be fully observable. The MDP used
 here is a simplified representation of the portfolio trading problem;
@@ -1359,10 +1400,12 @@ highest probability.
 During evaluation, the agent selects the valid action with the highest
 probability without exploring.
 
-The policy network used in this study has \textbf{two hidden layers,
-each with 128 units}, and uses the hyperbolic tangent \(\tanh\) as the
-activation function. The final layer produces one output for each of the
-three available actions.
+The policy network used in the real-data study has \textbf{two hidden
+layers, each with 128 units}, and uses the hyperbolic tangent \(\tanh\)
+as the activation function. The final layer produces one output for each
+of the three available actions. The simulated-data study keeps the same
+structure but narrows the layers to 64 and 32 units, for reasons of
+model capacity discussed in Chapter 4.
 
 \subsection{Deriving the Policy-Gradient Objective}
 
@@ -1579,8 +1622,10 @@ The network takes the nine-dimensional state
 each available action. These values are then used to select the most
 valuable valid action, as in Section 3.8.1.
 
-The DQN used in the experiments has \textbf{two hidden layers with 128
-units each} and uses ReLU activation functions.
+The DQN used in the real-data experiments has \textbf{two hidden layers
+with 128 units each} and uses ReLU activation functions. As with the
+policy network, the simulated-data study narrows the layers to 64 and 32
+units.
 
 \subsection{Experience Replay}
 
@@ -1858,8 +1903,9 @@ Section 3.4.
 PPO is included to provide a third comparison with REINFORCE and DQN.
 It is implemented using \textbf{MaskablePPO} from
 sb3-contrib~\cite{raffin2021sb3}. The policy uses the same
-two-hidden-layer architecture with 128 units per layer as the other
-neural-network agents, and the remaining PPO settings use the library
+two-hidden-layer architecture as the other neural-network agents, 128
+units per layer in the real-data study and 64 and 32 units in the
+simulated-data study, and the remaining PPO settings use the library
 defaults. PPO also uses the same trading environment, state
 representation, transaction costs, initial capital, data split, and
 evaluation procedure as the other methods (Section 3.6.3), such that

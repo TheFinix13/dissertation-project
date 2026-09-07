@@ -1,5 +1,5 @@
 # ai_context.md · final submission state
-Last updated: 2026-09-07 (post workspace restructure)
+Last updated: 2026-09-07 evening (post Nguyen meeting; sim-data redo underway)
 
 Compact state of the project for future AI sessions.
 
@@ -40,7 +40,40 @@ project eras are preserved as annotated tags, documented in README.md:
 `era3-pre-restructure-snapshot` (full pre-cleanup snapshot; every file
 deleted in the restructure lives there).
 
-## 5) Known open items
+## 5) Nguyen meeting 2026-09-07 and the simulated-data redo
+
+Transcripts: `notes/supervision/2026-09-07-nguyen-meeting-{main,end}.txt`.
+Diagnosis: 60 monthly train episodes vs ~16k-parameter MLP = memorisation;
+always-buy comes from rising-market class imbalance; DQN worst because value
+estimation needs a stable state distribution. The "DQN uses state" Chapter 5
+explanation was rejected as surface-level. Fix: simulated data (control),
+smaller net, per-regime controlled testing; real data only as transfer test.
+
+Redo (in `experiments/final_v2/`, primary study going forward):
+- `sim_data.py`: regime-switching generator (up/down/flat), calibrated on
+  real SPY train months only; 3000/300/600 balanced episodes; same episode
+  format as `data.py`.
+- `agents.py`/`harness.py`: pyramid MLP (64, 32) ≈ 2.8k params (was 128x128).
+- `run_sim.py`: trains on sim, reports per-regime sim-test results + real
+  2024-25 transfer test -> `results/sim_results.json` (+ `sim_run.log`).
+- On balanced sim test, buy-and-hold LOSES (-$60/mo): always-buy no longer
+  wins by construction. Report asterisk fix done (ch4 3×10^-4, recompiled).
+- RESULTS (300k steps, 6 seeds): DQN +$126.94/ep (std 7.3), 6/6 state-dep,
+  up +473.72 / down -103.35 / flat +10.45, real transfer +$130.61/mo (vs
+  BAH +180.25). REINFORCE -5.71 (1/6 state-dep; 3 abstain, 2 always-buy,
+  1 conditioned at +83). PPO -11.16 (0/6). Ranking inverts vs real study.
+- Chapter ripple DONE (all six chapters, 2026-09-07 evening): ch1 RQ5+O8+
+  contributions 4&5; ch2 sec 2.3.1 "Data requirements and simulated
+  markets" + gap; ch3 "The Simulated Market Model" (3.2.x) + net sizes;
+  ch4 "Simulated Market Data" section (Table 4.1 calibration) + config;
+  ch5 "The Data Bottleneck" + "Simulated-Data Study" (Table 5.8, Figure
+  5.8 via scripts/make_sim_figures.py) + rewritten Discussion/Summary;
+  ch6 fifth conclusions subsection, appraisal, limitations, future work,
+  closing. PDF 120pp, 0 errors. yoon2019timegan added to references.bib.
+- EC decision pending. Viva prep: key numbers above; DQN-worst-on-real
+  explained by value estimation needing stable/large data, not "uses state".
+
+## 6) Known open items
 
 - External-review self-grade ≈72 (report). Highest-value improvements:
   bootstrap CIs over existing per-month/per-seed results; one simple

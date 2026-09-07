@@ -27,7 +27,22 @@ wealth:
   \textbf{Reward:} Does the risk-aware reward improve the balance
   between return and drawdown, rather than simply encouraging the agent
   to trade less?
+\item
+  \textbf{Data:} Do the size and balance of the training data explain
+  the behaviour of the learned agents, and does fixing the data fix the
+  behaviour?
 \end{enumerate}
+
+The chapter contains two studies. The first is the \textbf{real-data
+study}: the agents are trained on the 60 real training months and
+evaluated on the held-out 2024--2025 months. Its results answer
+questions 1 to 4 and expose a problem that motivates the fifth. The
+second is the \textbf{simulated-data study}: the same agents, trained on
+3,000 balanced simulated episodes from the generator of Chapter 4 and
+evaluated under controlled market regimes, with the real test months
+kept as a transfer test. The second study is the corrected version of
+the first, and the chapter reports both because the failure of the
+first is what the second one explains.
 
 A key part of the analysis is determining whether the learned strategies
 outperform simple strategies. Buy-and-hold, for example, is an important
@@ -1187,19 +1202,193 @@ This indicates that the learning system is capable of responding to
 different changes when the learned policy is sufficiently
 state-dependent.
 
+\section{The Data Bottleneck}
+
+This section explains why the real-data results of the previous sections
+look the way they do. The explanation is not about any single algorithm.
+It is about how little data the agents were given.
+
+The training split contains 60 monthly episodes. The networks used in
+the real-data study have more than 18,000 trainable parameters. A model
+with that much capacity can reproduce 60 training months exactly, the
+way a student who memorises 60 practice problems scores perfectly on
+those problems and then fails a fresh exam. Nothing forces the network
+to learn a rule that transfers, because memorising the answers is
+cheaper.
+
+The training months are also imbalanced. Twenty-nine of the 60 months
+rose by more than 2\% and only 16 fell by more than 2\%, and the test
+years 2024--2025 rise almost throughout. Under that distribution,
+``always buy'' is a nearly optimal answer that requires no state
+information at all. This is the same trap as training a classifier on a
+dataset that is 99\% one class: predicting the majority class scores
+well and learns nothing. The always-buy policies of the policy-gradient
+agents in Section 5.4 are exactly this artefact.
+
+The same reasoning explains why Deep Q-learning performed worst on the
+real test months. A value-based method must estimate the value of each
+state it visits, which needs many visits to similar states under a
+stable state distribution. Sixty episodes from a shifting market provide
+neither. The earlier behavioural finding stands, six of six DQN seeds
+did condition on their state, but the values behind those decisions were
+estimated from too little data, so conditioning on them did not pay.
+
+None of this can be tested on the real data, because the real data is
+the problem. Testing it needs a setting where the number of episodes,
+the balance of market conditions, and the match between training and
+test distributions are all controlled. That is what the simulated-data
+study provides. The next section reports it.
+
+\section{Simulated-Data Study: Controlled Regime Results}
+
+This section reports the main study of the dissertation. The three
+algorithms are retrained on the 3,000 balanced simulated episodes
+described in Chapter 4, using the smaller pyramid network of about 2,800
+parameters and a budget of 300,000 steps. Evaluation uses 600 fresh
+simulated episodes, 200 in each regime, plus the 24 real test months as
+a transfer test. Six seeds per algorithm, as before.
+
+\subsection{Benchmarks Under Balanced Regimes}
+
+The balanced test set changes what the benchmarks earn, and this change
+is the point of the design. Buy-and-hold now loses \$60.29 per episode
+on average. It gains \$510.17 in the average up episode, loses \$710.06
+in the average down episode, and roughly breaks even when the market is
+flat. The do-nothing strategy earns exactly \$0.00 and the random
+policy loses \$26.01.
+
+On the real test months, buying and holding earned \$180.25 because the
+period only rose. On the balanced episodes, no fixed action is
+profitable. Any agent that earns money here must be reading its
+observations and behaving differently in different regimes. The
+benchmark table is no longer a wall to climb; it is a test of whether
+the agent conditions on its state.
+
+\subsection{Main Results}
+
+Deep Q-learning earned \textbf{+\$126.94 per episode} on average across
+the six seeds, with a seed standard deviation of \$7.30. Every other
+strategy, learned or fixed, lost money or broke even on the balanced
+test set. All six DQN seeds were classified as state-dependent, and all
+six were profitable. Table 5.8 summarises the study.
+
+\addcontentsline{lot}{table}{\protect\numberline{5.8}{Simulated-data study: mean wealth change per episode on the 600 balanced test episodes, per-regime means, and the real-data transfer test.}}
+
+\emph{Table 5.8: Simulated-data study: mean wealth change (\$) per
+episode on the 600 balanced test episodes, per-regime means, and the
+real-data transfer test. Mean and standard deviation are across six
+seeds.}
+
+{\def\LTcaptype{none}
+\begin{longtable}[]{@{}lrrrrrr@{}}
+\toprule\noalign{}
+ & \textbf{Sim test} & \textbf{Std} & \textbf{Up} & \textbf{Down} &
+\textbf{Flat} & \textbf{Real} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+DQN        & \(+126.94\) & 7.3  & \(+473.72\) & \(-103.35\) & \(+10.45\) & \(+130.61\) \\
+REINFORCE  & \(-5.71\)   & 52.2 & \(+228.58\) & \(-248.32\) & \(+2.60\)  & \(+73.04\)  \\
+PPO        & \(-11.16\)  & 27.3 & \(+67.69\)  & \(-99.04\)  & \(-2.14\)  & \(+25.84\)  \\
+Buy-and-hold (slice) & \(-58.70\) & --- & \(+477.22\) & \(-663.91\) & \(+10.58\) & \(+179.75\) \\
+Do nothing           & \(0.00\)   & --- & \(0.00\)    & \(0.00\)    & \(0.00\)   & \(0.00\)    \\
+\end{longtable}
+}
+
+The per-regime columns show what the Deep Q-learning agents actually
+learned. In up episodes they earn \$473.72 of the \$477.22 that
+always-buying earns, so they capture 99\% of the available upside. In
+down episodes they lose \$103.35 where always-buying loses \$663.91, an
+84\% reduction in the loss. In flat episodes they roughly match the
+market. That is the state-dependent behaviour the real-data study looked
+for and could not find: stay invested while the market rises, step aside
+while it falls. Figure 5.8 shows both views: the per-regime means on the
+left, and every seed's simulated result against its real transfer result
+on the right.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figs5/fig5_sim.pdf}
+  \caption[Simulated-data study: per-regime results and real-data transfer.]{Simulated-data study. Left: mean wealth change per episode by test regime for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-regime profit while cutting the down-regime loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the do-nothing origin or the always-buy corner.}
+\end{figure}
+
+\subsection{The Policy-Gradient Methods Collapse to Corners}
+
+REINFORCE and PPO did not reach that policy reliably. Across the six
+REINFORCE seeds, three converged to never trading (a wealth change of
+exactly \$0.00), two converged to always buying (\(-\$58.70\), matching
+the buy-and-hold row to the cent), and one learned a genuinely
+conditioned policy. PPO was similar: five seeds never traded and one
+adopted a fixed buying pattern. No PPO seed was state-dependent.
+
+The corners are not senseless. On balanced data, unconditional buying
+loses money, so never trading is a locally safe answer: it earns
+nothing, but it cannot lose. A policy-gradient method that drifts toward
+either deterministic corner stops exploring, because the gradient of a
+near-deterministic policy carries almost no signal. The value-based
+method does not have this failure mode, since epsilon-greedy exploration
+keeps visiting both actions regardless of what the current policy
+prefers.
+
+The single conditioned REINFORCE seed matters, though. It earned
+\$83.13 on the simulated test, keeping \$417.02 of the up-regime profit
+while cutting the down-regime loss to \$162.11. The policy the study
+wants is therefore inside REINFORCE's reach; the training process just
+does not find it dependably. One seed in six is an existence proof, not
+a method.
+
+\subsection{Transfer to the Real Test Months}
+
+Each trained policy was also evaluated, unchanged, on the 24 real test
+months. The Deep Q-learning agents earned \$130.61 per month on average
+(seed range \$115.24 to \$140.92), against \$180.25 for buy-and-hold.
+
+The gap has a clean explanation. The real 2024--2025 period rises almost
+throughout, and a regime-aware agent pays for insurance it never needs:
+whenever its features suggest a possible downturn, it reduces exposure,
+and in a period with no sustained downturn every such reduction costs
+return. The simulated down episodes show what that insurance buys, an
+84\% smaller loss when the market does fall. The real test years simply
+never presented the conditions the agent learned to defend against.
+
+This is also a domain-gap measurement. The generator produces simpler
+price paths than the real market, so a policy trained on it cannot be
+expected to transfer at full strength~\cite{silver2016}. That the
+transferred agents remain profitable in every seed, and that their
+ordering matches the simulated ordering, suggests the learned regime
+response survives the gap even though its edge shrinks.
+
+\subsection{What the Controlled Study Establishes}
+
+Three findings, each impossible to obtain from the real data alone.
+First, the task is learnable: given enough balanced data, a value-based
+agent learns a profitable, state-dependent policy on every seed.
+Second, the real-data failure was a data failure: the same algorithms,
+environment, and reward that failed on 60 imbalanced months succeed on
+3,000 balanced episodes, with the network being smaller rather than
+larger. Third, the algorithm ranking inverts and the inversion is
+informative: the method that was worst on memorisable data is the only
+method that wins when the data is large enough to reward conditioning,
+while the methods that looked strong on real data collapse to fixed
+corners once always-buying stops paying. The next section brings both
+studies' findings together.
+
 \section{Discussion of the Main Findings}
 
 The experiments produced several findings about both the performance of
 the learning agents and the way they behaved within the trading
-environment. They also answer the research questions of Section 5.1
+environment. They also answer the research questions of Section 5.1.
+The first findings below come from the real-data study; the section then
+turns to what the simulated-data study adds and corrects.
 
-\subsection{The Benchmark Remains Difficult to Beat}
+\subsection{The Benchmark Remains Difficult to Beat on Real Data}
 
-The main finding is that none of the learned agents could outperform the
-simple buy-and-hold benchmark on the held-out test period. Buy-and-hold
-achieved a wealth change of \$180.25, compared with \$171.51 for
-REINFORCE as the best learned agent, while every other agent fell
-further behind with \$127.35 for PPO, and \$74.68 for DQN.
+The main real-data finding is that none of the learned agents could
+outperform the simple buy-and-hold benchmark on the held-out test
+period. Buy-and-hold achieved a wealth change of \$180.25, compared with
+\$171.51 for REINFORCE as the best learned agent, while every other
+agent fell further behind with \$127.35 for PPO, and \$74.68 for DQN.
 
 However, it is important to note that the test period consists of
 generally favourable market conditions. Therefore, the experiments
@@ -1232,20 +1421,35 @@ risk-aware experiments show the behaviour changing only when the
 objective itself included drawdown, and mainly through reduced market
 participation.
 
-\subsection{The Algorithms Differed in Their Use of the State}
+\subsection{Why the Algorithms Ranked the Way They Did}
 
 One of the clearest differences between the algorithms is behavioural
 rather than financial. REINFORCE and PPO often produced policies that
-were classified as state-independent, so their relatively strong returns
-need careful interpretation: a policy that buys whenever possible can
-perform well in rising markets without using the information provided to
-it. Deep Q-learning was state-dependent in all six seeds, but its use of
-the state generally reduced exposure rather than raising returns.
+were classified as state-independent, so their relatively strong
+real-data returns need careful interpretation: a policy that buys
+whenever possible can perform well in rising markets without using the
+information provided to it. Deep Q-learning was state-dependent in all
+six seeds, yet earned the least on the real test months.
 
-This is why financial return alone is not enough to evaluate the learned
-policies. Without the behavioural analysis, the strong performance of
-REINFORCE could be mistaken for evidence that the model had learned a
-useful relationship between market information and trading decisions.
+All three methods condition on the same state, maximise the same reward,
+and see the same data, so the difference between them cannot be that one
+``uses the state'' and the others do not. The difference lies in what
+each method must estimate. A value-based method has to estimate the
+value of every state it acts in, which takes many visits to similar
+states under a stable distribution. Sixty episodes from a shifting
+market cannot support those estimates, so Deep Q-learning conditioned on
+values that were largely noise. The policy-gradient methods do not
+estimate values at all; they only need a policy that scores well on the
+training months, and on upward-leaning data the always-buy policy is
+that answer at zero cost.
+
+The simulated-data study confirms this account by inverting the ranking.
+Given 3,000 balanced episodes and a stable generating distribution, the
+value estimates become reliable and Deep Q-learning wins on every seed,
+while the policy-gradient methods lose their free always-buy answer and
+collapse to corner policies. The ranking on either dataset alone would
+mislead; together they show that the ranking measures the data, not the
+algorithms.
 
 \subsection{Lower Risk Was Mainly Associated with Lower Exposure}
 
@@ -1305,41 +1509,44 @@ than a product of one training run.
 
 \subsection{Implications for the Research Objectives}
 
-Overall, the experiments provide a qualified answer to the main research
-question of whether reinforcement learning algorithms can learn
-profitable trading strategies for a portfolio (in this case, the SPY
-asset).
+Overall, the two studies together answer the main research question of
+whether reinforcement learning algorithms can learn profitable,
+state-dependent trading strategies for a portfolio (in this case, the
+SPY asset).
 
-The reinforcement learning agents learned trading policies, but the
-experiments did not show they could outperform the simpler buy-and-hold
-benchmark on unseen data.
+On real data at the volumes a single asset provides, they cannot. Sixty
+training months support memorisation, not learning, and the agents
+either memorised the majority answer (always buy) or conditioned on
+value estimates too noisy to pay. No agent beat buy-and-hold on the
+held-out months.
 
-The results also show that learning behaviour strongly depends on the
-algorithm, with clear differences between the learning methods.
-REINFORCE moved towards remaining invested and made little use of state
-information. DQN, however, consistently changed its actions based on the
-observed state, making it highly state-dependent, but it did not yield
-higher returns.
+Given enough balanced data, they can. On 3,000 simulated episodes, Deep
+Q-learning earned \$126.94 per episode on a test set where every fixed
+strategy loses, it did so on all six seeds, and the learned behaviour is
+the one the objectives asked for: near-full participation in rising
+markets and an 84\% smaller loss in falling ones. The capability was
+never absent from the method. It was absent from the data.
 
-PPO behaviour was closer to REINFORCE than to DQN. Although PPO uses an
-actor-critic structure and a clipped policy objective to stabilise
-updates, its performance was less consistent across seeds, with a larger
-spread in returns. This suggests that PPO\textquotesingle s additional
-stability mechanisms did not produce an effective trading policy in this
-environment.
+The algorithm comparison also resolves differently than the real-data
+study suggested. The policy-gradient methods, REINFORCE and PPO, proved
+fragile in both settings, but for opposite surface reasons: on
+imbalanced real data they looked strong by adopting the majority action,
+and on balanced simulated data they collapsed into abstention or fixed
+buying. One REINFORCE seed in six found the conditioned policy, which
+shows the optimum is reachable but not reliably reached. Value-based
+learning with sustained exploration was the only approach that converted
+more data into a better policy on every seed.
 
-The risk-aware reward also changed the behaviour of the state-dependent
-agents and reduced drawdown, but the reduction was mainly due to lower
-market exposure rather than better timing for entering and exiting
-markets during downward periods. When the penalty became too large, the
-agents almost stopped trading altogether.
+The risk-aware reward findings from the real-data study are unchanged:
+the penalty reduced drawdown mainly by reducing participation, and a
+large penalty stopped trading altogether.
 
-These findings suggest that the main challenge identified by the
-experiments is not just related to providing the agent with more
-information. Instead, the results strongly point to the interaction
-between the \textbf{reward function, trade size, and the behaviour
-learned by the agent} as key factors in determining whether the
-resulting strategy is useful.
+These findings replace the earlier working conclusion. The binding
+constraint in this problem was not the reward function, the state
+design, or the trade size, although each mattered at the margin. It was
+the amount and balance of training data, and once that constraint is
+lifted, the remaining differences between algorithms are differences in
+how they explore and what they must estimate.
 
 \section{Chapter Summary}
 
@@ -1347,18 +1554,23 @@ The chapter first determines the final trade size because this affects
 how quickly an agent can build or reduce its position. It then examines
 whether the learned strategies rely on the information from the state
 representations, followed by a comparison between the main nine-feature
-state and the additional risk-aware state. It then presents the main
-held-out test results, followed by experiments on the risk-aware reward
-and the effect of transaction costs. The chapter concludes by bringing
-the findings together and relating them to the research objectives.
+state and the additional risk-aware state. It then presents the
+real-data test results, the risk-aware reward experiments, and the
+transaction-cost experiments. The chapter then diagnoses the data
+bottleneck behind those results, reports the simulated-data study built
+to remove it, and closes by relating both studies to the research
+objectives.
 
-The results show that none of the learned agents consistently
-outperforms the buy-and-hold benchmark over the held-out dataset. The
-behavioral analysis offers more insight into this outcome. The
-policy-gradient algorithms rely less on available state information,
-whereas the value-based agent uses more available state information but
-generally has a lower exposure. The experiments also indicate that the
-fixed trading amount affects performance. Finally, the drawdown-based
-reward reduces both return and exposure, suggesting that the risk-aware
-reward mainly encourages lower market participation rather than
-generating better risk-adjusted trading performance.
+The real-data results show that none of the learned agents consistently
+outperforms the buy-and-hold benchmark over the held-out dataset, and
+the diagnosis attributes this to 60 training episodes feeding networks
+of 18,000 parameters under a strong upward class imbalance. The
+simulated-data study removes those conditions and the picture changes:
+Deep Q-learning earns \$126.94 per episode on a balanced test set where
+every fixed strategy loses, on all six seeds, and transfers profitably
+(\$130.61 per month) to the real test months. The policy-gradient
+methods collapse to fixed corner policies once always-buying stops
+paying. The conclusion that survives both studies is that the data, not
+the algorithms, set the limit on what was learnable, and that value-based
+learning was the only method able to exploit more data once it was
+available.

@@ -1,0 +1,34 @@
+sim data: train=3000 val=300 test=600 episodes
+real transfer set: 24 months (2024-01..2025-12)
+
+baselines (simulated test):
+  B0_do_nothing    dW=   +0.00  expo=0.00
+  B1a_slice_bah    dW=  -58.70  expo=0.83
+  B1b_true_bah     dW=  -60.29  expo=0.90
+  B2_random        dW=  -26.01  expo=0.34
+
+reinforce: 300,000 steps x seeds [42, 43, 44, 45, 46, 47]
+  seed 42: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (62s)
+  seed 43: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (63s)
+  seed 44: sim dW=  -58.70 [up=+477.22  down=-663.91  flat= +10.58]  real dW= +179.75  cond=MASK-ONLY  (64s)
+  seed 45: sim dW=  +83.13 [up=+417.02  down=-162.11  flat=  -5.53]  real dW=  +78.74  cond=state  (63s)
+  seed 46: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (63s)
+  seed 47: sim dW=  -58.70 [up=+477.22  down=-663.91  flat= +10.58]  real dW= +179.75  cond=MASK-ONLY  (63s)
+
+dqn: 300,000 steps x seeds [42, 43, 44, 45, 46, 47]
+  seed 42: sim dW= +117.44 [up=+472.18  down=-133.31  flat= +13.46]  real dW= +138.51  cond=state  (215s)
+  seed 43: sim dW= +135.20 [up=+473.23  down= -78.05  flat= +10.42]  real dW= +135.82  cond=state  (215s)
+  seed 44: sim dW= +136.06 [up=+474.15  down= -77.11  flat= +11.14]  real dW= +119.96  cond=state  (163s)
+  seed 45: sim dW= +122.84 [up=+475.18  down=-113.61  flat=  +6.95]  real dW= +140.92  cond=state  (109s)
+  seed 46: sim dW= +123.95 [up=+472.97  down=-113.02  flat= +11.90]  real dW= +115.24  cond=state  (108s)
+  seed 47: sim dW= +126.14 [up=+474.60  down=-105.01  flat=  +8.84]  real dW= +133.20  cond=state  (111s)
+
+ppo: 300,000 steps x seeds [42, 43, 44, 45, 46, 47]
+  seed 42: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (69s)
+  seed 43: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (70s)
+  seed 44: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (69s)
+  seed 45: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (69s)
+  seed 46: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00  cond=MASK-ONLY  (70s)
+  seed 47: sim dW=  -66.99 [up=+406.13  down=-594.25  flat= -12.85]  real dW= +155.03  cond=MASK-ONLY  (70s)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/sim_results.json

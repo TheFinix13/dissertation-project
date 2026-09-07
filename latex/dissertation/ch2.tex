@@ -364,6 +364,40 @@ section were selected because they are particularly relevant to this
 dissertation's design, especially their use of RL algorithms,
 transaction costs, and benchmarks. Fischer\textquotesingle s survey~\cite{fischer2018} provides a broader review of RL in financial markets.
 
+\subsection{Data requirements and simulated markets}
+
+There is one further issue the trading studies above rarely confront
+directly: how much data reinforcement learning needs. The landmark
+results of the field were all obtained with effectively unlimited
+experience. The Atari agents consumed tens of millions of frames per
+game~\cite{mnih2015}, and AlphaGo sidestepped the shortage of human
+games entirely by generating its own training data through
+self-play~\cite{silver2016}. A single asset's daily history offers
+nothing comparable. Eight years of daily bars is roughly 2,000
+observations, and grouping them into monthly episodes leaves only
+dozens of episodes to learn from.
+
+The common response in the literature is to train on generated data.
+Open-source frameworks such as FinRL~\cite{liu2020finrl} and the Gym
+trading environments~\cite{brockman2016gym} structure the task so that
+any price series, real or synthetic, can drive the environment.
+Generators range from classical stochastic-process models, including
+regime-switching models built on hidden Markov chains~\cite{rabiner1989},
+to learned generators such as time-series GANs~\cite{yoon2019timegan}.
+A generator gives the experimenter two things a historical record
+cannot: as many training episodes as the learner needs, and control
+over which market conditions appear in training and in testing. The
+price is a domain gap, since no generator reproduces real markets
+exactly, so studies that train on synthetic data normally keep a real
+held-out period as a transfer test.
+
+This dissertation follows that pattern. Its first study trains on real
+monthly episodes and shows what goes wrong at that data volume; its
+second trains on episodes from a calibrated regime-switching generator
+and tests under controlled conditions, with the real held-out months
+retained as a transfer test. Chapters 3 and 4 define the generator, and
+Chapter 5 reports both studies.
+
 The next section therefore focuses more specifically on how to evaluate
 trading agents and on the weaknesses that can arise when financial
 performance is considered without sufficient behavioural and
@@ -539,13 +573,24 @@ performance. This allows the evaluation to distinguish between an agent
 that earns a strong return by following a simple fixed rule and one
 whose decisions actually respond to the information provided.
 
-These points lead directly to the four research questions introduced in
+A second gap follows from the data-requirements discussion in
+Section 2.3.1. The single-asset trading studies reviewed here train on
+historical data alone and rarely ask whether that history is large
+enough for the networks being trained on it. This dissertation makes the
+question explicit: it measures what the algorithms learn from 60 real
+episodes, diagnoses the failure, and then repeats the comparison on
+thousands of balanced generated episodes where the data volume is no
+longer the binding constraint.
+
+These points lead directly to the five research questions introduced in
 Chapter 1. The first asks whether the learned agents can outperform
 meaningful benchmarks after transaction costs. The second asks whether
 their decisions depend on the information in their states. The third
 asks whether adding drawdown to the state changes behaviour or
 performance. The fourth considers whether penalising drawdown through
-the reward produces a different risk-sensitive outcome. The next chapter
-formalises these questions through the MDP formulation, state
-representation, trading rules, reward functions, and the algorithms used
-in the experiments.
+the reward produces a different risk-sensitive outcome. The fifth asks
+whether the amount and balance of training data explain the learned
+behaviour, and whether fixing the data fixes the behaviour. The next
+chapter formalises these questions through the MDP formulation, state
+representation, trading rules, reward functions, the simulated market
+model, and the algorithms used in the experiments.

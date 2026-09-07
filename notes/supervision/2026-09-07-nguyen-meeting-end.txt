@@ -1,0 +1,42 @@
+the environment so that handles the data and then reduce the MLP to 64 you can keep the 128 if you
+like but I think you know 64 would be better okay then what else so you need to read the data you
+need to do a better train test split or validate your train validation test or whatever and then
+so should it be like uh like how many days at point should it be like how many months should
+be for train validation should it be all the same months or like okay so you need to get the
+environment that people often use and see how people use okay from that you just because to me
+you know I don't care about days or months yeah I just care like that's one episode yeah so how many
+episodes do you have yeah that's it okay because the higher episode you have like for example right
+now your model would have like 16,000 parameters right so which means you need to solve a system
+of 16,000 equations so if you have smaller than 16,000 okay your model is gonna make more
+rise all right so if you have a larger than that then what should the model have to
+like 30,000 like double or more than double like 30,000 I mean like it's just a matter like you
+know see how people are doing okay um like what I'm saying like you know like when I draw you the
+line yeah so that's it like you know when your data is much higher in the capacity of your model
+so overfitting is okay so that's that's just and then also like different scenarios like
+you know downwards markets and upwards markets right that's what the simulated environment
+yeah you need to have you know the train and pass should be balanced yeah yeah okay should
+that be validation or no validation so what's the purpose of the validation set um our first
+was like verify like the trade size or like the transaction cost and how that impacts you know on
+the model on how the agents you know react yeah so yeah so validation set is used to
+fine tune hyper parameters yeah that's it so the validation set is a part of the training set
+yeah so that's why people often say that train less split yeah instead of training
+valid okay so the validation is your choice okay okay uh I think that does it and then you just make
+clear uh what you want to do you know how can you uh map to the reinforcement learning because again
+you are in um you know triple e you are doing like machine learning especially the reinforcement
+learning you are not doing business yeah okay so make sure that you understand that so you stick
+with the main thing rather than you keep talking about the business sign because that would not
+I mean like that would not be very helpful okay it's a nice thing to have but not a must thing to
+have oh so how would you talk about the uh machine learning inside how would you talk about it in this
+case the machine learning inside so did you present like how the reinforce method works
+how you formulate it yeah and how you train it like the way that you formulate up to the point that
+he is you know because of that equation he is the training oh did you explain the deep queue
+learning yeah right so you have a formulation of deep queue learning yeah right and then how to train
+it and then did you explain like what's the uh ppo is no oh yeah ppo was there too and then you
+know you have an objective function yeah and then they sort of go clear okay but that's just chapter
+three right yeah that's a I don't know about the chapter three or four okay I would say that was
+background okay right and then you have your own problem and then you formulate it and then you know
+this is the state this is the action this is what what that's it all right that's fine yeah okay
+okay would you be around tomorrow uh I'll be around tomorrow but um now may not have time okay
+it depends on my calendar okay but what what would you like to talk about uh if I have like some
+reasonable results this night I could I could bring them and show you tomorrow to see if that
+maybe just email me it's easier okay all right then thank you

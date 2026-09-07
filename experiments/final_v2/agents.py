@@ -33,15 +33,35 @@ import torch.nn as nn
 
 NEG_INF = -1e9
 
+#: Default hidden layout: a small pyramid (wide to narrow). Chosen after the
+#: real-data study showed a 128x128 net (~16k parameters) memorising 60
+#: episodes; this layout has ~2.8k parameters against thousands of simulated
+#: episodes, so the data outnumbers the parameters.
+HIDDEN_DEFAULT: tuple[int, ...] = (64, 32)
+
+
+def _hidden_sizes(hidden) -> tuple[int, ...]:
+    """Accept an int (two equal layers, the old layout) or a sequence."""
+    if isinstance(hidden, int):
+        return (hidden, hidden)
+    return tuple(int(h) for h in hidden)
+
+
+def _mlp(obs_dim: int, hidden, n_actions: int, act: type[nn.Module]) -> nn.Sequential:
+    sizes = _hidden_sizes(hidden)
+    layers: list[nn.Module] = []
+    prev = obs_dim
+    for h in sizes:
+        layers += [nn.Linear(prev, h), act()]
+        prev = h
+    layers.append(nn.Linear(prev, n_actions))
+    return nn.Sequential(*layers)
+
 
 class PolicyNet(nn.Module):
-    def __init__(self, obs_dim: int, n_actions: int = 3, hidden: int = 128):
+    def __init__(self, obs_dim: int, n_actions: int = 3, hidden=HIDDEN_DEFAULT):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(obs_dim, hidden), nn.Tanh(),
-            nn.Linear(hidden, hidden), nn.Tanh(),
-            nn.Linear(hidden, n_actions),
-        )
+        self.net = _mlp(obs_dim, hidden, n_actions, nn.Tanh)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
@@ -55,13 +75,9 @@ class PolicyNet(nn.Module):
 
 
 class QNet(nn.Module):
-    def __init__(self, obs_dim: int, n_actions: int = 3, hidden: int = 128):
+    def __init__(self, obs_dim: int, n_actions: int = 3, hidden=HIDDEN_DEFAULT):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(obs_dim, hidden), nn.ReLU(),
-            nn.Linear(hidden, hidden), nn.ReLU(),
-            nn.Linear(hidden, n_actions),
-        )
+        self.net = _mlp(obs_dim, hidden, n_actions, nn.ReLU)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
@@ -89,7 +105,7 @@ def train_reinforce(
     seed: int = 42,
     gamma: float = 0.99,
     lr: float = 1e-3,
-    hidden: int = 128,
+    hidden=HIDDEN_DEFAULT,
     reward_scale: float = 1.0,
 ) -> TrainResult:
     """Plain REINFORCE, exactly as derived in Chapter 3.
@@ -158,7 +174,7 @@ def train_dqn(
     seed: int = 42,
     gamma: float = 0.99,
     lr: float = 1e-3,
-    hidden: int = 128,
+    hidden=HIDDEN_DEFAULT,
     buffer_size: int = 50_000,
     batch_size: int = 64,
     target_sync: int = 500,

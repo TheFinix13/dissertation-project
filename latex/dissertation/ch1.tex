@@ -87,7 +87,7 @@ Optimization (PPO)~\cite{schulman2017ppo} --- and determine whether they can lea
 and genuinely intelligent trading strategies for the SPY exchange-traded
 fund.
 
-The study is structured around four research questions:
+The study is structured around five research questions:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -107,9 +107,13 @@ The study is structured around four research questions:
   \textbf{Reward:} Does a risk-aware reward improve the balance between
   return and drawdown, rather than simply encouraging the agent to trade
   less?
+\item
+  \textbf{Data:} Do the amount and balance of the training data explain
+  the learned behaviour, and does training on large, balanced simulated
+  data produce the state-dependent trading the real data could not?
 \end{enumerate}
 
-These research questions are touched upon through seven measurable
+These research questions are touched upon through eight measurable
 objectives, each traceable to a specific part of the dissertation
 
 \textbf{O1.} Build a reproducible daily trading environment for SPY
@@ -138,6 +142,11 @@ random seeds for each configuration (Section 5.6).
 \textbf{O7.} Examine whether results change when a different reward
 formula is used (Section 5.7).
 
+\textbf{O8.} Build a calibrated market simulator with controlled up,
+down, and flat regimes, retrain all three algorithms on thousands of
+balanced simulated episodes, and evaluate them per regime and on the
+real held-out months (Chapters 3--5).
+
 These objectives create a structured way to evaluate both the financial
 performance and the learned behaviour of the three reinforcement
 learning methods.
@@ -150,7 +159,11 @@ more controlled and easier to analyse.
 All experiments use the SPY asset, an exchange-traded fund that tracks
 the S\&P 500 index, with daily data from 2018 to 2025. The data are
 divided chronologically into training (2018--2022), validation (2023),
-and held-out for testing periods (2024--2025).
+and held-out for testing periods (2024--2025). A second, simulated
+dataset is generated from a regime-switching model calibrated on the
+training years alone; it supplies thousands of balanced episodes for the
+controlled study, while the real 2024--2025 months serve as its transfer
+test.
 
 Each monthly episode starts with \$10,000 of capital and no asset
 holdings, and each transaction to open a position incurs a 0.05\% fee.
@@ -173,7 +186,7 @@ once.
 
 \section{Contributions}
 
-This dissertation makes four main contributions:
+This dissertation makes five main contributions:
 
 \textbf{1. A framework for evaluating trading agents.}
 
@@ -218,6 +231,28 @@ seeds per configuration, behavioural analysis, and peripheral
 experiments on state representation, reward function, and transaction
 costs supports it as a finding rather than a failure.
 
+\textbf{4. A calibrated market simulator for controlled evaluation.}
+
+The study builds a regime-switching market generator whose drift,
+volatility, and intraday range are fitted on the real training years
+alone. The generator supplies thousands of balanced training episodes
+and, more importantly, labelled test conditions: every test episode is
+known to be a rising, falling, or flat market, so the evaluation can
+state how each agent behaves in each condition rather than in whatever
+mixture one historical period happens to contain.
+
+\textbf{5. Evidence that the data, not the algorithms, set the limit.}
+
+Retraining the same three algorithms on 3,000 balanced simulated
+episodes, with a smaller network, inverts the real-data ranking. Deep
+Q-learning, the worst method on real data, becomes profitable and
+state-dependent on all six seeds, earning \$126.94 per episode on a
+test set where every fixed strategy loses money, and transferring
+profitably to the real held-out months. The policy-gradient methods
+collapse to fixed corner policies once always-buying stops paying. The
+comparison shows that the real-data failure was a property of 60
+imbalanced training episodes, not of the learning methods.
+
 \section{Dissertation Structure}
 
 The dissertation is organized as follows. Chapter 2 reviews existing
@@ -235,9 +270,12 @@ verification process, trading environment, and the corrections made
 during development.
 
 Chapter 5 presents the experiment results and analyses them in relation
-to the four research questions. It reports the trade-size calibration,
+to the five research questions. It reports the trade-size calibration,
 behavioural analysis, benchmark comparison, state representation and
-reward experiment, and transaction-cost calibration.
+reward experiment, and transaction-cost calibration on the real data,
+then diagnoses the data bottleneck behind those results and reports the
+simulated-data study with its controlled per-regime evaluation and
+real-data transfer test.
 
 Finally, Chapter 6 concludes the dissertation by summarising the main
 findings, critically evaluating the work, discussing its limitations and

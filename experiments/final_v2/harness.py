@@ -202,7 +202,7 @@ def train_one(
 
         venv = MonthSampler(factory, train_episodes, seed=seed)
         model = MaskablePPO("MlpPolicy", venv, seed=seed, verbose=0,
-                            policy_kwargs={"net_arch": [128, 128]})
+                            policy_kwargs={"net_arch": list(agents.HIDDEN_DEFAULT)})
         model.learn(total_timesteps=total_timesteps, progress_bar=False)
         policy = agents.make_sb3_policy(model)
         trace = {"note": "SB3 does not expose per-episode wealth change directly"}

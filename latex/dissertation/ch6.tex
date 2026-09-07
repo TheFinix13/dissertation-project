@@ -31,9 +31,18 @@ changed the results, whether a risk-aware reward improved loss
 management in the portfolio trade, and how the different learning
 methods responded to changes in transaction costs.
 
+The real-data results then motivated a second study. The failures of the
+first were diagnosed as a data problem: 60 training episodes cannot
+train networks of 18,000 parameters to do anything except memorise. A
+regime-switching market simulator was calibrated on the training years,
+3,000 balanced episodes were generated, the network was reduced to about
+2,800 parameters, and all three algorithms were retrained and evaluated
+under controlled rising, falling, and flat conditions, with the real
+test months kept as a transfer test.
+
 \section{Conclusions Against the Research Questions}
 
-The experiments in Chapter 5 address the four questions asked in 5.1.
+The experiments in Chapter 5 address the five questions asked in 5.1.
 
 \subsection{Performance}
 
@@ -149,6 +158,41 @@ exposure falling from 0.344 at λ = 0.10 to 0.074 at λ = 0.25. This
 indicates that the reward formulation created a strong correlation
 between market participation and risk avoidance.
 
+\subsection{Data}
+
+The fifth question asked whether the amount and balance of the training
+data explain the learned behaviour, and whether fixing the data fixes
+the behaviour. The simulated-data study answers yes to both.
+
+On 3,000 balanced simulated episodes, Deep Q-learning earned +\$126.94
+per episode across six seeds (standard deviation \$7.30) on a test set
+where buy-and-hold loses \$60.29 and doing nothing earns \$0.00. All six
+seeds were profitable and all six were state-dependent. The per-regime
+results show the behaviour the real-data study looked for: the agents
+captured 99\% of the profit available in rising episodes and cut the
+falling-episode loss by 84\% relative to always buying. The same
+policies remained profitable when transferred unchanged to the real
+2024--2025 months, earning +\$130.61 per month against buy-and-hold's
++\$180.25; the shortfall is the cost of defensive behaviour in a period
+that never fell.
+
+The study also explains the real-data algorithm ranking. Deep
+Q-learning was worst on real data not because it is unsuited to trading
+but because value estimation needs many visits to similar states, which
+60 shifting months cannot provide. Once the data supported the
+estimates, the ranking inverted. REINFORCE and PPO, which looked strong
+on real data by adopting the majority always-buy action, collapsed to
+fixed corner policies on balanced data, where no fixed action is
+profitable. One REINFORCE seed in six did learn the conditioned policy,
+so the optimum is within reach of policy-gradient methods, but the
+training process does not find it reliably.
+
+The overall conclusion of the dissertation therefore has two halves. At
+real single-asset data volumes, none of the tested algorithms learns a
+genuine trading policy. With enough balanced data, value-based learning
+does, on every seed, and behaves sensibly in every market condition the
+simulator can produce.
+
 \section{Critical Appraisal of the Project}
 
 The most important lessons from this project were from the experimental
@@ -199,14 +243,26 @@ behaved, although it increased the computational and experimental
 workload; however, six seeds are still lacking for more definite
 statistical inference.
 
+The largest single lesson, however, was about data. The project spent
+most of its effort on the state representation, the reward, the trade
+size, and the verification of the environment, and all of that effort
+was necessary; none of it was sufficient. The binding constraint was 60
+training episodes feeding 18,000 parameters, and no amount of feature or
+reward engineering could compensate for it. Diagnosing that constraint
+and rebuilding the study around simulated data changed the results more
+than every other design decision combined. The lesson for similar
+projects is to budget the data before budgeting the model: count the
+episodes, count the parameters, and if the second number is larger,
+change the data or the model before running anything else.
+
 Overall, the project demonstrated that careful experimental design is as
 important as the choice of reinforcement learning algorithm. The main
 lessons came from testing the assumptions behind the experiments, rather
 than from simply comparing model returns. State dependence, action
-constraints, reward design, and seed variation all affect how the final
-results could be interpreted. This made the experimental process more
-demanding but also produced a more reliable basis for evaluating the
-learned trading policies.
+constraints, reward design, seed variation, and above all data volume
+affect how the final results could be interpreted. This made the
+experimental process more demanding but also produced a more reliable
+basis for evaluating the learned trading policies.
 
 \section{Limitations}
 
@@ -215,12 +271,38 @@ experimental design, but there are several limitations.
 
 \subsection{One asset and a limited market period}
 
-The experiments use SPY as the only asset, and the held-out period from
-2024 to 2025 was generally favourable to holding the asset due to rising
-markets. A market with a longer or more severe decline could produce
-different results for the learned agents and the buy-and-hold benchmark.
-The findings cannot therefore be automatically generalised to other
-assets or market conditions without further testing.
+The experiments use SPY as the only asset, and the real held-out period
+from 2024 to 2025 was generally favourable to holding the asset due to
+rising markets. The simulated-data study addresses the market-condition
+half of this limitation by testing under controlled falling and flat
+regimes, but only for simulated prices; no real declining period was
+available for testing. The findings cannot therefore be automatically
+generalised to other assets or to real bear markets without further
+testing.
+
+\subsection{Simulator realism and the domain gap}
+
+The market generator draws each day's return independently within a
+regime. Real returns are not independent: volatility clusters, trends
+persist, and regimes change mid-month. The generator also holds one
+regime for a whole episode, so the agents never face a mid-month crash.
+These simplifications are the price of a controlled experiment, and the
+transfer test measures their cost directly: the Deep Q-learning agents
+kept roughly three-quarters of buy-and-hold's real-data return while
+being trained on simulated data alone. Conclusions about absolute
+profitability on real markets should therefore rest on the transfer
+numbers, not the simulated ones.
+
+\subsection{Policy-gradient training was not separately tuned}
+
+REINFORCE and PPO collapsed to corner policies on the balanced simulated
+data. Both were trained with the same hyperparameters as the real-data
+study, including PPO's default entropy coefficient of zero. Entropy
+regularisation or other exploration incentives might let the
+policy-gradient methods find the conditioned policy more reliably, as
+one REINFORCE seed shows it exists. The study reports the collapse as
+observed behaviour under shared settings rather than as a bound on what
+tuned policy-gradient methods could achieve.
 
 \subsection{Monthly Episode Structure}
 
@@ -294,19 +376,26 @@ in the experiments. The behavioural analysis should also be applied to
 these future works to determine the agent's behaviour to changes
 alongside performance improvements.
 
-\subsection{Longer and More Challenging Market Periods}
+\subsection{Richer Market Generators}
 
-The experiments could be repeated over longer market periods containing
-more market declines. A useful change would be to use a walk-forward
-training approach, allowing the agents to be retrained as market
-conditions change. The current study provides useful evidence for a
-generally rising test period, but testing market declines would provide
-a balanced evaluation of the portfolio.
+The simulated-data study used the simplest generator that supports a
+controlled experiment. The natural next step is a generator that keeps
+the control but adds the structure the current one omits: regime
+switches within an episode, driven by a hidden Markov chain, and
+volatility clustering within a regime. Learned generators such as
+time-series GANs offer more realism again, at the cost of transparency.
+Each step up in realism should shrink the domain gap that the transfer
+test measures, and the transfer test itself provides the yardstick for
+whether it does.
 
-This would better reflect the changing nature of financial markets,
-allowing the system to encounter different combinations of rising,
-falling, and volatile conditions. Such an evaluation would also better
-test the agents' risk-aware behaviour during downtrends.
+\subsection{Longer and More Challenging Real Market Periods}
+
+The real-data transfer test could be extended over longer periods
+containing genuine declines, such as 2022 or the COVID-19 crash, using a
+walk-forward approach in which the simulator is recalibrated and the
+agents retrained as conditions change. The controlled study shows the
+agents defend well in simulated declines; a real decline is the missing
+test of that behaviour.
 
 \subsection{Predictive and Uncertainty-Aware State Information}
 
@@ -352,21 +441,22 @@ position size, potentially enabling smoother portfolio adjustments.
 \section{Closing Remarks}
 
 This dissertation examined whether standard reinforcement learning could
-beat the simple buy-and-hold strategy on unseen data. The experiments
-found no evidence that it could. The best-performing learned agent
-finished \$8.74 per month below buy-and-hold, and it did so by ignoring its market
-observations to follow a simple trading behaviour.
+learn a genuine trading policy for a single asset. On real data it could
+not: the best-performing learned agent finished \$8.74 per month below
+buy-and-hold, and it did so by ignoring its market observations to
+follow a simple trading behaviour.
 
-The main contribution of the study is therefore not a successful trading
-strategy, but a careful examination of why the learned agents performed
-as they did. The comparisons were conducted in a controlled environment
-in which trade sizing was calibrated, transaction costs were applied,
-and the final results were produced in a suitable experimental
-framework. The policies were then evaluated on both behavioral and
-financial performance, and the main findings were tested across the
-different state representations and reward functions.
+The study's contribution is what it did with that failure. The
+behavioural analysis showed the strong-looking returns were not evidence
+of learning; the diagnosis traced the failure to 60 training episodes
+feeding 18,000 parameters; and the simulated-data study removed that
+constraint and showed the same algorithms succeeding, with Deep
+Q-learning profitable and state-dependent on every seed and its policies
+transferring, still profitable, to real unseen months. The negative
+result and the positive one are the same finding viewed from two sides:
+what these methods learn is decided by the data they are given.
 
-The implementation, experimental framework and behavioural analysis
-developed in this study provide a useful basis for future work. More
-advanced models can build on this framework while being evaluated and
-compared against the same fair standards.
+The implementation, the market simulator, the experimental framework and
+the behavioural analysis developed in this study provide a useful basis
+for future work. More advanced models and richer generators can build on
+this framework while being evaluated against the same fair standards.

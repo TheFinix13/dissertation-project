@@ -19,6 +19,13 @@ PyTorch~\cite{paszke2019}. PPO was implemented using the MaskablePPO implementat
 sb3-contrib~\cite{raffin2021sb3}. The Gymnasium interface~\cite{towers2024gymnasium} simulates the trading environment
 and is used across all the learning algorithms.
 
+The implementation provides two data pipelines. The first prepares real
+SPY market data. The second generates simulated market episodes under
+controlled conditions, and exists because the real data turned out to be
+too small to train the networks without memorisation. Both pipelines
+produce episodes in the same format, so the environment, the agents, and
+the evaluation code do not know which kind of data they are running on.
+
 The implementation also addressed several practical issues stated in the
 methodology that the mathematical formulation could not capture. These
 include limiting the agent to only valid actions, ensuring proper
@@ -160,6 +167,117 @@ to compare the learned strategies.
 
 The processed episodes and their metadata are cached locally so that the
 same dataset can be used consistently across all experiments.
+
+\section{Simulated Market Data}
+
+This section describes the second data pipeline. It generates simulated
+market episodes for the controlled study reported in Chapter 5, and it
+exists because the real dataset cannot supply enough training episodes
+for the learning algorithms to do more than memorise.
+
+\subsection{Why the Real Dataset Is Not Enough}
+
+The real training split contains \textbf{60 monthly episodes}. The
+network described in Chapter 3 has two hidden layers of 128 units,
+which is more than 18,000 trainable parameters for the nine-feature
+state. A model with 18,000 free parameters fitted to 60 examples can
+match every training month exactly without learning any rule that
+transfers to new months. The pilot study in Chapter 5 shows exactly
+this behaviour.
+
+Sixty episodes is also far below what reinforcement learning normally
+uses. The Atari agents of Mnih et al. trained on millions of frames~\cite{mnih2015},
+and AlphaGo generated its own training games through self-play precisely
+because no collection of human games was large enough~\cite{silver2016}. When the
+real data is too small, the standard remedy is to train on generated
+data and keep the real data for a final transfer test.
+
+The real training years also lean upward. Of the 60 training months, 29
+rose by more than 2\% and only 16 fell by more than 2\%. The held-out
+test years 2024--2025 rise almost throughout. An agent that always buys
+therefore scores well on both periods without reading its state once.
+This is a class-imbalance problem: the data rewards one constant answer,
+so the constant answer is what gets learned.
+
+\subsection{Generator Design}
+
+The generator produces monthly episodes under three \textbf{market
+regimes}: up, down, and flat. One episode is 21 daily bars drawn from a
+single regime, so every test result can be attributed to a known market
+condition.
+
+Within a regime, daily log-returns are drawn independently from a normal
+distribution with that regime's drift and volatility. High and low
+prices extend each day's close-to-close move by random wicks whose size
+is fitted to the real average true range. Volume is drawn from a
+lognormal distribution; only relative volume enters the feature set, so
+its absolute scale does not matter.
+
+Each generated episode passes through the same feature code as the real
+pipeline. A warm-up lead of 21 bars is generated before each episode and
+discarded after the rolling features are computed, exactly as the real
+pipeline discards its 2017 warm-up data.
+
+The generator is deliberately simple. Richer market generators exist,
+from hidden Markov models~\cite{rabiner1989} to adversarial time-series
+generators~\cite{yoon2019timegan}, and they produce more realistic
+price paths. Realism is not the goal here. The goal is control: the
+study needs to state how each agent behaves when the market rises,
+falls, or drifts sideways, and that requires knowing which condition
+each test episode belongs to.
+
+\subsection{Calibration}
+
+The generator's parameters come from the \textbf{real training months
+only}. Each of the 60 real training months is labelled by its return:
+up if it gained more than 2\%, down if it lost more than 2\%, and flat
+otherwise. The daily log-returns of the months in each class are pooled,
+and their mean and standard deviation become that regime's drift and
+volatility. The wick size is fitted so the generated average true range
+matches the real per-regime mean. Table 4.1 shows the fitted values.
+
+\begin{table}[!htb]
+\centering
+\caption{Generator parameters fitted on the 60 real training months.}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Regime} & \textbf{Months} & \textbf{Daily drift} &
+\textbf{Daily volatility} & \textbf{Mean ATR/close} \\
+\midrule
+Up   & 29 & \(+0.244\%\) & \(0.967\%\) & \(1.38\%\) \\
+Down & 16 & \(-0.358\%\) & \(2.000\%\) & \(1.97\%\) \\
+Flat & 15 & \(+0.012\%\) & \(1.095\%\) & \(1.25\%\) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The fitted values behave as market data should. Down months carry twice
+the volatility of up months, which is the volatility clustering seen in
+real crashes. As a calibration check, the generated episodes reproduce
+the target average true range to within 4\% in every regime. The real
+validation and test months are never read by the generator, so the
+transfer test in Chapter 5 stays untouched by any generation decision.
+
+\subsection{Simulated Splits}
+
+The simulated dataset contains \textbf{3,000 training episodes, 300
+validation episodes, and 600 test episodes}, each split holding equal
+numbers of up, down, and flat episodes. The three splits are independent
+draws from the same generator under different random seeds.
+
+This design fixes two problems of the real split at once. First, the
+volume problem: 3,000 episodes of 20 decisions each give 60,000
+transitions per pass over the data, against 1,200 for the real training
+split. Second, the distribution problem: train and test are now drawn
+from the same distribution by construction, so a policy that fails on
+the test episodes cannot blame a regime shift between the periods.
+
+The balance also removes the constant-answer shortcut. An agent that
+always buys earns well in the up third, loses more in the down third,
+and roughly breaks even in the flat third. Buying regardless of state
+now loses money on average, so a profitable policy must read its
+observations. The training procedure for this study is described in the
+next section alongside the real-data procedure.
 
 \section{Training, Validation and Testing Procedure}
 
@@ -324,7 +442,7 @@ Activation & tanh & ReLU & \\
 \rowsep
 Optimiser & Adam & Adam & Adam \\
 \rowsep
-Learning rate & \(10^{- 3}\) & \(10^{- 3}\) & \({3*10}^{- 4}\) \\
+Learning rate & \(10^{- 3}\) & \(10^{- 3}\) & \(3 \times 10^{- 4}\) \\
 \rowsep
 Discount factor \(\gamma\) & 0.99 & 0.99 & 0.99 \\
 \rowsep
@@ -356,6 +474,18 @@ Random seeds & 42--47 & 42--47 & 42--47 \\
 All three methods use the same training budget of 80,000 steps and the
 same six random seeds to keep the computational budget similar
 throughout when comparing performance.
+
+The simulated-data study changes two of these settings, and only these
+two. The network shrinks to a pyramid of two hidden layers,
+\(d \rightarrow 64 \rightarrow 32 \rightarrow 3\), which is about 2,800
+parameters for the nine-feature state. The training budget rises to
+300,000 steps, which is roughly 15,000 episode draws over the 3,000
+simulated training episodes. The old configuration had 18,000 parameters
+and 60 episodes; the new one has 2,800 parameters and 3,000 episodes.
+The data now outnumbers the parameters instead of the other way around.
+Everything else, including the activation functions, optimiser, learning
+rates, discount factor, and the six seeds, is unchanged, so the two
+studies differ only in the data and in the network sized to match it.
 
 The experiments consider the different state and reward configurations
 described in Chapter 5. These include the standard nine-feature state,

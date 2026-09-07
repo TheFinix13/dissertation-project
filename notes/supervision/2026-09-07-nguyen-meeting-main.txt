@@ -1,0 +1,463 @@
+when it buys, when you're buying a position. For example at the beginning, for example I only
+have like for example 10 so you say that you're 25% you put like 2.5 you're gonna buy yeah but
+after that maybe I lose something and just have about like four yeah so and then when you buy you
+can use the one dollar to buy kind of I think are you talking about cases where the price is more
+than what you want to buy or what you want to sell no no no the amount that you can buy okay yeah
+the money yeah you said like the money you are how about yeah it's 25% of the initial capital
+the initial capital yeah the initial capital or like just the initial capital so what you mean
+that's when it's fixed always like for example you initial capital you have a 10,000 yes so you
+just spend like every time you buy it's gonna be 2,500 yes okay yeah that's okay yeah to make it
+simpler I tried using 0.1 at first which is 10% or it didn't reach or it couldn't buy a full asset
+of you know the SPY index and it couldn't reach like full exposure by the end of the episode
+it's also in the experiment chapter five
+we don't have time but I think that the problem is we don't understand much about
+you know the trading and things so we cannot defy the action like properly
+okay and then what else did you did
+then after that run the experiment uh first on the nine feature the nine state feature
+so how how did you train your model um 80,000 steps no how did you train it how
+um when you ask how yeah so what did you do what I do uh coded it usually for the activation
+or okay um reinforce and PPO but implemented from scratch using
+um standard code from the website the activation users for reinforce users where you do
+um for dqn users tanh and PPO was just from the library um when you ask what what how did I train
+it validation oh like training period was from 2018 to 2022 validation was 2023 and then testing
+was 2024 to 2025
+so in the validation period was where we were able to configure like the appropriate trade
+size the transaction cost for taking a trade you know to prevent over trading or like frequent
+buying or frequent selling and um what else was configured in the validation
+okay so you get the result now or yeah so can you show me the result
+okay so this was the trade size that I was talking about before so it would take 20 days
+if you use the 0.05 percent or five percent of the initial capital so the appropriate one
+we used moving forward for testing periods was 0.25 what do you mean by buys there requires
+like what does that mean or to purchase a full SPY index so the SPI is currently sitting at like
+600 um if the SPI is sitting at 600 for to just buy one share of that right it will take 20 days
+of the initial capital to fully invest in just one share
+and this is more than half of the trading or like the monthly episode which is only 23 days
+so which means that you buy you have to wear a certain number of days
+yeah you can only buy on days where it's where the action is available to buy from the actual masking
+so which means that the reinforcement learning is not a good model here
+because the reinforcement learning is you know every episode is just a one day but you said that you
+know the next day it would depend on the previous day uh I had to change the episodes as well so an
+episode is actually one month instead of one day one month yeah so each day is actually so how many
+episodes do you have for training the total well it's 23 days per month and uh altogether it's
+like 2000 in a year so going back to the uh in a year how would you get 2000 2000
+one year's high only the three or 65 days yeah oh that's 12 months oh 12 months times
+that 24 or 23 rather what is the 24 23 23 uh days in a month in a trading month
+you know I'm talking I'm asking you how many episodes do you have for your training in total
+from uh training to to for the entire training period like 2018 to 2025 I think yeah that's where
+like you don't want to when I ask that question you cannot answer which means there's something wrong
+there okay between us no no I have I have I'm just trying to you know so training was 2018 to 2022
+right that's around
+so five or six years yeah right so one year you have 12 episodes yeah so if you have six
+like five which means you have only six days in a poise
+uh I wrote it down in my notes but yeah something right yeah 60 episodes around that yes
+and you train the whole yeah 60 months yeah and you train the whole reinforcement learning yeah
+do you believe that that it's gonna give good results or yeah so which means you have only
+60 days of poise yeah pretty slow yeah and what's the model that you use really for us yeah the
+I in something the LSDM something oh it was a mostly a pressure term in MLP MLP yeah how many layers
+two two layers yeah okay 128 um so here okay right to hidden is 120 it's 120
+so how many parameters in total 128 times 128 so which means 120 is two students
+it's uh two to the six right 16 and two to the 12 yeah how many parameters do we have
+like 120 are you tom 128 that's like 16 000 yeah yeah only 60 sickly they don't pull yeah
+yeah that's is that bad it's pretty bad oh because when you have like 16 000 which
+means 16 000 variables right yeah so like and then when you take the radium which means you also have
+16 000 variables right okay you calculate the loss you calculate the radium so which
+mean you have 16 000 equation because you need you know like in general you need to set the
+radium to zero and so for that but of course we do the stoke at the right and the same but
+I'm talking in in general yeah in theory so which mean you have 16 000 equations oh and you need to
+solve all of those equation oh and you have only like 60 60 data points oh
+I see so it needs to be either higher or equal to be honest your setup now is
+is you know the best if people know about reinforcement learning they just say that it's
+it's impossible to train oh even with a very simple thing you may need like thousand
+episodes and here you just have 60 it's a more like nothing
+so would you suggest I change the network even you change the network you know but in
+that case you know when you make it's a very small network it's gonna get in works oh
+because you know so what's the main ingredient for deep learning
+is data so you keep saying this and that but you have not touched the data the data is the main
+thing but you have a very little data so you have not you know solve the root cause you're just going
+around it's quite bad I would explain why the results are probably the way it is maybe
+because you know 60 the 60 episode is something like nothing especially it should the episode is
+very long if you do like one month like that you may need like maybe you know like for example if
+people just have a one day a one episode they may need like for example like 10 000 episodes in
+total yeah right but if you do one month you may need like one million episodes because you know
+your trajectory now is too complicated yeah in order to get the reinforcement learning to learn
+properly you need even much more data what I can see here is I think like we are tackling a very
+I don't understand why you keep sticking with the data that you have I don't understand to be honest
+so what people already have is they already have some environment called gene yeah so which
+means they can generate the data oh right so if you want to have a trading like that generate
+one day of trading another one generate another so they can generate like thousands of millions of
+like episodes okay and you just train you don't actually need like you know with actual
+you you may go with the true data after you generate and you train your model and then after
+you train your model you finish testing report everything if you would like to do something
+else you can just take that model and test on the real data it will not work very well okay because
+of the domain gap yeah you are working on two different domains but that's the way that we should do
+rather than you know you use a real data for reinforcement learning if you want to use a
+real data to be honest I have never seen anyone who who can use real data why because it's never
+been enough you know the alpha go now alpha go from deep mind do they have like millions of
+gold games no you don't but they can generate and they let the program to play with itself
+there's no way they're gonna collect like one million or one billion of games and show it now
+okay so this is the other thing so and I think something I understand that you need to model
+you need to wait for the final whatever but I think you know for the sake of simplicity
+just ignore that one when you buy you know that's it for that day the next day would be different
+but there's another problem because you know to be honest I struggle with this one because
+all of the reinforcement learning I know so far they are independent like this episode and that
+episode they're completely independent yeah this is independent no but your problem is not
+the problem of trading because today you buy so which means you are holding and tomorrow the share
+value would be different yeah but if you make it they are independent yeah how can you learn because
+you know today you know you see that it's changing up it should be going up tomorrow but then you
+know suddenly you sample from somewhere on a different day yeah and it's happening during
+covid and then it should yeah so if you have the model how can you learn because everything like
+there's no nothing predictable so that that's what I worry at the beginning when I say that you know
+we making them independent but actually they are time series yeah I put that in the limitations
+in in the end so so that's also cause another problem you have only 60 data ports
+and you did not use the time series but you make them independent so if you do that you even need
+more data to train yeah I'm not sure if you get my point again yeah so any reinforcement learning
+again when we talk up like number of pep or so we hardly say like in the hundreds at least
+we are saying something like thousand you know some game like you know floppy floppy but I think
+yeah so in order to train that one if you want you can play with a comb you see that you need to
+iterate until like a few thousand episode so that the model can play well
+it's made you know on your MacBook it might take you take a couple hours for example yeah
+and that's when it's very simple one it's much simpler than this so you see that even a simple
+one is take like thousand iteration to run but you have only 60 to be honest I feel like 60 is not
+even like good for warm up wow but anyway I don't think you can change much I'm not sure if you can
+use some gym environment to generate more data to train and don't make the model big I feel like
+this model is still too big so maybe this one train to 64 for example because most of the time
+people just design an angle like this you know at the beginning you know you're gonna have a very big
+number of like number of knots but then you know it's kind of like the pyramid yeah you reduce
+to the output so you I mean it's just kind of common way people doing okay there's there's no
+guarantee that it's gonna make it better but you know it's make the network smaller the model
+smaller okay so you can train faster easier to train rather than it's gonna overfit
+how's battery oh this one should not be the asterisk it should be multiply cross okay you
+are writing a report you are not writing a code don't don't don't make the don't make the you know
+the mish mark because a lot of students nowadays they they they keep thinking that writing a report
+is kind of writing a code like you know it's good that you brought like 10 to the power negative
+a lot of them would rather 3e minus 4 you know 3e minus 4 in coding yeah that's coding this is
+writing you know just make things clear like you know be consistent so multiply okay replace that one
+to multiply um where's the result chapter five
+yeah
+like for example you said something within the number of steps
+what did you do here
+yeah so you see this is the number of steps right yeah so probably you know we need a lot of
+this is a lot of iteration right you know the 60 of them so we need even more than that I mean like
+ideally you know one step would be one episode yeah the results were worse though when I did
+that the results were worse when I did you know one episode uh or like one day is one episode
+okay one day one episode is always worse yeah the results were way lower than this why
+no idea I think it's because at the time series like you know today you are getting up so
+you expect tomorrow you should be up yeah and if it's going down it's gonna go down slowly yeah
+but then you know today it's going up and tomorrow suddenly it's going down there's no reason for it
+I think the result like the intro day and because it was real data too like the intro day you know
+up and down make it variate a lot as per like opposed to a month where it has like a slow
+rising upward movement yeah so when when when you have like a whole month because you know
+you know you need to smooth the signal yeah to smooth the signal but if you know it's about
+a sampling rate for example like every minute you're gonna update one month one day you're gonna
+end up the same thing but because you know like previously you said one day but how many meet the
+point like how long you're gonna collect a data like every one hour or every five hours right so
+and then you know if you take one month so what's the point like every day so which means one month
+you have only 20 values so that's already smooth the chain is going to be minimal but you know
+the chain within one minutes it's gonna yeah open down yeah so it's more about sampling so
+it's not just like one month it's not just a one day but it's about smoothing you you know the do
+you know the under the idea of smoothing it's for noise yeah all right maybe to all that you just
+say like moving average you know yeah yeah moving average is one way to do the smoothing okay yeah
+because you keep a lot of history so the new guy even if you jump too far away yeah you're gonna
+smooth it and then you know it will not change much even change but slowly slowly yeah so you have a
+smooth curve that's it so there's a lot of things that you know when you do you need to understand why
+i feel like you just pick the one that oh it just gave me a good result but that's a very bad practice
+why do you think the real world is gonna go down with you right so um yeah okay so where's the result
+okay so starting from yeah this was the main results
+so using like the um this was the benchmark which is just to buy and hold right so that buys
+one unit at the beginning of the month and watches as it increases to the end of the episode
+or month and the highest was 167 reinforced came so how many um how many time step within is
+episode 20 20 so one day is one day the point yeah and when you buy you can so at one time you can
+only buy or sell or how or do nothing right yeah and so when you do the best which means at the
+beginning you have some money yeah and then you calculate and then you calculate the end of
+doubt to the end yes okay and that's that's the number you report okay and then most showed that
+because on the test period uh reinforced and ppo showed that they mostly adopted policies
+of continuously buying because there was a rising market right throughout the test period of 2024
+to 2025 but deep q learning actually used the state's information or the information from the
+state to change its decisions regularly well what was the job i don't understand the job
+what is the job uh it's the results from each seed for all from each training run
+result what of the mean about change
+okay so reinforce comes in first and then ppo next then deep q learning
+but because deep q learning made different actions every day based on the training runs
+these were like the uh this is the average of everything here
+and then there's also
+comparing the nine feature states to the 10 feature states where drawdown was included
+or risk was included and there wasn't like much difference in the mean wealth per se
+and uh you can align this or relate this to the behavior of
+the policy or the behavior of the agents instead sorry i don't understand what you are talking about
+okay okay like what would you like to talk about okay so we did different experiments
+the first one was a nine feature state right which was the primary state that we used
+right for and a separate experiment we included a drawdown states that had information about risk
+so which means like 10 yeah 10 okay that made it 10 feature states so these are the two states
+we have okay right okay there was a conclusion from that the conclusion uh the results didn't
+change much we expected drawdown to actually or we expected policies left from the drawdown state
+to actually uh what's the word learn how to avoid risk during periods where like market is crashing
+and everything right to profit more uh but it didn't exhibit that behavior instead it was closely
+similar to the nine feature states
+no i think uh there's something missing here it's not very good but anyway okay um and all of the
+results i mean like again like because we have a problem with training so um okay i've like i don't
+know the result is skeptical about it that's for it yeah reliable to make our strong conclusion
+um
+okay what else okay and another one is you know like the reinforcement is always better than
+ppl why people is gonna ask why yeah and even a deep queue why deep queue is not too it's not
+good yeah why this could stem from behavioral analysis so deep queue actually learns or uses
+information from the state while reinforced as it's trying to get the best reward for its actions
+just one one thing yeah all of them are reinforcement learning methods right yeah yeah so the main
+goal of reinforcement learning is to maximize reward right yeah yeah and all of them need to have
+the state in action yeah yeah so you are saying that deep queue is rely on state yeah bbo also
+rely on state reinforce also relates on state yeah and you said the reinforce and ppl they might see
+minor reward deep queue also might see minor reward what i mean is your explanation is does not make
+sense to me okay okay okay they all rely on the state but the resulting policies that has been
+learned because deep queue they has no policy
+it estimates the values is that it yeah okay yeah it estimates the values of the actions
+and decides on which action to take next yeah yeah so why is that works then bbo already
+false so run on you just haven't made a definition i already know okay so one of the reasons why i
+could say it was here is because of the testing period the testing periods but like you know all
+of them just test on unseen data yeah so then what exactly so the from what i gathered the 2024 to
+2025 period was actually in a constant increased state right so the market kept on rising reinforce
+and ppo learned policies that benefit from this to maximize the rewards so they always kept on buying
+to increase exposure and increase you know the price yeah so which means your data is not good
+because you know what whatever you have slanted to me i don't see the difference i don't understand
+why is different okay because all of them are trained on the same data yeah so the data is
+going up or going down is whatever happened to them yeah but why deep queue is the works one here
+that's my question
+they are training on the same data you talk about training data yeah it's not true because all of
+them get trained on the same training data all of them are test get tested on the same test data
+yeah so all of them are doing the same maximization for the reward but why is deep to the worst
+so what i expect from a master or like even is that you know external examinizer i expect from
+you is the understanding okay you need to explain why and you need to have the inside rather than
+you know you just like don't don't don't be like jachi bt always on a surface just try to say something
+like sound very nice yeah but like there's not much meaning yeah okay so i think i already explained
+to you like the deep queue so which means it learned the state right yeah so when the environment
+changed the state you know would be very different or like you know when you have complicated environment
+the number of states is huge and in you know in order to learn the value in each case
+there's a you know it's very complicated like it's required like a lot of training data
+and the environment needs to be stable if the environments change how could we know you know
+how could we estimate the number the value of a state like okay just give you the easy one just
+give you something like a game right so if you play chess right or like gold they are chess right
+so the environment is fixed yeah you have maybe like 1000 number of states for example i mean like
+you know a chess is like 8 by 8 right or 9 by 9 and i forgot right so it's gonna be like for example
+if i assume that a chess game it's 9 by 9 so it should mean it has like 81 cells okay right so which
+means one cell you can take like one state right i assume that so you have 81 and it will never change
+if you have most you know if you have a lot a lot of games you still have the fixed number of states
+right okay so which means in that case deep cue is going to be perfect because it's kind of fixed
+but now imagine with flap beeper right so for one string like at one time yeah you know maybe the
+number of states like this and you know you have like a pie you have something like that but if you
+move to another time step it changes and you move to another time step it changes so which means you
+know like there's a lot of states and you know the deep cue need to learn all of them which is very
+hard right so the same thing with your case okay so that that's what we need like we need to you
+know you need to understand the difference between each method yeah so what you are trying to explain
+is you know just your own observation is not about understanding of each term and also it's
+raise a lot of issue that's what i mean like when it's just said that why would you just use
+the real data to train why don't you just generate data so it's fairer right it's going to cover a
+lot of scenarios now when you train like that especially when i heard that you said about
+train validation and test please to me they are very bad split oh like uh yeah because you know
+when we do the split thing we have to ensure that the training the best they should be like similar
+but you just said oh 2024 25 is like this uh you know like 2024 25 for testing and the rest
+will be for training they're completely different yeah not it's not equal yeah
+right so which means you train on something and you test on something there's no way you're
+going to get something good okay so there's a lot of stuff here i feel like you pick a very hard problem
+the thing is because for the problem we don't even understand about accepting
+we don't understand much about setting have a buy sale thing you know some of the rules and
+and so on and so forth so because of that um because i think like you know our modeling is not good
+so that's also explain one thing that i often see from it people so it people they think that they
+can do anything yeah but actually no you need domain knowledge coding along will not have you to go
+you know i mean only for code crazy good model yeah like for example now you go for trading you see
+like this how about we go for medical how about we go for space what the speed of a rocket right so
+if you say oh i can do anything but no we need domain knowledge really specialization so this is
+the witness because to be honest maybe it sounds good to you but the problem is it's not about you
+it's about customer right yeah and your customer is tunnel examiners yeah and if that person cannot
+understand they what so that person will not be confident to give you high score rather than
+that person is going to give you just that okay score if they would not understand if they understand
+they may be very good or very bad but if they don't know they just give average right so uh just
+another just one thing like in the future when you pick some project don't pick something too much
+like something you don't understand too much because this one i feel like for us we don't have good
+understanding on the problem especially that i told you we make independent that's what is
+terrible that's a very bad assumption for trading yeah trading is never independent
+right well i guess that's why isn't the limitations as well if you made a continuous it would
+simplify or complexify you know things it sounds so good that you do it like you know
+if you make one month it's good because it's show you a long time yeah it's not so good a
+month is also good i think last time i asked you to do that a week right i think when we wrote
+something i asked you to do a week i've not tried that before i've only tried the days but you know
+at that moment i think that i asked you like it just happened every hour so wish me a week also
+have a lot of time steps yeah because one day you may have i assume maybe 10 hours so i wish
+you're gonna have 70 time steps but now okay for my previous statement i just told you one
+month it's very complicated you need more data but you know one month you just have 12 time steps
+which is very small so which means that you may not need to have a lot of data to train but still
+to train a good model you still need a couple thousand episodes
+uh that there's a there's a one like one of the students i work with like on the radio
+so you work with a game you know you know over cook oh okay yeah very simple one but you know
+they have they have only that about 20 layouts so 20 layout which means you have only 20 games
+right 20 episodes okay and um you know and then he makes with something at the end
+he ended up with around 400 episodes but the training you know the result when it was okay
+not very good but like 400 which means like seven times higher than yours yeah like this
+right um i i don't know how to make uh because you know for the deadlines just submit whatever
+you have it it depends on the uh examinizer okay okay good what else would you say needs
+changing like from the modeling from the modeling yeah what do you mean well the model is lacking
+in data and then also in the network and well it clearly shows in the results but if you
+if someone reads it would they be able to like understand what the paper is doing
+what it's coming from or like basically conclusions about it
+to be honest like for a general people working on machine learning they would not
+understand much i mean they they know but they would not understand much because you are working
+on a very very strength setting you know it's not very clear about the definition yeah i mean
+i'm not sure if you define everything there then you define the role you know when you
+introduce another feature was like yeah did you define that one probably yeah chapter three
+and did you explain the meaning of that yeah okay so if that's okay yes if they read yeah
+but to be honest no because even you introduce you know this one my point of view is you are not
+from business yeah you introduce you know the thing that you put there just like you copy the
+definition from somewhere so you would not have enough insight to really explain to people
+what's the meaning of that so what i mean is when i talk to some someone for example when i talk to
+someone like even within the center if there's one person working on computer vision come from
+machine learning when i talk to that person in order to let the person understand i have to
+translate my own language to the computer vision language even like i try to explain but you know
+people will not have time to really spend time like oh what this what's that oh i need to spend two
+hours reading this to understand one sentence people will not do that so if i did explain it in the
+viva would i have to use like maybe supervised learning terms or computer vision or like the
+way you explained um you know the objective functions for supervised learning yeah so you remember
+the way i explained to you right because you don't know about a topic yeah so i have to explain to
+you using some topic that you already know yeah but if i don't do that and just say this is the
+definition this is the definition this is the definition do you think you will understand
+immediately so the same thing that's what i mean so and then you know you suddenly jump to like
+share trading and you introduce a lot of stuff and then at the end when we do it we simplify a lot
+of stuff it casts confusion yeah yeah right we we don't follow the standards where people did and
+we have to signify because if we follow the standard one you to be honest you know to do what
+you're proposing maybe you need a phd for that maybe you know because you need a lot of time you
+need to understand this and that you need to design the environment properly you need to put in you
+need to test it and you need to evaluate properly it's a very tough more you know like problem because
+if it can be done people will deploy those more than they earn a lot of money but you know the world
+is not like that people are also saying that oh i deploy asian to do the trading and this and that
+but who are they like are they the it people or are they the trading people so the it people know
+about the code programming but lack the knowledge the the trading people they have the knowledge but
+they don't know how to code yeah i guess they should have done this dissertation with like a group
+set in a group setting maybe that would have helped people anyway so just stick with what we have and
+then yeah if you do anything just try to explain properly okay um especially you know people they
+would love like insightful explanation not just company definition like for example when we talk
+about that one and then and what what the heck is this but you know like for example i would say um
+you know let me think about some maybe the easiest example like the one that i told you before
+supervised learning reinforcement learning right so the analogous so which means that it's
+helped people to understand things easier um so that also demonstrate that you understand about
+the problem but you know a lot of the time i see student oh this and this and that so which
+means they understand nothing they just copy and put it there i see okay yeah that's it that's
+my comment i don't hear anything else so what do i do now because well i i can't really do anything
+but if the ec is approved what would i be able to do this week right like do i change the model or
+i don't see anything that's wrong with your model what why you know if you change the model so what
+model would you like to change like gymnasium the data the what the data using gymnasium like the gym
+gym environment yeah yeah so like simulated yeah yeah i think the main thing is about the
+simulation the data because you know again you know machine learning the data is the most important
+thing and i think there's some problem with your data with a drain test split yeah that's a problem
+because you know when you don't have enough now and even like when you say like okay um this period
+for test this period for train it's not right because we can see the like independent right so
+which means you need to mix drain and test no so so like 2018 to 2025 should be used for both
+training and testing oh
+okay let me tell you something okay if i want to do like human classification or whatever
+classification problem i have two later sets one in nigeria one is the uk right should i just train
+on nigerian and then classify on the uk and in nigerian all of you like have like different
+hand style and thing what would you expect for the test it's going to be very poor so what did
+people do in machine learning in general they need to mix the two data set together like you know
+you combine the two data set and then split random split so it's going to ensure that in the train
+and in the past it's a mix so you can learn from the train and the learning from the train
+can be translated to the past otherwise you know it's useless you learn on something
+like for example i asked you oh you have to review mathematics and tomorrow i asked you to write essay
+in english and two of them are different yeah right and i think this one is a very basic one
+in machine learning when you first learn machine learning everyone's going to talk about drain
+test split yeah yeah but this was time series right but you already make them independent
+so what i mean is for the best periods you're ready for example the best period you take only for
+one year so which means you have only like 12 data points right yeah in the train maybe i assume you
+have 100 data points for example just make up so you combine them together which means you have 112
+right you mix randomly split
+okay okay but the problem is like i said for reinforcement learning when you say that oh
+you have only a 60 episode
+it's bad from the get go yeah yeah
+but so maybe for now maybe you can stick with that as well um it's okay do i
+do that put that in the limitations well i did put it in the limitations that the
+days i said was pretty small
+yeah
+but i if
+if i redid it right would it give like what i would have to see if it gives better results
+yes because if you redo it you're gonna have different results in that moment but i think
+you know this is just for you to learn and you understand the limitation it's okay with 60
+but you need to understand what's going on and yeah because with 60 you know you're going to
+overthink very easily it just memorize everything so for example you have only 60 episodes right
+so within those 60 for each of them it will remember when it's going to go in up when it's
+going to go down so it's going to issue the action based on the memorization no matter for
+example let me tell you this um you're going to have an exam yeah right and i give you 60 problems
+to practice you know one way you just memorize everything
+right you get perfect for your training for your practice
+but then i give you a different one you may not work well yeah this is exactly like that
+so that's why people need like to have a lot of help or so
+so the more episode you have like you avoid the case that the model is gonna memorize
+is that why reinforce and ppo consistently just bots instead of like selling or or anything
+what did you say i don't know is that is that why reinforce and ppo they just kept on buying
+or through yeah maybe because these aren't memorized and for their deep kill why would it
+didn't work well because it's also memorized and they just know that the state in that period
+and now you know a new period the state would be different yeah so that's why when it's issue the
+action it's not a good action
+so you say you already did you say that it always buys why because you know you make it always buy
+you just memorize it will not learn anything
+like you remember the supervised learning the linear regression so
+right the linear regression right so if you have some point
+right so if your model is simple you can put a lie right yeah but if your model is very
+complicated like this model of 16 000 so for example if you fit a lie you may have some
+mishmash right so when you calculate the loss the best loss it will not go through this point but
+it's very close so there's still some value upset right but what would happen if i have this
+you know zero loss
+training this one is training something we're training you know zero loss
+right yeah so which means that's the best one because you want it's still on the line
+it's still on the line no no no i mean all of the poi and this is my model
+yeah it's perfect yeah which means it's memorize
+isn't and it's that doesn't mean it's memorize but it's a very bad model
+so it's exactly like what your case you have only 60 but your model is so complicated
+you understand my point yeah you have only 60 games because one episode is like one game right
+you play you buy a stream and your model is so complicated it's just memorize everything and
+fit like this so when a new point happens you are completely off
+okay maybe you still can't have something because you know it's good to keep like keep buying because
+from the past and it's luckily in that period if you buy you still have some profit yeah but what
+would happen if there's a you know the best is gonna go in down if you keep buying yeah so you're
+gonna have a loss i wrote down the limitations to that there wasn't enough different market conditions
+yeah so so again that's raised the problem like when we work first we need to work on
+simulation data because you can't have control you know you have control when it's going up
+when it's going down you know for example if you have a control you just generate you know
+50 percent going up 50 percent going down or like 30 percent like this 30 percent like that
+another 30 percent something yeah so which means you can control everything right and then you train
+your model and then when you pass this is the important thing when you do the test because
+you can control how the data is generated yeah you can test on okay if the market is going up
+what happened with your model yeah if the market is going down what happened
+and if the market just stays flat what's the model is going to do yeah so you have a lot of
+stuff to say and that's what we are doing science in science we often do something called control
+experiment not random experiment yeah what you are doing to me is a random experiment
+i think there was a point like when you show me your code and then i just said yeah good like you
+also show me there's some gem environment that can generate data i just said why don't we just use
+that but you keep sticking with the real data yeah i just i just told women to use real data
+that's why i use like the sd y index don't don't use the real data because we are not even like
+model the two environment the real environment the one we are modeling is very simple yeah it's not
+the two ones the two data the real data would not be helpful for us like you know in classification
+we often use in this data set okay you know that one yeah okay like zero one two three the number
+no i'm such a dog so when you learn all i see five you know data set so when you learn classification
+which data set that they asked you to do i can't remember okay so the reason that they have that
+because they have a lot of control you know so when you have control you can pass on different
+environment different setting so you know how well your model can generalize
+if you just test on one environment how can you confirm your model can generalize yeah
+that was part of the limitations to that one but if you put a lot of limitations so which
+means you're almost doing nothing i mean i can do barely i barely do anything and i put oh i have
+this limitation that limitation it's made you look bad like the limitation should be the true
+limitation that prevent you to do from doing that it should not be the one that oh i just
+don't want to do out there very much true yeah anything else
+i think we don't have much time and i think the data is the bottleneck now yeah so if you have more
+data you control things better you can control the test setting so you can have you can report
+for example that three three different one like if the market is green down if the market is green
+up yeah oh yeah green down green up and then if the market it just can't fluctuate like just like
+nowadays it's fluctuate right it will not go too high not too low but it's go too low like
+covid time and after covid it's go too high like to recover that was why that was why i put that in
+the training right because covid was covid and like the macro recovery was between 2018 to 2023
+but you know the training should be uh balanced the training you know you should not make it
+to focus on whatever you heard the word like class imbalance yeah right so if you don't pay much
+attention you're gonna get something similar like like when you learn a pacifier to do like cancer
+versus another cancer 99 percent of people would be no cancer if you just train like that
+if i just close my eyes i just predict one person and just like no cancer because i have
+99 percent it's gonna be true the same thing with your they are like keep increasing keep increasing
+that's why keep buying keep buying and buying but in that case the result is not interesting yeah
+okay so try to finish i don't think you have much time left you have one one more hour yeah try to
+finish everything and submit on time i want to go to the hive to see about the ec so maybe just
+rush rush to the hive yeah you don't have much time yeah because for this one i have no control
+okay hey can you tell me that you get this and that no i'm not the one who can authorize
+yeah that's fine that's fine
+thank you
