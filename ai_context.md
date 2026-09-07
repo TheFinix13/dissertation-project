@@ -34,11 +34,11 @@ short paragraphs, chapter-level cross-refs, modest claims.
 
 ## 4) Git state
 
-- `workspace-restructure` — cleaned layout (current).
-- `final-v2-state-architecture` — full pre-restructure snapshot
-  (phase0 games, iteration1, final_model, old latex builds all live
-  in its history; nothing was lost).
-- Older remote branches predate the final study.
+Single branch: `main` (the final study and cleaned layout). The three
+project eras are preserved as annotated tags, documented in README.md:
+`era1-uncertainty-ppo`, `era1-live-scaffold`, `era2-simple-modelling`,
+`era3-pre-restructure-snapshot` (full pre-cleanup snapshot; every file
+deleted in the restructure lives there).
 
 ## 5) Known open items
 
