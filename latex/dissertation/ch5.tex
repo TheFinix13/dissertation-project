@@ -1250,19 +1250,22 @@ a transfer test. Six seeds per algorithm, as before.
 
 \subsection{Benchmarks Under Balanced Regimes}
 
-The balanced test set changes what the benchmarks earn, and this change
-is the point of the design. Buy-and-hold now loses \$60.29 per episode
-on average. It gains \$510.17 in the average up episode, loses \$710.06
-in the average down episode, and roughly breaks even when the market is
-flat. The do-nothing strategy earns exactly \$0.00 and the random
-policy loses \$26.01.
+The balanced test set changes what the two benchmarks earn, and this
+change is the point of the design. Buy-and-hold now loses \$60.29 per
+episode on average. It gains \$510.17 in the average up episode, loses
+\$710.06 in the average down episode, and roughly breaks even when the
+market is flat. Always-buy at \(0.25C_{0}\) behaves the same way at
+slightly smaller magnitudes, losing \$58.70 per episode. A policy that
+never trades ends every episode with exactly its starting capital, a
+wealth change of \$0.00.
 
 On the real test months, buying and holding earned \$180.25 because the
-period only rose. On the balanced episodes, no fixed action is
-profitable. Any agent that earns money here must be reading its
-observations and behaving differently in different regimes. The
-benchmark table is no longer a wall to climb; it is a test of whether
-the agent conditions on its state.
+period only rose. On the balanced episodes, no fixed pattern is
+profitable: constant buying loses money and abstaining earns nothing.
+Any agent that earns money here must be reading its observations and
+behaving differently in different regimes. The benchmarks are no longer
+a wall to climb; they are a test of whether the agent conditions on its
+state.
 
 \subsection{Main Results}
 
@@ -1291,8 +1294,8 @@ seeds.}
 DQN        & \(+126.94\) & 7.3  & \(+473.72\) & \(-103.35\) & \(+10.45\) & \(+130.61\) \\
 REINFORCE  & \(-5.71\)   & 52.2 & \(+228.58\) & \(-248.32\) & \(+2.60\)  & \(+73.04\)  \\
 PPO        & \(-11.16\)  & 27.3 & \(+67.69\)  & \(-99.04\)  & \(-2.14\)  & \(+25.84\)  \\
-Buy-and-hold (slice) & \(-58.70\) & --- & \(+477.22\) & \(-663.91\) & \(+10.58\) & \(+179.75\) \\
-Do nothing           & \(0.00\)   & --- & \(0.00\)    & \(0.00\)    & \(0.00\)   & \(0.00\)    \\
+Buy-and-hold           & \(-60.29\) & --- & \(+510.17\) & \(-710.06\) & \(+19.00\) & \(+180.25\) \\
+Always-buy (\(0.25C_{0}\)) & \(-58.70\) & --- & \(+477.22\) & \(-663.91\) & \(+10.58\) & \(+179.75\) \\
 \end{longtable}
 }
 
@@ -1310,7 +1313,7 @@ on the right.
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.98\textwidth]{figs5/fig5_sim.pdf}
-  \caption[Simulated-data study: per-regime results and real-data transfer.]{Simulated-data study. Left: mean wealth change per episode by test regime for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-regime profit while cutting the down-regime loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the do-nothing origin or the always-buy corner.}
+  \caption[Simulated-data study: per-regime results and real-data transfer.]{Simulated-data study. Left: mean wealth change per episode by test regime for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-regime profit while cutting the down-regime loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the never-trade origin or the always-buy corner.}
 \end{figure}
 
 \subsection{The Policy-Gradient Methods Collapse to Corners}
@@ -1567,7 +1570,7 @@ the diagnosis attributes this to 60 training episodes feeding networks
 of 18,000 parameters under a strong upward class imbalance. The
 simulated-data study removes those conditions and the picture changes:
 Deep Q-learning earns \$126.94 per episode on a balanced test set where
-every fixed strategy loses, on all six seeds, and transfers profitably
+no fixed trading pattern is profitable, on all six seeds, and transfers profitably
 (\$130.61 per month) to the real test months. The policy-gradient
 methods collapse to fixed corner policies once always-buying stops
 paying. The conclusion that survives both studies is that the data, not

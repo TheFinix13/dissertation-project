@@ -73,7 +73,7 @@ for algo, color in series:
                     edgecolor=color, linewidth=1.1, zorder=3)
 ax2.axhline(0, color="black", lw=0.7)
 ax2.axvline(0, color="black", lw=0.7)
-ax2.axhline(j["baselines_real"]["B1a_slice_bah"]["summary"]["mean_delta_w"],
+ax2.axhline(j["baselines_real"]["B1b_true_bah"]["summary"]["mean_delta_w"],
             color=C_BAH, lw=1.0, ls="--")
 ax2.annotate("real buy-and-hold", xy=(-95, 183), fontsize=7, color=C_BAH)
 ax2.set_xlabel("simulated test ($/episode)")

@@ -378,12 +378,21 @@ observations, and grouping them into monthly episodes leaves only
 dozens of episodes to learn from.
 
 The common response in the literature is to train on generated data.
-Open-source frameworks such as FinRL~\cite{liu2020finrl} and the Gym
-trading environments~\cite{brockman2016gym} structure the task so that
-any price series, real or synthetic, can drive the environment.
-Generators range from classical stochastic-process models, including
-regime-switching models built on hidden Markov chains~\cite{rabiner1989},
-to learned generators such as time-series GANs~\cite{yoon2019timegan}.
+Théate and Ernst, whose setting is the closest to this study's (a deep
+Q-network trading single stocks on daily bars), trained their agent
+``entirely based on the generation of artificial trajectories from a
+limited set of stock market historical data''~\cite{theate2021}. The
+earlier studies solved the same problem differently: Moody and Saffell
+matched a tiny single-layer policy to scarce monthly data~\cite{moody2001},
+while Deng et al.~\cite{deng2017} and Jiang et al.~\cite{jiang2017} moved
+to minute and 30-minute bars, where a few years supply hundreds of
+thousands of observations. Open-source frameworks such as
+FinRL~\cite{liu2020finrl} and the Gym trading
+environments~\cite{brockman2016gym} structure the task so that any price
+series, real or synthetic, can drive the environment. Generators range
+from classical stochastic-process models, including regime-switching
+models built on hidden Markov chains~\cite{rabiner1989}, to learned
+generators such as time-series GANs~\cite{yoon2019timegan}.
 A generator gives the experimenter two things a historical record
 cannot: as many training episodes as the learner needs, and control
 over which market conditions appear in training and in testing. The
