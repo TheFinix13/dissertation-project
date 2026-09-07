@@ -4,7 +4,7 @@
 Every number is read from the result JSONs under experiments/final_v2/results;
 nothing is typed in by hand, so the figures cannot drift from the tables.
 
-Outputs (PDF, into latex/supervisor_preview/figs5/):
+Outputs (PDF, into latex/dissertation/figs5/):
     fig5_slice.pdf      exposure ceiling per trade slice vs buy-and-hold
     fig5_seeds.pdf      per-seed conditioning outcomes (REINFORCE vs Deep Q)
     fig5_state.pdf      9-feature vs 10-feature state on the test months
@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "experiments" / "final_v2" / "results"
-OUT = ROOT / "latex" / "supervisor_preview" / "figs5"
+OUT = ROOT / "latex" / "dissertation" / "figs5"
 OUT.mkdir(parents=True, exist_ok=True)
 
 plt.rcParams.update({
