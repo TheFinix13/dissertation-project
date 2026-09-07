@@ -40,10 +40,20 @@ python run_fees.py                    # fee sensitivity
 python run_conditioning_v2.py         # behavioural (state-dependence) analysis
 ```
 
-## Branches
+## Project history
 
-- `workspace-restructure` — cleaned final layout (this branch).
-- `final-v2-state-architecture` — full pre-restructure snapshot, including
-  earlier phase-0 games, iteration-1 experiments, and old LaTeX/Word builds.
-- Older branches (`simple-modelling-clean`, `epistemic-uncertainty`,
-  `fiyins-portfolio`, `live-trading`, `main`) predate the final study.
+The project went through three distinct ideas before the final study.
+Each era is preserved under a git tag rather than a branch, so `main`
+stays the single line of development:
+
+| Tag | Period | What the project was at that time |
+|---|---|---|
+| `era1-uncertainty-ppo` | Feb–Jun 2026 | "AI-Driven Portfolio Protection": an uncertainty-aware PPO agent fed by a DeepAR-style probabilistic forecaster, evaluated on a 70-ticker grid. |
+| `era1-live-scaffold` | May 2026 | Side artifact of era 1: a live-trading scaffold and personal-portfolio companion. |
+| `era2-simple-modelling` | Jul–Aug 2026 | The pivot directed by Dr Nguyen: one complete simple model instead of the uncertainty stack. Phase-0 games (CartPole, Flappy Bird, LunarLander), then a single-stock monthly trading MDP with scratch REINFORCE and DQN. |
+| `era3-pre-restructure-snapshot` | Sep 2026 | The final study (this codebase) immediately before the workspace cleanup; includes the superseded era-2 code and old LaTeX builds that were removed from `main`. |
+
+The final study on `main` grew out of era 2: the state representation was
+rebuilt (`final_v2`), PPO was added back as a third algorithm, and the
+evaluation-first protocol, behavioural analysis, and verification tests
+were added on top.
