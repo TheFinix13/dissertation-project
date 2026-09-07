@@ -25,13 +25,16 @@ Note: the rewritten 5.2 / 4.4.3 / 6.4.2 live in `Full report 1.docx`, not
 in reports 4 and 5. If those blocks are ever moved into their home
 documents, update `split_ch1_fragment` in `build.py` accordingly.
 
-## Small fixes to make in the Word documents (Fiyin's to apply)
+## Small fixes — DONE 7 Sep in the LaTeX (Word docs still carry the old text)
 
-- Section 6.1 of `Full Report - 5.docx`: "test set (2025-2025)" should be
-  "(2024-2025)".
-- Section 6.3 says the tests identified "12 implementation problems";
-  Chapter 4 (Section 4.6.1) describes the issues as "several" and details
-  three. Align the two chapters on one number.
+- ~~Section 6.1 "test set (2025-2025)"~~ → "(2024-2025)" fixed in ch6.tex.
+- ~~"12 implementation problems" in 6.3~~ → now "several implementation
+  problems ... three of which could have affected the experiments'
+  validity", matching Chapter 4. Fixed in ch6.tex (the unused ch5_part2
+  intermediate was deleted in the restructure).
+- Also fixed in ch6.tex: "Each stem" → "Each stems", "ignoring their
+  market observations" → "ignoring its", "the Trade size" → "the trade
+  size".
 
 ## Done 1 Sep — front/back matter and format (all in main_full.tex)
 
@@ -160,14 +163,35 @@ Page reduction (content pages = ch1 start to bibliography):
 - Result: 110 total pages; content 87 (ch1 5 · ch2 10 · ch3 32 · ch4 11 ·
   ch5 22 · ch6 7); front matter 11; bib+appendices 12.
 
+## Done 7 Sep — appendix voice rewrite, external review, restructure
+
+- All four appendices rewritten in Fiyin's voice (A verification tests,
+  B algorithm listings, C per-month results, D glossary). Stale
+  ladder/rung and "pointwise recoverable" phrasing replaced; the
+  no-trades accounting check no longer presented as a benchmark.
+- External-reviewer self-grade against the handbook: technical 71 (80%),
+  report quality 74 (20%) → overall ≈72, Excellent band. Highest-value
+  improvements identified: bootstrap CIs over existing per-month/per-seed
+  results; one simple active baseline (e.g. moving-average) on the same
+  test months.
+- Workspace restructured; repo now single `main` branch with era tags.
+  This folder renamed latex/supervisor_preview → latex/dissertation.
+  Full pre-cleanup state preserved under tag era3-pre-restructure-snapshot.
+
 ## Known remaining work
 
 1. Optional: 6.3 paragraph reflecting on planning/time management
-   (drafted in chat 1 Sep, not yet inserted).
+   (drafted in chat 1 Sep, not yet inserted). The grade descriptors
+   explicitly mention "planning and organisation of the project".
 2. Declaration of originality form at submission (separate form).
 3. Page budget: content at 87 vs the ~80 target. Remaining honest levers
    are small (figure widths save <0.5 pp total). Getting under 84 would
    require thinning the REINFORCE/DQN derivations or user-written text.
+4. Optional mark-chasers from the external review: bootstrap CIs
+   (~1 day, no retraining) and a moving-average baseline (~half day).
+5. Viva pack: 12 slides + demo not started.
+6. Submission comment on page count drafted in chat 7 Sep (110 total =
+   87 content + front matter + bib/appendices).
 
 ## Build order (now with bibliography)
 
