@@ -1,0 +1,131 @@
+% Appendix: plain-language glossary. Terminology aligned with the final
+% chapters (0.25 C0 trade size, "always-buy" benchmark naming).
+% Rewritten 7 Sep in Fiyin's voice (no metaphors, plain sentences).
+
+This glossary explains the recurring technical terms of the dissertation
+in plain language. The definitions here are informal; the precise
+definitions are given in Chapter~3.
+
+\begin{description}
+
+  \item[Agent] The learning program that makes the trading decisions. In
+  this dissertation, it is a small neural network that decides each day
+  whether to hold, buy, or sell.
+
+  \item[Environment] The simulated world the agent interacts with. Here,
+  it is a simulated trading month built from real historical prices. It
+  executes the agent's trades, charges the transaction fees, and updates
+  the portfolio.
+
+  \item[State] The information the agent observes before making a
+  decision. Here, it is nine numbers covering recent market behaviour,
+  the agent's own cash and holdings, and how far the month has
+  progressed. A tenth number is added when the drawdown feature is used.
+
+  \item[Action] One of the choices available to the agent. There are
+  exactly three: hold the current position, buy a fixed amount of the
+  asset (a quarter of the initial capital, written \(0.25\,C_0\)), or
+  sell the same amount.
+
+  \item[Reward] The feedback the agent receives after each action. Here,
+  it is the day's change in total wealth, with trading fees already
+  deducted. The agent's objective is to make the month's total reward as
+  large as possible.
+
+  \item[Episode] One complete round of the task, after which everything
+  resets. Here, it is one calendar month of trading, ending with a forced
+  sale of any remaining holdings.
+
+  \item[Policy] The agent's decision rule. Formally, it is a function
+  from the state to action probabilities; informally, it describes what
+  the agent would do in any situation.
+
+  \item[Policy gradient / REINFORCE] A family of methods that improve
+  the policy directly. After each month, decisions that came before a
+  good outcome are made more probable, and decisions that came before a
+  poor outcome are made less probable. REINFORCE is the original and
+  simplest member of this family.
+
+  \item[Q-value / Deep Q-learning] The value-based family of methods.
+  The agent learns an estimate of how much future profit each action is
+  worth in each situation, then selects the action with the highest
+  estimate. ``Deep'' means the estimates come from a neural network
+  rather than a lookup table.
+
+  \item[PPO] A more recent policy-gradient method that limits how much
+  the policy can change in a single update. This makes training steadier,
+  but the policy can still settle into the first behaviour that performs
+  well.
+
+  \item[Neural network] A flexible mathematical function with many
+  adjustable parameters. The parameters are tuned gradually during
+  training so that the outputs improve against an objective.
+
+  \item[Training / validation / test split] The data is divided into
+  three parts by date. The agent learns on the earliest part
+  (2018--2022), every tuning decision is made using only the middle part
+  (2023), and the final evaluation uses the latest part (2024--2025),
+  which was not used for any design decision. This separation is what
+  makes the test result an honest measure of performance on unseen data.
+
+  \item[Benchmark] A simple non-learning strategy the agents are compared
+  against. The most important one here is \emph{buy-and-hold}: invest
+  everything at the start of the month and wait.
+
+  \item[Buy-and-hold] The standard passive strategy. Previous research
+  shows it is genuinely difficult to beat using price history alone.
+  This is why a result that beats it easily should be examined carefully
+  rather than accepted immediately.
+
+  \item[Always-buy (\(0.25\,C_0\))] The strongest strategy available to
+  a policy that ignores its observations: buy one fixed trade every day
+  buying is allowed, until fully invested. It is used as the reference
+  point for learned policies that reduce to unconditional buying.
+
+  \item[Transaction fee / basis points (bps)] The cost of trading,
+  charged as a fraction of the traded amount. 5 bps $=$ 0.05\%, which is
+  50 cents per \$1{,}000 traded.
+
+  \item[Sharpe ratio] The return earned per unit of variation in
+  returns. Higher is better. However, a strategy that barely invests can
+  report a high Sharpe ratio simply because its wealth barely moves.
+
+  \item[Drawdown] The fall from the highest wealth reached so far in the
+  episode, as a fraction of that peak. It measures the largest loss
+  experienced during the episode, not the average one.
+
+  \item[Exposure] The proportion of the capital invested in the asset at
+  a given moment, from 0\% (all cash) to 100\% (fully invested).
+
+  \item[Seed] The starting value of the random number generator. Running
+  the same experiment with several seeds (six in this study) checks that
+  a result does not depend on one particular random initialisation.
+
+  \item[Overfitting] Learning patterns that are specific to the training
+  data rather than patterns that hold in general, which leads to poor
+  performance on new data. The chronological split and the held-out test
+  months guard against this.
+
+  \item[Action masking] Removing impossible actions from the agent's
+  available choices, such as selling with no position or buying with no
+  cash. The agent can neither attempt nor learn from invalid actions.
+
+  \item[State-dependent policy] A policy whose actions change with the
+  observed state even when the same actions are legal. The opposite is a
+  mask-determined policy, which follows a fixed pattern such as buying
+  whenever buying is allowed. In a rising market, that fixed pattern
+  earns a strong return, which is why profit alone cannot reveal it. The
+  behavioural analysis in Chapter~5 was designed to detect this
+  difference.
+
+  \item[Accounting identity] The check that the sum of all daily rewards
+  in a month equals the month's true change in wealth. It is verified in
+  every experiment. If it failed, the rewards would not reflect the
+  actual portfolio.
+
+  \item[Markov property] The requirement that the current state contains
+  everything from the past that is relevant to the next decision. This
+  is the reason drawdown had to be added to the state before it could be
+  used in the reward.
+
+\end{description}

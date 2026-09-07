@@ -29,7 +29,7 @@ MOM_WINDOW = 5       # short-horizon momentum
 VOL_WINDOW = 5       # short-horizon realised volatility
 VOL_LONG = 20        # long-horizon volatility, for the regime ratio
 MA_WINDOW = 20       # trend reference
-ATR_WINDOW = 14      # Wilder's average true range
+ATR_WINDOW = 14      # rolling arithmetic mean of true range (see true_range)
 VOLUME_WINDOW = 20   # relative-volume reference
 
 #: Rows of continuous history needed before any feature is fully defined.
@@ -170,6 +170,7 @@ def compute_market_features(df: pd.DataFrame) -> pd.DataFrame:
     out["vol_k"] = ret.rolling(VOL_WINDOW).std(ddof=0)
     out["ma_gap"] = close / close.rolling(MA_WINDOW).mean() - 1.0
 
+    # Simple rolling mean of TR over n=14 days (not Wilder's recursive smoother).
     atr = true_range(df["High"].astype(float), df["Low"].astype(float), close) \
         .rolling(ATR_WINDOW).mean()
     out["atr_norm"] = atr / close

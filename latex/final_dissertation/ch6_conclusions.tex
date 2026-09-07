@@ -11,7 +11,7 @@ glossed over below.
 \textbf{O1}: the trading MDP was formulated with a nine-feature state that
 is complete with respect to the defined environment, a divisible-asset
 \texttt{Discrete(3)} action model with feasibility masking, and a
-fee-inclusive wealth-change reward whose telescoping property
+fee-inclusive wealth-change reward. The reward's telescoping property
 ($\sum_t \Delta W_t = W_T - W_0$) is verified numerically in every episode.
 Each feature is justified against stated admissibility criteria, and the
 environment refuses to instantiate a state-reward pairing that violates
@@ -27,13 +27,13 @@ and LunarLander, clearing their random floors on all three.
 
 \textbf{O4}: all three methods were evaluated on 24 held-out months of SPY
 data against four reference strategies, under a three-way chronological
-split, matched 80{,}000-step budgets and six seeds, with the action model
+split, matched 80{,}000-step budgets and six seeds. The action model was
 calibrated and the state ladder settled on a validation year that the test
 months never informed.
 
 \textbf{O5}: the observed behaviour was analysed mechanistically. The
 analysis is the part of this project that changed most in the course of
-doing it, because the first credible-looking results turned out to rest on
+doing it. The first credible-looking results turned out to rest on
 twelve implementation defects, and correcting them replaced an apparent
 risk-adjusted victory with a measurable shortfall.
 
@@ -56,15 +56,15 @@ risk-adjusted victory with a measurable shortfall.
 
   \item \textbf{Algorithm family determines whether the state is used at
   all.} REINFORCE is mask-determined in every seed and PPO in almost every
-  seed, on validation and test alike: both converge on rules of the form
+  seed, on validation and test alike. Both converge on rules of the form
   ``buy whenever legal'' or ``never trade'', reading only which actions are
   feasible. Deep Q-learning conditions on its state in every run of every
   cell. That the collapse afflicts a modern clipped method as well as the
-  textbook one rules out gradient variance as the explanation, and leaves
-  the shared property that both optimise a policy directly against an
-  objective whose best unconditional answer is already close to optimal.
+  textbook one rules out gradient variance as the explanation. What the two
+  share is that both optimise a policy directly against an objective whose
+  best unconditional answer is already close to optimal.
   The methodological consequence is general: a comparison between state
-  representations is meaningless for a method that ignores its state, and
+  representations is meaningless for a method that ignores its state. And
   because a state-blind policy scores well in a rising market, returns alone
   cannot reveal this.
 
@@ -81,31 +81,31 @@ risk-adjusted victory with a measurable shortfall.
 
   \item \textbf{Evaluation design is a result in itself, and this project
   demonstrates it against its own earlier work.} An audit found twelve
-  defects, and the two largest both flattered the results: a benchmark
-  labelled buy-and-hold that deployed capital a tenth at a time and so
-  understated itself by 21.6\%, and an action granularity that capped
-  attainable exposure at 0.69 against the benchmark's 0.91, making the
-  benchmark unbeatable in principle regardless of skill. Correcting them
+  defects, and the two largest both flattered the results. A benchmark
+  labelled buy-and-hold deployed capital a tenth at a time, understating
+  itself by 21.6\%. An action granularity capped attainable exposure at
+  0.69 against the benchmark's 0.91, making the benchmark unbeatable in
+  principle regardless of skill. Correcting them
   converted an apparent risk-adjusted victory into a measurable shortfall.
   This is the failure mode the financial machine-learning methodology
   literature warns of \cite{bailey2014, lopezdeprado2018}, encountered from
   the inside rather than cited.
 
   \item \textbf{Variance is a finding, not a nuisance.} Learned outcomes are
-  bimodal across seeds rather than scattered about a mean, which is why the
+  bimodal across seeds rather than scattered about a mean. That is why the
   seed count was raised to six, why ranges are reported rather than standard
-  errors, and why the ladder's stopping rule terminates immediately: it
-  compares differences against seed spread, and the spread is larger than
-  any difference between representations. A single-seed study of this design
-  could have supported almost any conclusion.
+  errors, and why the ladder's stopping rule terminates immediately. The
+  stopping rule compares differences against seed spread, and the spread is
+  larger than any difference between representations. A single-seed study of
+  this design could have supported almost any conclusion.
 \end{enumerate}
 
 \section{Critical appraisal and limitations}
 \label{sec:conc_appraisal}
 
 \paragraph{What is limited.} (i) A single asset and a single market-regime
-window; conclusions drawn from 2024--2025, a period that rose overall, need
-not transfer to other assets or eras, and in particular the finding that
+window. Conclusions drawn from 2024--2025, a period that rose overall, need
+not transfer to other assets or eras. In particular, the finding that
 state-blind maximum exposure is hard to beat is partly a property of that
 drift. (ii) Daily bars in monthly episodes rather than the intraday
 $T{=}390$ horizon originally envisaged; the environment interface is
@@ -130,15 +130,15 @@ change with hindsight, and the first is the substantial one.
 The action model should have been calibrated against the episode length
 before any agent was trained. The exposure ceiling
 (Section~\ref{sec:res_calibration}) is arithmetic, computable in minutes,
-and requires no learning and no test data; had it been computed at the
+and requires no learning and no test data. Had it been computed at the
 outset, an entire round of experiments in which the benchmark was
-unreachable would not have been run, and the conclusion drawn from that
+unreachable would not have been run. The conclusion drawn from that
 round would not have needed retracting.
 
 Second, the verification effort was directed at the wrong layer for too
 long. The environment's unit tests passed throughout, because they tested
 that the accounting was internally consistent. The defects that mattered
-were not accounting errors but mismatches between what a component
+were not accounting errors. They were mismatches between what a component
 guaranteed and what the experiment assumed it guaranteed: features computed
 per-episode rather than continuously, a baseline whose name did not describe
 its behaviour, a reward depending on a quantity absent from the state. Tests
@@ -148,9 +148,9 @@ caught all three, which is how the suite is now organised.
 Third, the risk-neutral reward should have been paired with a risk-aware
 variant as a designed experiment from the start, and paired with the
 admissibility analysis that shows which combinations are even well-posed.
-The project arrived at the right question, whether the state can matter when
-the objective does not reward conditioning, late enough that it is answered
-at one point on the frontier rather than across it.
+The right question, whether the state can matter when the objective does
+not reward conditioning, arrived late in the project. It is therefore
+answered at one point on the frontier rather than across it.
 
 \paragraph{What the project got right, in hindsight.} Validating the
 implementations on games before markets meant that when the agents failed to
@@ -209,8 +209,8 @@ most consequential replanning decision was narrowing an early
 multi-component ambition (uncertainty-aware portfolio management with a
 forecasting subsystem) to a single, fully understood trading MDP with two
 from-scratch algorithms. The decision was made with the supervisor,
-explicitly trading breadth of feature count for depth of understanding
---- a trade this dissertation's examinable content vindicates.
+explicitly trading breadth of feature count for depth of understanding.
+The dissertation's examinable content vindicates that trade.
 
 \begin{table}[h]
 \centering
@@ -245,18 +245,18 @@ abstract last \\
 
 Risk management was handled by construction rather than by contingency
 tables. The riskiest claim in any learning project, that the implementation
-is correct, was attacked at two levels: early, by requiring the agents to
-solve games with known answers, and late, by the audit that found twelve
-defects in code whose own tests were passing. The riskiest scientific claim,
-that the agent beats the market, was constrained by reference strategies
-designed to make it hard to assert falsely, which is precisely why the claim
-was withdrawn when the references were fixed.
+is correct, was attacked at two levels. Early, the agents were required to
+solve games with known answers; late, the audit found twelve defects in
+code whose own tests were passing. The riskiest scientific claim, that the
+agent beats the market, was constrained by reference strategies designed to
+make it hard to assert falsely. That is precisely why the claim was
+withdrawn when the references were fixed.
 
 The audit is worth naming as a project-management outcome rather than only a
 technical one, because it cost roughly a week that was not in the plan and it
 invalidated work already written up. The alternative, publishing the earlier
 numbers, would have produced a more flattering dissertation that could not
-survive its own viva; the exposure ceiling that made the benchmark
+survive its own viva. The exposure ceiling that made the benchmark
 unreachable is a single line of arithmetic that any examiner could reproduce.
 Weekly supervision meetings served as checkpoints throughout, and the final
 suite was engineered to be regenerable in minutes on a laptop CPU, so that
@@ -281,10 +281,10 @@ do without learning anything.
 
 The most useful finding is therefore not about markets but about how such
 experiments go wrong. An earlier version of this project appeared to succeed,
-and the appearance came from two mistakes: the yardstick it was measured
+and the appearance came from two mistakes. The yardstick it was measured
 against had been quietly handicapped, and the agents had been given a trading
 mechanism too slow to match the yardstick even in principle. Both mistakes
 flattered the result. Finding them, rather than publishing around them, is
-what the rest of this dissertation is built on --- because in this field, the
+what the rest of this dissertation is built on. In this field, the
 experiments that report victory are usually the ones with the error still in
 them.

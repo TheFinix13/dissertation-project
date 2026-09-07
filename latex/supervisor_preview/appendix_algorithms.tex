@@ -1,0 +1,113 @@
+% Appendix: full pseudocode of the three learning procedures (moved from
+% Chapter 3 to keep the body within the page budget).
+
+This appendix lists the three learning procedures used in this
+dissertation as they were implemented. REINFORCE and Deep Q-learning
+were built from scratch, while MaskablePPO is the library implementation
+used for comparison. All three apply the same action mask and operate in
+the same trading environment, as described in Chapter~3.
+
+\begin{algobox}
+\textbf{Algorithm 1: REINFORCE for the trading MDP (as implemented)}
+\par\vspace{4pt}\hrule height 0.4pt\vspace{2pt}
+\begin{quote}
+1: \textbf{initialise} policy network \emph{π}θ
+
+2: \textbf{for} iteration = 1, 2, \ldots{} until step budget exhausted
+\textbf{do}
+
+3: sample a training month; reset environment (\emph{C}₀ cash, no
+position)
+
+4: \textbf{for} \emph{t} = 0, \ldots, \emph{T} − 1 \textbf{do}
+
+5: compute legal-action mask; set illegal logits to −∞
+
+6: sample \emph{a}ₜ ∼ \emph{π}θ(· ∣ \emph{s}ₜ); execute; store (log
+\emph{π}θ(\emph{a}ₜ∣\emph{s}ₜ), \emph{r}ₜ)
+
+7: \textbf{end for}
+
+8: compute rewards-to-go \emph{G}ₜ; standardise within the episode
+
+9: \emph{L}(θ) ← −∑ₜ log \emph{π}θ(\emph{a}ₜ∣\emph{s}ₜ) \emph{G}ₜ
+
+10: one Adam step on ∇θ\emph{L}
+
+11: \textbf{end for}
+\end{quote}
+\end{algobox}
+
+\begin{algobox}
+\textbf{Algorithm 2: Deep Q-learning for the trading MDP (as
+implemented)}
+\par\vspace{4pt}\hrule height 0.4pt\vspace{2pt}
+\begin{quote}
+1: \textbf{initialise} \emph{Q}ϕ; target \emph{Q}ϕ⁻ ← \emph{Q}ϕ; replay
+buffer \emph{D}
+
+2: \textbf{for} environment step = 1, 2, \ldots{} until step budget
+exhausted \textbf{do}
+
+3: with prob. ε: random legal action; else \emph{a}ₜ = arg max\emph{a}
+legal \emph{Q}ϕ(\emph{s}ₜ, \emph{a})
+
+4: execute \emph{a}ₜ; store (\emph{s}ₜ, \emph{a}ₜ, \emph{r}ₜ,
+\emph{s}ₜ₊₁, maskₜ₊₁, \emph{d}ₜ) in \emph{D}
+
+5: sample minibatch; form masked temporal-difference targets \emph{y}
+(Section 3.8.5); Adam step on \emph{L}(ϕ)
+
+6: every \emph{K} steps: ϕ⁻ ← ϕ
+
+7: \textbf{end for}
+\end{quote}
+\end{algobox}
+
+\begin{algobox}
+\textbf{Algorithm 3: MaskablePPO for the trading MDP (as implemented)}
+\par\vspace{4pt}\hrule height 0.4pt\vspace{2pt}
+\begin{quote}
+1: \textbf{initialise} actor \emph{π}θ and critic \emph{V}ψ
+(MaskablePPO, MLP 128--128)
+
+2: \textbf{for} iteration = 1, 2, \ldots{} until step budget exhausted
+\textbf{do}
+
+3: \textbf{for} step = 1, \ldots, \emph{N} \textbf{do}
+
+4: \textbf{if} episode terminated: sample a training month; reset
+(\emph{C}₀ cash, no position)
+
+5: observe \emph{s}ₜ and legal-action mask; sample \emph{a}ₜ ∼
+\emph{π}θ(· ∣ \emph{s}ₜ) over legal actions
+
+6: execute; store (\emph{s}ₜ, \emph{a}ₜ, \emph{r}ₜ,
+\emph{V}ψ(\emph{s}ₜ), log \emph{π}θ(\emph{a}ₜ∣\emph{s}ₜ))
+
+7: \textbf{end for}
+
+8: estimate advantages \emph{Â}ₜ by GAE; form returns
+
+9: \textbf{for} epoch = 1, \ldots, \emph{K} \textbf{do}
+
+10: \textbf{for} each minibatch from the rollout \textbf{do}
+
+11: \emph{ρ}ₜ ← \emph{π}θ(\emph{a}ₜ∣\emph{s}ₜ) /
+\emph{π}θ\_old(\emph{a}ₜ∣\emph{s}ₜ)
+
+12: Adam step on \emph{L}CLIP(θ) + value loss − entropy bonus
+
+13: \textbf{end for}
+
+14: \textbf{end for}
+
+15: \textbf{end for}
+\end{quote}
+\par\vspace{2pt}\hrule height 0.4pt\vspace{2pt}
+\emph{Notes. N = 2048 is the Stable-Baselines3 rollout length used here,
+and K = 10 is the number of training epochs over each rollout. Month
+sampling and action masking use the same environment interface as
+REINFORCE and DQN, so all three algorithms face the same action space at
+every step.}
+\end{algobox}

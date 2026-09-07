@@ -57,45 +57,43 @@ family for their patience and support throughout the year.
 
 % ---------- Abstract ----------
 \begin{abstract}
-Reinforcement learning (RL) promises trading agents that learn from
-experience, but markets provide no ground truth against which a broken
-implementation can be detected. This dissertation adopts an
-understanding-first methodology: the two canonical algorithm families ---
-the Monte-Carlo policy gradient (REINFORCE) and value-based Deep
-Q-learning --- are derived from first principles, implemented from scratch,
-validated on games with known outcomes, and only then applied to a trading
-MDP whose nine-feature state is justified feature by feature against stated
-admissibility criteria, paired with a divisible-asset action model and a
-fee-inclusive wealth-change reward. Library PPO is added as a third
-comparator. Evaluation uses eight years of S\&P~500 ETF data under a
-three-way chronological split, with the action model calibrated and the
-state settled on a validation year before 24 held-out months are read once,
-over six seeds and against four reference strategies.
+This dissertation asks whether a reinforcement learning agent can trade a
+stock-market fund more profitably than simply buying and holding it.
+Markets make this question treacherous: there is no ground truth, so a
+broken implementation can look like a mediocre strategy indefinitely. The
+methodology is therefore understanding-first. Two learning algorithms,
+REINFORCE and Deep Q-learning, are derived step by step and implemented
+from scratch; the library algorithm PPO is added as a third comparison.
+Each agent sees a nine-feature state, justified feature by feature against
+explicit admissibility criteria, and chooses daily between holding, buying
+a fixed money slice of the asset, or selling one. The reward is the change
+in portfolio wealth after fees. Evaluation uses eight years of S\&P~500
+data under a strict chronological split. All design choices are settled on
+a validation year, and 24 held-out months are then read exactly once,
+across six seeds and four reference strategies.
 
-No learned agent beats buy-and-hold on return or on risk-adjusted return.
-The reason is diagnostic rather than incidental: a purpose-built test shows
-that REINFORCE in every seed, and PPO in almost every seed, converge on
-policies determined entirely by which actions are feasible, ignoring the
-state they are given, while Deep Q-learning conditions on its state in every
-run but attains only 41\% of the benchmark's return for 40\% of its
-drawdown --- de-risking by holding less, not by timing. A ladder of state
-representations from one feature to twelve produces no separation that
-exceeds the spread across seeds, which is the predicted consequence of the
-objective: under a risk-neutral wealth reward on a drifting asset the best
-policy is unconditional, so a richer state has nothing to earn. Adding a
-drawdown penalty makes this worse, because abstention is the cheapest way to
-comply.
+No learned agent beats buy-and-hold, on raw return or risk-adjusted
+return. A purpose-built diagnostic explains why. REINFORCE converges, in
+all six seeds, to policies that ignore the state entirely and respond only
+to which actions are legal; PPO does the same. Deep Q-learning does use
+its state, but earns only 41\% of the benchmark's return for 40\% of its
+drawdown: it reduces risk by holding less, not by timing the market.
+Enriching the state from one feature to twelve changes nothing beyond seed
+noise. This null result is the predicted consequence of the objective:
+under a risk-neutral wealth reward on a rising asset the best policy is to
+always buy, so a richer state has nothing to add. A drawdown penalty makes
+matters worse, because not trading is the cheapest way to avoid drawdown.
 
-An audit of the project's own earlier implementation found twelve defects,
-three invalidating, including a benchmark labelled buy-and-hold that
-deployed capital a tenth at a time and an action granularity that placed the
-benchmark beyond reach in principle; both flattered the results, and
-correcting them replaced an apparent risk-adjusted victory with a measurable
-shortfall. The contributions are a traceable derivation-to-implementation
-pipeline, an admissibility-driven account of state design in which the
-criteria decide concrete cases, a diagnostic for whether a learned policy
-uses its state at all, and an evaluation framework under which a negative
-result is interpretable rather than merely disappointing.
+The most consequential contribution is methodological. An audit of the
+project's own earlier code found twelve defects, three severe enough to
+invalidate results. One was a ``buy-and-hold'' benchmark that in fact
+deployed capital a tenth at a time; another was a trade size that made the
+benchmark unreachable by any policy. Correcting them replaced an apparent
+victory with a measurable, explainable shortfall. The dissertation
+therefore delivers a traceable pipeline from derivation to implementation,
+a test for whether a trained policy uses its observations at all, and an
+evaluation framework under which a negative result is informative rather
+than merely disappointing.
 \end{abstract}
 
 \tableofcontents

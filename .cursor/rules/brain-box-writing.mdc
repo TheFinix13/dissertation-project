@@ -1,0 +1,35 @@
+---
+description: Brain Box academic writing standards (Talha-pattern readability) for all dissertation prose
+alwaysApply: true
+---
+
+# Brain Box writing standards — always apply in this workspace
+
+Before drafting or editing ANY report prose (LaTeX chapters, Word report content, docs), read the Brain Box source-of-truth files:
+
+1. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/fiyin-writing-style.md` — **Fiyin's voice fingerprint; write in THIS voice directly** (plain verbs, no metaphors, short topic-split paragraphs, chapter-level cross-refs, modest claims, one-line section bridges)
+2. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/readability-and-clarity.md` — the six rules with Talha examples
+3. `/Users/the1finix/Documents/GitHub/brain-box/.cursor/rules/academic-writing.mdc` — full academic standards (IMRaD, citations, LaTeX-canonical workflow)
+4. `/Users/the1finix/Documents/GitHub/brain-box/school/methodology/grading-criteria-rubric.md` — self-mark before delivering
+
+Talha's exemplar reports on disk (imitate the style on the page, not just tone):
+- `/Users/the1finix/Documents/GitHub/brain-box/inbox/imports/coursework-feedback/aml/Group15_Report_6962514.pdf.txt`
+- `/Users/the1finix/Documents/GitHub/brain-box/inbox/imports/coursework-feedback/rsp/EEEM072_Group33.docx.txt`
+
+## The six rules (apply on every draft, no exceptions for EEEM004)
+
+1. **Lead with intuition, follow with formalism.** Human consequence before any acronym. Max 3 acronyms per paragraph.
+2. **One idea per sentence.** At least 4 of every 5 sentences under 30 words. Three commas or three "and"s = split it.
+3. **Define every acronym once, then alternate with plain nouns** ("the policy", "the forecaster", "the agent").
+4. **Signpost every section**: open with one sentence stating scope, close with one line bridging to the next section.
+5. **Number-first results.** Every results paragraph: (1) headline number + units, (2) what changed, (3) why it matters, (4) what we did about it.
+6. **Concrete worked example before abstract claim.** Every method section walks through one specific instance (date, exact prices, exact decision).
+
+## Hard conventions
+
+- Never use the `§` glyph; write "Section 3" (`\Cref` in LaTeX).
+- Max one em-dash per sentence.
+- Limitations before future work, always.
+- Harvard citations for Surrey deliverables.
+- Equations are LaTeX; never Word's equation editor as source.
+- Run the six-question self-check in `readability-and-clarity.md` before calling any chapter done.

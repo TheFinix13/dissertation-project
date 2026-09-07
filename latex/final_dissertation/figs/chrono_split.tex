@@ -1,22 +1,39 @@
-\documentclass[tikz,border=8pt]{standalone}
+\documentclass[tikz,border=10pt]{standalone}
 \usepackage{newtxtext,newtxmath}
 \usetikzlibrary{arrows.meta}
 \begin{document}
 \begin{tikzpicture}[font=\small]
-% timeline bar: 84 months, train 58 (69%), test 26 (31%)
-\def\W{12.6} \def\H{0.9}
-\def\SPLIT{8.7} % 58/84 of width
-\draw[fill=blue!12, draw=black!70] (0,0) rectangle (\SPLIT,\H);
-\draw[fill=green!14, draw=black!70] (\SPLIT,0) rectangle (\W,\H);
-\node at (\SPLIT/2, \H/2) {\textbf{Training: 58 months} (Jan 2018 -- Oct 2022)};
-\node at ({(\SPLIT+\W)/2}, \H/2) {\textbf{Test: 26 months}};
-\node[font=\footnotesize] at ({(\SPLIT+\W)/2}, -0.32) {Nov 2022 -- Dec 2024};
-\node[font=\footnotesize] at (\SPLIT/2, -0.32) {agent learns here only};
-\draw[-{Stealth[length=2.6mm]}, thick] (0,-0.85) -- (\W,-0.85)
-  node[pos=1, below left, font=\footnotesize]{time $\rightarrow$};
-\draw[thick, black!70] (\SPLIT, -0.15) -- (\SPLIT, \H+0.15);
-\node[font=\footnotesize\itshape, align=center] at (\W/2, \H+0.55)
-  {strictly chronological --- never shuffled, so the test period is always
+% 96 months: train 60, val 12, test 24 — wider canvas so labels fit
+\def\W{18.0} \def\H{1.15}
+\def\SPLITA{11.25} % 60/96
+\def\SPLITB{13.50} % 72/96
+\def\CXA{5.625}    % train centre
+\def\CXB{12.375}   % validation centre
+\def\CXC{15.750}   % test centre
+
+\draw[fill=blue!12, draw=black!70] (0,0) rectangle (\SPLITA,\H);
+\draw[fill=orange!18, draw=black!70] (\SPLITA,0) rectangle (\SPLITB,\H);
+\draw[fill=green!14, draw=black!70] (\SPLITB,0) rectangle (\W,\H);
+
+\node[align=center] at (\CXA, \H/2)
+  {\textbf{Training: 60 months}\\(Jan 2018 -- Dec 2022)};
+\node[align=center, font=\footnotesize] at (\CXB, \H/2)
+  {\textbf{Validation}\\12 months};
+\node[align=center, font=\footnotesize] at (\CXC, \H/2)
+  {\textbf{Test}\\24 months};
+
+\node[font=\footnotesize, align=center] at (\CXA, -0.55) {agent learns\\here only};
+\node[font=\footnotesize, align=center] at (\CXB, -0.55) {2023:\\all tuning};
+\node[font=\footnotesize, align=center] at (\CXC, -0.55) {2024--2025:\\touched once};
+
+\draw[thick, black!70] (\SPLITA, -0.15) -- (\SPLITA, \H+0.15);
+\draw[thick, black!70] (\SPLITB, -0.15) -- (\SPLITB, \H+0.15);
+
+\draw[-{Stealth[length=2.8mm]}, thick] (0,-1.25) -- (\W,-1.25)
+  node[pos=1, below left, font=\footnotesize, xshift=2mm]{time $\rightarrow$};
+
+\node[font=\footnotesize\itshape, align=center, text width=16cm] at (\W/2, \H+0.75)
+  {strictly chronological --- never shuffled, so validation and test are always
    in the agent's future};
 \end{tikzpicture}
 \end{document}

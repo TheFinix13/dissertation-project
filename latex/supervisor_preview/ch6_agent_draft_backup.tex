@@ -1,0 +1,183 @@
+% Chapter 6 --- Conclusions and Future Work
+% Drafted to match the voice and evidence of Chapters 3-5.
+
+\section{Summary of the Work}
+
+This dissertation asked whether standard reinforcement learning algorithms
+can learn profitable, genuinely state-dependent trading policies for a
+single liquid asset. To answer this, a complete experimental system was
+built: a daily trading environment for the SPY exchange-traded fund with
+monthly episodes, transaction fees and action masking; a nine-feature state
+representation with an optional drawdown extension; two reward
+formulations; and three learning algorithms --- REINFORCE, Deep Q-learning
+(DQN) and Proximal Policy Optimisation (PPO). Every component was covered
+by an automated verification suite, and every design decision was made on
+validation data before the 24 held-out test months were evaluated once.
+
+The experiments followed a deliberate order. The fixed trade size was
+calibrated first, so that the agents could reach a fair fraction of the
+benchmark's market exposure. A behavioural diagnostic then established
+which learned policies actually used their observations. Only after these
+foundations were fixed were the agents compared against the benchmarks on
+unseen data, followed by sensitivity experiments on the state
+representation, the reward formulation and the level of transaction costs.
+
+\section{Conclusions Against the Research Questions}
+
+Chapter 1 posed four research questions. Each can now be answered with the
+evidence of Chapter 5.
+
+\textbf{Performance: no learned agent outperformed buy-and-hold.}
+Buy-and-hold earned +\$180.25 per month on the held-out months. The best
+learned agent, REINFORCE, earned +\$171.51 --- \$8.74 short --- while PPO
+earned +\$127.35 and DQN +\$74.68. The gap is not explained by transaction
+costs or by the action model, both of which were controlled. The test
+period rose in 17 of 24 months, and staying invested was simply very hard
+to beat. The honest conclusion is not that reinforcement learning failed,
+but that the experiments found no evidence of learned skill beyond what an
+unconditional buyer achieves.
+
+\textbf{Behaviour: the algorithms split cleanly on whether they used the
+state.} All six DQN seeds changed their actions in response to the observed
+state. None of the twelve policy-gradient seeds (REINFORCE and PPO) did.
+This behavioural finding reframes the performance ranking: REINFORCE's
+near-benchmark return came from policies that converged to unconditional
+buying, not from reading the market. Return alone would have hidden this
+distinction entirely, which is the strongest argument this dissertation
+makes for behavioural evaluation of learned traders.
+
+\textbf{State representation: adding the drawdown feature changed little.}
+Under the wealth-change reward, the ten-feature state moved REINFORCE by
+$-\$4.12$ and DQN by $+\$3.13$ per month --- both far smaller than the seed
+spreads of those methods --- and left the state-dependence results
+unchanged. PPO's mean improved by \$32.62, but with a seed spread that
+shrank from \$179.80 to \$94.00, the change cannot be attributed to the
+feature with confidence. Information in the state is only useful if the
+learning objective gives the agent a reason to use it.
+
+\textbf{Reward: the risk-aware reward reduced risk by reducing
+participation.} With the selected penalty weight of $\lambda = 0.10$, DQN's
+mean drawdown fell 41\% (from 0.0140 to 0.0082), but its return fell 32\%
+(from +\$77.81 to +\$52.90) and its exposure halved. Its Sharpe ratio fell
+from 0.505 to 0.416, so risk-adjusted performance worsened. The penalty
+taught the agents to hold less of the asset, not to time the market's
+declines --- in March 2025, the month where stepping aside mattered most,
+the state-dependent agent held \emph{more} than its average exposure and
+took 46\% of the benchmark's loss.
+
+\section{Critical Appraisal of the Project}
+
+The most consequential decisions in this project were methodological rather
+than algorithmic, and most of them were forced by problems found along the
+way.
+
+The verification-first approach paid for itself. The automated test suite
+caught an implementation error in the buy-and-hold benchmark that
+understated it by \$38.95 per month (21.6\%) --- an error that, left in
+place, would have flipped the headline conclusion of this dissertation by
+making the learned agents appear to beat the benchmark. All 21 verification
+tests passed before any reported experiment was run. Similarly, the
+trade-size calibration prevented a subtler mistake: under the original
+$0.10\,C_0$ trade size, no agent could have reached more than 0.690
+exposure against the benchmark's 0.910, and poor agent performance would
+have been built into the environment rather than learned.
+
+The behavioural diagnostic proved to be the most valuable analytical tool
+in the study. Without it, REINFORCE's +\$171.51 would have read as a
+near-success for reinforcement learning. With it, the same number reads
+correctly: as the return of an unconditional buyer in a rising market.
+
+Some parts of the project were harder than planned. Seed variance dominated
+several comparisons --- PPO's spread of \$179.80 exceeded its own mean
+return --- which meant that no single training run could support any
+conclusion, and every configuration had to be trained six times from
+scratch. The risk-aware reward also required more care than expected: the
+penalty weight sweep showed a sharp behavioural cliff between $\lambda =
+0.10$ and $0.25$, where exposure collapses from 0.344 to 0.074, so the
+selection rule had to be designed around retaining participation rather
+than around drawdown alone.
+
+\section{Limitations}
+
+The findings should be read within the following limits, stated before any
+future work is proposed.
+
+\begin{itemize}
+\item
+  \textbf{One asset, one regime.} All results concern SPY, and the
+  held-out period (2024--2025) was generally rising. A market with
+  prolonged declines would test the agents --- and the buy-and-hold
+  benchmark --- very differently, and the conclusions here cannot be
+  assumed to transfer.
+\item
+  \textbf{A fixed, discrete action model.} The agents trade fixed
+  fractions of initial capital. The calibration in Section 5.3 made this
+  fair against the benchmark, but a policy that can size its positions
+  continuously might behave qualitatively differently.
+\item
+  \textbf{Six seeds, no formal significance testing.} Seed spreads are
+  reported throughout and are often decisive, but the study stops short
+  of hypothesis tests. With six seeds per configuration, small
+  differences --- such as DQN's $+\$3.13$ state-representation change ---
+  cannot be distinguished from noise, and are not claimed to be real.
+\item
+  \textbf{The penalty weight was selected using one algorithm.} The
+  risk-aware reward's $\lambda$ was chosen with DQN, the only method
+  whose policies respond to the state. The selected value may not be the
+  best choice for the policy-gradient methods.
+\item
+  \textbf{The risk penalty targets only drawdown.} An agent can satisfy
+  it by simply not participating. The results of Section 5.7 show this
+  is what happened; a reward that relates return to risk, rather than
+  penalising risk alone, was not tested.
+\end{itemize}
+
+\section{Future Work}
+
+Each limitation points at a concrete next step, and the behavioural tools
+built here would transfer to all of them.
+
+\begin{itemize}
+\item
+  \textbf{Risk-efficiency objectives.} Replace the drawdown penalty with
+  an objective that rewards return per unit of risk --- a Sharpe-style or
+  drawdown-relative formulation --- so that reducing participation stops
+  being the cheapest way to satisfy the reward. Section 5.7's finding
+  that the penalty mainly bought lower exposure makes this the most
+  direct continuation.
+\item
+  \textbf{Predictive, uncertainty-aware state information.} The drawdown
+  feature describes the agent's own past losses, not the market's
+  future. A state enriched with forecast information and an estimate of
+  its own uncertainty would give a state-dependent learner something
+  genuinely predictive to condition on, and would directly test whether
+  DQN's willingness to use the state can be turned into timing skill.
+\item
+  \textbf{Harder market regimes.} Repeat the held-out evaluation over
+  periods containing sustained declines, and move to walk-forward
+  retraining so the agents see regime changes during training. The
+  present study shows what happens in a rising market; the economically
+  interesting question is what happens in a falling one.
+\item
+  \textbf{Richer action models.} Allow continuous position sizing, so
+  that the trade-size calibration of Section 5.3 becomes unnecessary and
+  the agent can express conviction rather than repetition.
+\item
+  \textbf{More seeds and formal statistics.} Scale the seed count and
+  add significance testing so that small effects --- currently
+  indistinguishable from noise --- can be confirmed or dismissed.
+\end{itemize}
+
+\section{Closing Remarks}
+
+This dissertation set out to determine whether standard reinforcement
+learning could beat the simplest investment strategy on unseen data, and
+found that it could not: the best learned agent finished \$8.74 per month
+behind buy-and-hold, and the agents that came closest did so by ignoring
+their observations. The value of the work lies in how firmly that answer
+is established. The comparison was made fair before it was made, the
+policies were evaluated behaviourally as well as financially, and every
+negative finding survived sensitivity checks over states, rewards and
+transaction costs. The framework, diagnostics and corrected benchmarks
+built here form a solid foundation on which the more ambitious agents of
+future work can be evaluated just as honestly.

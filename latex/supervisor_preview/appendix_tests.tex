@@ -1,0 +1,156 @@
+% Appendix: the 21 automated verification tests referenced in Section 4.5.
+% Names match the test functions in experiments/final_v2/test_v2.py.
+% Rewritten 7 Sep in Fiyin's voice (plain sentences, no compressed phrasing).
+
+This appendix lists the 21 automated verification tests referenced in
+Section~4.5. Every test was run and passed before the final experiments
+in Chapter~5 were accepted. The tests are grouped into the same four
+groups as Section~4.5. Each entry gives the test and the property it
+checks. The test names are shown in the dissertation's current
+terminology; a few of the underlying functions in the code keep older
+working names from development, such as ``ladder'' for the staged state
+configurations and ``slice'' for the fixed trade amount.
+
+\subsection*{Environment and portfolio tests}
+
+\begin{longtable}{@{}p{0.44\textwidth}p{0.50\textwidth}@{}}
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+episode always ends flat & Any remaining position is sold on the final
+  trading day, leaving no units held and no exposure. \\
+\rowsep
+wealth can be calculated from the current state & The portfolio wealth
+  can be calculated from the cash and exposure features at every step.
+  This is why wealth is not included in the state as a separate
+  feature. \\
+\rowsep
+drawdown cannot be calculated from the current state alone & Two price
+  paths can arrive at the same cash, exposure, and wealth but have
+  different drawdown values, because drawdown depends on the highest
+  wealth reached earlier. This is why drawdown must be added to the
+  state as a separate feature. \\
+\rowsep
+share action model buys one unit & The implementation also supports an
+  alternative action model in which a buy purchases exactly one whole
+  unit of the asset. This test confirms that model behaves as defined;
+  the main experiments use the fixed-amount model below. \\
+\rowsep
+trade action model spends a fixed sum & A buy spends exactly the
+  configured fraction of the initial capital, excluding the fee. \\
+\rowsep
+true buy-and-hold beats gradual buying when prices rise & The corrected
+  buy-and-hold benchmark invests once at the start of the month and earns
+  more than gradual buying in a rising market. This is the error that led
+  to the benchmark correction described in Chapter~4. \\
+\rowsep
+a month with no trades leaves cash unchanged & If no trades are made
+  during a month, the wealth is unchanged and no fees are charged. This
+  checks the environment's accounting when the agent stays out of the
+  market. \\
+\end{longtable}
+
+\subsection*{Feature and data tests}
+
+\begin{longtable}{@{}p{0.44\textwidth}p{0.50\textwidth}@{}}
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+features use no future data & Removing the later prices from the series
+  does not change any earlier feature value. This confirms that no
+  feature is calculated using future information. \\
+\rowsep
+rolling features survive the episode boundary & Momentum on the first
+  day of a month is calculated from the actual previous trading days,
+  reaching back into the previous month, rather than restarting from
+  zero. \\
+\rowsep
+no NaNs or infinities in any episode & Every feature value in every
+  episode is a finite number, and every price is positive. \\
+\rowsep
+canonical order is independent of input order & Requesting the same
+  features in a different order still produces the same state layout. \\
+\rowsep
+state dimensions are as documented & Each state configuration contains
+  exactly the number of features reported in Chapter~3: nine for the
+  main state and ten when drawdown is added. \\
+\rowsep
+every state configuration is a subset of the next & Each larger state
+  configuration contains all the features of the smaller ones. This means
+  a comparison between two states isolates the effect of the added
+  features. \\
+\rowsep
+split is chronological and disjoint & The training, validation, and test
+  periods are ordered in time and do not share any months. \\
+\end{longtable}
+
+\subsection*{Reward and risk tests}
+
+\begin{longtable}{@{}p{0.44\textwidth}p{0.50\textwidth}@{}}
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+accounting identity holds for every policy & The sum of all daily
+  rewards in a month equals the month's true change in wealth. This
+  holds for every policy and state configuration tested. \\
+\rowsep
+reward equals wealth change when \(\lambda = 0\) & When the risk penalty
+  is switched off, the risk-aware reward gives exactly the same values as
+  the wealth-change reward. \\
+\rowsep
+risk penalty requires drawdown in the state & Configuring the risk-aware
+  reward without the drawdown feature in the state raises an error. This
+  enforces that the reward can be calculated from the information the
+  agent observes. \\
+\rowsep
+risk penalty never increases the reward & For any sequence of actions,
+  the penalised reward is never larger than the unpenalised reward. \\
+\end{longtable}
+
+\subsection*{Action-masking tests}
+
+\begin{longtable}{@{}p{0.44\textwidth}p{0.50\textwidth}@{}}
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Test} & \textbf{Property checked} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+mask blocks infeasible trades & Selling is not allowed when no position
+  is held, and buying is not allowed when there is not enough cash.
+  Selling becomes available while a position is held. \\
+\rowsep
+illegal action is forced to hold and flagged & If an invalid action is
+  supplied from outside the environment, it is executed as Hold, flagged
+  in the step information, and no trade is recorded. \\
+\rowsep
+mask is a deterministic function of observed features & The legal-action
+  mask can be predicted exactly from the cash and exposure features. This
+  means masking constrains the agent without giving it extra
+  information. \\
+\end{longtable}

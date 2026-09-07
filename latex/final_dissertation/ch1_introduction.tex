@@ -20,10 +20,10 @@ In everyday terms, reinforcement learning is how one might train a pet:
 nobody hands the animal a manual, but rewarded behaviour is repeated and
 unrewarded behaviour fades. The technical content of this dissertation
 is, at heart, a precise answer to two questions that this analogy leaves
-open: \emph{what exactly should the learner be shown} (the state),
-and \emph{what exactly should count as the reward} --- because, as our
-results will demonstrate, the answers determine everything the agent
-ultimately does.
+open: \emph{what exactly should the learner be shown} (the state), and
+\emph{what exactly should count as the reward}. As the results will
+demonstrate, those two answers determine everything the agent ultimately
+does.
 
 Financial trading is one of RL's most natural --- and most unforgiving
 --- testbeds. A trading agent observes market and portfolio information,
@@ -40,23 +40,23 @@ either wins or loses. In markets, no oracle labels the right action, so a
 strategy indefinitely} --- there is no error message, only a plausible-looking
 equity curve. Worse, decades of financial economics
 \cite{fama1970} warn that beating a simple passive strategy using public
-price history alone should be rare; an experiment that appears to do so
+price history alone should be rare. An experiment that appears to do so
 easily is more likely to contain a bug or an unfair comparison than a
 discovery \cite{bailey2014}. This dissertation therefore adopts an
-\emph{understanding-first} methodology: derive each learning rule from
-first principles, implement it from scratch, validate it on games with
-known outcomes, and only then apply it to market data --- with baselines
-designed so that honest conclusions are detectable.
+\emph{understanding-first} methodology. Each learning rule is derived from
+first principles, implemented from scratch, and validated on games whose
+correct outcome is known. Only then is it applied to market data, against
+baselines designed so that an honest conclusion is detectable.
 
 \section{Problem statement}
 \label{sec:intro_problem}
 
 We study single-asset trading formulated as an episodic Markov Decision
-Process (MDP): one calendar month of daily prices is one episode; the
+Process (MDP). One calendar month of daily prices is one episode, and the
 agent begins each episode holding only cash and must end it in cash. At
-each trading day it observes a \emph{complete} state --- nine numbers
+each trading day it observes a \emph{complete} state: nine numbers
 summarising the market's recent behaviour, the time remaining in the
-episode, and its own balance sheet --- and chooses one of three actions:
+episode, and its own balance sheet. It then chooses one of three actions:
 hold, buy a fixed slice of the asset, or sell a slice. Its reward at each
 step is the change in its total wealth, with realistic transaction fees
 deducted. The learning problem is to find, from experience alone, the
@@ -66,10 +66,10 @@ Two canonical algorithm families are implemented from scratch and
 compared under identical conditions: the Monte-Carlo policy gradient
 (REINFORCE~\cite{williams1992}), which learns the decision rule directly,
 and value-based Deep Q-learning \cite{mnih2015}, which learns the value
-of each action and acts greedily on those values. A third row --- PPO
-\cite{schulman2017ppo}, the stabilised modern policy gradient, via a
-reference library implementation \cite{raffin2021sb3} --- completes the
-algorithm ablation.
+of each action and acts greedily on those values. PPO
+\cite{schulman2017ppo}, the stabilised modern policy gradient, completes
+the comparison via a reference library implementation
+\cite{raffin2021sb3}.
 
 \section{Objectives}
 \label{sec:intro_objectives}
@@ -78,7 +78,7 @@ algorithm ablation.
   \item[\textbf{O1}] Formulate single-asset trading as an episodic MDP
         whose state is complete with respect to the defined environment,
         with a divisible-asset action model and a wealth-change reward
-        including explicit transaction costs, and justify each element of
+        including explicit transaction costs. Justify each element of
         the state against stated admissibility criteria rather than by
         appeal to plausibility.
   \item[\textbf{O2}] Derive, from first principles, the policy-gradient
@@ -98,11 +98,11 @@ algorithm ablation.
         formulation, including partial observability and non-IID data.
 \end{enumerate}
 
-These objectives were agreed through supervision and deliberately weight
-\emph{depth of understanding} over breadth of features: a smaller system
-in which every equation, every line of code and every reported number can
-be defended, rather than a larger system assembled from library calls
-whose behaviour cannot be explained.
+These objectives were agreed through supervision, and they deliberately
+weight \emph{depth of understanding} over breadth of features. The aim is
+a smaller system in which every equation, every line of code and every
+reported number can be defended, rather than a larger system assembled
+from library calls whose behaviour cannot be explained.
 
 \section{Contributions}
 \label{sec:intro_contributions}
@@ -114,21 +114,20 @@ whose behaviour cannot be explained.
         map is Appendix~\ref{app:trace}).
   \item A nine-feature state derived as a ladder of increasing
         informational completeness, in which each feature answers a
-        situation its predecessor could not distinguish, and in which
-        admissibility criteria decide two otherwise similar cases in
-        opposite directions: the episode's running profit is excluded
-        because it is recoverable from features already present, while
-        drawdown must be supplied explicitly because a running maximum is a
-        property of the path. The environment enforces the criteria at
-        construction, so an inadmissible state-reward pairing cannot be
-        instantiated.
+        situation its predecessor could not distinguish. The admissibility
+        criteria decide two otherwise similar cases in opposite
+        directions: the episode's running profit is excluded because it is
+        recoverable from features already present, while drawdown must be
+        supplied explicitly because a running maximum is a property of the
+        path. The environment enforces the criteria at construction, so an
+        inadmissible state-reward pairing cannot be instantiated.
   \item A diagnostic for whether a learned policy uses its state at all,
-        together with the finding it produced: the two policy-gradient
+        together with the finding it produced. The two policy-gradient
         methods converge on policies determined entirely by which actions
         are feasible, in almost every seed and at every rung from one
-        feature to twelve, while the value-based method conditions on its
+        feature to twelve; the value-based method conditions on its
         state in every run. Because a state-blind policy scores well in a
-        rising market, return alone cannot detect this, and a comparison
+        rising market, return alone cannot detect this. A comparison
         between state representations is meaningless for a method that
         ignores the representation.
   \item An evaluation framework built to make negative results
@@ -137,7 +136,7 @@ whose behaviour cannot be explained.
         well as across them, the accounting identity verified per episode,
         and selection rules evaluated in code. Under it, the central finding
         is that no learned agent beats buy-and-hold on return or on
-        risk-adjusted return, and that the binding constraint is the reward
+        risk-adjusted return. The binding constraint is the reward
         rather than the state: a risk-neutral objective on a drifting asset
         makes the best policy unconditional, so richer states have nothing
         to earn.
@@ -156,13 +155,12 @@ whose behaviour cannot be explained.
 It is as important to state what this project is \emph{not}. It is not an
 attempt to produce a profitable trading system: the efficient-market
 null hypothesis \cite{fama1970}, the single asset, and the daily-bar
-granularity all argue against that reading, and Chapter~\ref{ch:results}
+granularity all argue against that reading. Chapter~\ref{ch:results}
 shows why apparent profitability claims in this setting demand suspicion
-before celebration. It is also not a survey of every RL algorithm:
-methods are included only where they earn their place in the ablation
-logic (REINFORCE as the transparent foundation, Deep Q as the
-structurally different value-based family, PPO as the stabilised
-descendant). The deliverable is a defensible scientific account: a
+before celebration. It is also not a survey of every RL algorithm.
+Methods are included only where they earn their place in the comparison:
+REINFORCE as the transparent foundation, Deep Q as the structurally
+different value-based family, and PPO as the stabilised descendant. The deliverable is a defensible scientific account: a
 carefully formulated problem, correctly derived and implemented learners,
 and an evaluation whose conclusions survive scrutiny.
 
@@ -186,11 +184,12 @@ each builds strictly on its predecessor:
         mathematics becomes verified code: environment, agents, tests,
         and the exact hyperparameters used.
   \item \textbf{Chapter~\ref{ch:results}} reports the experiments in the
-        order the argument requires: validation of the learners on games
-        with known answers; three studies on the validation year that
-        calibrate the action model, establish whether the learners use their
-        state, and test the ladder; then the held-out months, evaluated
-        once; then fee sensitivity and the consolidated analysis.
+        order the argument requires. First the learners are validated on
+        games with known answers. Three validation-year studies then
+        calibrate the action model, test whether the learners use their
+        state, and test the ladder. Finally the held-out months are
+        evaluated once, followed by fee sensitivity and the consolidated
+        analysis.
   \item \textbf{Chapter~\ref{ch:conclusions}} closes with achievements
         against objectives, an honest critical appraisal, future work,
         and a reflection on project management.
@@ -210,7 +209,7 @@ replaces, that narrative.
 classic learning algorithms, built from the ground up, to trade a stock
 fund with imaginary money on real historical prices. Because markets
 never tell you what the right decision was, the project's first rule is
-honesty: prove the learners work on video games first, make them show
-their working at every step, and compare them against the simplest
-sensible strategy --- just buying and holding. The next chapter explains
-the ideas this is built on.
+honesty. The learners must prove they work on video games first, show
+their working at every step, and beat the simplest sensible strategy:
+just buying and holding. The next chapter explains the ideas this is
+built on.

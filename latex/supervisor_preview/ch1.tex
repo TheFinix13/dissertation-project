@@ -1,0 +1,244 @@
+\section{Background and Motivation}
+
+A private investor holding an S\&P 500 asset faces a similar decision
+each trading day: buy more, sell part of the position, or do nothing. On
+most days, the choice may have little effect on the overall outcome.
+During a heavy market move, however, the decision can have a much larger
+impact.
+
+March 2025 is one of such periods studied in this dissertation. Under
+the experimental setup used later in this study, it was the worst month
+for a simple buy-and-hold strategy, which lost \$398.41 from an initial
+\$10,000 investment, approximately 4\% of the starting capital. An investor who reduced their position before the decline could
+have avoided part of this loss. However, reducing positions too often
+would also mean missing gains during the other months, which produced an
+average monthly gain of more than \$200.
+
+The problem is therefore not just when to invest, or deciding when the
+market will rise or fall, but how to make a series of decisions about an
+asset's position as market conditions change, as each decision made
+affects the position long-term and the consequences of that action will
+only become clear several days or weeks later.
+
+This makes trading a sequential decision-making problem, which is one
+reason reinforcement learning (RL)~\cite{sutton2018} is appropriate for the task. RL
+allows an agent to learn by interacting with an environment, observing
+the results of its actions, and receiving rewards over time based on
+those results. In essence, it learns a policy/strategy that makes better
+decisions to receive more rewards.
+
+Trading has several characteristics that make it suitable for this
+machine learning approach. The agent observes information about the
+market and its portfolio, selects from a set of possible actions such as
+buying, selling, or holding, and receives a measurable reward based on
+the change in portfolio wealth. As a result, reinforcement learning has
+been increasingly applied to financial trading~\cite{moody2001, deng2017, fischer2018}.
+
+However, another important problem arises. The Stock/Equity markets
+generally rise over the years rather than fall. Meaning that, in a
+rising market, a strategy that simply remains invested without any
+pulling out can generate a strong return without using any market
+information. A learned agent that produces a positive return therefore
+has not necessarily demonstrated, by itself, that it has learned a
+useful trading strategy in such markets.
+
+Two questions become relevant. First, can the learned agent outperform
+the simple buy-and-hold strategy with which it is being compared?
+Second, does the agent actually use the information available to it when
+deciding what action to take? These questions are important when
+evaluating on data not used during training.
+
+This dissertation therefore focuses on both the financial performance of
+reinforcement learning agents and whether their decisions show evidence
+of using the information provided to them.
+
+\section{Problem Statement}
+
+The main problem this dissertation addresses is whether reinforcement
+learning algorithms can learn a trading policy for a portfolio ---
+containing only one asset in this case --- that beats a simple benchmark
+strategy on unseen data.
+
+However, financial performance alone is not enough to determine that an
+agent has actually learned a useful trading strategy. For example, an
+agent that buys whenever it can, would perform well in a generally
+rising market without using any of the market information provided to
+it. A positive return from such a policy could be incorrectly
+interpreted as proof that the agent learned when to buy, sell, or remain
+out of the market, whereas that was not the case.
+
+Evaluating a learned trading agent therefore requires a second
+perspective alongside financial performance: \textbf{behaviour}. The
+study must analyse whether the agent\textquotesingle s actions are a
+result of changes in the observed market and portfolio state. This helps
+to differentiate a policy that genuinely responds to the information it
+receives from one that simply follows a fixed trading pattern.
+
+This dissertation therefore addresses two interrelated problems: whether
+reinforcement learning can produce better financial performance than
+simple benchmarks, and whether that performance stems from a learned
+policy that actually uses the information available to it.
+
+\section{Research Questions and Objectives}
+
+The aim of this dissertation is to evaluate three reinforcement learning
+algorithms --- REINFORCE~\cite{williams1992}, Deep Q-learning (DQN)~\cite{mnih2015}, and Proximal Policy
+Optimization (PPO)~\cite{schulman2017ppo} --- and determine whether they can learn profitable
+and genuinely intelligent trading strategies for the SPY exchange-traded
+fund.
+
+The study is structured around four research questions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Performance:} Do the learned agents outperform simple
+  benchmarks on unseen data after transaction costs are taken into
+  account?
+\item
+  \textbf{Behaviour:} Do the learned agents use the market and portfolio
+  information provided in their state representation when making trading
+  decisions?
+\item
+  \textbf{State representation:} Does adding a drawdown feature to the
+  main nine-feature state change the behaviour learned or the financial
+  performance?
+\item
+  \textbf{Reward:} Does a risk-aware reward improve the balance between
+  return and drawdown, rather than simply encouraging the agent to trade
+  less?
+\end{enumerate}
+
+These research questions are touched upon through seven measurable
+objectives, each traceable to a specific part of the dissertation
+
+\textbf{O1.} Build a reproducible daily trading environment for SPY
+using monthly episodes, transaction fees, and action masking, and verify
+the environment (Chapter 4).
+
+\textbf{O2.} Implement REINFORCE, DQN, and PPO and verify their
+implementations before running the main trading experiments (Chapters 3
+and 4).
+
+\textbf{O3.} Calibrate the fixed trade size on validation data so the
+agents' exposure to the market is not limited, providing a fair
+comparison to the buy-and-hold benchmark (Section 5.3).
+
+\textbf{O4.} Apply behavioural analysis to determine whether the learned
+policies change their actions in response to the observed state (Section
+5.4).
+
+\textbf{O5.} Measure the effect of adding drawdown to the state while
+keeping the other experimental conditions fixed (Section 5.5).
+
+\textbf{O6.} Compare the final learned agents with the benchmark
+strategies over 24 held-out test months, using six independently trained
+random seeds for each configuration (Section 5.6).
+
+\textbf{O7.} Examine whether results change when a different reward
+formula is used (Section 5.7).
+
+These objectives create a structured way to evaluate both the financial
+performance and the learned behaviour of the three reinforcement
+learning methods.
+
+\section{Scope}
+
+The study is deliberately narrowed to one asset to make the experiments
+more controlled and easier to analyse.
+
+All experiments use the SPY asset, an exchange-traded fund that tracks
+the S\&P 500 index, with daily data from 2018 to 2025. The data are
+divided chronologically into training (2018--2022), validation (2023),
+and held-out for testing periods (2024--2025).
+
+Each monthly episode starts with \$10,000 of capital and no asset
+holdings, and each transaction to open a position incurs a 0.05\% fee.
+The available actions are discrete: the agent can buy a fixed fraction
+of the initial capital, sell the same amount, or hold. The action
+masking prevents invalid actions, such as attempting to sell when no
+position is held.
+
+Three reinforcement learning algorithms are evaluated. REINFORCE and
+Deep Q-learning are implemented from scratch, while PPO is implemented
+using a popular library.
+
+Several areas are intentionally outside the scope of this study. These
+include multi-asset portfolios, continuous position sizing, intraday
+trading data, and live deployment. Keeping the study within these
+boundaries limits the number of factors that can affect the results,
+making it easier to identify which specific factor causes a change in
+performance or behaviour during testing rather than multiple changes at
+once.
+
+\section{Contributions}
+
+This dissertation makes four main contributions:
+
+\textbf{1. A framework for evaluating trading agents.}
+
+The study uses a controlled process in which experiment variables, such
+as trade size and transaction cost, are set using validation data and
+finalized before moving on to the held-out test data. The trading
+environment, state features, rewards, and benchmark strategies are also
+verified through tests to identify and correct problems before final
+evaluation,
+
+\textbf{2. A behavioural analysis for testing state utilization.}
+
+A separate analysis was developed to determine whether a policy learned
+actually responds to the information in its state, rather than simply
+following a fixed pattern of available actions.
+
+In this evaluation, steps are grouped by their action mask. When a
+policy selects different actions at steps with the same mask pattern,
+the difference cannot be explained by the available actions alone,
+thereby demonstrating a change in its action based on the current
+observed state. The analysis does not identify which individual state
+feature drives this dependence, nor does it make claims about the
+learned network\textquotesingle s internal representations.
+
+This reveals a difference between algorithms that would not be seen from
+financial return figures alone: all six Deep Q-learning seeds were
+state-dependent, while none of the twelve policy-gradient seeds
+(REINFORCE and PPO) were (Section 5.4).
+
+\textbf{3. An explanation for the negative results.}
+
+None of the three learning algorithms outperformed buy-and-hold across
+the 24 held-out test months. The behavioural analysis helps explain this
+outcome. The policies that achieved returns closest to the benchmark,
+REINFORCE, generally did so through a fixed pattern of high exposure,
+while the algorithm that did use its state information, Deep Q-learning,
+reduced market participation rather than successfully understanding
+market conditions to perform better.
+
+Although the overall result is negative, evidence from the six training
+seeds per configuration, behavioural analysis, and peripheral
+experiments on state representation, reward function, and transaction
+costs supports it as a finding rather than a failure.
+
+\section{Dissertation Structure}
+
+The dissertation is organized as follows. Chapter 2 reviews existing
+research on reinforcement learning for financial trading and portfolios
+and explains how this study's evaluation approach relates to previous
+work.
+
+Chapter 3 presents the mathematical formulation of the portfolio trading
+problem, describing the trading environment as a Markov decision
+process; the state, action, and reward formulas; the three reinforcement
+learning algorithms; and their optimisation functions.
+
+Chapter 4 describes the system implementation, data pipeline,
+verification process, trading environment, and the corrections made
+during development.
+
+Chapter 5 presents the experiment results and analyses them in relation
+to the four research questions. It reports the trade-size calibration,
+behavioural analysis, benchmark comparison, state representation and
+reward experiment, and transaction-cost calibration.
+
+Finally, Chapter 6 concludes the dissertation by summarising the main
+findings, critically evaluating the work, discussing its limitations and
+possible directions for future research.

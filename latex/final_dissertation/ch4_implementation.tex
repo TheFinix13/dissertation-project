@@ -51,17 +51,17 @@ The system separates six concerns, each in its own module:
 Two properties of this arrangement do methodological work rather than
 merely organising code. Because baselines, learned agents and diagnostics
 all flow through the same \texttt{run\_episode} function, no method can be
-advantaged by a differing evaluation path. And because both experiment
+advantaged by a differing evaluation path. Both experiment
 scripts obtain their environments from the same \texttt{harness.Config}
-object, any difference between two reported rows must appear in the
-configuration dictionary stored alongside them; there is no route by which
-two rows could differ in a way the results file does not record.
+object, so every parameter that distinguishes two reported rows is
+recorded in the configuration dictionary stored alongside them.
 Figure~\ref{fig:pipeline} summarises the flow.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{system_pipeline}
-  \caption{System architecture: four decoupled modules. The evaluation
+  \caption{System architecture: the six modules of
+  Section~\ref{sec:arch} and the data flow between them. The evaluation
   harness scores every learned agent and every baseline through one
   shared episode-runner, so no method can gain from a differing
   evaluation path.}
@@ -85,7 +85,7 @@ the daily high and low are what make range-based risk representable at all
 computes every market feature on the continuous price series and only then
 slices it into months. This ordering is the whole point of the module.
 Computing a 20-day trend reference inside a monthly episode would leave the
-first day of every month with no history to average, so the agent would be
+first day of every month with no history to average. The agent would then be
 told the market has no trend and no volatility at precisely the moment it
 chooses its opening position. Momentum does not reset because a new month
 has begun.
@@ -170,8 +170,10 @@ construction deliberately and records that it was refused, so the guard is
 evidenced in the results file.
 
 \paragraph{Trade execution and the action model.} Under the default slice
-model a Buy spends $\min(C_t,\, \Delta)$ dollars with
-$\Delta = 0.25\,C_0$, acquiring $x/(P_t(1+c))$ units, and a Sell liquidates
+model a Buy spends $\min(C_t,\, \Delta)$ dollars, where $\Delta$ is a
+constructor argument (the design value is $0.1\,C_0$; its revision is a
+validation-year result, Section~\ref{sec:res_calibration}), acquiring
+$x/(P_t(1+c))$ units, and a Sell liquidates
 $\min(h_t P_t,\, \Delta)$ of position value, crediting $u P_t (1-c)$. Under
 the whole-share model a Buy spends one share price and a Sell releases one
 unit. Both are implemented, selected by a constructor argument, because
@@ -264,7 +266,7 @@ $Q_\phi(s,a)$, exactly as the semi-gradient TD rule prescribes
 \label{sec:impl_ppo}
 
 The third method, PPO, uses a reference implementation rather than a
-from-scratch one, because its role is to answer whether a modern stabilised
+from-scratch one. Its role is to answer whether a modern stabilised
 policy-gradient method behaves differently on this problem, and a
 hand-written approximation of PPO would confound that question with the
 quality of the reimplementation.
@@ -272,9 +274,9 @@ quality of the reimplementation.
 \paragraph{Masking, and why the library choice matters.} Plain PPO from
 Stable-Baselines3 \cite{raffin2021sb3} has no native action masking. Using
 it would leave the policy free to place probability mass on infeasible
-trades and rely on the environment's forced-Hold override to absorb them,
-which is a materially different learning problem from the one REINFORCE and
-Deep Q-learning solve: their distributions are renormalised over legal
+trades and rely on the environment's forced-Hold override to absorb them.
+That is a materially different learning problem from the one REINFORCE and
+Deep Q-learning solve, whose distributions are renormalised over legal
 actions before any action is sampled. Comparing a masked learner with an
 unmasked one and attributing the difference to the algorithm would be
 unsound. PPO is therefore taken from \texttt{sb3-contrib} in its
@@ -288,7 +290,7 @@ distribution over months. A thin wrapper (\texttt{MonthSampler}) draws a
 new training month on every \texttt{reset()} from a generator seeded by the
 run seed. The seeding is the point. In the earlier implementation this
 sampler was seeded to a constant, so changing the run seed altered only the
-network initialisation and left the sequence of months identical; PPO's
+network initialisation and left the sequence of months identical. PPO's
 reported seed-to-seed spread then measured less variation than the other two
 methods' did, and the three were not comparable on stability. The wrapper
 now takes the run seed, so every method's spread reflects the same two
@@ -418,7 +420,10 @@ methodological requirement of the project.
 \centering
 \caption{Hyperparameters and budgets for the final experiments. $d$ is the
 observation width, 9 for the state of Table~\ref{tab:state} and 10 for the
-risk-aware extension.}
+risk-aware extension. MaskablePPO values other than the network width and
+seed are Stable-Baselines3 defaults, stated here because the library
+supplies them; the entropy coefficient defaults to zero, so no entropy
+bonus acts in these runs.}
 \label{tab:hparams}
 \small
 \begin{tabular}{llll}
@@ -431,13 +436,13 @@ Discount $\gamma$ & 0.99 & 0.99 & 0.99 \\
 Update cadence & once per episode & every step after warm-up & every 2{,}048 steps \\
 Replay / batch & --- & 50k buffer, batch 64 & batch 64, 10 epochs \\
 Target sync & --- & every 500 steps & --- \\
-Exploration & sampling from $\pi_\theta$ & $\varepsilon$: $1.0 \to 0.05$ (first 50\%) & entropy bonus \\
+Exploration & sampling from $\pi_\theta$ & $\varepsilon$: $1.0 \to 0.05$ (first 50\%) & sampling from $\pi_\theta$ \\
 Masking & renormalised softmax & masked $\max$, mask stored & \texttt{action\_masks()} \\
 Budget & 80{,}000 env steps & 80{,}000 env steps & 80{,}000 env steps \\
 Seeds & \{42,\dots,47\} & \{42,\dots,47\} & \{42,\dots,47\} \\
 \midrule
-Environment & \multicolumn{3}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta = 0.25\,C_0$;
-  windows $k{=}5$, $m{=}20$, $n{=}14$} \\
+Environment & \multicolumn{3}{l}{$C_0 = \$10$k; fee 5 bps; slice $\Delta$ per
+  Sec.~\ref{sec:res_calibration}; windows $k{=}5$, $m{=}20$, $n{=}14$} \\
 Selection & \multicolumn{3}{l}{ladder stopping point and $\lambda$ chosen on the
   2023 validation months only} \\
 \bottomrule

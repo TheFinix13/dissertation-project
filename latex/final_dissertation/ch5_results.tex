@@ -5,9 +5,9 @@ This chapter reports every experiment in the order the argument requires.
 Section~\ref{sec:res_phase0} validates the learning implementations on
 tasks whose correct answer is known. Sections~\ref{sec:res_calibration} to
 \ref{sec:res_ladder} then use the validation year to settle three things
-that must be settled before the held-out months are spent: how coarse the
-action model may be, whether the learners use their observations at all,
-and whether each rung of the state ladder changes what is learned.
+before the held-out months are spent. How coarse may the action model be?
+Do the learners use their observations at all? Does each rung of the state
+ladder change what is learned?
 Section~\ref{sec:res_final} reports the held-out test months, evaluated
 once. Section~\ref{sec:res_analysis} draws the findings together.
 
@@ -17,7 +17,7 @@ Appendix~\ref{app:permonth}.
 
 For a reader keeping only one question in mind, let it be this one:
 \emph{did any learned agent do better than simply buying at the start of
-the month and holding to the end?} The answer is no, and the interesting
+the month and holding to the end?} The answer is no. The interesting
 part of this chapter is the evidence for \emph{why} not, which turns out to
 be a property of the problem as posed rather than a failure of the
 implementations.
@@ -33,7 +33,8 @@ episode, 96 episodes split chronologically into 60 training months
 the episodes are cut (Section~\ref{sec:data}).
 
 \paragraph{Protocol.} Initial cash $C_0 = \$10{,}000$; proportional fee
-$c = 5$ basis points; trade slice $\Delta = 0.25\,C_0$ as calibrated in
+$c = 5$ basis points; trade slice $\Delta = 0.25\,C_0$, revised from the
+design value of $0.1\,C_0$ by the calibration reported in
 Section~\ref{sec:res_calibration}; 80{,}000 environment steps per method
 per seed; seeds $\{42,\dots,47\}$; greedy masked evaluation. Metrics and
 reference strategies are as defined in Section~\ref{sec:protocol}.
@@ -138,26 +139,30 @@ $0.50\,C_0$ & 2  & 0.886 & $+\$162.77$ & yes \\
 \end{tabular}
 \end{table}
 
-The consequence is stark. At $\Delta = 0.1\,C_0$, the slice used earlier in
-this project, the best attainable mean exposure is 0.690 against
-buy-and-hold's 0.910, and the best attainable monthly profit is
+At the design value $\Delta = 0.1\,C_0$ chosen in
+Section~\ref{sec:actions}, the best attainable mean exposure is 0.690
+against buy-and-hold's 0.910, and the best attainable monthly profit is
 $+\$121.79$ against buy-and-hold's $+\$166.92$. An agent at that
 granularity cannot beat buy-and-hold in a rising market however well it
-trades. Any earlier claim that an agent ``failed to beat the benchmark''
-under that setting was therefore reporting arithmetic as though it were a
-result about learning.
+trades. Reporting such an agent as having ``failed to beat the
+benchmark'' would report arithmetic as though it were a result about
+learning, and this is exactly what the project's earlier runs had done
+(Section~\ref{sec:defects}).
 
-Applying the rule declared in Section~\ref{sec:actions} --- the smallest
-slice whose exposure ceiling reaches 90\% of buy-and-hold's, here 0.819 ---
-selects $\Delta = 0.25\,C_0 = \$2{,}500$. The criterion is stated on
-exposure rather than on return because the exposure ceiling rises
-monotonically with the slice while the return ceiling does not:
-$0.50\,C_0$ holds more on average than $0.25\,C_0$ yet earns slightly less,
-because a coarser slice buys at a different set of prices. Selecting on the
-non-monotone quantity would make the choice depend on the particular path
-2023 happened to take. The coarser slice is retained as a comparison row in
-Section~\ref{sec:res_final}, so its cost is measured rather than merely
-avoided.
+The design value therefore had to be revised, and the revision rule needs
+no training and no test data: take the \emph{smallest} slice whose
+exposure ceiling reaches 90\% of buy-and-hold's exposure (here 0.819),
+keeping the finest control over position size that still leaves the
+benchmark reachable. On the validation months this selects
+$\Delta = 0.25\,C_0 = \$2{,}500$. The criterion is stated on exposure
+rather than on return because the exposure ceiling rises monotonically
+with the slice while the return ceiling does not. $0.50\,C_0$ holds more
+on average than $0.25\,C_0$ yet earns slightly less, because a coarser
+slice buys at a different set of prices. Selecting on the non-monotone
+quantity would make the choice depend on the particular path 2023
+happened to take. The original $0.1\,C_0$ slice is retained as a
+comparison row in Section~\ref{sec:res_final}, so the cost of the
+original design is measured rather than merely asserted.
 
 \section{Do the learners use their state?}
 \label{sec:res_conditioning}
@@ -226,7 +231,7 @@ evidence about the algorithm.
 learned policy chooses differently in states offering identical legal
 actions. Its exposure varies within and across months rather than saturating
 at a corner. It is therefore the method through which the ladder can be
-read, and the fact that its mean profit is \emph{lower} than REINFORCE's is
+read. That its mean profit is \emph{lower} than REINFORCE's is
 the beginning of the substantive finding rather than a mark against it: it
 is deviating from full exposure on the basis of what it observes, and in a
 year the market spent rising, deviation costs money.
@@ -466,6 +471,25 @@ network, by holding less. The agent has not found a way to hold the same
 exposure through smaller losses, and its Sharpe ratio, $0.507$ against
 buy-and-hold's $0.638$, records that the trade was not worth making.
 
+\paragraph{One month, watched closely: April 2024.} The claims above are
+statistical, so it is worth watching them play out in a single held-out
+month (all figures from Table~\ref{tab:permonth}, seed 42). April 2024 was
+a falling month: buy-and-hold, fully invested from the first day, lost
+\$396.08 of its \$10{,}000. The slice schedule, which buys every day a Buy
+is legal until its cash is gone, lost \$325.47; it lost slightly less only
+because its money entered the market over the first four days rather than
+all at once. REINFORCE lost \emph{exactly} \$325.47, to the cent. That is
+not a coincidence to explain away; it is the mask-determined policy caught
+in the act, executing the identical action sequence to the schedule
+because ``buy whenever buying is legal'' is all it learned. Deep
+Q-learning lost \$81.08, the best learned result that month, but it
+achieved this by holding roughly a third of capital, so it also captured
+correspondingly little of May's \$529.49 rebound (it earned \$345.48 of
+it). PPO, whose seed-42 policy never trades at all, recorded \$0.00 in
+both months. One falling month and its rebound, read together, contain
+the whole result: nobody timed the fall; they only differed in how much
+of the market they were holding when it happened.
+
 \paragraph{Adding drawdown to the state alone changes nothing.} Comparing the
 first two blocks answers the question Chapter~3 deliberately left open: does
 representing risk history help even when the reward does not ask for it? For
@@ -677,10 +701,10 @@ that a better representation is what this agent was missing.
 \paragraph{2. Algorithm family determines whether the state is used at all.}
 The two policy-gradient methods are mask-determined in almost every seed; the
 value-based method is state-dependent in every seed of every cell. This is the
-most robust behavioural finding in the chapter, it holds on validation and test
-alike, and it has a methodological consequence that reaches beyond this project:
+most robust behavioural finding in the chapter, and it holds on validation and
+test alike. Its methodological consequence reaches beyond this project:
 a comparison between state representations is meaningless for a method that does
-not read its state, and reward alone cannot reveal that, because in a rising
+not read its state. Reward alone cannot reveal that, because in a rising
 market the state-blind policy scores well. Reporting the conditioning diagnostic
 alongside returns is what made this visible, and it was added only after
 identical wealth changes across a twelvefold difference in state dimension
@@ -724,7 +748,7 @@ the three learners beat simply buying at the start of the month and holding, and
 that the reasons are more interesting than the verdict.
 
 Two of the three never used the market information they were given at all. They
-settled on a blanket rule --- buy whenever there is cash, or never buy --- and a
+settled on a blanket rule (buy whenever there is cash, or never buy), and a
 diagnostic added for the purpose confirmed they were making the same choice
 regardless of what the market was doing. One of them scores respectably, but only
 because buying whenever possible is a decent strategy in a market that rose; it

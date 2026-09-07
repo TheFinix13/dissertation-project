@@ -1,0 +1,334 @@
+\documentclass[11pt,a4paper,openany]{report}
+
+% --- geometry & typography ------------------------------------------------
+\usepackage[a4paper,margin=1in,top=1.1in,bottom=1.2in]{geometry}
+\usepackage{microtype}
+
+% --- maths ----------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{mathtools}
+
+% --- fonts (xelatex) ------------------------------------------------------
+% Handbook format: Times New Roman 11pt body. STIX Two Math is kept as the
+% math font because Times New Roman has no matching math companion; STIX
+% is Times-compatible by design.
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\IfFontExistsTF{Times New Roman}{%
+  \setmainfont{Times New Roman}%
+}{%
+  \IfFontExistsTF{STIX Two Text}{%
+    \setmainfont{STIX Two Text}[BoldFont={STIX Two Text Bold}]%
+  }{}%
+}
+\IfFontExistsTF{STIX Two Math}{\setmathfont{STIX Two Math}}{}
+
+% Handbook format: 1.5 line spacing, justified single column.
+\usepackage{setspace}
+\onehalfspacing
+
+% Boxed algorithm summaries. A float rather than in-line content: the box
+% keeps the classic ruled look (it never breaks across pages), and because
+% it floats, the surrounding text fills the page instead of leaving a gap.
+% No \caption is used, so the table counter is untouched.
+\newenvironment{algobox}
+  {\begin{table}[!htb]\begin{minipage}{\linewidth}
+   \singlespacing\setlength{\parskip}{2pt}\small
+   \hrule height 0.9pt \vspace{5pt}}
+  {\vspace{5pt}\hrule height 0.9pt
+   \end{minipage}\end{table}}
+
+% Word left some mathematical symbols as literal unicode characters in
+% plain-text runs (mostly tables). STIX Two *Text* lacks those glyphs, so
+% route each one through math mode where STIX Two Math provides it.
+\usepackage{newunicodechar}
+\newunicodechar{∈}{\ensuremath{\in}}
+\newunicodechar{≈}{\ensuremath{\approx}}
+\newunicodechar{∞}{\ensuremath{\infty}}
+\newunicodechar{∼}{\ensuremath{\sim}}
+\newunicodechar{∣}{\ensuremath{\mid}}
+\newunicodechar{←}{\ensuremath{\leftarrow}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{∇}{\ensuremath{\nabla}}
+% Map the literal ∑ to the true big summation operator. Any route through
+% \sum loops (unicode-math ties \sum to the active character), so define
+% the operator directly: class 1 (large operator), family 0 (the
+% unicode-math font), slot U+2211.
+\Umathchardef\unisum="1 "0 "2211
+\newunicodechar{∑}{\ensuremath{\unisum}}
+\newunicodechar{ₜ}{\textsubscript{t}}
+\newunicodechar{₀}{\ensuremath{{}_{0}}}
+\newunicodechar{₁}{\ensuremath{{}_{1}}}
+\newunicodechar{₊}{\ensuremath{{}_{+}}}
+\newunicodechar{⁻}{\ensuremath{{}^{-}}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{ℝ}{\ensuremath{\mathbb{R}}}
+\newunicodechar{𝑇}{\ensuremath{T}}
+\newunicodechar{𝜏}{\ensuremath{\tau}}
+\newunicodechar{𝜆}{\ensuremath{\lambda}}
+
+% --- tables (pandoc uses longtable, booktabs) -----------------------------
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\providecommand{\real}[1]{#1}          % pandoc emits \real{0.51}
+\newcommand{\rowsep}{\arrayrulecolor{black!22}\specialrule{0.35pt}{2pt}{2.5pt}\arrayrulecolor{black}}
+
+% --- floats, graphics -----------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{./}}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf,skip=6pt}
+% Let a figure share a page with text more readily, and when one does get
+% a page of its own, place it at the top instead of vertically centred.
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.7}
+\makeatletter
+\setlength{\@fptop}{5pt}
+\makeatother
+
+% --- lists, code, hyphenation ---------------------------------------------
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{parskip}
+
+% --- headers & TOC formatting ---------------------------------------------
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{12pt}{\huge}
+\titlespacing*{\chapter}{0pt}{-30pt}{18pt}
+% Handbook: sub-headings 12pt bold, flush left, one line space above.
+\titleformat*{\section}{\fontsize{12}{15}\selectfont\bfseries}
+\titleformat*{\subsection}{\fontsize{12}{15}\selectfont\bfseries}
+\titleformat*{\subsubsection}{\fontsize{11}{14}\selectfont\bfseries}
+
+% --- hyperlinks -----------------------------------------------------------
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+\hypersetup{
+  colorlinks=false,
+  pdftitle={Evaluating Reinforcement Learning Algorithms for Portfolio Trading},
+  pdfauthor={Fiyinfoluwa Akano}
+}
+
+% --- pandoc helper -------------------------------------------------------
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Pandoc emits `\def\LTcaptype{none}` around uncaptioned tables. That fake
+% counter breaks hyperref, so we shadow it with a real one.
+\newcounter{none}
+\providecommand{\theHnone}{None.\thenone}
+
+\begin{document}
+
+% ---------- Front cover (per Surrey template) ------------------------------
+\begin{titlepage}
+\centering
+{\large University of Surrey\par}
+{\normalsize Faculty of Engineering and Physical Sciences\\
+School of Computer Science and Electronic Engineering\par}
+\vspace{3.5em}
+{\normalsize MSc Dissertation\par}
+\vspace{2.5em}
+{\Huge\bfseries Evaluating Reinforcement Learning\\
+Algorithms for Portfolio Trading\par}
+\vspace{1em}
+{\Large A Reinforcement Learning Study on the S\&P~500 ETF (SPY)\par}
+\vspace{4em}
+{\large\bfseries Fiyinfoluwa Akano\par}
+{\normalsize URN: 6962514\par}
+\vspace{2em}
+{\normalsize Supervisor: Dr.\ Nguyen\par}
+\vspace{2em}
+{\normalsize Submitted for the Degree of\\
+Master of Science in Artificial Intelligence\par}
+\vfill
+\includegraphics[width=0.38\textwidth]{figs/surrey_logo.png}\par
+\vfill
+{\normalsize September 2026\par}
+\vspace{1em}
+{\normalsize \copyright 2026 Fiyinfoluwa Akano\par}
+\end{titlepage}
+
+% Front matter in roman numerals; arabic restarts at Chapter 1.
+\pagenumbering{roman}
+
+% ---------- Statement of originality ---------------------------------------
+\chapter*{Statement of Originality}
+\addcontentsline{toc}{chapter}{Statement of Originality}
+I confirm that this report and the work it presents are my own. Any
+ideas, data, images or text taken from the work of others, whether
+published or unpublished, and including any content generated by a deep
+learning/artificial intelligence tool, have been clearly identified and
+appropriately acknowledged in the text and bibliography.
+
+I confirm that this report has not been submitted, either in whole or in
+part, for any other academic degree or professional qualification.
+
+I understand and agree that the University may submit this work to
+TurnitinUK to check its originality.
+
+\vspace{3em}
+\noindent Fiyinfoluwa Akano \hfill September 2026
+
+% ---------- Abstract ---------------------------------------------------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+An investor holding a stock-index fund faces the same decision each day:
+buy more, sell part of the position, or do nothing. This dissertation
+asks whether reinforcement learning, which learns by using rewards via
+trial and error, can make these decisions more effectively than the
+simple strategy of buying and holding permanently.
+
+Three algorithms are examined: REINFORCE and Deep Q-learning (DQN),
+implemented from scratch, and Proximal Policy Optimisation (PPO), from
+an open-source library. Each agent trades the S\&P 500 exchange-traded
+fund (SPY) in a simulated environment using monthly episodes based on
+daily data from 2018 to 2025. The data is split chronologically into
+training data from 2018--2022, validation data from 2023, and held-out
+test months from 2024--2025.
+
+The environment includes the trade size, transaction fees, and action
+validity. Experimental decisions, such as using a trade size equal to
+one quarter of the initial \$10,000 capital, were selected using the
+validation data before being applied to the test data. Each
+configuration was trained using six different random seeds.
+
+None of the learned agents beat buy-and-hold on the held-out test
+period. REINFORCE earned the highest mean return at +\$171.51 per month,
+compared with +\$180.25 for buy-and-hold. PPO earned +\$127.35, while
+DQN earned +\$74.68.
+
+Behavioural analysis provides an important explanation for these
+results. All six DQN seeds changed their actions in response to the
+observed state, whereas none of the twelve policy-gradient seeds
+(REINFORCE and PPO) did so. The returns earned by these policy-gradient
+algorithms were therefore largely tied to fixed buying patterns that
+benefited from the generally rising test period, rather than clear
+evidence of depending on market information to make informed decisions.
+
+Two further experiments supported this interpretation. Adding drawdown
+to the state produced little change in either behaviour or performance
+for any of the algorithms. A risk-aware reward reduced DQN's drawdown by
+41\%, but only by cutting earnings by 32\% and approximately halving
+market exposure.
+
+The main contribution of the study is therefore an evaluative framework
+that uses calibrated trade sizes, simple benchmarks, behavioural
+analysis, and verified implementations, creating a reliable basis for
+interpreting both successful and negative results from reinforcement
+learning in trading.
+
+% ---------- Acknowledgements ------------------------------------------------
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+First and foremost, I would like to thank God for giving me the idea for
+this project, the strength, wisdom and perseverance to see it through.
+What started as an initial idea developed significantly throughout this
+journey, and I am grateful to everyone who played a part in bringing it
+to where it is today. It is only by His Grace to Start, Continue, and
+Finish that this was possible.
+
+I would like to thank the professors who helped me narrow down the
+original idea to shape it into a research problem that could be properly
+investigated. I am especially grateful to my supervisor, Dr.\ Nguyen, for
+his guidance throughout the project. His feedback helped me streamline
+the work, question my assumptions, and keep the research focused on what
+evidence could support. More importantly, his guidance helped me develop
+a much stronger understanding of reinforcement learning and how it can
+be applied to a problem as challenging as financial trading.
+
+I would also like to express my deepest gratitude to my family,
+especially my mum and dad, for their constant encouragement and support.
+They kept pushing me to keep going until the final stage. I am equally
+grateful to my uncle, aunties, grandma, church circle, and everyone else
+who took the time to check in on me throughout the journey. Their
+encouragement and help, even in small moments, but especially in sick,
+tired moments, all meant a great deal to me.
+
+Finally, I would like to give a special shoutout to my friends from the
+cohort: Katherine, Joel, Yumna, Akeeb, David, and Dr.\ Tim. The laughs,
+outings, and support throughout the year are unforgettable. Having
+people around who were going through the same experience made the long
+parts of the journey so much fun, shorter, and easier to get through.
+
+To everyone who contributed to this journey in one way or another, thank
+you. I am genuinely grateful.
+
+\textbf{Use of Generative AI.} Generative AI tools (ChatGPT and Cursor)
+were used during the preparation of this dissertation to assist with
+drafting and restructuring prose, literature organisation, LaTeX
+formatting, and debugging of experimental code. All research design
+choices, experimental results, analysis, and the final wording of this
+report are my own. AI-generated suggestions were reviewed, edited, and
+verified before inclusion. No AI tool is cited as a scholarly source.
+
+\clearpage
+
+\tableofcontents
+\clearpage
+
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\clearpage
+
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+\clearpage
+
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+\input{ch1}
+
+\chapter{Background and Literature Review}
+\input{ch2}
+
+\chapter{Methodology \& Mathematical Formulation}
+\input{ch3}
+
+\chapter{System Design and Experiment Framework}
+\input{ch4}
+
+\chapter{Experimental Results and Analysis}
+\input{ch5}
+
+\chapter{Conclusion and Future Work}
+\input{ch6}
+
+% ---------- References (IEEE numeric style) ----------------------------------
+\clearpage
+\renewcommand{\bibname}{References}
+\addcontentsline{toc}{chapter}{References}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% ---------- Appendices -------------------------------------------------------
+\appendix
+\renewcommand{\chaptermark}[1]{\markboth{\appendixname\ \thechapter.\ #1}{}}
+
+\chapter{Verification Tests}
+\input{appendix_tests}
+
+\chapter{Algorithm Listings}
+\input{appendix_algorithms}
+
+\chapter{Per-Month Held-Out Test Results}
+\input{appendix_permonth}
+
+\chapter{Glossary of Terms}
+\input{appendix_glossary}
+
+\end{document}

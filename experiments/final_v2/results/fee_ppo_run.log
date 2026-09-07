@@ -1,0 +1,59 @@
+data: train=60 val=12 test=24 months (2018-01..2025-12)
+
+fee sensitivity on validation (12 months), 80,000 steps, seeds [42, 43, 44, 45, 46, 47]
+
+  fee = 0 bps
+      B1b_true_bah     dW= +177.09
+    ppo
+      seed 42: dW=  +44.27  trades=  2.0  expo=0.23  ddI=0.008  cond=MASK-ONLY  (41.5s)
+      seed 43: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.9s)
+      seed 44: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (40.1s)
+      seed 45: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (40.0s)
+      seed 46: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.6s)
+      seed 47: dW= +177.56  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.8s)
+
+  fee = 5 bps
+      B1b_true_bah     dW= +166.92
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (40.6s)
+      seed 43: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.9s)
+      seed 44: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.6s)
+      seed 45: dW=  +41.73  trades=  2.0  expo=0.23  ddI=0.008  cond=MASK-ONLY  (39.6s)
+      seed 46: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.3s)
+      seed 47: dW= +167.39  trades=  5.0  expo=0.84  ddI=0.029  cond=MASK-ONLY  (39.8s)
+
+  fee = 10 bps
+      B1b_true_bah     dW= +156.76
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.6s)
+      seed 43: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (40.4s)
+      seed 44: dW=  +39.19  trades=  2.0  expo=0.23  ddI=0.008  cond=MASK-ONLY  (39.9s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.4s)
+      seed 46: dW= +117.33  trades=  4.0  expo=0.65  ddI=0.023  cond=state  (39.2s)
+      seed 47: dW= +157.23  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (39.4s)
+
+  fee = 25 bps
+      B1b_true_bah     dW= +126.33
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.2s)
+      seed 43: dW=  +31.58  trades=  2.0  expo=0.23  ddI=0.008  cond=MASK-ONLY  (39.5s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (38.9s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.8s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (38.8s)
+      seed 47: dW= +126.80  trades=  5.0  expo=0.84  ddI=0.030  cond=MASK-ONLY  (39.2s)
+
+  fee = 50 bps
+      B1b_true_bah     dW=  +75.83
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.1s)
+      seed 43: dW=  +18.96  trades=  2.0  expo=0.23  ddI=0.009  cond=MASK-ONLY  (39.3s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.6s)
+      seed 45: dW=  +56.63  trades=  4.0  expo=0.64  ddI=0.024  cond=state  (39.6s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.3s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (39.8s)
+
+  behavioural response to cost
+      ppo        trades 4.5 -> 3.7 -> 2.7 -> 1.2 -> 1.0  (change +3.5, seed noise 5.0, FLAT)
+                 dW     +155 -> +119 -> +78 -> +26 -> +13
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/fee_results.json

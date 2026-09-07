@@ -1,0 +1,551 @@
+% Chapter 2 -- Background and Literature Review.
+% Body only: the \chapter command lives in main_full.tex.
+% Source: author's Full report 1.docx (Full Report Draft), 7 Sep 2026.
+
+This chapter introduces the main concepts and prior work on which the
+rest of the dissertation is based. It begins with an overview of
+reinforcement learning and explains why the portfolio trading problem
+can be formulated using the reinforcement learning framework. It then
+presents the two algorithm families used in this study: value-based
+methods, from Q-learning extending to Deep Q-learning (DQN), and
+policy-gradient methods, from REINFORCE to Proximal Policy Optimisation.
+
+The second half of the chapter focuses on reinforcement learning in
+financial trading. It reviews findings from previous studies,
+particularly how researchers have evaluated trading agents and the
+limitations that commonly appear in this area of research.
+
+The chapter also considers the market-efficiency perspective, which
+provides an important baseline for measuring trading performance---judging whether a learning algorithm can consistently find profitable
+trading opportunities.
+
+The chapter concludes by bringing these points together and identifying
+the small gap addressed by this dissertation---whether financial
+performance is sufficient to establish that a trained trading policy
+actually uses the information available to it.
+
+\section{Reinforcement Learning for Sequential Decisions}
+Most machine learning taught at the master\textquotesingle s level is
+based on supervised learning, where a model is given inputs together
+with the correct answers and learns to reproduce the desired output.
+Reinforcement learning (RL) works differently. Instead of being given
+the correct action, the learner, known as the \textbf{agent}, interacts
+with an environment and learns from the results of its own decisions~\cite{sutton2018}.
+
+This interaction is a repeated process. At each step, the agent observes
+the current state, selects an action, and receives a reward, then moves
+to the next state. The reward indicates how useful the action was, but
+it does not directly tell the agent whether the action was correct. The
+agent must therefore learn through experience which actions are likely
+to produce higher rewards over time.
+
+Trading fits naturally into this framework. A trader looks at the
+markets, decides whether to buy or sell more units of shares, and then
+waits for the effect of that decision on his portfolio account. A
+decision made early in a month affects the portfolio permanently from
+that point onwards. The agent must therefore learn not only whether a
+decision was profitable, but also how earlier actions contribute to
+later outcomes. This is known as the \textbf{credit-assignment problem}
+and is an important part of the mathematical formulation presented in
+Chapter 3.
+
+The absence of explicit labelled answers also creates a practical issue.
+In supervised learning, an incorrect prediction can be compared directly
+with a known target during training. In reinforcement learning, however,
+there is no equivalent answer to compare against during training. An
+experiment can therefore run without producing an obvious error in the
+environment, reward calculation, state representation, or action
+handling and still learn the wrong behaviour. This was an important
+consideration in this project and is one reason the verification tests
+were developed for use before the main experiments, as described in
+Chapter 4 and Appendix A.
+
+The broader history of reinforcement learning systems shows this
+approach can learn complex sequential tasks. TD-Gammon, for example,
+learned to play backgammon strongly through self-play~\cite{tesauro1995}. Later,
+Deep Q-learning achieved human-level performance across several Atari
+games using raw image inputs~\cite{mnih2015}. The analogy with trading is not
+that financial markets are equivalent to games but that in both cases,
+the agent is not given the correct action for each situation. Instead,
+they learn from a numerical reward or game score. In a trading
+environment, financial outcomes such as changes in portfolio wealth play
+this role.
+
+The standard mathematical framework for representing sequential problems
+is the \textbf{Markov Decision Process (MDP)}. Its foundations are
+closely tied to Bellman\textquotesingle s work on dynamic programming~\cite{bellman1957}, and Sutton and Barto present a modern reinforcement learning
+formulation~\cite{sutton2018}. An MDP represents a problem through states,
+actions, transitions to the next state, rewards, and a discount factor,
+assuming that the current state contains all the information needed to
+make the next decision. In financial markets, however, it is difficult
+to show that any collection of market observations can fully capture the
+information relevant to future prices.
+
+For this reason, Chapter 3 uses a practical state representation rather
+than claiming that the Markov assumption is perfectly satisfied: it
+captures market, portfolio, and timing information rather than claiming
+to reconstruct the complete market state.
+
+The study also examines this design experimentally by testing whether
+adding drawdown information to the state changes the behaviour or
+performance of the learned agents. The next section discusses the two
+main families of reinforcement learning algorithms considered in this
+dissertation.
+
+\section{Two Families of Learning Algorithms}
+The algorithms used in this dissertation belong to two different
+families of reinforcement learning methods. This section discusses the
+main ideas behind each family and explains why comparing them on the
+same trading problem is useful.
+
+Value-based methods estimate the value of taking an action and derive a
+policy from those estimates, whereas policy-gradient methods select the
+action with the highest probability to optimise the policy itself. These
+differences matter because they offer two different learning mechanisms
+for the same trading problem.
+
+\subsection{Value-based methods: from Q-learning to DQN}
+The Value-based family approaches the question of what action to take
+indirectly. Rather than learning the policy directly, the agent learns
+how valuable different actions are in a given state and then selects the
+action with the highest estimated value.
+
+This approach started from \textbf{temporal-difference learning}~\cite{sutton1988}, which updates value estimates using the difference between
+sequential predictions rather than waiting until the end of an episode
+to observe the final outcome. \textbf{Q-learning} turned this idea into
+an off-policy method that directly estimates the action-value function~\cite{watkins1992}. Under appropriate conditions, including continued exploration
+of state-action pairs and suitable learning-rate decay, tabular
+Q-learning converges to the optimal action values for finite state
+spaces. This convergence property does not depend on the particular
+actions used while learning.
+
+In tabular Q-learning, a separate value is stored for every state-action
+pair. This works well when the number of possible states is small, such
+as in a simple grid-world, but becomes impractical when the state
+contains continuous financial information. Two very similar market
+states would also be treated as completely separate entries in the
+table. As a result, experience gained in one state would not
+automatically help the agent in a similar state.
+
+\textbf{Deep Q-learning (DQN)}~\cite{mnih2015} addresses this problem by
+replacing the table with a neural network that estimates the action
+values. The network can therefore generalise across similar states,
+allowing information to be shared, but it introduces instability.
+However, combining neural networks with bootstrapping and off-policy
+learning can make training unstable~\cite{tsitsiklis1997, sutton2018}.
+
+DQN then introduces two important mechanisms to improve this stability.
+\textbf{Experience replay}~\cite{lin1992} stores previous transitions in a
+replay buffer and samples them later in random minibatches during
+training. This reduces the strong correlation present in consecutive
+experiences, allowing each transition to contribute to multiple updates.
+A \textbf{target network} is also used as a periodically updated copy of
+the value network to construct the learning target, preventing it from
+changing with every network update as the parameters are being
+optimised.
+
+These mechanisms are highly useful for financial data, where consecutive
+daily observations are naturally correlated. Both were implemented from
+scratch in this project, as described in Chapter 4. As a result, the
+implementation shows the underlying learning mechanics rather than
+treating the algorithm as a library component.
+
+Several Other improvements have since been proposed to address the
+limitations of the original DQN formulation. For example, \textbf{Double
+Q-learning}~\cite{vanhasselt2016} was developed partly to reduce overestimation bias
+in action values that can arise in standard Q-learning when the same
+estimates are used to select and evaluate actions.
+
+Such modifications are relevant to the broader DQN literature or
+discussed as possible future improvements but are not included in this
+study's present implementation, allowing the core DQN method to remain
+relatively simple and easier to verify.
+
+\subsection{Policy-gradient methods: from REINFORCE to PPO}
+Policy-gradient methods take a more direct approach to the decision
+problem. Instead of first estimating the value of each action to derive
+a policy from those estimates, the agent learns a policy that maps
+states to actions and adjusts its parameters to increase the expected
+return. The policy is represented by a differentiable model, typically a
+neural network, whose parameters are updated for the objective.
+
+This study uses the foundational policy-gradient algorithm
+\textbf{REINFORCE}~\cite{williams1992}. One of its main advantages is its
+simplicity, as it makes the relationship between the policy, observed
+states, selected actions, and expected return relatively transparent. It
+does not require bootstrapping, experience replay, or a separate target
+network. The policy is updated using returns from complete episodes,
+making the learning process straightforward to understand. For these
+reasons, REINFORCE is used as the main policy-gradient implementation in
+this dissertation.
+
+The main weakness of REINFORCE is the high variance of its updates. The
+learning signal is based on Monte Carlo returns, which can vary
+considerably between episodes. This can make learning slow and unstable
+when rewards are noisy.
+
+Later policy-gradient methods introduced techniques to address this
+problem. Actor-critic methods use a learned value estimate as a baseline
+to reduce the variance of the policy update~\cite{konda2000}. The actor
+represents the policy while the critic estimates value, allowing the
+learning signal to use an advantage rather than the raw return\textbf{.
+A2C} is one example of this approach~\cite{mnih2016}. \textbf{Generalised
+Advantage Estimation (GAE)}~\cite{schulman2016gae} is another way of controlling the
+bias-variance in the advantage estimate.
+
+A second problem is the size of policy updates. An update that changes
+the policy too aggressively can cause training to become unstable and
+degrade performance sharply. Trust-region methods~\cite{schulman2015trpo} address this
+by restricting how far the policy can change between successive updates.
+\textbf{Proximal Policy Optimisation (PPO)}~\cite{schulman2017ppo} uses a simpler
+approach by clipping the policy update when it moves too far from the
+previous policy.
+
+PPO is widely used in reinforcement learning applications, including
+trading frameworks such as FinRL~\cite{liu2020finrl}, and is therefore included in
+this study as a library-based policy gradient method for comparison
+while implementing REINFORCE from scratch. This allows for both a
+transparent baseline policy-gradient method and a more modern,
+stabilised method
+
+The trading environment also contains actions that are not always valid.
+For example, an agent should not be allowed to sell when it has no
+position or buy when there is insufficient cash. All three learning
+methods use \textbf{invalid-action masking} to prevent such actions from
+being selected while preserving only valid actions. The use of action
+masking in reinforcement learning, including its interaction with
+policy-gradient methods, has been examined by Huang and Ontañón~\cite{huang2022masking}. In this dissertation, masking is part of the common
+environment rather than a difference between algorithms, ensuring that
+the comparison is made under the same set of trading constraints.
+
+\subsection{Why compare the two families?}
+The two algorithm families have different implementation trade-offs.
+
+Value-based methods such as DQN can learn from individual transitions
+and reuse previously collected experience through replay. However, they
+rely on bootstrapping value estimates, meaning the agent learns partly
+from estimates produced by other learned estimates in the same learning
+process.
+
+Policy-gradient methods instead optimise the policy directly with
+respect to the objective. In its basic form, REINFORCE provides a
+balanced policy-gradient estimate, but it requires new experiences for
+each update from fresh trajectories, and gradient estimates can suffer
+from high variance. PPO improves the stability of this family through
+constrained policy updates.
+
+Neither family can therefore be assumed to be better for the portfolio
+trading problem considered here. Comparing them in the same environment
+and under the same evaluation procedure is therefore useful. If both
+families develop similar behaviour, this may suggest that the behaviour
+is mainly caused by the structure of the problem, reward, state
+representation, or environment. If their behaviour differs, the
+difference becomes evidence that the choice of learning method
+influences the resulting strategy.
+
+This comparison becomes an important part of the experimental design in
+Chapter 5, as it is not limited to only asking which algorithm produces
+the highest financial return. It also asks whether the resulting
+policies learn fundamentally different ways of responding to the trading
+environment. The next section discusses how previous research applies
+these algorithms to financial markets.
+
+\section{Reinforcement Learning for Trading}
+The use of reinforcement learning (RL) for trading has been studied for
+many years, but the application comes with several well-known
+challenges. One of such early influential work is Moody and Saffell on
+direct reinforcement methods~\cite{moody2001}, which uses gradient-based methods
+to learn trading policies directly. Their work raised an important
+point: the reward should account for risk. If an agent is rewarded only
+for increasing profit, it may have a strong incentive to remain highly
+exposed to the market without explicitly rewarding control of downside
+risk.
+
+This observation is highly relevant to this dissertation, giving us
+reason to run two experiments in Chapter 5: first, to examine what
+happens when the agents are trained using a simple wealth-change reward
+and the objective is tied only to portfolio growth; and second, whether
+adding a drawdown penalty to the reward changes their behaviour.
+
+Drawdown is also introduced separately as an additional state feature.
+These two uses of drawdown act differently. Adding drawdown to the state
+changes the information available to the agent, whereas adding a
+drawdown penalty in the reward changes what the agent is encouraged to
+optimise. One changes what the agent can see, while the other changes
+what it is rewarded for. However, the specific drawdown penalty used in
+this dissertation is also an experimental design choice to be evaluated
+rather than a reward formulation from previous literature.
+
+Keeping these changes separate allows their effects to be examined
+separately. The experiments determine whether either change affects the
+learned behaviour, rather than assuming what the resulting behaviour
+should be.
+
+Later work extended these ideas using more complex models. Deng et al.~\cite{deng2017}, for example, combined direct reinforcement with deep recurrent
+representations. Jiang et al.~\cite{jiang2017} applied deep reinforcement
+learning to multi-asset portfolio management using cryptocurrency data,
+using a different formulation for the action, which represents portfolio
+allocation rather than a discrete buy, sell, or hold decision.
+
+More recently, frameworks such as FinRL~\cite{liu2020finrl} have made it easier to
+build trading environments and apply these reinforcement learning
+algorithms to financial experiments, but it often defaults to PPO-based
+methods.
+
+These frameworks are useful for experimentation, but they can also hide
+parts of the underlying learning process. This was one reason for
+implementing REINFORCE and DQN from scratch in this dissertation,
+allowing their behaviour and training mechanisms to be examined
+directly.
+
+The study most closely related to the present work is Théate and Ernst~\cite{theate2021}. They evaluate a DQN-based trading agent on a test portfolio
+set of 30 stocks, comparing it with buy-and-hold and traditional active
+strategies. Their results report that the DQN performs better on average
+than the benchmark strategies, although they include several active
+strategies rather than only passive buy-and-hold, which is more relevant
+to this dissertation. For SPY, which is also used in this dissertation,
+their reported Sharpe ratio for the DQN was 0.834, the same as
+buy-and-hold.
+
+Across multiple stocks, they describe the agent\textquotesingle s
+performance as identical or very close to passive strategies and suggest
+that the agent can tend towards a passive strategy when active trading
+becomes more uncertain. The variations between training runs showed that
+the agent traded less as transaction costs increased, eventually
+becoming passive. They also report non-negligible variance across
+identical training runs. These findings make Théate and Ernst study
+relevant to this study's evaluation.
+
+There are, however, important differences between their experimental
+design and the one used here. Their study trains a separate agent for
+each stock, allows short positions, and uses a continuous test period,
+whereas this dissertation studies one ETF, does not permit shorting, and
+uses independent monthly episodes with a fixed trade size. Their
+benchmarks also differ from this study's buy-and-hold strategies,
+preventing a direct numerical comparison between the studies.
+
+More importantly, although their results show that the learned agent can
+become increasingly passive, they do not directly test how the learned
+policy generates its decisions: whether the policy responds to its
+observations or simply follows a fixed trading pattern. Both behaviours
+could produce similar trading trajectories.
+
+This difference is fundamental to this dissertation, as a policy can
+achieve a strong return without making meaningful use of market
+information, particularly when the asset always goes up over time.
+Chapter 5 therefore includes a specific behavioural analysis to
+determine whether the actions of each trained agent actually change when
+its observed state changes while the available actions remain the same.
+
+Read together, the previous studies reviewed here vary widely in how
+RL-based trading is formulated and evaluated. Some focus on individual
+assets (Moody and Saffell~\cite{moody2001}, Deng et al.~\cite{deng2017}, and Théate and
+Ernst~\cite{theate2021}), while others use multi-asset portfolios (Jiang et al.~\cite{jiang2017} and Guan and Liu~\cite{guan2021xrl}). Action representations range from
+discrete trading decisions~\cite{moody2001, deng2017, theate2021} to continuous portfolio
+weights~\cite{jiang2017}. Reward functions also vary, from direct profit or
+return objectives~\cite{deng2017, jiang2017, theate2021} to risk-adjusted objectives such as
+Moody and Saffell\textquotesingle s differential Sharpe formulation~\cite{moody2001}. Most papers include transaction costs, but their assumptions
+and representations differ. Benchmark strategies also vary, from
+traditional trading strategies~\cite{theate2021} to portfolio-selection methods~\cite{jiang2017}.
+
+There is also variation in the results across seed runs. Some studies
+acknowledge differences between training runs~\cite{theate2021}, but reported
+results are often based on individual runs. None of the reviewed studies
+also describe a procedure in which all experimental design decisions are
+selected using a validation period before being used on an unseen test
+period. Behavioural analysis is similarly limited, with previous work
+using methods such as trading trajectories~\cite{theate2021} or feature
+attribution~\cite{guan2021xrl}.
+
+These differences make direct comparison between studies difficult and
+highlight an important issue: the evaluation procedure can be just as
+important as the choice of algorithm. The studies reviewed in this
+section were selected because they are particularly relevant to this
+dissertation's design, especially their use of RL algorithms,
+transaction costs, and benchmarks. Fischer\textquotesingle s survey~\cite{fischer2018} provides a broader review of RL in financial markets.
+
+The next section therefore focuses more specifically on how to evaluate
+trading agents and on the weaknesses that can arise when financial
+performance is considered without sufficient behavioural and
+experimental controls.
+
+\section{Evaluating Trading Agents Honestly}
+A review of reinforcement learning in finance~\cite{fischer2018}, together with
+research on financial machine learning~\cite{bailey2014, lopezdeprado2018}, identifies several
+common problems that can make trading results appear stronger than they
+are. Four of these issues are relevant to this dissertation, and each
+one influenced the experiment design. These are not claims that every
+reviewed study states as problems; they are risks that an experiment
+should account for when being designed.
+
+The first issue is \textbf{weak benchmarks}. A learned trading strategy
+can appear successful if it is compared with a benchmark that invests
+less capital or does not represent a realistic alternative. For this reason,
+this study uses buy-and-hold as the main benchmark, with the same
+initial capital as the learned agents. The trade size was also
+calibrated in Chapter 5 so the agents could reach a comparable level of
+market exposure. This keeps the comparison fair, as the agents are not
+disadvantaged simply by being unable to invest enough capital.
+
+The second issue is \textbf{look-ahead bias.} Financial data are ordered
+in time, so treating it like randomly ordered observations and shuffling
+the data before splitting could place future information in the training
+set and produce overly optimistic results. The data in this study are
+therefore divided chronologically: 2018--2022 for training, 2023 for
+validation, and 2024--2025 as the held-out test period. The test months
+were not used to select hyperparameters or make any design decisions, as
+described in Chapter 4.
+
+The third issue is \textbf{ignoring transaction costs.} A strategy that
+trades frequently may look profitable when every trade is assumed to be
+free, but the same strategy could lose much of its return once real
+trading costs are included. In this dissertation, transaction fees are
+part of the trading environment and are therefore included while the
+agents are learning rather than only after training. Chapter 5 also
+varies the assumed fee to examine whether the learned strategies trade
+less when trading becomes more expensive.
+
+The fourth issue is \textbf{backtest overfitting.} Repeatedly adjusting
+a strategy after looking at its test results gradually turns the test
+set into another training set. Bailey et al.~\cite{bailey2014} discussed this
+problem for investment backtests, and López de Prado~\cite{lopezdeprado2018} discussed
+methodology for controlling leakage and data reuse. The defence here is
+that all design choices were selected using the training and validation
+data, then evaluated once on the held-out test months, without further tuning.
+
+A related concern comes from deep reinforcement learning itself.
+Henderson et al.~\cite{henderson2018} show that reported \textbf{results can vary
+substantially across random seeds}, making a single successful training
+run a weak basis for comparison. Each configuration in this study is
+therefore trained with six different seeds, and the spread is reported
+alongside the mean rather than presenting one favourable run as
+representative.
+
+Financial economics provides more context for understanding the results.
+Under the \textbf{efficient market hypothesis,} current prices should
+already reflect the information contained in past prices~\cite{fama1970}. If
+this assumption holds, an agent whose market information consists only
+of price history should not be expected to consistently earn higher
+risk-adjusted returns than the market itself. In this study,
+buy-and-hold on the single fund provides the practical benchmark against
+which this expectation is tested.
+
+Portfolio theory also emphasises that return cannot be considered
+separately from risk~\cite{markowitz1952}. A strategy that earns less may still be
+useful if it achieves a large enough reduction in risk. The evaluation
+therefore reports mean return together with drawdown and the Sharpe
+ratio~\cite{sharpe1994}. No single metric decides whether a strategy is
+successful; the results are read together so that the trade-off between
+return and risk remains visible.
+
+This approach does not aim to guarantee a positive result for the
+learning algorithms. If an agent does not beat buy-and-hold, that
+outcome is treated as a finding to explain rather than a failure to
+hide. Understanding why a strategy does not improve on a simple
+benchmark is therefore just as important as reporting successful
+results. However, even a carefully controlled financial experiment only
+establishes what happened to the portfolio; it does not establish what
+the agent learned to do. That distinction leads to the gap considered in
+the next section.
+
+\section{The Gap Addressed In This Study}
+Financial performance alone does not tell us what a trading agent has
+actually learned. An agent can follow a simple rule, such as buying
+whenever possible, and still perform well during a rising market without
+using any market information. At the same time, an agent that genuinely
+responds to market conditions may earn less over the same period. For
+this reason, financial performance and agent behaviour need to
+be evaluated separately, and the second is needed to interpret the
+first.
+
+This distinction matters because most of the trading studies reviewed in
+this chapter focus mainly on financial measures such as return, profit,
+Sharpe ratio, and drawdown. More recent work also examines how trained
+models make their decisions, including feature-attribution methods by
+Guan and Liu~\cite{guan2021xrl}. These methods can identify which inputs are
+related to a model\textquotesingle s output. However, they do not
+establish whether the policy changes its actions as its inputs change. A
+policy that produces the same action regardless of its observations
+leaves no variation in action for an attribution method to explain.
+
+Checking whether a learned agent responds to its observations is already
+used in reinforcement-learning research and in the wider evaluation of
+machine-learning systems. This dissertation therefore does not claim to
+introduce sensitivity testing or behavioural analysis as new concepts,
+as there are related ideas that exist in input sensitivity.
+
+The more specific issue addressed here is how to test dependence on
+state information in a trading environment with constraints on actions.
+The agent\textquotesingle s cash and holdings determine which actions
+are legal: it cannot buy when it has insufficient cash and cannot sell
+when it has no position. The set of available actions can therefore
+change during an episode, and the selected action may change simply
+because an action became unavailable rather than because the agent
+responded to market information, and this would risk counting these
+forced changes as evidence of state use.
+
+To account for this, this dissertation defines state dependence
+intentionally: \textbf{trained policies} \textbf{must select different
+actions in situations where the same actions are legally available, with
+the difference occurring in the observed state}. Conditioning the
+analysis on action masking reduces the chance of misinterpreting changes
+caused by the constraints as evidence that the agent is using its
+observations.
+
+The diagnostic, however, answers a limited question --- does the policy
+show any evidence of changing its decisions in response to its observed
+state? It does not identify which feature caused the change, whether the
+response was economically sensible, or whether it improved financial
+performance.
+
+Among the trading studies reviewed here, policy responsiveness is not
+reported as a quantitative evaluation result alongside financial
+performance. This is a narrower claim than saying previous research has
+never used sensitivity testing or behavioural analysis. Established
+practices such as chronological splits, transaction-cost modelling,
+benchmark comparisons, and multi-seed reporting are also not presented
+as new contributions here.
+
+Théate and Ernst~\cite{theate2021} show why this distinction matters. Their DQN
+moved towards passive trading under some conditions, but passive
+behaviour could come from a policy that responds to market information
+or from one that follows a fixed trading rule. Without directly testing
+the relationship between the observed state and the chosen action, both
+cannot be explained separately.
+
+This dissertation addresses this gap through a controlled comparison of
+three different learning algorithms. REINFORCE, Deep Q-learning, and PPO
+are trained using the same observed state, the same masked action space,
+the same fee-inclusive reward, and the same chronological splits. Their
+financial performance is compared against benchmark strategies with the
+same capital, and their behaviour is examined using state-dependence
+analysis. The diagnostic is reported for each seed alongside the
+financial results rather than being treated as a technical
+implementation check.
+
+Two further experiments examine whether changing the information
+available to the agent or changing its incentive affects the learned
+behaviour. The first adds drawdown to the state, allowing the agent to
+observe its recent portfolio losses. The second adds a drawdown penalty
+to the reward, changing the incentive to take risks. One changes what
+the agent can see, while the other changes what the agent is encouraged
+to optimise.
+
+The contribution of this dissertation is therefore not the invention of
+a new evaluation method, but the controlled combination of experimental
+practices established from prior works to measure the
+agent\textquotesingle s state-dependent behaviour along with financial
+performance. This allows the evaluation to distinguish between an agent
+that earns a strong return by following a simple fixed rule and one
+whose decisions actually respond to the information provided.
+
+These points lead directly to the four research questions introduced in
+Chapter 1. The first asks whether the learned agents can outperform
+meaningful benchmarks after transaction costs. The second asks whether
+their decisions depend on the information in their states. The third
+asks whether adding drawdown to the state changes behaviour or
+performance. The fourth considers whether penalising drawdown through
+the reward produces a different risk-sensitive outcome. The next chapter
+formalises these questions through the MDP formulation, state
+representation, trading rules, reward functions, and the algorithms used
+in the experiments.

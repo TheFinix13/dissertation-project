@@ -1,0 +1,155 @@
+\documentclass[11pt,a4paper,openany]{report}
+
+% --- geometry & typography ------------------------------------------------
+\usepackage[a4paper,margin=1in,top=1.1in,bottom=1.2in]{geometry}
+\usepackage{microtype}
+
+% --- maths ----------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{mathtools}
+
+% --- fonts (xelatex) ------------------------------------------------------
+\usepackage{fontspec}
+\usepackage{unicode-math}
+% Use STIX Two -- a Times-like family with a matching math font, installed
+% by default on macOS. Falls back gracefully if unavailable.
+% macOS ships STIX Two Text as a variable font, so the bold/italic faces
+% must be requested explicitly or fontspec silently substitutes regular.
+\IfFontExistsTF{STIX Two Text}{%
+  \setmainfont{STIX Two Text}[
+    BoldFont={STIX Two Text Bold}]%
+  \setmathfont{STIX Two Math}%
+}{%
+  % Leave xelatex defaults (Computer Modern) in place.
+}
+
+% Word left some mathematical symbols as literal unicode characters in
+% plain-text runs (mostly tables). STIX Two *Text* lacks those glyphs, so
+% route each one through math mode where STIX Two Math provides it.
+\usepackage{newunicodechar}
+\newunicodechar{∈}{\ensuremath{\in}}
+\newunicodechar{≈}{\ensuremath{\approx}}
+\newunicodechar{∞}{\ensuremath{\infty}}
+\newunicodechar{∼}{\ensuremath{\sim}}
+\newunicodechar{∣}{\ensuremath{\mid}}
+\newunicodechar{←}{\ensuremath{\leftarrow}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{∇}{\ensuremath{\nabla}}
+% Big summation operator defined directly (class 1, math family 0,
+% U+2211); any route through \sum loops via the active character.
+\Umathchardef\unisum="1 "0 "2211
+\newunicodechar{∑}{\ensuremath{\unisum}}
+\newunicodechar{ₜ}{\textsubscript{t}}
+\newunicodechar{₀}{\ensuremath{{}_{0}}}
+\newunicodechar{₁}{\ensuremath{{}_{1}}}
+\newunicodechar{₊}{\ensuremath{{}_{+}}}
+\newunicodechar{⁻}{\ensuremath{{}^{-}}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{𝑇}{\ensuremath{T}}
+\newunicodechar{𝜏}{\ensuremath{\tau}}
+\newunicodechar{𝜆}{\ensuremath{\lambda}}
+
+% --- tables (pandoc uses longtable, booktabs) -----------------------------
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\providecommand{\real}[1]{#1}          % pandoc emits \real{0.51}
+% Thin grey hairline between body rows so multi-line rows stay readable,
+% while the booktabs top/mid/bottom rules remain solid black.
+\newcommand{\rowsep}{\arrayrulecolor{black!22}\specialrule{0.35pt}{2pt}{2.5pt}\arrayrulecolor{black}}
+
+% --- floats, graphics -----------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{./}}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% --- lists, code, hyphenation ---------------------------------------------
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{parskip}
+\usepackage{setspace}
+
+% Boxed algorithm summaries as floats: ruled look, never split, and the
+% surrounding text fills the page instead of leaving a gap.
+\newenvironment{algobox}
+  {\begin{table}[!htb]\begin{minipage}{\linewidth}
+   \singlespacing\setlength{\parskip}{2pt}\small
+   \hrule height 0.9pt \vspace{5pt}}
+  {\vspace{5pt}\hrule height 0.9pt
+   \end{minipage}\end{table}}
+
+% --- headers & TOC formatting ---------------------------------------------
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-30pt}{25pt}
+
+% --- hyperlinks -----------------------------------------------------------
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+\hypersetup{
+  colorlinks=false,
+  pdftitle={Evaluating Reinforcement Learning Algorithms for Portfolio Trading},
+  pdfauthor={Fiyinfoluwa Akano}
+}
+
+% --- pandoc helper -------------------------------------------------------
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Pandoc emits `\def\LTcaptype{none}` around uncaptioned tables. That fake
+% counter breaks hyperref, so we shadow it with a real one.
+\newcounter{none}
+\providecommand{\theHnone}{None.\thenone}
+
+\setcounter{chapter}{2}   % so the first \chapter{...} numbers as Chapter 3
+
+\title{\Huge Evaluating Reinforcement Learning Algorithms\\
+        for Portfolio Trading \\[0.6em]
+        \Large A Reinforcement Learning Study on the\\
+        S\&P~500 ETF (SPY)}
+\author{Fiyinfoluwa Akano \\ \small 6962514 \\[0.5em]
+        \small MSc Artificial Intelligence \\
+        \small School of Computer Science and Electronic Engineering \\
+        \small Faculty of Engineering and Physical Sciences \\
+        \small University of Surrey}
+\date{Chapters 3--5 --- \today}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\vspace*{1em}
+\textit{This is a preview build of Chapters 3--5 for supervisor review.\\
+Citations, front matter and remaining chapters follow separately.}
+\end{center}
+
+\tableofcontents
+\clearpage
+
+\chapter{Methodology \& Mathematical Formulation}
+\input{ch3}
+
+\chapter{System Design and Experiment Framework}
+\input{ch4}
+
+\chapter{Experimental Results and Analysis}
+\input{ch5}
+
+\renewcommand{\bibname}{References}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

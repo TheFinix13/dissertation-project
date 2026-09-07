@@ -3,16 +3,14 @@
 
 This chapter formulates single-asset trading as an episodic Markov Decision
 Process (MDP). It first sets out the state the agent observes, tracing how
-that state was arrived at through three successive versions and stating
-precisely how far it can be called complete. It then derives, from
-first principles, the two priority learning rules of this project --- the
-Monte-Carlo policy gradient (REINFORCE) and Deep Q-learning --- and
-introduces PPO as a third, stabilised policy-gradient ablation row. Particular
-care is taken to show \emph{why} the implemented loss functions follow from
-the stated objective --- i.e.\ why the policy-gradient loss contains a
-$\log\pi_\theta$ term, and whether each step is exact or a sampling
-approximation. The chapter closes with the evaluation protocol used in
-Chapter~5.
+that state was arrived at and stating precisely how far it can be called
+complete. It then derives the two priority learning rules of this project,
+REINFORCE and Deep Q-learning, from first principles, and introduces PPO
+as a third, stabilised comparison. Particular care is taken to show
+\emph{why} each implemented loss follows from the stated objective: why
+the policy-gradient loss contains a $\log\pi_\theta$ term, and which steps
+are exact rather than sampling approximations. The chapter closes with the
+evaluation protocol used in Chapter~5.
 
 In plain terms, this chapter answers four questions precisely: what the
 agent \emph{sees} (the state), what it may \emph{do} (the actions), what
@@ -38,7 +36,7 @@ $W_t = C_t + h_t P_t$  & mark-to-market wealth; \; $C_0$: initial cash \\
 $c_t,\; v_t$           & cash and exposure as fractions of $C_0$ \\
 $\mathrm{dd}_t$        & fall from peak wealth within the episode (rung $S_4$) \\
 $c$                    & proportional fee rate (5 basis points $=$ 0.05\%) \\
-$\Delta = 0.25\,C_0$    & fixed monetary trade slice \\
+$\Delta$                & fixed monetary trade slice (design value $0.1\,C_0$; Sec.~\ref{sec:actions}) \\
 $\lambda$              & weight on the drawdown penalty in the risk-aware reward \\
 $\gamma$               & discount factor \\
 $\tau$                 & a trajectory (one episode); also the clock feature $t/T$ \\
@@ -355,7 +353,7 @@ $m{=}20$ for the trend reference and $n{=}14$ for the average true range.}
 8 & $\mathrm{PnL}_t$ & $(P_t - \bar{P}^{\mathrm{entry}}_t)/\bar{P}^{\mathrm{entry}}_t$ & whether the position is in profit or loss \\
 \addlinespace
 \multicolumn{4}{l}{\emph{Time}} \\
-9 & $\tau_t$ & $t/T \in [0,1]$ & how long remains before forced liquidation \\
+9 & $\tau_t$ & $t/T_{\max} \in [0,1]$ & how far through the episode has elapsed \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -492,38 +490,32 @@ of cash into asset units at the current price, and a Sell liquidates up to
 the same slice of position value. The meaning of one action is then
 constant throughout the sample.
 
-\paragraph{How coarse may the slice be?} The size of $\Delta$ looks like a
-free parameter and is not. Reaching full investment takes $C_0/\Delta$
-Buys, and an episode is only about 21 bars long, so $\Delta$ places a
-ceiling on the \emph{average} exposure attainable within a month, and hence
-on the return attainable, however skilful the policy. With
-$\Delta = 0.1\,C_0$ the fastest legal accumulation reaches a mean exposure
-of 0.69 against buy-and-hold's 0.91, so an agent at that granularity cannot
-beat buy-and-hold in a rising market no matter what it learns. Reporting
-such an agent as having failed to beat the benchmark would report
-arithmetic as though it were a result about learning.
-
-The slice is therefore calibrated rather than assumed, by a rule that needs
-no training and no test data: take the smallest $\Delta$ whose attainable
-exposure ceiling reaches 90\% of buy-and-hold's exposure, keeping the finest
-control over position size that still leaves the benchmark reachable. On the
-validation months this selects
+\paragraph{Choosing the slice size.} The design value is
 \[
-\Delta \;=\; 0.25\,C_0 \;=\; \$2{,}500,
+\Delta \;=\; 0.1\,C_0 \;=\; \$1{,}000 .
 \]
-whose ceiling is a mean exposure of 0.838. The full calibration is reported
-in Chapter~5, and $\Delta = 0.1\,C_0$ is retained there as a comparison row,
-so the cost of the coarser action set is measured rather than merely
-avoided.
+The reasoning is one of control: with a tenth of capital per trade, the
+agent can adjust its position in ten graded steps rather than in a few
+coarse jumps. A finer slice gives the policy more expressive room to act
+on what it sees.
+
+One consequence of this choice deserves to be stated now, because it is
+testable before any agent is trained. Reaching full investment takes
+$C_0/\Delta$ Buys, and an episode is only about 21 trading days long. The
+slice size therefore places a ceiling on the \emph{average} exposure any
+policy can attain within a month, however skilful it is. Whether the
+$0.1\,C_0$ slice leaves the buy-and-hold benchmark within reach is an
+empirical question about the data, not about learning. It is checked on
+the validation months, before the main experiments, at the start of
+Chapter~5.
 
 \paragraph{Actions as a separate axis.} Because state design and action
 design are separate representational choices, varying both at once would
 make any difference in behaviour impossible to attribute. The action model
-is therefore fixed at the calibrated slice before the agents are compared,
-and the two alternatives, whole-share trading and the coarser slice, are
-retained as controlled comparisons at the frozen state
-(Section~\ref{sec:protocol}) rather than crossed with every rung of the
-ladder.
+is therefore fixed before the agents are compared, and the alternative
+representations, whole-share trading among them, are retained as
+controlled comparisons at the frozen state (Section~\ref{sec:protocol})
+rather than crossed with every rung of the ladder.
 
 \paragraph{Execution and fees.} With proportional fee rate $c$ (5 basis
 points), a Buy spending $x$ dollars acquires $x / (P_t(1+c))$ units, and a
@@ -561,15 +553,15 @@ every experiment (the ``accounting identity'' test).
 
 \paragraph{A fully numeric example.} Let $C_0 = \$10{,}000$, price
 $P_t = \$500$, fee $c = 0.0005$. The agent Buys one slice
-($\Delta = \$2{,}500$): it acquires $2500 / (500 \times 1.0005) = 4.998$
+($\Delta = \$1{,}000$): it acquires $1000 / (500 \times 1.0005) = 1.999$
 units, and its wealth drops immediately by the fee's worth,
-$r_t \approx -\$1.25$. Overnight the price rises 1\% to \$505: holding
-$4.998$ units, $r_{t+1} = 4.998 \times \$5 \approx +\$25.00$. If it then
+$r_t \approx -\$0.50$. Overnight the price rises 1\% to \$505: holding
+$1.999$ units, $r_{t+1} = 1.999 \times \$5 \approx +\$10.00$. If it then
 Sells the slice at \$505, it receives
-$4.998 \times 505 \times 0.9995 \approx \$2{,}523$, paying another
-$\approx\$1.26$ fee. Net effect of the round trip: about $+\$22.50$ ---
-the \$25 price gain less about \$2.50 of fees. The same trip on a flat
-price loses \$2.50. The agent is never told any of this; it must discover
+$1.999 \times 505 \times 0.9995 \approx \$1{,}009$, paying another
+$\approx\$0.50$ fee. Net effect of the round trip: about $+\$9.00$, being
+the \$10 price gain less about \$1.00 of fees. The same trip on a flat
+price loses \$1.00. The agent is never told any of this; it must discover
 from such rewards that trading has a price and only pays when the market
 moves favourably.
 
@@ -733,18 +725,21 @@ gradient unbiased while reducing its variance:
 
 \subsection{Step 5 --- Monte-Carlo estimation (approximation)}
 
-The expectation is intractable, so it is approximated by the empirical
-mean over $N$ sampled trajectories --- this is the only approximation in
-the derivation, and it is unbiased:
+The expectation cannot be evaluated exactly, because the market's
+distribution over months is unknown. It is therefore estimated by the
+empirical mean over $N$ trajectories sampled from the current policy:
 \begin{equation}
 \nabla_\theta J(\theta) \;\approx\; \frac{1}{N} \sum_{n=1}^{N}
   \sum_{t=0}^{T_n-1} \nabla_\theta \log \pi_\theta(a^{(n)}_t \mid s^{(n)}_t)\;
   G^{(n)}_t .
 \label{eq:pg_mc}
 \end{equation}
-The double sum --- over trajectories $n$ and over steps $t$ within each
-trajectory --- and the $1/N$ factor are precisely the empirical version of
-the expectation in (\ref{eq:objective}).
+The double sum, over trajectories $n$ and over steps $t$ within each
+trajectory, together with the $1/N$ factor, is precisely the empirical
+version of the expectation in (\ref{eq:objective}). Under the standard
+formulation this Monte-Carlo estimator is unbiased; the practical
+modifications described in Step~6 are then stability choices layered on
+top of it.
 
 \subsection{Step 6 --- the surrogate loss implemented in PyTorch}
 
@@ -764,9 +759,17 @@ modelling choice but the direct consequence of the likelihood-ratio
 identity in Step~2.
 
 In the implementation the returns within each episode are standardised
-(zero mean, unit variance) before entering (\ref{eq:reinforce_loss}); this
-is a standard variance-reduction baseline that leaves the gradient
-direction unbiased.
+(zero mean, unit variance) before entering (\ref{eq:reinforce_loss}). The
+two halves of that operation are not the same kind of thing. Subtracting
+the within-episode mean is a \emph{baseline} in the standard sense: the
+argument of Step~4 applies to it, and the gradient remains unbiased.
+Dividing by the standard deviation is an implementation-level
+stabilisation step, outside that argument: it keeps the update magnitude
+stable across episodes of very different profitability, and it does not
+alter the definition of the underlying trading reward. One mechanical
+consequence is that REINFORCE becomes nearly indifferent to the scale of
+the reward, since every episode's returns are rescaled to unit variance
+regardless; this is revisited experimentally in Chapter~5.
 
 \section{Deep Q-learning formulation}
 \label{sec:dqn}
@@ -808,14 +811,44 @@ L(\phi) = \frac{1}{B}\sum_{b=1}^{B} \bigl( Q_\phi(s_b,a_b) - y_b \bigr)^2 ,
 \end{equation}
 where $d_t$ indicates episode termination and the max ranges over
 \emph{legal} actions only (feasibility masking applied inside the target).
-Exploration uses $\varepsilon$-greedy action selection over legal actions,
-with $\varepsilon$ annealed linearly.
+The terminal flag matters here: the final day of every month ends in
+forced liquidation, so there is no future value to bootstrap from, and a
+target without $(1-d_t)$ would be wrong at every episode end. The stored
+transition is accordingly a six-tuple
+$(s_t, a_t, r_t, s_{t+1}, \mathrm{mask}_{t+1}, d_t)$: the successor
+state's legal-action mask must be kept, or the masked maximum in
+(\ref{eq:dqn_loss}) could not be formed at training time.
+
+\paragraph{Why the buffer and the target network.} Consecutive trading
+days are highly correlated, and a network trained on them in order would
+keep fitting the most recent regime. Sampling uniformly from a large
+buffer breaks that correlation and lets each transition be reused many
+times, which matters when data are scarce. The target network addresses a
+different instability: if the same network produced both the prediction
+and the target, every update would move the goalposts it is chasing.
+Freezing a copy $Q_{\phi^-}$ and refreshing it only periodically keeps
+the target still between updates.
+
+\paragraph{Exploration.} Action selection is $\varepsilon$-greedy over
+legal actions: with probability $\varepsilon$ a random \emph{legal}
+action, otherwise the legal action with the highest estimated value. In
+this work $\varepsilon$ decays linearly from 1.0 to 0.05 over the first
+half of the training budget and stays at 0.05 thereafter; the buffer
+holds 50{,}000 transitions, minibatches are of size 64, and the target
+network is refreshed every 500 steps (Chapter~4 collects all
+hyper-parameters).
 
 \paragraph{Contrast with REINFORCE.} REINFORCE updates once per episode
 from complete returns (unbiased, high variance, on-policy); DQN updates
 every step from bootstrapped one-step targets (biased during learning, low
-variance, off-policy via replay). Comparing the two families on the same
-MDP is the core experimental design of Chapter~5.
+variance, off-policy via replay). One further asymmetry follows from the
+formulations themselves. Because DQN regresses directly on the
+reward-based temporal-difference target, changes in reward magnitude
+change the scale of its learning target; REINFORCE standardises returns
+within each episode, so the same change reaches it only weakly.
+Reward-scale sensitivity is therefore examined experimentally in
+Chapter~5. Comparing the two families on the same MDP is the core
+experimental design of that chapter.
 
 \section{PPO: the stabilised policy gradient (third ablation row)}
 \label{sec:ppo}
@@ -852,6 +885,13 @@ machinery of Section~\ref{sec:pg_derivation}, evaluated against a frozen
 snapshot $\pi_{\theta_{\mathrm{old}}}$ rather than differentiated through
 a logarithm directly.
 
+Two implementation notes keep the conceptual account honest. First,
+$A_t = G_t - V_\phi(s_t)$ is the conceptual form of the advantage; the
+implementation estimates it with generalised advantage estimation, a
+weighted blend of one-step and multi-step estimates that trades a little
+bias for lower variance. Second, the variant used is MaskablePPO, so the
+same legal-action masking applied to the scratch methods is applied here:
+illegal actions are removed from the distribution before sampling.
 Because the from-scratch requirement of this project is discharged by
 REINFORCE and DQN, PPO is used via the reference Stable-Baselines3
 implementation, with the same environment, data split, fee, budget and
@@ -891,6 +931,34 @@ seeds as the scratch methods.
 \EndFor
 \end{algorithmic}
 \end{algorithm}
+
+\begin{algorithm}[h]
+\caption{MaskablePPO for the trading MDP (as implemented)}
+\label{alg:ppo}
+\begin{algorithmic}[1]
+\State initialise actor $\pi_\theta$ and critic $V_\psi$ (MaskablePPO, MLP $128$--$128$)
+\For{iteration $=1, 2, \dots$ until step budget exhausted}
+  \For{step $=1, \dots, N$}
+    \State \textbf{if} episode terminated: sample a training month; reset ($C_0$ cash, no position)
+    \State observe $s_t$ and legal-action mask; sample $a_t \sim \pi_\theta(\cdot \mid s_t)$ over legal actions
+    \State execute; store $(s_t, a_t, r_t, V_\psi(s_t), \log\pi_\theta(a_t\mid s_t))$
+  \EndFor
+  \State estimate advantages $\hat{A}_t$ by GAE; form returns
+  \For{epoch $=1, \dots, K$}
+    \For{each minibatch from the rollout}
+      \State $\rho_t \gets \pi_\theta(a_t\mid s_t)/\pi_{\theta_{\mathrm{old}}}(a_t\mid s_t)$
+      \State Adam step on $L^{\mathrm{CLIP}}(\theta)$ + value loss
+    \EndFor
+  \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\noindent\textit{Notes.} $N{=}2048$ is the Stable-Baselines3 rollout length used here;
+$K{=}10$ is the number of epochs over each rollout. Month sampling and
+\texttt{action\_masks()} are provided by the same environment wrapper used for
+the scratch methods (Section~\ref{sec:impl_ppo}), so all three algorithms face
+an identical action space at every step.
 
 \section{Evaluation protocol}
 \label{sec:protocol}
@@ -1003,15 +1071,14 @@ just moved, whether that move is part of a trend, how choppy the market
 is, how far price sits from its recent average, how wide the day's range
 was, how much cash it holds, what its position is worth, whether that
 position is up or down, and how many days remain. It may hold, buy a
-\$2,500 slice, or sell one; it pays a small fee on every trade; and it is
+\$1,000 slice, or sell one; it pays a small fee on every trade; and it is
 scored by the change in its total wealth.
 
-The size of that slice was not picked for neatness. A quarter of capital
-takes four purchases to become fully invested, and a trading month is only
-about twenty-one days, so a smaller slice would leave the agent unable to
-become invested quickly enough to match simply buying and holding, which
-would guarantee it looked worse than the benchmark for reasons of
-arithmetic rather than skill.
+The size of that slice looks like a harmless detail. It is not, and
+Chapter~5 opens by testing it: a slice takes time to accumulate, and a
+trading month is only about twenty-one days, so the slice size caps how
+invested the agent can ever be. Whether that cap leaves the buy-and-hold
+benchmark within reach is the first empirical question of this project.
 
 Those nine numbers were not chosen by taste. Each one answers a situation
 the previous version of the state could not tell apart, and one candidate

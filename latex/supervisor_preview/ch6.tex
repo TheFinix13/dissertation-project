@@ -1,0 +1,372 @@
+\section{Summary of the Work}
+
+This dissertation examined whether reinforcement learning algorithms can
+learn profitable trading policies that utilize market and portfolio
+information from the observed states when trading assets in a portfolio.
+
+The study designed a complete experimental system for trading the SPY
+exchange-traded fund. The system uses daily market data organised into
+monthly episodes, includes transaction costs and action masking, and
+uses a nine-feature state representation with an optional drawdown
+feature. Two reward formulations were tested: the primary wealth-change
+reward and an optional risk-aware reward that penalised drawdown, along
+with three learning algorithms: REINFORCE, Deep Q-learning (DQN), and
+Proximal Policy Optimisation (PPO).
+
+Experimental decisions were made on the 12-month validation dataset
+(2023), while keeping the 24-month test set (2024-2025) separate and
+using it only for final evaluations.
+
+The experiments followed a fixed sequence. First, the trade size was
+adjusted to ensure the agents could reach a reasonable level of exposure
+relative to the buy-and-hold benchmark. The behavioural experiment then
+determined whether the learned policies actually respond to the
+information in their states. Once these environment, calibration and
+behavioural choices had been decided, the main performance of the
+learned agents was evaluated and compared against the benchmark strategy
+on the unseen test period.
+
+Additional experiments then tested whether adding drawdown to the state
+changed the results, whether a risk-aware reward improved loss
+management in the portfolio trade, and how the different learning
+methods responded to changes in transaction costs.
+
+\section{Conclusions Against the Research Questions}
+
+The experiments in Chapter 5 address the four questions asked in 5.1.
+
+\subsection{Performance}
+
+The first question considered whether the reinforcement learning agents
+could outperform the buy-and-hold benchmark on unseen data.
+
+The results do not provide any evidence that they could. No learned
+agent outperformed the simple buy-and-hold strategy on the held-out test
+period. Buy-and-hold produced a mean wealth change of +\$180.25 per
+month, while the best learned agent, REINFORCE, achieved +\$171.51. PPO
+achieved +\$127.35 and DQN +\$74.68.
+
+The result should not be interpreted as reinforcement learning
+algorithms being incapable of learning profitable trading strategies.
+All agents produced positive average wealth changes. Instead, the more
+specific conclusion is that none of the tested algorithms learned a
+level of trading skill that could outperform the simple investment
+strategy on unseen data.
+
+Transaction costs and the trade size also cannot explain the difference,
+since they were the same throughout the experiment, providing a basis
+for fair comparison. The test period, however, favoured remaining
+invested, with positive market performance in 17 of the 24 months. Under
+these conditions, buy-and-hold was difficult to beat as it benefits from
+the rising market direction.
+
+\subsection{Behaviour}
+
+The second question examined whether the learned policies genuinely use
+the state information provided to them.
+
+The algorithms showed a clear difference in how they used the state. All
+six DQN seeds changed their actions in response to the observed state,
+while none of the twelve policy-gradient seeds from REINFORCE and PPO
+did so. This changes how the performance results should be interpreted.
+REINFORCE came close to the benchmark in terms of return, at +\$171.51
+per month, but its policies largely shifted to buying rather than using
+the market information provided.
+
+DQN however produced policies that consistently responded to changes in
+the observed state but produced a lower average return than REINFORCE.
+This suggests that state dependence and financial performance are not to
+be treated as equal objectives in the experimental setting. An agent can
+learn to use its observations without that behaviour necessarily
+yielding higher returns.
+
+This differentiation is important because an agent can perform well for
+the wrong reason. During a generally rising market, a policy that
+remains invested can achieve a strong return without needing to learn
+when market conditions require entering, reducing, or exiting a
+position.
+
+Looking only at return would have completely hidden the distinction
+between these behaviours. The behavioural analysis is therefore an
+important part of evaluating learned trading policies, as it revealed a
+clear difference between the value-based and policy-gradient methods.
+
+\subsection{State Representation}
+
+The third question examined whether adding a drawdown feature to the
+state representation improved agent performance or behaviour.
+
+Adding drawdown to the nine-feature state produced only limited changes
+using the wealth-change reward. REINFORCE\textquotesingle s mean monthly
+wealth change decreased by \$4.12, while DQN\textquotesingle s increased
+by \$3.13. Both changes were small compared with the variation between
+their random seeds and cannot be reasonably treated as reliable
+improvements.
+
+PPO\textquotesingle s mean return increased by \$32.62, but its seed
+spread also changed heavily, from \$179.80 to \$94.00. This improvement
+cannot confidently be attributed to the drawdown feature itself.
+
+Overall, the results suggest that providing additional information does
+not automatically produce a better policy or improve learning unless the
+objective specifies it. This is consistent with an important principle
+noticed from the experiments: \textbf{information in the state is only
+useful when the learning objective and optimisation process give the
+agent a reason to use it}. Hence, the agent must be able to learn a
+relationship between the additional information and actions that improve
+the objective being optimised.
+
+\subsection{Reward Formulation}
+
+The fourth question considered whether adding drawdown into the reward
+could encourage the agents to reduce losses and generate a more
+risk-aware behaviour.
+
+The risk-aware reward reduced drawdown mainly by reducing market
+participation, not by improving understanding of market conditions. With
+the selected penalty of \(\symbf{\lambda = 0.10}\),
+DQN\textquotesingle s mean drawdown fell by 41\%, from 0.0140 to 0.0082.
+However, its mean return also fell by 32\%, from +\$77.81 to +\$52.90,
+while its exposure was approximately halved. Its Sharpe ratio fell from
+0.505 to 0.416, so the reduced drawdown did not result in better
+risk-adjusted performance. The reward therefore encouraged the agent to
+hold less of the asset rather than to identify and avoid declining
+markets. This is also reflected in March 2025, when reducing exposure
+would have been particularly useful: DQN\textquotesingle s exposure
+during the month was higher than its overall average, and it still
+experienced 46\% of the benchmark\textquotesingle s loss.
+
+The result illustrates an important limitation of using drawdown as a
+standalone penalty. The easiest way for an agent to reduce exposure to
+drawdown is to reduce its participation in the market. This behaviour
+can theoretically satisfy the risk conditions of the reward without
+necessarily producing a better ability to identify when the market is
+likely to decline.
+
+The penalty-weight analysis proves this interpretation. A relatively
+small increase in the penalty produced a major behavioural change, with
+exposure falling from 0.344 at λ = 0.10 to 0.074 at λ = 0.25. This
+indicates that the reward formulation created a strong correlation
+between market participation and risk avoidance.
+
+\section{Critical Appraisal of the Project}
+
+The most important lessons from this project were from the experimental
+methodology rather than the choice of reinforcement learning algorithm
+alone. Several of the most useful findings came from implementation
+problems identified during development and testing.
+
+One of the strongest aspects of the project was the verification tests.
+The automated tests identified several implementation problems during
+development, \textbf{three of which could have affected the
+experiments' validity}. These
+included issues with rolling feature calculation at the end of monthly
+episodes and an implementation error in the buy-and-hold benchmark that
+reduced its performance by \$38.95 per month, about 21.6\%. If this
+error had remained, the dissertation\textquotesingle s main conclusion
+could have been misleading, as the learned agents would have appeared to
+outperform the benchmark.
+
+The verification tests also noticed the experimental design problem in
+the trade size. Using the original \(0.10C_{0}\) trade size in Chapter 3
+would make the maximum attainable exposure only 0.690, compared with
+0.910 for buy-and-hold. This meant that the learning agents were at a
+disadvantage before training even began. Selecting \(0.25C_{0}\) allowed
+a fairer comparison while still letting the agents control their
+positions in smaller steps than the\(0.50C_{0}\) alternative.
+
+The complete set of 21 verification tests passed before the final
+experiments were accepted, giving a higher confidence that the reported
+results reflect an appropriate experimental design rather than
+implementation errors.
+
+The behavioural analysis was another important part of the study.
+Without it, the REINFORCE result of +\$171.51 could have been
+interpreted as evidence that the agent had learned an intelligent,
+effective trading strategy. The analysis showed this interpretation was
+not justified, as the policies acted like a consistent buyer because the
+market was consistently rising, completely changing the interpretation
+of the result.
+
+The project also highlighted the importance of random seed variation.
+The results, particularly for PPO, varied considerably between
+independent training runs. PPO had a seed spread of \$179.80 in one
+configuration, which was greater than its mean return. This made it
+difficult to draw conclusions based on individual training runs, as that
+would have been unreliable. Reporting multiple seeds widened the
+evaluation, providing a more consistent view of how each algorithm
+behaved, although it increased the computational and experimental
+workload; however, six seeds are still lacking for more definite
+statistical inference.
+
+Overall, the project demonstrated that careful experimental design is as
+important as the choice of reinforcement learning algorithm. The main
+lessons came from testing the assumptions behind the experiments, rather
+than from simply comparing model returns. State dependence, action
+constraints, reward design, and seed variation all affect how the final
+results could be interpreted. This made the experimental process more
+demanding but also produced a more reliable basis for evaluating the
+learned trading policies.
+
+\section{Limitations}
+
+The findings of this study should be considered within the scope of the
+experimental design, but there are several limitations.
+
+\subsection{One asset and a limited market period}
+
+The experiments use SPY as the only asset, and the held-out period from
+2024 to 2025 was generally favourable to holding the asset due to rising
+markets. A market with a longer or more severe decline could produce
+different results for the learned agents and the buy-and-hold benchmark.
+The findings cannot therefore be automatically generalised to other
+assets or market conditions without further testing.
+
+\subsection{Monthly Episode Structure}
+
+The trading environment treated each calendar month as a separate
+episode. Every episode started with the same initial capital of
+\$10,000, and any remaining position was closed at the end of the month.
+As a result, the results do not represent a single portfolio that
+continuously compounds over the full evaluation period as a real
+portfolio would.
+
+This design made the experiments easier to control by keeping the
+episode length and starting conditions consistent. However, it also
+means that gains or losses from one month did not affect the starting
+capital or portfolio position in the following month, which does not
+represent a real-world portfolio. A longer continuous portfolio
+environment could therefore lead to a different behaviour, especially
+for policies that require accumulated wealth or changes in portfolio
+value over time.
+
+\subsection{Fixed Trade Size}
+
+The agents trade fixed fractions of the initial capital rather than
+choosing their position size continuously. This was calibrated to create
+a controlled, reasonable environment for comparison with the benchmark,
+but it restricts how much the agents can express their decisions. A
+continuous position-sizing model could potentially respond differently
+based on its exposure in a particular market condition. Rather than
+repeatedly applying fixed buy or sell actions, such an agent could
+select its desired portfolio exposure, producing different results in
+returns and trading behaviour.
+
+\subsection{Limited Number of Seeds and Lack of Significance Testing}
+
+Six seeds were used for each configuration, and the seed-level results
+and variation between them are reported throughout the results. This is
+stronger than relying on a single training run, but it does not provide
+sufficient statistics for formal claims about small differences. For
+example, the \$3.13 change observed for DQN and \textbf{−\$4.12} for
+REINFORCE when the state representation was changed is not large enough
+to be treated as a meaningful improvement.
+
+\subsection{Risk Penalty Selection was based on DQN}
+
+The reward\textquotesingle s penalty weight λ was selected using DQN
+because it was the algorithm that consistently showed state-dependent
+behaviour. This does not guarantee that the same penalty value is
+appropriate for REINFORCE or PPO, as it was not independently optimised
+for every algorithm. A separate calibration for each algorithm could
+produce different results. This limitation is particularly relevant
+because the algorithms responded differently to the state and reward
+formulation.
+
+\subsection{The risk penalty only targets drawdown}
+
+The risk-aware reward penalises drawdown but does not directly measure
+whether the return achieved is sufficient for the level of risk taken.
+While drawdown is directly relevant to losses, it does not fully
+represent the portfolio risk. A reward that relates return to risk,
+rather than penalizing risk alone, was not tested.
+
+Additionally, as shown in Section 5.7, the agents could reduce the
+penalty simply by reducing their exposure to the asset or not trading at
+all. The experiments showed that a lower drawdown value should not
+automatically be associated with evidence of better risk management.
+
+\section{Future Work}
+
+The limitations above suggest several directions for furthering the
+research. Each stems directly from a limitation or an unresolved result
+in the experiments. The behavioural analysis should also be applied to
+these future works to determine the agent's behaviour to changes
+alongside performance improvements.
+
+\subsection{Longer and More Challenging Market Periods}
+
+The experiments could be repeated over longer market periods containing
+more market declines. A useful change would be to use a walk-forward
+training approach, allowing the agents to be retrained as market
+conditions change. The current study provides useful evidence for a
+generally rising test period, but testing market declines would provide
+a balanced evaluation of the portfolio.
+
+This would better reflect the changing nature of financial markets,
+allowing the system to encounter different combinations of rising,
+falling, and volatile conditions. Such an evaluation would also better
+test the agents' risk-aware behaviour during downtrends.
+
+\subsection{Predictive and Uncertainty-Aware State Information}
+
+The drawdown feature describes the portfolio\textquotesingle s previous
+losses but does not provide information about future market movements.
+Future work could therefore include predictive information, such as
+probabilistic forecasts containing estimates of forecast uncertainty.
+
+This would give a state-dependent agent more useful information for
+making decisions about future market conditions rather than relying only
+on historical data. It would also directly test whether
+DQN\textquotesingle s ability to use the state leads to more useful
+market understanding and trading decisions.
+
+\subsection{Risk-Efficiency Objectives}
+
+The most direct correction to the drawdown penalty could be to replace
+it with a reward that considers return relative to risk, such as a
+Sharpe-based or drawdown-relative objective~\cite{moody2001}. This would make simply
+reducing market exposure a less effective way of improving the reward,
+as seen in the current experiments.
+
+The results in Section 5.7 make this future rework highly relevant
+because the tested penalty mainly caused agents to reduce exposure
+rather than learn when downside risk is increasing.
+
+\subsection{More Seeds for Better Statistical Analysis}
+
+More random training seeds would improve the reliability of comparisons~\cite{henderson2018}
+between algorithms and configurations\textbf{.} Future work should
+combine this with appropriate statistical analysis to determine whether
+observed differences between configurations are likely to represent
+genuine results rather than random noise.
+
+\subsection{More flexible trade sizes}
+
+Future experiments could allow the agent to choose its position size
+continuously rather than using fixed trade amounts. This would remove
+the exposure limit created by the current environment and allow the
+agent to express different levels of confidence by adjusting its
+position size, potentially enabling smoother portfolio adjustments.
+
+\section{Closing Remarks}
+
+This dissertation examined whether standard reinforcement learning could
+beat the simple buy-and-hold strategy on unseen data. The experiments
+found no evidence that it could. The best-performing learned agent
+finished \$8.74 per month below buy-and-hold, and it did so by ignoring its market
+observations to follow a simple trading behaviour.
+
+The main contribution of the study is therefore not a successful trading
+strategy, but a careful examination of why the learned agents performed
+as they did. The comparisons were conducted in a controlled environment
+in which trade sizing was calibrated, transaction costs were applied,
+and the final results were produced in a suitable experimental
+framework. The policies were then evaluated on both behavioral and
+financial performance, and the main findings were tested across the
+different state representations and reward functions.
+
+The implementation, experimental framework and behavioural analysis
+developed in this study provide a useful basis for future work. More
+advanced models can build on this framework while being evaluated and
+compared against the same fair standards.
