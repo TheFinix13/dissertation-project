@@ -2,11 +2,12 @@
 % the main body within the page guideline. Content unchanged apart from
 % the removed chapter-level table number.
 
-This appendix collects every mathematical symbol used in Chapters 3--5
+This section collects every mathematical symbol used in Chapters 3--5
 for reference.
 
-
-{\def\LTcaptype{none} % do not increment counter
+{\small
+\renewcommand{\rowsep}{\arrayrulecolor{black!22}\specialrule{0.35pt}{1pt}{1.5pt}\arrayrulecolor{black}}
+\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.1885}}
   >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.8115}}@{}}
@@ -57,24 +58,20 @@ each trade; the fraction \emph{f} is selected on validation data
 rewards \\
 \rowsep
 \emph{τ} & a trajectory (one complete trading episode), corresponding to
-one month of daily trading; related to \emph{t \& T} \\
+one month of daily trading \\
 \rowsep
-\emph{T} & episode length in days (with 𝑇 ≈18--23) \\
+\emph{T}, \emph{t} & episode length in days (\emph{T} ≈ 18--23) and one
+trading day within it \\
 \rowsep
-\emph{t} & 1 trading day \\
-\rowsep
-\emph{G}(τ) & The total return obtained over a complete episode \\
-\rowsep
-\emph{G\textsubscript{t}} & The accumulated future reward from time t
-onwards. \\
+\emph{G}(τ), \emph{G\textsubscript{t}} & the total return of a complete
+episode, and the accumulated future reward from time t onwards \\
 \rowsep
 \emph{π\textsubscript{θ}}(\emph{a} \textbar{} \emph{s}) & policy network
 that determines the likelihood of choosing action \emph{a} given the
 current state \emph{s}. \\
 \rowsep
 \emph{Q\textsubscript{φ}}(s, \emph{a}) & The Q-network, which estimates
-the value of taking a particular action in a given state; frozen target
-copy \\
+the value of taking a particular action in a given state \\
 \rowsep
 \emph{Q\textsubscript{φ⁻}} & A fixed copy of the Q-network used as a
 target during Deep Q-learning. \\

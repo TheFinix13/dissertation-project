@@ -29,8 +29,7 @@ definitions are given in Chapter~3.
 
   \item[Reward] The feedback the agent receives after each action. Here,
   it is the day's change in total wealth, with trading fees already
-  deducted. The agent's objective is to make the month's total reward as
-  large as possible.
+  deducted.
 
   \item[Episode] One complete round of the task, after which everything
   resets. Here, it is one calendar month of trading, ending with a forced
@@ -53,61 +52,53 @@ definitions are given in Chapter~3.
   rather than a lookup table.
 
   \item[PPO] A more recent policy-gradient method that limits how much
-  the policy can change in a single update. This makes training steadier,
-  but the policy can still settle into the first behaviour that performs
-  well.
+  the policy can change in a single update, which makes training
+  steadier.
 
   \item[Neural network] A flexible mathematical function with many
-  adjustable parameters. The parameters are tuned gradually during
-  training so that the outputs improve against an objective.
+  adjustable parameters, tuned gradually during training so that the
+  outputs improve against an objective.
 
   \item[Training / validation / test split] The data is divided into
   three parts so that no decision is tested on the data that shaped it.
-  In the first study the parts are chronological: the agents learn on
-  2018--2022, every tuning decision uses 2023 only, and the final
-  evaluation uses 2024--2025. In the main study the training and
-  validation parts are simulated episodes, and the final evaluations use
-  fresh simulated episodes and the real transfer months, none of which
-  were used for any design decision. This separation is what makes a test
-  result an honest measure of performance on unseen data.
+  In the first study the parts are chronological: 2018--2022 for
+  training, 2023 for every tuning decision, and 2024--2025 for the final
+  evaluation. In the main study the training and validation parts are
+  simulated episodes, and the final evaluations use fresh simulated
+  episodes and the real transfer months.
 
-  \item[Benchmark] A simple non-learning strategy the agents are compared
-  against. The most important one here is \emph{buy-and-hold}: invest
-  everything at the start of the month and wait.
-
-  \item[Buy-and-hold] The standard passive strategy. Previous research
-  shows it is genuinely difficult to beat using price history alone.
-  This is why a result that beats it easily should be examined carefully
-  rather than accepted immediately.
+  \item[Benchmark / buy-and-hold] A simple non-learning strategy the
+  agents are compared against. The most important one here is
+  \emph{buy-and-hold}: invest everything at the start of the month and
+  wait. Previous research shows it is genuinely difficult to beat using
+  price history alone, so a result that beats it easily should be
+  examined carefully rather than accepted immediately.
 
   \item[Always-buy (\(0.25\,C_0\))] The strongest strategy available to
   a policy that ignores its observations: buy one fixed trade every day
-  buying is allowed, until fully invested. It is used as the reference
-  point for learned policies that reduce to unconditional buying.
+  buying is allowed, until fully invested.
 
   \item[Transaction fee / basis points (bps)] The cost of trading,
   charged as a fraction of the traded amount. 5 bps $=$ 0.05\%, which is
   50 cents per \$1{,}000 traded.
 
   \item[Sharpe ratio] The return earned per unit of variation in
-  returns. Higher is better. However, a strategy that barely invests can
+  returns. Higher is better, but a strategy that barely invests can
   report a high Sharpe ratio simply because its wealth barely moves.
 
   \item[Drawdown] The fall from the highest wealth reached so far in the
-  episode, as a fraction of that peak. It measures the largest loss
-  experienced during the episode, not the average one.
+  episode, as a fraction of that peak.
 
   \item[Exposure] The proportion of the capital invested in the asset at
   a given moment, from 0\% (all cash) to 100\% (fully invested).
 
-  \item[Seed] The starting value of the random number generator. Running
-  the same experiment with several seeds (six in this study) checks that
-  a result does not depend on one particular random initialisation.
+  \item[Seed] The starting value of the random number generator. Six
+  seeds are used per experiment, to check that a result does not depend
+  on one particular random initialisation.
 
   \item[Overfitting] Learning patterns that are specific to the training
   data rather than patterns that hold in general, which leads to poor
-  performance on new data. The chronological split and the held-out test
-  months guard against this.
+  performance on new data.
 
   \item[Action masking] Removing impossible actions from the agent's
   available choices, such as selling with no position or buying with no
@@ -119,9 +110,9 @@ definitions are given in Chapter~3.
   reported for each condition separately.
 
   \item[Market generator] The program that produces the simulated
-  monthly episodes used by the main study (Section 4.3). Its parameters
-  are calibrated on the real training months only, and every episode it
-  produces is labelled with its market condition.
+  monthly episodes used by the main study. Its parameters are calibrated
+  on the real training months only, and every episode it produces is
+  labelled with its market condition.
 
   \item[Transfer test] The final evaluation of the main study. The
   policies trained on simulated episodes are run, unchanged, on 180 real
@@ -131,15 +122,11 @@ definitions are given in Chapter~3.
   \item[State-dependent policy] A policy whose actions change with the
   observed state even when the same actions are legal. The opposite is a
   mask-determined policy, which follows a fixed pattern such as buying
-  whenever buying is allowed. In a rising market, that fixed pattern
-  earns a strong return, which is why profit alone cannot reveal it. The
-  behavioural analysis in Chapter~5 was designed to detect this
-  difference.
+  whenever buying is allowed.
 
   \item[Accounting identity] The check that the sum of all daily rewards
   in a month equals the month's true change in wealth. It is verified in
-  every experiment. If it failed, the rewards would not reflect the
-  actual portfolio.
+  every experiment.
 
   \item[Markov property] The requirement that the current state contains
   everything from the past that is relevant to the next decision. This
