@@ -93,6 +93,19 @@ Redo (in `experiments/final_v2/`, primary study going forward):
   lambda,fees}.pdf. PDF 113pp, 0 errors, no undefined refs.
 - EC decision pending. Viva prep: key numbers above; DQN-worst-on-real
   explained by value estimation needing stable/large data, not "uses state".
+- PAGE CUT DONE 2026-09-08: main body now exactly 80 printed pages
+  (ch1 p1 -> ch6 ends p80; refs p81; appendices A-E after). Was 92. How:
+  ch3 algorithm sections 3.6-3.9 compressed (derivations cited to
+  Williams/Sutton-Barto/Mnih instead of reproduced; all project-specific
+  settings kept: gamma=0.99, 50k buffer/64 batch, 500-step target sync,
+  eps 1.0->0.05, Adam 1e-3, eps-clip 0.2, GAE, both network sizes);
+  staged-state summary table and Flappy-Bird table folded into prose;
+  notation table moved to NEW Appendix E (ch3 state table renumbered
+  3.2->3.1); ch4 verification/corrections deduplicated, config bullet
+  list inlined, fig 4.2 at 0.72\textwidth; ch5 sec 5.2 state-dependence
+  told once, discussion "Overall" passage deduplicated vs summary
+  ("kept its edge"/"learned edge" slang also fixed); tocdepth=1 (ToC
+  2pp). appendix_algorithms ref updated 3.8.5->3.8. 0 errors, bibtex OK.
 
 ## 6) Known open items
 

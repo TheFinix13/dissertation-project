@@ -121,28 +121,24 @@ because there might be large differences between training runs which the
 average alone may hide~\cite{henderson2018}. A large spread indicates that the algorithm did
 not produce a consistent trading behaviour across the different runs.
 
+Financial performance is followed by a behavioural analysis, as returns
+alone cannot show whether a policy actually used the information in its
+state. For example, a policy that buys simply because buying is allowed
+can perform well during a rising market without responding to any market
+information. The \textbf{state-dependence analysis} tests whether a
+policy's actions changed when its observed state changed while the valid
+actions remained the same; if a policy selected different actions at
+different steps with the same actions available, the difference can be
+attributed to the observed state.
+
 Three further columns appear in the main study's tables.
-``State-dep.'' counts how many of the six seeds changed their actions
-when the market information in the state changed, using the behavioural
-test described in Section 5.3; a seed that ignores its state fails this
-test no matter how much it earns. ``Real'' is the mean wealth change per
-month when the trained policy is run, unchanged, on the 180 real
-transfer months of Section 5.10. ``Down condition'' is the mean wealth
-change per episode on the falling-market test episodes alone, which is
-the setting a risk-aware reward is meant to improve.
-
-Financial performance is then followed by a behavioural analysis, as
-returns alone cannot show whether a policy actually used the information
-in its state. For example, a policy that buys simply because buying is
-allowed can perform well during a rising market without responding to
-any market information.
-
-This led to \textbf{state-dependence analysis,} which was used to test
-whether a policy\textquotesingle s actions changed when its observed
-state changed while the valid actions remained the same. For instance,
-if a policy selected different actions at different steps with the same
-actions available, the difference could be attributed to the observed
-state. The tables report how many of the six seeds met this condition.
+``State-dep.'' counts how many of the six seeds passed the
+state-dependence test above; a seed that ignores its state fails no
+matter how much it earns. ``Real'' is the mean wealth change per month
+when the trained policy is run, unchanged, on the 180 real transfer
+months of Section 5.10. ``Down condition'' is the mean wealth change per
+episode on the falling-market test episodes alone, which is the setting
+a risk-aware reward is meant to improve.
 
 \subsection{Benchmark Strategies}
 
@@ -981,21 +977,12 @@ Overall, the two studies together answer the main research question of
 whether reinforcement learning algorithms can learn profitable,
 state-dependent trading strategies for a portfolio.
 
-On real data at the volumes a single asset provides, they cannot. The 60
-training months support memorisation, not learning, and the agents
-either memorised the majority answer or conditioned on value estimates
-too noisy to pay.
-
-Given enough balanced data, they can. Deep Q-learning earned money on a
-test set where every fixed strategy loses, did so on all six seeds,
-behaved correctly in each controlled condition, kept its edge under
-punitive transaction costs, used the risk-aware reward as designed, and
-transferred its behaviour to two decades of real months --- including
-stepping fully out of the market through the worst of the 2008 crisis
---- with a better risk-adjusted return than buy-and-hold. The capability
-was not missing from the method; it was missing from the data. The main
+On real data at the volumes a single asset provides, they cannot: the 60
+training months support memorisation, not learning. Given enough
+balanced data, they can, and the capability the main study revealed was
+not missing from the method; it was missing from the data. The main
 constraint in this problem was not the reward function, the state
-design, or the trade size, although each had a smaller effect; it was
+design, or the trade size, although each had a smaller effect. It was
 the amount and balance of training data, and once that constraint was
 removed, the remaining differences between algorithms were differences
 in how they explore and what they must estimate.
@@ -1018,7 +1005,7 @@ rising-market profit and cutting the falling-market loss by 84\%. The
 trade-size rule re-selected \(0.25C_{0}\); the drawdown feature again
 changed nothing under the wealth objective; the risk-aware reward, which
 had only reduced participation in the first study, now cut down-market losses
-by 73\% at almost no cost in return; and the learned edge survived a
+by 73\% at almost no cost in return; and the profit survived a
 tenfold fee increase. Transferred unchanged to 180 real months, the
 policies stayed profitable on every seed, held zero exposure through
 October 2008, and finished with a higher Sharpe ratio than buy-and-hold.

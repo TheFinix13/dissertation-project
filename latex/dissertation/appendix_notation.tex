@@ -1,0 +1,88 @@
+% Appendix: notation table moved from the opening of Chapter 3 to keep
+% the main body within the page guideline. Content unchanged apart from
+% the removed chapter-level table number.
+
+This appendix collects every mathematical symbol used in Chapters 3--5
+for reference.
+
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.1885}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.8115}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Symbol}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Meaning}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\emph{s\textsubscript{t}} ∈ ℝ\textsuperscript{9} & state observed by the
+agent at trading day t, containing the nine features used by the
+trading system (Table 3.1) \\
+\rowsep
+\emph{a\textsubscript{t}} ∈ \{0, 1, 2\} & action selected by the agent:
+Hold, Buy, or Sell. \\
+\rowsep
+\emph{P\textsubscript{t}} & asset price at day trading t; \\
+\rowsep
+\emph{r\textsubscript{t}} & reward received after an action, calculated
+from the change in portfolio value after transaction costs. \\
+\rowsep
+\emph{C\textsubscript{t}} & amount of cash available to the agent at
+trading day t \\
+\rowsep
+\emph{h\textsubscript{t}} & number of (fractional) units of the asset
+held at trading day t. \\
+\rowsep
+\emph{W\textsubscript{t}} = \emph{C\textsubscript{t}} +
+\emph{h\textsubscript{t}} \emph{P\textsubscript{t}} & Total portfolio
+value, calculated as untouched cash plus the current value of the asset
+held; \\
+\rowsep
+\emph{C\textsubscript{0}} & initial cash available at the beginning of
+an episode. \\
+\rowsep
+\emph{c} & proportional transaction fee for taking a trade, set to
+0.05\% per transaction \\
+\rowsep
+\emph{Δ} = \emph{f} \emph{C\textsubscript{0}} & fixed monetary size of
+each trade; the fraction \emph{f} is selected on validation data
+(Section 5.5) \\
+\rowsep
+\emph{γ} & discount factor used to determine the importance of future
+rewards \\
+\rowsep
+\emph{τ} & a trajectory (one complete trading episode), corresponding to
+one month of daily trading; related to \emph{t \& T} \\
+\rowsep
+\emph{T} & episode length in days (with 𝑇 ≈18--23) \\
+\rowsep
+\emph{t} & 1 trading day \\
+\rowsep
+\emph{G}(τ) & The total return obtained over a complete episode \\
+\rowsep
+\emph{G\textsubscript{t}} & The accumulated future reward from time t
+onwards. \\
+\rowsep
+\emph{π\textsubscript{θ}}(\emph{a} \textbar{} \emph{s}) & policy network
+that determines the likelihood of choosing action \emph{a} given the
+current state \emph{s}. \\
+\rowsep
+\emph{Q\textsubscript{φ}}(s, \emph{a}) & The Q-network, which estimates
+the value of taking a particular action in a given state; frozen target
+copy \\
+\rowsep
+\emph{Q\textsubscript{φ⁻}} & A fixed copy of the Q-network used as a
+target during Deep Q-learning. \\
+\rowsep
+\emph{J}(θ) & objective function representing the expected return of the
+policy \\
+\rowsep
+\emph{ε} & exploration rate used by the (ε-greedy) action-selection
+strategy \\
+\end{longtable}
+}

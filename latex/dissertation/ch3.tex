@@ -16,91 +16,8 @@ the best results. Finally, \textbf{PPO} is introduced as an additional
 method in the ablation row to compare against the other approaches, as
 it is designed to make the policy learning process more stable.
 
-Table 3.1 collects every symbol used for reference.
-
-\addcontentsline{lot}{table}{\protect\numberline{3.1}{Notation used throughout Chapters 3--5.}}
-\textbf{Table 3.1: Notation used throughout Chapters 3--5.}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.1885}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.8115}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Symbol}
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Meaning}
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\emph{s\textsubscript{t}} ∈ ℝ\textsuperscript{9} & state observed by the
-agent at trading day t, containing the nine features used by the
-trading system (Table 3.3) \\
-\rowsep
-\emph{a\textsubscript{t}} ∈ \{0, 1, 2\} & action selected by the agent:
-Hold, Buy, or Sell. \\
-\rowsep
-\emph{P\textsubscript{t}} & asset price at day trading t; \\
-\rowsep
-\emph{r\textsubscript{t}} & reward received after an action, calculated
-from the change in portfolio value after transaction costs. \\
-\rowsep
-\emph{C\textsubscript{t}} & amount of cash available to the agent at
-trading day t \\
-\rowsep
-\emph{h\textsubscript{t}} & number of (fractional) units of the asset
-held at trading day t. \\
-\rowsep
-\emph{W\textsubscript{t}} = \emph{C\textsubscript{t}} +
-\emph{h\textsubscript{t}} \emph{P\textsubscript{t}} & Total portfolio
-value, calculated as untouched cash plus the current value of the asset
-held; \\
-\rowsep
-\emph{C\textsubscript{0}} & initial cash available at the beginning of
-an episode. \\
-\rowsep
-\emph{c} & proportional transaction fee for taking a trade, set to
-0.05\% per transaction \\
-\rowsep
-\emph{Δ} = \emph{f} \emph{C\textsubscript{0}} & fixed monetary size of
-each trade; the fraction \emph{f} is selected on validation data
-(Section 5.5) \\
-\rowsep
-\emph{γ} & discount factor used to determine the importance of future
-rewards \\
-\rowsep
-\emph{τ} & a trajectory (one complete trading episode), corresponding to
-one month of daily trading; related to \emph{t \& T} \\
-\rowsep
-\emph{T} & episode length in days (with 𝑇 ≈18--23) \\
-\rowsep
-\emph{t} & 1 trading day \\
-\rowsep
-\emph{G}(τ) & The total return obtained over a complete episode \\
-\rowsep
-\emph{G\textsubscript{t}} & The accumulated future reward from time t
-onwards. \\
-\rowsep
-\emph{π\textsubscript{θ}}(\emph{a} \textbar{} \emph{s}) & policy network
-that determines the likelihood of choosing action \emph{a} given the
-current state \emph{s}. \\
-\rowsep
-\emph{Q\textsubscript{φ}}(s, \emph{a}) & The Q-network, which estimates
-the value of taking a particular action in a given state; frozen target
-copy \\
-\rowsep
-\emph{Q\textsubscript{φ⁻}} & A fixed copy of the Q-network used as a
-target during Deep Q-learning. \\
-\rowsep
-\emph{J}(θ) & objective function representing the expected return of the
-policy \\
-\rowsep
-\emph{ε} & exploration rate used by the (ε-greedy) action-selection
-strategy \\
-\end{longtable}
-}
+Appendix~E collects every symbol used in this and the following
+chapters, for reference.
 
 \section{Overview: Trading as a Markov Decision Process}
 
@@ -152,50 +69,17 @@ and the environment.}
 \end{figure}
 
 
-To make the MDP formulation easier to understand, Table 3.2 compares the
-main components of the trading task with those of a familiar
-game-playing task, Flappy Bird, which was used initially to understand
-Reinforcement Learning.
-
-\addcontentsline{lot}{table}{\protect\numberline{3.2}{Mapping a popular game MDP to the portfolio trading MDP.}}
-\textbf{Table 3.2: Mapping a popular game MDP to the portfolio trading
-MDP.}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2129}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3872}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3998}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-\textbf{MDP component}
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Flappy Bird}
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Trading (this work)}
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-State \emph{s\textsubscript{t}} & Bird\textquotesingle s position and
-speed, together with the position of the next pipe & Market information
-and the agent\textquotesingle s current portfolio position \\
-\rowsep
-Action \emph{a\textsubscript{t}} & Flap or do not flap & Hold, Buy, or
-Sell \\
-\rowsep
-Reward \emph{r\textsubscript{t}} & Survival score based on how long the
-bird remains in play & Change in portfolio wealth after trading fees \\
-\rowsep
-Episode \emph{τ} & One complete game session & One calendar month of
-daily trading \\
-\rowsep
-Terminal rule & The game ends when the bird crashes or hits the ground &
-The episode ends at the final trading day, with any remaining position
-sold \\
-\end{longtable}
-}
+The formulation can be made easier to understand by comparing it with a
+familiar game-playing task, Flappy Bird, which was used initially to
+understand reinforcement learning. Where the game's state is the bird's
+position and speed together with the next pipe, the trading state is the
+market information and the agent's current portfolio position. Where the
+game's actions are flap or do not flap, the trading actions are Hold,
+Buy, or Sell, and the reward is the change in portfolio wealth after
+trading fees rather than a survival score. One complete game session
+corresponds to one calendar month of daily trading, and where the game
+ends when the bird crashes, the trading episode ends at the final
+trading day, with any remaining position sold.
 
 This analogy also highlights a design principle used throughout the
 project: as the Flappy Bird state contains the information relevant to
@@ -222,18 +106,14 @@ one episode to the next.
 \subsection{Independence of Trading Episodes}
 
 For the purposes of the experiment, each monthly episode is treated as a
-separate and independent trading period. This is similar to treating
-each game session in Flappy Bird as a separate episode.
-
-However, this is a simplification because market conditions in
-consecutive months are not truly independent. For instance, events and
-trends in one month do influence the market in the following month. The
-resulting data are therefore not independent over time.
-
+separate and independent trading period, similar to treating each game
+session in Flappy Bird as a separate episode. This is a simplification,
+because events and trends in one month do influence the market in the
+following month, so the resulting data are not independent over time.
 Modelling these temporal relationships in greater detail would require
 time-series or partially observable approaches, which are outside the
 scope of this project. The implications of this assumption are discussed
-further in the conclusion\textbf{.}
+further in the conclusion.
 
 \subsection{Choice of Episode Length}
 
@@ -252,9 +132,8 @@ from being used during training and helps avoid look-ahead leakage. The
 main study additionally evaluates on real months from 2006 to 2017,
 which no training or calibration step ever reads.
 
-The same environment could also be adapted to shorter intervals, such
-as minute-level data, without a fundamental change to its design, but
-intraday trading is outside the scope of this study.
+The same environment could be adapted to shorter intervals, but intraday
+trading is outside the scope of this study.
 
 \subsection{Selection of the Historical Period}
 
@@ -317,11 +196,10 @@ faces a domain gap when applied to real data, and Chapter 5 measures
 that gap directly by evaluating the simulation-trained agents on the
 real held-out months.
 
-It should also be noted that real financial markets are more complex
-than any MDP and cannot be assumed to be fully observable. The MDP used
-here is a simplified representation of the portfolio trading problem;
-the information the agent cannot observe, and the consequences of this,
-are discussed with the state representation in Section 3.3.
+Real financial markets are also more complex than any MDP and cannot be
+assumed to be fully observable; the information the agent cannot
+observe, and the consequences of this, are discussed with the state
+representation in Section 3.3.
 
 \section{State Representation Design}
 
@@ -470,8 +348,7 @@ the market and the agent\textquotesingle s own portfolio.
 The state was developed in stages, starting from the smallest
 representation that could describe a trading decision and adding
 information only where the previous stage left the agent unable to
-distinguish situations that require different actions. Table 3.4 at the
-end of this section summarises the full progression.
+distinguish situations that require different actions.
 
 The starting point was a price-only state:
 
@@ -606,12 +483,12 @@ price creates a normalised measure that can be compared across different
 price levels.
 
 The nine features and what each tells the agent are
-summarised in Table 3.3.
+summarised in Table 3.1.
 
-\addcontentsline{lot}{table}{\protect\numberline{3.3}{Full State Definition}}
-\textbf{Table 3.3: Full State Definition}
+\addcontentsline{lot}{table}{\protect\numberline{3.1}{Full State Definition}}
+\textbf{Table 3.1: Full State Definition}
 
-\emph{Table 3.3: The} \emph{nine-feature state representation
+\emph{Table 3.1: The} \emph{nine-feature state representation
 (s\textsubscript{t} ∈ ℝ\textsuperscript{9}) used in the main
 experiments. C\textsubscript{0} denotes the initial cash,
 h\textsubscript{t} the number of asset units held, and
@@ -792,7 +669,7 @@ future prices when it decides its action \((a_{t})\).
 The same principle applies to the features that use historical windows:
 momentum uses the previous \((k = 5)\) timesteps, the moving average the
 previous \((m = 20)\) prices, and the normalised trading range the
-\((n = 14)\)-day ATR, as reported in Table 3.3.
+\((n = 14)\)-day ATR, as reported in Table 3.1.
 
 Therefore, each state is based only on information that is available at
 the time the decision is made. This prevents future market information
@@ -808,22 +685,10 @@ information, the trading environment is still a simplified
 representation of a real financial market.
 
 The agent does not have access to several types of information that can
-influence real-world trading decisions, including:
-
-\begin{itemize}
-\item
-  order flows;
-\item
-  market sentiment;
-\item
-  financial news;
-\item
-  macroeconomic conditions;
-\item
-  relationships between the asset and other financial assets.
-\item
-  The actions and intentions of large financial institutions.
-\end{itemize}
+influence real-world trading decisions, including order flows, market
+sentiment, financial news, macroeconomic conditions, relationships
+between the asset and other financial assets, and the actions of large
+financial institutions.
 
 These limitations mean that the state should not be interpreted as a
 complete description of the real financial market. Because this relevant
@@ -849,76 +714,11 @@ the model does not capture all factors present in real-world trading.
 The final state was not selected because it contained a particular
 number of variables, but because its components collectively describe
 the market conditions, portfolio exposure, position performance, and
-remaining trading episode available within the defined environment.
-Table 3.4 summarises the design progression and the limitation each
-stage resolved.
-
-\addcontentsline{lot}{table}{\protect\numberline{3.4}{The staged development of the state representation. Each stage resolves the limitation named in the row above it.}}
-\emph{Table 3.4: The staged development of the state representation.
-Each stage resolves the limitation named in the row above it.
-ΔP\textsubscript{t} is the one-step return, c\textsubscript{t} cash and
-v\textsubscript{t} exposure as fractions of initial capital,
-h\textsubscript{t} the units held, τ\textsubscript{t} the episode clock
-and dd\textsubscript{t} the fall from peak wealth.}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1007}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3148}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5665}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Stage}
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\textbf{State}
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Limitation addressed by the next stage}
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\emph{S\textsubscript{0}} & {[}\emph{ΔP\textsubscript{t}}{]} & The agent
-can observe recent price movement but has no information about its own
-portfolio. It cannot tell whether it already holds the asset, or whether
-it has enough cash to open a position. \\
-\rowsep
-\emph{S\textsubscript{1}} & {[}\emph{ΔP\textsubscript{t}},
-\emph{c\textsubscript{t}}, \emph{h\textsubscript{t}}{]} & The agent now
-knows its available cash and the number of units it holds but not what
-they are worth. For example, ten units could represent a small or large
-investment depending on the asset price. \\
-\rowsep
-\emph{S\textsubscript{2}} & {[}\emph{ΔP\textsubscript{t}},
-\emph{c\textsubscript{t}}, \emph{v\textsubscript{t}},
-\emph{PnL\textsubscript{t}}{]} & The agent can now determine the value
-of its position and tell whether its in profit or loss, but it does not
-know where it stands in the month. A position opened at the beginning of
-the month can therefore appear identical to one made immediately before
-the required closing of the position at the end of the month. \\
-\rowsep
-\emph{S\textsubscript{3}} & {[}\emph{ΔP\textsubscript{t}},
-\emph{c\textsubscript{t}}, \emph{v\textsubscript{t}},
-\emph{PnL\textsubscript{t}}, \emph{τ\textsubscript{t}}{]} & The
-agent\textquotesingle s own circumstances are now fully represented, but
-its view of the market is still limited to the most recent price return.
-It cannot tell a stable trend from a reversal, or between relatively
-stable and highly volatile conditions. \\
-\rowsep
-\emph{S\textsubscript{4}} & adds momentum, volatility, distance from
-trend, and daily range (Table 3.3) & The state provides a broader
-representation of the market while retaining the portfolios information.
-It is treated as the main state used in the experiments. \\
-\rowsep
-\emph{S\textsubscript{risk}} & adds \emph{dd\textsubscript{t}} & Adds
-information about the portfolio\textquotesingle s previous losses from
-its highest wealth level. Required when the experiment considers risk
-history \\
-\end{longtable}
-}
-
-The separate tenth feature, drawdown, is used only for the risk-aware
-experiments described in Section 3.3.6.
+remaining trading episode available within the defined environment. The
+staged development above records the limitation each stage resolved,
+from the price-only state \(S_{0}\) to the nine-feature main state
+\(S_{4}\). The separate tenth feature, drawdown, is used only for the
+risk-aware experiments described in Section 3.3.6.
 
 The main state representation provides the basis for defining the
 available actions and applying the reinforcement learning algorithms
@@ -1014,15 +814,9 @@ Although the agent has three possible actions, some actions may not be
 possible at a particular timestep because of the current portfolio
 position.
 
-For example:
-
-\begin{itemize}
-\item
-  the agent cannot buy if it does not have enough available cash;
-\item
-  the agent cannot sell if it does not hold enough of the asset to
-  withdraw.
-\end{itemize}
+For example, the agent cannot buy if it does not have enough available
+cash, and it cannot sell if it does not hold enough of the asset to
+withdraw.
 
 To handle these situations, the environment uses a \textbf{legal action
 mask}. The mask does not provide any additional market information to
@@ -1034,20 +828,11 @@ The mask is represented as:
 \[M_{t} = \left\lbrack m_{\text{hold}},m_{\text{buy}},m_{\text{sell}} \right\rbrack \in \left\{ 0,1 \right\}^{3}\]
 
 where \(M_{t}(a) = 1\) indicates that action \(a\) is available and
-\(M_{t}(a) = 0\) indicates that it is not.
-
-The availability of each action is determined from the portfolio state:
-
-\begin{itemize}
-\item
-  available cash determines whether a \textbf{buy} action can be carried
-  out;
-\item
-  the current asset holding determines whether a \textbf{sell} action
-  can be carried out;
-\item
-  \textbf{hold} remains available throughout the episode.
-\end{itemize}
+\(M_{t}(a) = 0\) indicates that it is not. The availability of each
+action is determined from the portfolio state: available cash determines
+whether a \textbf{buy} action can be carried out, the current asset
+holding determines whether a \textbf{sell} action can be carried out,
+and \textbf{hold} remains available throughout the episode.
 
 Because the mask is derived directly from information already in the
 portfolio state, it is not treated as an additional feature of the state
@@ -1116,16 +901,8 @@ where portfolio wealth at timestep \(t\) is given by:
 
 \[W_{t} = C_{t} + h_{t}P_{t}\]
 
-Here:
-
-\begin{itemize}
-\item
-  \(C_{t}\) represents the cash available in the portfolio;
-\item
-  \(h_{t}\) represents the number of asset units held;
-\item
-  \(P_{t}\) represents the current asset price.
-\end{itemize}
+where \(C_{t}\) is the cash available in the portfolio, \(h_{t}\) the
+number of asset units held, and \(P_{t}\) the current asset price.
 
 The reward therefore measures how much the portfolio\textquotesingle s
 total value changes from one timestep (trading day) to the next after
@@ -1191,19 +968,10 @@ drawdown is considered as an additional experimental condition:
 
 \[r_{t}^{\mathrm{risk}} = \Delta W_{t} - \lambda\, C_{0}\, \Delta dd_{t}\]
 
-where:
-
-\begin{itemize}
-\item
-  \(\Delta W_{t}\) is the change in portfolio wealth;
-\item
-  \(\Delta dd_{t}\) is the increase in portfolio drawdown at step \(t\)
-  (and is zero when drawdown does not rise);
-\item
-  \(C_{0}\) is the initial capital;
-\item
-  \(\lambda\) controls the penalty applied to increases in drawdown.
-\end{itemize}
+where \(\Delta W_{t}\) is the change in portfolio wealth,
+\(\Delta dd_{t}\) is the increase in portfolio drawdown at step \(t\)
+(zero when drawdown does not rise), \(C_{0}\) is the initial capital,
+and \(\lambda\) controls the penalty applied to increases in drawdown.
 
 Drawdown measures how far the current portfolio wealth has fallen from
 the highest level reached so far:
@@ -1242,16 +1010,8 @@ Although the wealth-change reward provides a clear and direct measure of
 trading performance, it does not capture every aspect of a desirable
 trading strategy.
 
-For Example, it does not directly penalise:
-
-\begin{itemize}
-\item
-  large falls in portfolio value;
-\item
-  unstable performance in returns;
-\item
-  high levels of volatility.
-\end{itemize}
+For example, it does not directly penalise large falls in portfolio
+value, unstable performance in returns, or high levels of volatility.
 
 A strategy could therefore achieve a strong overall return while
 experiencing substantial losses during the trading period. The
@@ -1273,98 +1033,60 @@ additional experiment.
 The objective function describes what the reinforcement learning
 algorithms are trying to achieve during training. In this study, the aim
 is to learn a trading policy that produces the highest possible expected
-return over each trading episode.
-
-The reward function introduced in Section 3.5 measures the result of an
-individual decision, while the objective function extends this idea by
-combining the rewards received throughout the episode.
+return over each trading episode. The reward function introduced in
+Section 3.5 measures the result of an individual decision; the objective
+function combines the rewards received throughout the episode.
 
 \subsection{Episode Return}
 
-An episode/trajectory can be represented by the sequence:
+An episode can be represented by the sequence
+\(\tau = \left( s_{0},a_{0},r_{0},s_{1},a_{1},r_{1},\ldots,s_{T} \right)\),
+where \(s_{t}\) is the state observed at timestep \(t\), \(a_{t}\) is
+the action selected by the agent, and \(r_{t}\) is the reward resulting
+from that action. The episode contains \(T\) trading decisions, and any
+position that remains open at the end is closed according to the rules
+of the trading environment. The discounted return from timestep \(t\),
+commonly referred to as the \textbf{reward-to-go}, is:
 
-\[\tau = \left( s_{0},a_{0},r_{0},s_{1},a_{1},r_{1},\ldots,s_{T} \right)\]
+\[G_{t} = \sum_{t' = t}^{T - 1}\gamma^{t' - t}r_{t'},\]
 
-where \(s_{t}\) is the state observed at timestep \(t\),
-
-\(a_{t}\)is the action selected by the agent, and
-
-\(r_{t}\) is the reward resulting from that action.
-
-The episode contains \(T\) trading decisions and ends when it reaches
-the final market observation. Any position that remains open at this
-point is then closed according to the rules of the trading environment.
-
-The total discounted return from the beginning of the episode is:
-
-\[G_{0} = \sum_{t = 0}^{T - 1}\gamma^{t}r_{t},\]
-
-Where \(\gamma \in (0,1\rbrack\) is the discount factor.
-
-The same calculation can be made from any point within the episode. The
-return from timestep \(t\), commonly referred to as the
-\textbf{reward-to-go}, is:
-
-\[G_{t} = \sum_{t' = t}^{T - 1}\gamma^{t' - t}r_{t'}.\]
-
-This represents the rewards expected from the current timestep onwards.
-It is particularly relevant to the REINFORCE implementation because it
-associates an action with the rewards that follow it, rather than
-assigning the episode\textquotesingle s total return to every action
-taken in that episode.
+where \(\gamma \in (0,1\rbrack\) is the discount factor and \(G_{0}\) is
+the return of the whole episode. This links each action to the rewards
+that follow it, rather than assigning the episode's total return to
+every action taken in that episode.
 
 A discount factor of \(\gamma = 0.99\) is used throughout the
 experiments. The trading episodes contain approximately 18--23 daily
 observations, so this value results in relatively mild discounting over
 the length of an episode: \({0.99}^{20} \approx 0.82\), so a reward
 received near the end of the monthly episode still contributes around
-82\% of its original value to the discounted return.
-
-Using \(\gamma = 0.99\), therefore, maintains the standard
-reinforcement-learning formulation for discounted returns while still
-ensuring the objective is maximising end-of-month wealth.
+82\% of its original value. Using \(\gamma = 0.99\), therefore,
+maintains the standard reinforcement-learning formulation for discounted
+returns while still ensuring the objective is maximising end-of-month
+wealth.
 
 \subsection{Expected Return}
 
 The outcome of a single trading episode is not enough to judge the
-quality of a policy because each episode can reflect different market
-conditions experienced during that month. For instance, a policy that
-performs well in one month may not perform equally well in another.
-Therefore, the objective is defined using the expected returns the
-policy earns across different trading episodes.
+quality of a policy, because each episode reflects the market conditions
+of one month. A policy that performs well in one month may not perform
+equally well in another. The objective is therefore defined using the
+expected return the policy earns across different trading episodes. The
+policy \(\pi_{\theta}\left( a|s \right)\), with trainable parameters
+\(\theta\), assigns probabilities to the available actions in each
+state, and the learning objective is:
 
-The policy is represented by
-
-\[\pi_{\theta}\left( a|s \right),\]
-
-where \(\theta\) represents the trainable parameters of the policy
-network. For a given state, the policy assigns probabilities to the
-available actions, allowing the agent to choose between Buy, Hold, and
-Sell.
-
-\[\pi_{\theta}\left( a_{t} \mid s_{t} \right) = \begin{bmatrix}
-P\left( a_{t} = \text{Hold} \mid s_{t} \right) \\
-P\left( a_{t} = \text{Buy} \mid s_{t} \right) \\
-P\left( a_{t} = \text{Sell} \mid s_{t} \right)
-\end{bmatrix}\]
-
-The expected return is defined as:
-
-\[J(\theta) = \mathbb{E}_{\tau \sim p_{\theta}(\tau)}\left\lbrack G_{0}(\tau) \right\rbrack\]
-
-The learning objective is therefore:
-
-\[\theta^{*} = \arg{\max_{\theta}{J(\theta)}}.\]
+\[J(\theta) = \mathbb{E}_{\tau \sim p_{\theta}(\tau)}\left\lbrack G_{0}(\tau) \right\rbrack,
+\qquad \theta^{*} = \arg\max_{\theta}{J(\theta)}.\]
 
 In simple terms, the aim is not for the agent to find a policy that
-performs well in only one trading period. Instead, the agent should
-learn policy parameters that produce good, expected performance across
-the different monthly market episodes used during training.
-
-The policy parameters affect the objective only through the actions the
-agent selects: changing \(\theta\) changes the probabilities of choosing
-Buy, Hold, or Sell in each state, and these decisions affect the
-portfolio and, in turn, the rewards collected over the episode.
+performs well in only one trading period, but parameters that produce
+good expected performance across the different monthly episodes used
+during training. The policy parameters affect the objective only through
+the actions the agent selects: changing \(\theta\) changes the
+probabilities of choosing Buy, Hold, or Sell in each state, and these
+decisions affect the portfolio and, in turn, the rewards collected over
+the episode.
 
 \subsection{Objective and the Trading Environment}
 
@@ -1384,161 +1106,77 @@ learn rather than from the conditions they operate under.
 
 \section{REINFORCE: Monte-Carlo Policy Gradient}
 
-REINFORCE is the first policy-gradient method used in this study. Unlike
-value-based methods, which estimate how useful different actions are in
-a given state, \textbf{REINFORCE directly learns a policy} that gives
-probabilities to the available actions.
-
-It provides a useful baseline because its main idea is straightforward.
-The agent selects actions according to its current policy, observes the
-resulting rewards, and then adjusts the policy so actions can lead to
-better returns in the future.
+REINFORCE~\cite{williams1992} is the first policy-gradient method used
+in this study. Unlike value-based methods, which estimate how useful
+different actions are in a given state, \textbf{REINFORCE directly
+learns a policy} that gives probabilities to the available actions. It
+provides a useful baseline because its main idea is straightforward: the
+agent selects actions according to its current policy, observes the
+resulting rewards, and then adjusts the policy so that actions leading
+to better returns become more likely.
 
 \subsection{Policy Representation}
 
 The policy is represented by a neural network with trainable parameters
 \(\theta\). Given the current state \(s_{t}\), the network produces one
-output, or logit, for each of the three possible actions
-\(\left\{ \text{Buy},\ \text{Hold},\ \text{Sell} \right\}\).
-Actions that are not permitted at the current timestep using the action
-mask described in Section 3.4 are removed. The remaining logits are then
-passed through a SoftMax function to produce the policy probabilities
+output, or logit, for each of the three possible actions. Actions that
+are not permitted at the current timestep are removed using the action
+mask described in Section 3.4, and the remaining logits are passed
+through a SoftMax function to produce the policy probabilities
 \(\pi_{\theta}\left( a_{t}|s_{t} \right)\).
 
 During training, the agent samples an action from this probability
-distribution. This lets it try different actions and explore alternative
-trading decisions rather than always choosing the action with the
-highest probability.
+distribution, which lets it try different actions and explore
+alternative trading decisions. During evaluation, the agent selects the
+valid action with the highest probability without exploring. The policy
+network used in the first study has \textbf{two hidden layers, each with
+128 units}, and uses the hyperbolic tangent \(\tanh\) as the activation
+function. The main study keeps the same structure but narrows the layers
+to 64 and 32 units, for the reasons of model capacity discussed in
+Chapter 4.
 
-During evaluation, the agent selects the valid action with the highest
-probability without exploring.
+\subsection{Policy-Gradient Update}
 
-The policy network used in the real-data study has \textbf{two hidden
-layers, each with 128 units}, and uses the hyperbolic tangent \(\tanh\)
-as the activation function. The final layer produces one output for each
-of the three available actions. The simulated-data study keeps the same
-structure but narrows the layers to 64 and 32 units, for reasons of
-model capacity discussed in Chapter 4.
-
-\subsection{Deriving the Policy-Gradient Objective}
-
-The objective introduced in Section 3.6 is an expected return over
-trading episodes:
-
-\[J(\theta) = \mathbb{E}_{\tau \sim p_{\theta}(\tau)}\left\lbrack G_{0}(\tau) \right\rbrack.\]
-
-To improve the policy, the learning algorithm needs to determine how a
-small change to the policy parameters \((\theta)\) affects this expected
-return. This requires calculating the gradient:
-
-\[\nabla_{\theta}J(\theta).\]
-
-The difficulty is that the probability of a complete trading episode
-\(p_{\theta}(\tau)\) depends on the initial state, the actions selected
-by the policy, and the resulting environment transitions
-\(\left( s_{0},a_{0},r_{1},s_{1},a_{1},r_{2},...,s_{T} \right)\). It can
-be written as:
-
-\[p_{\theta}(\tau) = \rho\left( s_{0} \right)\prod_{t = 0}^{T - 1}\pi_{\theta}\left( a_{t}|s_{t} \right)P\left( s_{t + 1}|s_{t},a_{t} \right),\]
-
-where \(\rho\left( s_{0} \right)\) represents the probability
-distribution of initial states and
-
-\(P\left( s_{t + 1}|s_{t},a_{t} \right),\) represents the environment's
-transition to the next state \(s_{t + 1}\) given the current state and
-action \({(s}_{t},a_{t})\).
-
-The important point is that the policy parameters \((\theta)\) affect
-the action probabilities\(\ \pi_{\theta}\left( a_{t}|s_{t} \right)\) but
-not the market transition process. REINFORCE therefore does not need to
-model this market transition explicitly, just the action probabilities.
-
-So, we use the likelihood-ratio identity, which provides a way of
-expressing the gradient \(\nabla_{\theta}J(\theta)\) using the
-probability of the sampled episodes \(p_{\theta}(\tau)\):
-
-\[\nabla_{\theta}p_{\theta}(\tau) = p_{\theta}(\tau)\nabla_{\theta}{\log p}_{\theta}(\tau).\]
-
-The policy gradient can then be expressed as:
-
-\[\nabla_{\theta}J(\theta) = \mathbb{E}_{\tau\sim p_{\theta}}\left\lbrack \nabla_{\theta}{\log p}_{\theta}(\tau){\ G}_{0}(\tau) \right\rbrack.\]
-
-Since only the policy terms depend on \((\theta)\), this simplifies to
-
-\[\nabla_{\theta}J(\theta) = \mathbb{E}_{\tau{\sim p}_{\theta}}\left\lbrack \sum_{t = 0}^{T - 1}\nabla_{\theta}{\log\pi}_{\theta}\left( a_{t}|s_{t} \right)G(\tau) \right\rbrack.\]
-
-This is the basic policy-gradient expression REINFORCE uses in this
-study.
-
-In simple terms, the equation adjusts the probability of an action based
-on the outcome that follows it. Actions resulting in higher returns are
-encouraged by increasing their probability, while actions associated
-with lower returns are made less likely.
-
-\subsection{Reward-to-Go}
-
-Using the complete episode return \(G(\tau)\) for every action is
-inefficient because an action taken at time \(t\) cannot influence
-rewards already received before that time. REINFORCE therefore weights
-each action by the reward-to-go \(G_{t}\) defined in Section 3.6, so
-only rewards from time \(t\) onwards are used when evaluating the
-outcome associated with that decision.
-
-The policy gradient can therefore be written as:
+REINFORCE improves the policy by estimating the gradient of the expected
+return \(J(\theta)\) with respect to the policy parameters. The
+probability of a complete episode depends on the initial state, the
+actions selected by the policy, and the market's transitions, but only
+the action probabilities depend on \(\theta\). The likelihood-ratio
+identity~\cite{williams1992, sutton2018} therefore gives a gradient that
+can be estimated from sampled episodes without any model of the market:
 
 \[\nabla_{\theta}J(\theta) = \mathbb{E}\left\lbrack \sum_{t = 0}^{T - 1}\nabla_{\theta}{\log\pi}_{\theta}\left( a_{t}|s_{t} \right)G_{t} \right\rbrack.\]
 
-where \(\nabla_{\theta}{\log\pi}_{\theta}\left( a_{t}|s_{t} \right)\)
-is the direction in which the policy\textquotesingle s action
-probability changes, and \(G_{t}\) is the return obtained after taking
-action \(a_{t}\). This links each decision directly to the rewards that
-followed it.
+Each action is weighted by the reward-to-go \(G_{t}\) rather than the
+whole episode return, because an action taken at time \(t\) cannot
+influence rewards already received before that time. In simple terms,
+the update adjusts the probability of an action based on the outcome
+that follows it: actions resulting in higher returns are made more
+likely, and actions associated with lower returns are made less likely.
 
-\subsection{Monte-Carlo Estimation}
-
-The expectation \(\mathbb{E}\) in the policy-gradient equation cannot
-normally be calculated because the full distribution of possible market
-trajectories is unknown. REINFORCE therefore uses a Monte Carlo
-approach: the agent interacts with the trading environment and uses the
-resulting episodes to estimate the gradient.
-
-For \(N\) sampled episodes, the gradient can be approximated as:
-
-\[\nabla_{\theta}J(\theta) \approx \frac{1}{N}\sum_{n = 1}^{N}{\sum_{t = 0}^{T_{n} - 1}\nabla_{\theta}}{\log\pi}_{\theta}\left( a_{t}^{(n)}|s_{t}^{(n)} \right)G_{t}^{(n)}.\]
-
-The superscript \(n\) represents the number of the sampled episode.
-
-The gradient is therefore estimated from the average experience
-collected from the sampled episodes.
-
-This is why REINFORCE is described as a \textbf{Monte-Carlo
-policy-gradient method}: The method does not require the agent to know
-in advance how the market will move or to build a separate model of
-future price changes. Instead, it learns how to estimate the expected
-policy gradient from complete sampled episodes produced by its
+The expectation cannot be calculated exactly, because the full
+distribution of possible market trajectories is unknown. REINFORCE
+therefore estimates it as an average over sampled episodes. This is why
+it is described as a \textbf{Monte-Carlo policy-gradient method}: it
+does not require the agent to know how the market will move or to build
+a model of future price changes, only complete episodes produced by its
 interaction with the environment.
 
 \subsection{Loss Function Used for Training}
 
 Most neural-network frameworks are designed to minimise a loss function,
-while reinforcement learning is to maximise expected rewards
-\(J(\theta)\). The policy-gradient objective can therefore be written as
-a loss by introducing a negative sign:
+while the objective here is maximised. The update is therefore
+implemented as a loss by introducing a negative sign:
 
-\[L(\theta) = - \frac{1}{N}\sum_{n = 1}^{N}{\sum_{t = 0}^{T_{n} - 1}{\log\pi}_{\theta}}\left( a_{t}^{(n)}|s_{t}^{(n)} \right)G_{t}^{(n)}.\]
+\[L(\theta) = - \frac{1}{N}\sum_{n = 1}^{N}{\sum_{t = 0}^{T_{n} - 1}{\log\pi}_{\theta}}\left( a_{t}^{(n)}|s_{t}^{(n)} \right)G_{t}^{(n)},\]
 
-The negative sign changes the original maximisation problem into a
-minimisation problem that can be handled by the PyTorch optimiser.
-
-The logarithm appears as a direct result of the likelihood-ratio
-derivation above; it is not an additional trading assumption.
-
-The implementation uses the \textbf{Adam optimiser}~\cite{kingma2015adam}
-with a learning rate of \(10^{- 3}\).
-
-During implementation, the sampled returns may also be normalised before
-being used in the update. This helps control the gradient magnitude
-across different training batches and can improve numerical stability.
+where \(n\) indexes the \(N\) sampled episodes. The logarithm appears as
+a direct result of the likelihood-ratio derivation; it is not an
+additional trading assumption. The implementation uses the \textbf{Adam
+optimiser}~\cite{kingma2015adam} with a learning rate of \(10^{-3}\),
+and the sampled returns are normalised before being used in the update,
+which controls the gradient magnitude across training batches and
+improves numerical stability.
 
 \subsection{Strengths and Limitations}
 
@@ -1571,209 +1209,93 @@ the same portfolio trading problem but learn in different ways.
 \subsection{Action-Value Function}
 
 The action-value function, commonly referred to as the
-\textbf{Q-function}, is defined as \(Q^{\pi}(s,a)\):
-
-\[Q^{\pi}(s,a) = \mathbb{E}_{\pi}\left\lbrack \sum_{k = 0}^{\infty}\gamma^{k}r_{t + k} \right\rbrack.\]
-
-This represents the expected future return from taking action \(a\) in
-state \(s\) and then continuing to follow policy \(\pi\).
-
-The optimal action-value function is written as
-\(Q^{*}\left( s_{t},a_{t} \right)\). It represents the highest expected
-return that can be achieved from a given state when the best available
-actions are selected
-
-For the optimal action-value function, the Bellman optimality equation~\cite{bellman1957}
-is:
+\textbf{Q-function}, is defined as \(Q^{\pi}(s,a)\): the expected
+discounted return from taking action \(a\) in state \(s\) and then
+continuing to follow policy \(\pi\). The optimal action-value function
+\(Q^{*}\) satisfies the Bellman optimality
+equation~\cite{bellman1957, watkins1992}:
 
 \[Q^{*}\left( s_{t},a_{t} \right) = \mathbb{E}\left\lbrack r_{t} + \gamma\max_{a'}{Q^{*}\left( s_{t + 1},a' \right)} \right\rbrack.\]
 
-In simple terms, the value of an action depends on two things:
+The value of an action therefore depends on the reward received
+immediately and on the value of the opportunities available afterwards.
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  the reward received immediately after taking the action; and
-\item
-  the value of the opportunities available afterwards.
-\end{enumerate}
+Tabular Q-learning, which stores a separate value for every state-action
+pair, is not suitable here because the state contains continuous market
+and portfolio variables; discretising them would create a very large
+state space and lose information. Deep Q-learning instead approximates
+the Q-function with a neural network \(Q_{\phi}(s,a)\)~\cite{mnih2015},
+where \(\phi\) represents the trainable parameters. The network takes
+the state as input and estimates the Q-value of each action, and the
+agent selects the most valuable \emph{legal} action --- it cannot, for
+example, buy without enough cash or sell more than it holds. The network
+used in the first study has \textbf{two hidden layers with 128 units
+each} and ReLU activations; the main study narrows the layers to 64 and
+32 units.
 
-This makes the Q-function a useful representation for the portfolio
-trading problem because the agent has a small action space.
-
-In practice, the optimal Q-function is approximated by a neural network.
-Once the values of the available actions have been estimated, the agent
-selects the action with the highest Q-value:
-
-\[a_{t}^{*} = \arg{\max_{a \in \mathcal{A}_{\text{legal}}\left( s_{t} \right)}{Q^{*}\left( s_{t},a \right)}}.\]
-
-Only legal actions are considered when making this choice. This is
-important in the trading environment because, for example, the agent
-cannot buy when it does not have enough cash or sell when it does not
-hold enough of the asset.
-
-\subsection{From Q-Learning to Deep Q-Learning}
-
-Traditional tabular Q-learning stores a separate value for every
-state-action pair in a table. This approach is not suitable for the
-present portfolio trading problem here because the state contains
-continuous variables and several different market and portfolio
-features.
-
-For example, volatility and portfolio exposure can take many different
-values. Converting all nine state features into discrete categories
-would first require discretising the continuous variables and then
-creating a very large state space that would also lose information by
-grouping different values together.
-
-Deep Q-learning avoids this problem by replacing the table with a neural
-network \(Q_{\phi}(s,a)\), where \(\phi\) represents the trainable
-parameters of the network.
-
-The network takes the nine-dimensional state
-\(s_{t} \in \mathbb{R}^{9}\) as input and estimates the Q-value for
-each available action. These values are then used to select the most
-valuable valid action, as in Section 3.8.1.
-
-The DQN used in the real-data experiments has \textbf{two hidden layers
-with 128 units each} and uses ReLU activation functions. As with the
-policy network, the simulated-data study narrows the layers to 64 and 32
-units.
-
-\subsection{Experience Replay}
+\subsection{Experience Replay and the Target Network}
 
 Successive decisions within a trading episode are naturally related
-because they come from consecutive trading days. If the network were
-trained directly on these transitions in their original order, it could
-produce highly correlated consecutive updates.
-
-DQN addresses this issue using an \textbf{experience replay buffer}~\cite{lin1992, mnih2015}.
-Each interaction with the environment is stored as a transition in a
-memory buffer:
-
-\[\left( s_{t},a_{t},r_{t},s_{t + 1},M_{t + 1},d_{t} \right),\]
-
-where:
-
-\begin{itemize}
-\item
-  \(s_{t}\) is the current state;
-\item
-  \(a_{t}\) is the action selected by the agent;
-\item
-  \(r_{t}\)is the reward received;
-\item
-  \(s_{t + 1}\)is the next state;
-\item
-  \(M_{t + 1}\)is the action mask for the next state;
-\item
-  \(d_{t}\)indicates whether the episode has ended.
-\end{itemize}
-
-During training, the agent samples random minibatches of previously
-stored transitions from the replay buffer so the network does not rely
-only on the most recent transition.
-
-The replay buffer has a capacity of \textbf{50,000 transitions}, with
-\textbf{64 transitions sampled per minibatch}.
-
-This lets the network learn from reusable experiences collected at
-different points during training and reduces the dependence between
-consecutive training samples.
-
-\subsection{Target Network}
+because they come from consecutive trading days, and training on them in
+their original order would produce highly correlated updates. DQN
+addresses this with an \textbf{experience replay
+buffer}~\cite{lin1992, mnih2015}. Each interaction is stored as a
+transition
+\(\left( s_{t},a_{t},r_{t},s_{t + 1},M_{t + 1},d_{t} \right)\) --- the
+state, action, reward, next state, next action mask, and an
+end-of-episode indicator --- and training samples random minibatches of
+previously stored transitions. The buffer has a capacity of
+\textbf{50,000 transitions}, with \textbf{64 transitions sampled per
+minibatch}, so the network learns from experience collected at different
+points during training rather than only the most recent transition.
 
 Using the same network to calculate both the current Q-values and the
-target values can make training unstable. This is because the network
-parameters change during training, which also causes the target used for
-learning to change.
+targets can make training unstable, because the targets change with
+every update. DQN therefore uses a second network known as the
+\textbf{target network}~\cite{mnih2015}, \(Q_{\phi^{-}}(s,a)\), whose
+parameters are periodically copied from the online network rather than
+updated at every step. In this implementation, the target network is
+synchronised with the online network every \textbf{500 training steps},
+which provides a more stable reference for the learning target.
 
-To reduce this problem, DQN uses a second network known as the
-\textbf{target network}~\cite{mnih2015}, \(Q_{\phi^{-}}(s,a)\).
-
-The target network is kept separate from the main, or online, Q-network.
-Rather than updating it after every gradient optimisation step, its
-parameters are periodically copied from the main Q-network.
-
-Keeping a fixed number of updates for the target provides a more stable
-reference for calculating the temporal-difference target and reduces how
-rapidly the learning target changes while the main network is being
-updated.
-
-In this implementation, the target network is synchronised with the
-online network every \textbf{500 training steps}.
-
-\subsection{Temporal-Difference Learning}
+\subsection{Temporal-Difference Target and Loss}
 
 Unlike REINFORCE, which waits until the end of an episode to calculate
 the return, DQN updates its estimates using a one-step
-temporal-difference target.
-
-For a transition, \(\left( s_{t},a_{t},r_{t},s_{t + 1} \right),\) the
-target Q-value \(y_{t}\) is calculated from the immediate reward and the
-highest estimated value of the best valid action in the next state:
-
-\[y_{t} = r_{t} + \gamma\max_{a' \in \mathcal{A}_{\text{legal}}\left( s_{t + 1} \right)}{Q_{\phi^{-}}\left( s_{t + 1},a' \right)}.\]
-
-Action masking is applied here because the agent should not assign value
-to actions it cannot take in the next state.
-
-When the episode ends, there are no future trading decisions or rewards
-to consider. The target must therefore account for this condition:
+temporal-difference target calculated from the target network:
 
 \[y_{t} = r_{t} + \gamma\left( 1 - d_{t} \right)\max_{a' \in \mathcal{A}_{\text{legal}}\left( s_{t + 1} \right)}{Q_{\phi^{-}}\left( s_{t + 1},a' \right)}.\]
 
-Where \(d_{t}\) indicates whether the episode has ended.
+Action masking is applied inside the maximum because the agent should
+not assign value to actions it cannot take in the next state. The
+end-of-episode indicator \(d_{t}\) matters in this environment because
+any remaining position is closed at the end of each monthly episode:
+when \(d_{t} = 1\), the future term vanishes and the target reduces to
+the final reward alone. Including a future Q-value beyond that state
+would incorrectly treat the episode as if further decisions were
+possible.
 
-When \(d_{t} = 1\), the second term \(\left( 1 - d_{t} \right)\) becomes
-zero, leaving \(y_{t} = r_{t}\).
-
-This is particularly important in the trading environment because any
-remaining position is closed at the end of each monthly episode. The
-agent cannot take another trading action after this point. Including a
-future Q-value beyond this state would incorrectly treat the episode as
-if further decisions were possible.
-
-\subsection{DQN Loss}
-
-The online Q-network is trained by reducing the difference between its
-predicted Q-value and the temporal-difference target.
-
-For a minibatch of \(B\) transitions, the loss is defined as:
-
-\[L(\phi) = \frac{1}{B}\sum_{b = 1}^{B}\left\lbrack Q_{\phi}\left( s_{b},a_{b} \right) - y_{b} \right\rbrack^{2}\]
-
-This is the \textbf{mean squared error (MSE)} between the
-network\textquotesingle s predicted value and the target value.
-
-The main difference from REINFORCE is how it obtains the learning
-signal. REINFORCE updates the policy using returns calculated from
-sampled episodes, whereas DQN updates its Q-values using one-step
-targets that include an estimate of the future value.
+The online network is trained by minimising the mean squared error
+between its predicted Q-values and these targets over each minibatch.
+The main difference from REINFORCE is the learning signal: REINFORCE
+updates the policy using returns from complete sampled episodes, whereas
+DQN updates its Q-values using one-step targets that include an estimate
+of the future value.
 
 \subsection{Exploration}
 
 If the agent always selected the action with the highest current
-Q-value, it would follow a purely greedy strategy. This can be
-problematic early in training because the Q-values are initially poor
-estimates, and the agent may settle on actions before exploring other
-available alternatives.
-
-To encourage exploration, the DQN uses an \(\epsilon - greedy\) strategy
-
-With probability \(1 - \epsilon\), the agent selects the valid action
-with the highest estimated value, and with probability \(\epsilon\) it
-instead selects an action randomly from the set of valid actions.
-
-The exploration rate starts at \(\epsilon = 1.0\) and is gradually
-reduced to \(\epsilon = 0.05\) over the first half of training.
-
-This means that early in training, the agent explores the available
-actions frequently, while later, as training progresses, it increasingly
-relies on the most valuable Q-values it has learned.
-
-Also, the agent considers only valid actions when exploring. It cannot
-select an invalid action simply because it is in its exploratory phase.
+Q-value, it could settle on actions before exploring the alternatives,
+because the Q-values are initially poor estimates. To encourage
+exploration, the DQN uses an \(\epsilon\)-greedy strategy: with
+probability \(\epsilon\) it selects a random action from the set of
+valid actions, and otherwise it selects the valid action with the
+highest estimated value. The exploration rate starts at
+\(\epsilon = 1.0\) and is gradually reduced to \(\epsilon = 0.05\) over
+the first half of training, so the agent explores frequently early on
+and increasingly relies on its learned values later. The agent considers
+only valid actions when exploring; it cannot select an invalid action
+simply because it is in its exploratory phase.
 
 \subsection{Strengths and Limitations}
 
@@ -1796,158 +1318,80 @@ of the same learning architecture.
 
 \section{PPO: Proximal Policy Optimisation}
 
-Proximal Policy Optimisation (PPO)~\cite{schulman2017ppo} is used as the third learning method
-in this study to provide a more stable policy-gradient algorithm that
-can be compared with REINFORCE.
+Proximal Policy Optimisation (PPO)~\cite{schulman2017ppo} is used as the
+third learning method in this study to provide a more stable
+policy-gradient algorithm that can be compared with REINFORCE. In
+REINFORCE, the policy can change considerably between updates,
+specifically when the sampled returns are large, which makes training
+unstable. PPO reduces this problem by limiting how much the policy
+changes during each update.
 
-REINFORCE updates the policy using the returns obtained from sampled
-episodes. Although this approach is straightforward, the policy can
-change considerably between updates, specifically when the sampled
-returns are large, making training unstable.
+\subsection{Actor-Critic Structure and the Clipped Objective}
 
-PPO reduces this problem by limiting how much the policy changes during
-each update. It does this by comparing the new policy with the policy
-from the training data.
+PPO uses two neural networks: an \textbf{actor}, which represents the
+trading policy \(\pi_{\theta}\left( a|s \right)\), and a
+\textbf{critic}, which estimates the value \(V_{\phi}(s)\) of the
+current state. The critic provides a reference against which the outcome
+of each action is compared, giving the \textbf{advantage}
+\(A_{t} = G_{t} - V_{\phi}\left( s_{t} \right)\). A positive advantage
+means the action performed better than expected for that state, so its
+probability should increase. The implementation uses Generalised
+Advantage Estimation~\cite{schulman2016gae} to calculate the advantages,
+which reduces the variance of the updates compared with using full
+episode returns as REINFORCE does.
 
-\subsection{Actor-Critic Structure \& Advantage Function}
+The size of each update is controlled by a clipped objective. The
+probability ratio
+\(\rho_{t}(\theta) = \pi_{\theta}\left( a_{t}|s_{t} \right) / \pi_{\theta_{old}}\left( a_{t}|s_{t} \right)\)
+measures how much the new policy has moved from the policy that
+generated the sampled data, and the objective
 
-PPO uses two neural networks: an \textbf{actor} and a \textbf{critic}.
-The actor represents the portfolio trading policy
-\(\pi_{\theta}\left( a|s \right)\), where \(\theta\) represents the
-parameters of the policy network, and the critic estimates the value of
-the current state, \(V_{\phi}(s)\), where \(\phi\) represents the
-parameters of the value network.
+\[L^{CLIP}(\theta) = \mathbb{E}_{t}\left\lbrack \min\left( \rho_{t}(\theta)A_{t},\,{clip}\left( \rho_{t}(\theta),1 - \epsilon,1 + \epsilon \right)A_{t} \right) \right\rbrack\]
 
-The actor selects actions, while the critic estimates the expected
-future return from a given state. The critic therefore provides a
-reference to compare the outcome of a policy's action against.
-
-This lets PPO use an \textbf{advantage} value rather than relying
-directly on the return of a full episode, like in REINFORCE.
-
-The advantage at time \(t\) can be represented as
-
-\[A_{t} = G_{t} - V_{\phi}\left( s_{t} \right),\]
-
-The advantage shows whether the selected action performed better or
-worse than expected for the current state. A positive advantage means
-the outcome was better than expected for the current state, while a
-negative advantage means it was worse than expected.
-
-For instance, if the expected return from a state
-\(V_{\phi}\left( s_{t} \right)\) is relatively low but the selected
-action \(a_{t}\) produces a much higher return \(G_{t}\), the advantage
-will be positive. The policy \(\pi_{\theta}\left( a|s \right)\) should
-therefore increase the likelihood of taking that action in similar
-situations.
-
-The implementation uses \textbf{Generalised Advantage Estimation (GAE)}
-to calculate the advantages. Using an advantage estimate helps reduce
-the variance of policy-gradient updates.
-
-\subsection{Policy Ratio}
-
-PPO measures how much the policy has changed by comparing the new policy
-with the policy that generated the sampled data.
-
-The probability ratio \(\rho_{t}\) is defined as:
-
-\[\rho_{t}(\theta) = \frac{\pi_{\theta}\left( a_{t}|s_{t} \right)}{\pi_{\theta_{old}}\left( a_{t}|s_{t} \right)}.\]
-
-\(\rho_{t}\) is used here to differentiate the policy ratio from the
-trading reward function \(r_{t}\).
-
-If \(\rho_{t}(\theta) = 1\), the probability of the selected action has
-not changed from the previous policy.
-
-A ratio greater than 1 means the new policy gives the selected action a
-higher probability than the previous policy, while a ratio below 1 means
-its probability has decreased.
-
-Without restrictions, a single update could change the policy
-substantially. PPO uses the ratio to decide whether a policy update has
-moved too far from the policy that generated the sampled experience, and
-it limits that ratio from being used in the policy objective.
-
-\subsection{Clipped Objective}
-
-PPO controls policy updates using a clipped objective:
-
-\[L^{CLIP}(\theta) = \mathbb{E}_{t}\left\lbrack \min\left( \rho_{t}(\theta)A_{t},\,{clip}\left( \rho_{t}(\theta),1 - \epsilon,1 + \epsilon \right)A_{t} \right) \right\rbrack.\]
-
-This project uses the standard implementation, \(\epsilon = 0.2\),
-which gives a clipping range that limits the policy ratio to
-approximately \(\lbrack 0.8,\ 1.2\rbrack\).
-
-Clipping does not prevent the policy from moving outside this range or
-changing by more than 20\%. Instead, once the probability ratio moves
-beyond the specified range, the objective limits improvement in that
-direction to prevent the update from becoming even larger.
-
-For example, if an action has a positive advantage, increasing its
-probability can improve the objective. However, once the change becomes
-sufficiently large, the clipped objective prevents the update from
-gaining additional benefit that increases that probability further.
-
-In this way, PPO improves the policy while avoiding large changes
-between continual updates. This provides a smaller, more controlled
-learning process than directly updating the policy from sampled returns,
-like in REINFORCE.
-
-\subsection{Action Masking in PPO}
-
-The action masking described in Section 3.4 also applies to PPO~\cite{huang2022masking}. The
-agent should not be able to select an action that the trading
-environment cannot execute.
-
-For this reason, the implementation uses \textbf{MaskablePPO} instead of
-the standard PPO implementation. The action mask is applied after the
-policy determines the probability of each action, so it excludes actions
-that are not currently possible.
-
-For example, when the available cash is less than the amount required to
-open an asset position, the Buy action is unavailable. Likewise, the
-Sell action is unavailable when the agent does not hold enough of the
-asset. All three algorithms therefore face the same mask described in
-Section 3.4.
+stops rewarding changes once the ratio leaves the range
+\(\lbrack 1 - \epsilon,\ 1 + \epsilon\rbrack\). This project uses the
+standard value \(\epsilon = 0.2\). Clipping does not prevent the policy
+from changing by more than 20\%; it removes the incentive for further
+movement in that direction, which keeps the learning process smaller and
+more controlled than updating directly from sampled returns, as
+REINFORCE does.
 
 \subsection{PPO in the Experiment}
 
-PPO is included to provide a third comparison with REINFORCE and DQN.
-It is implemented using \textbf{MaskablePPO} from
-sb3-contrib~\cite{raffin2021sb3}. The policy uses the same
-two-hidden-layer architecture as the other neural-network agents, 128
-units per layer in the real-data study and 64 and 32 units in the
-simulated-data study, and the remaining PPO settings use the library
-defaults. PPO also uses the same trading environment, state
-representation, transaction costs, initial capital, data split, and
-evaluation procedure as the other methods (Section 3.6.3), such that
-differences in performance mainly reflect how each algorithm learns.
+The action masking described in Section 3.4 also applies to
+PPO~\cite{huang2022masking}: the agent should not be able to select an
+action that the trading environment cannot execute. For this reason, the
+implementation uses \textbf{MaskablePPO} from
+sb3-contrib~\cite{raffin2021sb3} instead of the standard PPO
+implementation. The mask is applied after the policy determines the
+probability of each action, so it excludes actions that are not
+currently possible, such as buying when the available cash is too small.
 
-\section{Algorithms}
+The policy uses the same two-hidden-layer architecture as the other
+neural-network agents, 128 units per layer in the first study and 64 and
+32 units in the main study, and the remaining PPO settings use the
+library defaults. PPO also operates under the same trading environment
+and evaluation procedure as the other methods, as established in
+Section 3.6.
+
+\section{Comparison of the Three Learning Approaches}
 
 The three learning procedures, as implemented, are listed in full as
 Algorithms 1--3 in Appendix B. REINFORCE and Deep Q-learning are built
 from scratch following the formulations in Sections 3.7 and 3.8;
 MaskablePPO is the library comparator of Section 3.9 and applies the
-same action mask. The next section states why all three methods are
-retained in the experimental comparison.
-
-\section{Comparison of the Three Learning Approaches}
+same action mask.
 
 REINFORCE and DQN are the primary learning methods because they directly
 represent the two main reinforcement learning algorithms being
-investigated: policy-gradient learning and value-based learning.
-
-PPO is included as an additional policy-gradient comparison to compare
-the performance of the basic Monte Carlo policy-gradient algorithm with
-a more stable policy-gradient algorithm.
+investigated: policy-gradient learning and value-based learning. PPO is
+included as an additional policy-gradient comparison, setting the basic
+Monte Carlo policy-gradient algorithm against a more stable
+policy-gradient algorithm.
 
 Using all three algorithms provides a stronger comparison than relying
-on a single reinforcement learning algorithm. If similar trading
-behaviour is noticed across the three algorithms, it gives greater
-confidence that the behaviour is related to the trading environment or
-state representation rather than a specific algorithm. On the other
-hand, if the algorithms produce different results, these differences can
-help show how the choice of learning method affects the resulting
-trading strategy on the portfolio.
+on a single one. If similar trading behaviour appears across the three,
+it gives greater confidence that the behaviour comes from the trading
+environment or state representation rather than a specific algorithm; if
+they produce different results, the differences show how the choice of
+learning method affects the resulting trading strategy.

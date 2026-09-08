@@ -385,12 +385,9 @@ the highest-probability action for the policy-based methods or the
 highest-valued action for DQN.
 
 The portfolio outcomes are then recorded for each monthly test episode
-and each random seed. This produces a consistent set of results that can
-be used to compare the different learning algorithms.
-
-The stored results therefore contain sufficient information to compare
-algorithms, state representations, reward functions, and benchmark
-strategies, which are presented in Chapter 5.
+and each random seed, so the stored results contain sufficient
+information to compare algorithms, state representations, reward
+functions, and benchmark strategies, which are presented in Chapter 5.
 
 \section{Experiment Configuration}
 
@@ -410,30 +407,11 @@ reward, and action configurations.
 \subsection{Configuration Parameters}
 
 The configuration records the main settings that can affect an
-experiment\textquotesingle s outcome. These include:
-
-\begin{itemize}
-\item
-  learning algorithm;
-\item
-  state representation and state dimensionality;
-\item
-  reward formulation;
-\item
-  transaction fee;
-\item
-  fixed transaction amounts;
-\item
-  risk-penalty coefficient, where applicable;
-\item
-  action model;
-\item
-  random seed;
-\item
-  training settings;
-\item
-  evaluation settings.
-\end{itemize}
+experiment\textquotesingle s outcome: the learning algorithm, the state
+representation and its dimensionality, the reward formulation, the
+transaction fee, the fixed transaction amounts, the risk-penalty
+coefficient where applicable, the action model, the random seed, and the
+training and evaluation settings.
 
 Using this approach reduces the need to manually change the source code
 between experiments. It also makes the experimental process easier to
@@ -576,168 +554,86 @@ from the strategies themselves.
 
 Before using the experimental results for analysis, the implementation
 was tested to ensure that it followed the definitions and constraints
-established in Chapter 3.
-
-These tests check that the environment, data pipeline, reward
-calculation, and action constraints behave as intended.
-
-The final implementation includes 21 automated tests covering all major
-components, all of which pass. Appendix A lists every test and the
-condition it verifies; this section summarises what each group of tests
-protects.
+established in Chapter 3. The final implementation includes 21 automated
+tests covering all major components, all of which pass. Appendix A lists
+every test and the condition it verifies; this section summarises what
+each group of tests protects.
 
 \subsection{Environment and Portfolio Tests}
 
 The environment tests focus on the correctness of the portfolio
-calculations during trading.
-
-The tests verify that portfolio wealth matches the cash balance and the
-market value of current holdings. They also check that Buy and Sell
-actions update the portfolio correctly and that transaction fees are
-included in all transactions.
-
-The tests further verify that invalid actions are handled correctly and
-that each monthly episode ends without an open position.
-
-These checks are important because an error in portfolio accounting
-would affect the reported rewards and performance measures for all three
-learning algorithms. Such an error could therefore lead to incorrect
-conclusions even if the learning algorithms were implemented correctly.
+calculations during trading. They verify that portfolio wealth matches
+the cash balance plus the market value of current holdings, that Buy and
+Sell actions update the portfolio correctly with transaction fees
+included, that invalid actions are handled correctly, and that each
+monthly episode ends without an open position. These checks matter
+because an error in portfolio accounting would affect the reported
+rewards and performance measures for all three learning algorithms, and
+could therefore lead to incorrect conclusions even if the algorithms
+were implemented correctly.
 
 \subsection{Feature and Data Tests}
 
 The feature tests check that the state representation follows the
-intended information structure defined in Chapter 3.
-
-The tests verify that features do not use future information and that
-rolling features access the necessary historical information when moving
-from one monthly episode to the next. They also check that the state
-dimensions and feature ordering match the reported configurations.
-
-The chronological split is tested to ensure that the training,
-validation, and test periods remain separate.
-
-This testing process identified an important implementation issue. In an
-earlier version of the pipeline, rolling features were recalculated
-separately for each monthly episode, so the rolling windows restarted at
-the beginning of every month instead of continuing from the previous
-observations. This caused incomplete feature windows in approximately
-\textbf{43.1\% of episode steps}. The correction --- calculating rolling
-market features on the continuous dataset before dividing it into
-monthly episodes --- is described with the other corrections in Section
-4.6, and the corrected pipeline was tested again to confirm that
-historical information is retained across episode boundaries.
+intended information structure defined in Chapter 3. They verify that
+features do not use future information, that rolling features carry
+historical information across episode boundaries, that the state
+dimensions and feature ordering match the reported configurations, and
+that the training, validation, and test periods remain separate. This
+group of tests identified the rolling-feature issue described in
+Section 4.6.
 
 \subsection{Reward and Risk Tests}
 
 The reward tests verify that the primary wealth-change reward
 corresponds to the change in portfolio wealth with no risk penalty
-applied.
-
-The risk-aware reward is tested separately to see whether increasing
-drawdown does not lead to an increase in the reward due to the risk
-penalty applied.
-
-An additional test checks the relationship between the risk-aware reward
-and the state representation. A risk-aware reward cannot be paired with
-a state that does not have the drawdown feature.
-
-The implementation uses this restriction so an inconsistent combination
-of state and reward settings cannot run accidentally.
-
-These tests therefore ensure that the relationship between state
-representation and reward design described in Chapter 3 is also
-maintained in the implemented system.
+applied, and that under the risk-aware reward an increasing drawdown
+does not lead to an increasing reward. An additional test enforces that
+the risk-aware reward cannot be paired with a state that lacks the
+drawdown feature, so an inconsistent combination of state and reward
+settings cannot run accidentally. These tests ensure that the
+relationship between state representation and reward design described in
+Chapter 3 is maintained in the implemented system.
 
 \subsection{Action-Masking Tests}
 
 The action-masking tests verify that the environment correctly
-identifies invalid actions that cannot be executed under the current
-portfolio conditions.
-
-The tests check that the Buy action is unavailable when the portfolio
-has insufficient cash and that the Sell action is unavailable when the
-agent does not hold enough of the asset. They also verify the different
-configurable fixed trading amounts.
-
-A defensive check is also included in the environment so that an invalid
-action supplied externally is converted to Hold rather than being
-executed.
-
-Logs monitor these checks during the experiments. After the final
-experiment, the recorded rate of invalid actions was zero during
-evaluation, confirming that the action masks accurately prevented the
-learning algorithms from executing any invalid trades during the testing
-period.
+identifies actions that cannot be executed under the current portfolio
+conditions: Buy is unavailable when cash is insufficient, and Sell is
+unavailable when the agent does not hold enough of the asset. They also
+verify the different configurable fixed trading amounts. A defensive
+check in the environment converts an invalid action supplied externally
+to Hold rather than executing it. Logs monitor these checks during the
+experiments; after the final experiment, the recorded rate of invalid
+actions during evaluation was zero.
 
 \section{Implementation Corrections}
 
-\subsection{Problems Identified During Development}
+The verification process identified three implementation issues before
+the final experiments were run. First, the rolling market features were
+initially recalculated separately for each monthly episode, so the
+rolling windows restarted at the beginning of every month instead of
+continuing from previous observations; this left incomplete feature
+windows in approximately \textbf{43.1\% of episode steps}. The
+correction calculates the rolling features on the continuous dataset
+before dividing it into monthly episodes. Second, an earlier version of
+the buy-and-hold benchmark used the same transaction size as the
+learning algorithms rather than investing fully at the start of each
+episode, which understated the benchmark by approximately \textbf{\$38.95
+per month}, or \textbf{21.6\%}. These values describe only the incorrect
+implementation, which has been discarded, and are reported to show the
+potential impact of the error. Third, the risk-aware reward could
+initially be used without requiring the drawdown feature in the state,
+creating a mismatch between the information needed by the reward and the
+information supplied to the agent.
 
-The verification process identified several implementation issues before
-the final experiments were run.
-
-The main issues involved the feature calculation, benchmark
-implementation, and the risk-aware reward configuration.
-
-First, the rolling market features using past observations did not
-initially contain the needed historical context when a new monthly
-episode began. These meant that some features were calculated using
-shorter windows than intended.
-
-Second, an earlier version of the buy-and-hold benchmark used the same
-transaction size as the learning algorithms. This did not represent a
-fully invested buy-and-hold strategy, where an asset is bought at the
-beginning of an episode and held untouched till the end of the
-experiment, and it caused understated exposure and benchmark
-performance.
-
-Third, the risk-aware reward could initially be used without requiring
-the drawdown feature in the state. This created a mismatch between the
-information needed by the reward and the information supplied to the
-agent because drawdown information was unavailable.
-
-These issues were treated as implementation errors that needed
-correcting because leaving any of them in place would affect the
-validity of comparisons between the learning algorithms and benchmark
-strategies.
-
-\subsection{Correction and Re-verification}
-
-Each identified issue was addressed through a general correction
-process:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  the problem was identified through testing or auditing the
-  implementation;
-\item
-  its potential effect on the experiment results;
-\item
-  the relevant part of the implementation that needed correcting;
-\item
-  adding or updating verification tests where necessary after the
-  correction;
-\item
-  completely running the verification tests again.
-\end{enumerate}
-
-The buy-and-hold issue, for example, shows why this process was
-necessary. The affected implementation understated the benchmark by
-approximately \textbf{\$38.95 per month}, or \textbf{21.6\%} before
-correction.
-
-These values describe only the incorrect implementation, which has been
-discarded, and are reported here only to show the potential impact of
-the error. They are not presented as findings about the
-asset\textquotesingle s or the market\textquotesingle s performance.
-
-After the corrections, the complete automated batch tests were run
-again, and all 21 tests passed.
-
+All three issues were treated as implementation errors, because leaving
+any of them in place would affect the validity of comparisons between
+the learning algorithms and the benchmark strategies. Each was corrected,
+verification tests were added or updated where necessary, and the
+complete automated test batch was run again with all 21 tests passing.
 The final experiment results in Chapter 5 come only from the corrected
-implementation, not the earlier incorrect versions.
+implementation.
 
 \section{Complete Implementation Pipeline}
 
@@ -757,13 +653,11 @@ real months form the transfer set.
 The observations are then grouped into monthly episodes. At the start of
 each episode, the portfolio resets to the initial capital with no asset
 holdings. At each timestep, the learning algorithm receives the current
-state and selects one of the valid available actions. The trading
-environment then executes the action with the transaction fee, updates
-the portfolio, returns the reward, and moves to the next state.
-
-REINFORCE, DQN, and PPO all interact with the same trading environment.
-Their main difference is how each algorithm processes the experience to
-update their model parameters.
+state and selects one of the valid available actions; the environment
+executes the action with the transaction fee, updates the portfolio,
+returns the reward, and moves to the next state. REINFORCE, DQN, and PPO
+all interact with this same environment, and their main difference is
+how each algorithm processes the experience to update its parameters.
 
 After training and validation, the final experiment settings are fixed,
 and the trained models are evaluated on the held-out test data: the
@@ -781,7 +675,7 @@ Figure 4.2 summarises the flow.
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.9\textwidth]{media4/media/image2.png}
+  \includegraphics[width=0.72\textwidth]{media4/media/image2.png}
   \caption[System architecture showing the data flow described in Section 4.7.]{System architecture showing the data flow described in Section 4.7. All learned algorithms and benchmark strategies are evaluated using the same episode runner, ensuring that the comparison uses the same evaluation procedure\textbf{.}}
 \end{figure}
 
