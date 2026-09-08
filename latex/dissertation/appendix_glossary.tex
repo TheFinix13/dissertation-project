@@ -62,11 +62,14 @@ definitions are given in Chapter~3.
   training so that the outputs improve against an objective.
 
   \item[Training / validation / test split] The data is divided into
-  three parts by date. The agent learns on the earliest part
-  (2018--2022), every tuning decision is made using only the middle part
-  (2023), and the final evaluation uses the latest part (2024--2025),
-  which was not used for any design decision. This separation is what
-  makes the test result an honest measure of performance on unseen data.
+  three parts so that no decision is tested on the data that shaped it.
+  In the first study the parts are chronological: the agents learn on
+  2018--2022, every tuning decision uses 2023 only, and the final
+  evaluation uses 2024--2025. In the main study the training and
+  validation parts are simulated episodes, and the final evaluations use
+  fresh simulated episodes and the real transfer months, none of which
+  carried any design decision. This separation is what makes a test
+  result an honest measure of performance on unseen data.
 
   \item[Benchmark] A simple non-learning strategy the agents are compared
   against. The most important one here is \emph{buy-and-hold}: invest
@@ -109,6 +112,21 @@ definitions are given in Chapter~3.
   \item[Action masking] Removing impossible actions from the agent's
   available choices, such as selling with no position or buying with no
   cash. The agent can neither attempt nor learn from invalid actions.
+
+  \item[Market condition] The overall direction of the market during an
+  episode: up, down, or flat. The market generator produces each
+  simulated episode under one known condition, so every result can be
+  reported for each condition separately.
+
+  \item[Market generator] The program that produces the simulated
+  monthly episodes used by the main study (Section 4.3). Its parameters
+  are calibrated on the real training months only, and every episode it
+  produces is labelled with its market condition.
+
+  \item[Transfer test] The final evaluation of the main study. The
+  policies trained on simulated episodes are run, unchanged, on 180 real
+  months (2006--2017 and 2023--2025) that no training or tuning decision
+  ever used.
 
   \item[State-dependent policy] A policy whose actions change with the
   observed state even when the same actions are legal. The opposite is a
