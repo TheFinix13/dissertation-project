@@ -137,8 +137,8 @@ state-dependence test above; a seed that ignores its state fails no
 matter how much it earns. ``Real'' is the mean wealth change per month
 when the trained policy is run, unchanged, on the 180 real transfer
 months of Section 5.10. ``Down condition'' is the mean wealth change per
-episode on the falling-market test episodes alone, which is the setting
-a risk-aware reward is meant to improve.
+episode on the falling-market test episodes alone, because these are the
+episodes a risk-aware reward is meant to improve.
 
 \subsection{Benchmark Strategies}
 
@@ -493,9 +493,9 @@ does adding drawdown to the state change performance or behaviour when
 the reward stays wealth-change? The comparison keeps everything else
 fixed: the same simulated training and test episodes, the same
 \(0.25C_{0}\) trade size, the same six seeds. Table 5.4 reports both
-configurations. As throughout the chapter, ``State-dep.'' counts the
+configurations. As in the rest of the chapter, ``State-dep.'' counts the
 seeds whose actions respond to the market information, and ``Real'' is
-the mean per month on the 180 real transfer months.
+the mean monthly wealth change over the 180 real transfer months.
 
 \addcontentsline{lot}{table}{\protect\numberline{5.4}{Nine- against ten-feature state on the simulated test episodes (wealth-change reward, six seeds), with the real-transfer mean.}}
 \emph{Table 5.4: Nine- against ten-feature state on the simulated test
@@ -626,9 +626,10 @@ before abandoning the market.
 
 The selected reward was then evaluated once on the 600 simulated test
 episodes. Table 5.6 compares it with the wealth-change reward at the
-same ten-feature state. The ``Down condition'' column isolates the
-falling-market episodes, the setting the penalty is meant to improve;
-``Real'' is the mean per month on the 180 real transfer months.
+same ten-feature state. The ``Down condition'' column reports the
+falling-market episodes on their own, because these are the episodes the
+penalty is meant to improve. ``Real'' is the mean monthly wealth change
+over the 180 real transfer months.
 
 \addcontentsline{lot}{table}{\protect\numberline{5.6}{Wealth-change versus risk-aware reward (λ = 0.25) on the simulated test episodes, ten-feature state, six seeds.}}
 \emph{Table 5.6: Wealth-change versus risk-aware reward (λ = 0.25) on
