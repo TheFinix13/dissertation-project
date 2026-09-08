@@ -150,7 +150,7 @@ The main study overturns that conclusion. With \(\lambda = 0.25\),
 selected on the simulated validation episodes by the same rule, Deep
 Q-learning kept its return almost unchanged (+\$129.38 against +\$131.31
 per episode) while cutting drawdown by 31\% and raising its Sharpe ratio
-from 0.285 to 0.332. The per-condition results show the improvement is
+from 0.285 to 0.332. The results for each market condition show the improvement is
 selective, not proportional: the down-market loss fell 73\% while the
 up-market gain kept 87\% of its size. The agent reduced its holdings
 when the market fell, which is exactly the behaviour the reward was
@@ -177,8 +177,8 @@ the behaviour. The simulated-data study answers yes to both.
 On 3,000 balanced simulated episodes, Deep Q-learning earned +\$126.94
 per episode across six seeds (standard deviation \$7.30) on a test set
 where buy-and-hold loses \$60.29 and doing nothing earns \$0.00. All six
-seeds were profitable and all six were state-dependent. The per-condition
-results show the behaviour the real-data study looked for: the agents
+seeds were profitable and all six were state-dependent. The results in
+each market condition show the behaviour the real-data study looked for: the agents
 captured 99\% of the profit available in rising episodes and cut the
 falling-episode loss by 84\% relative to always buying. The same
 policies remained profitable on every seed when transferred unchanged to
@@ -440,10 +440,10 @@ drawdown-relative objective~\cite{moody2001}. Two results motivate
 this. The penalty sweep in Section 5.8 shows a cliff one step past the
 selected weight, where reducing exposure to zero becomes the best reply;
 a risk-relative objective would remove abstention as a way of scoring
-well. And the transfer results show the risk-trained agents buying more
-downside insurance than real markets repay; an objective that prices
-risk against return, rather than penalising risk alone, should calibrate
-that trade-off automatically.
+well. And the transfer results show the risk-trained agents giving up
+more return for downside protection than the real market's declines
+justify; an objective that weighs risk against return, rather than
+penalising risk alone, should calibrate that trade-off automatically.
 
 \subsection{More Seeds for Better Statistical Analysis}
 

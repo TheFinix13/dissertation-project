@@ -121,6 +121,16 @@ because there might be large differences between training runs which the
 average alone may hide~\cite{henderson2018}. A large spread indicates that the algorithm did
 not produce a consistent trading behaviour across the different runs.
 
+Three further columns appear in the main study's tables.
+``State-dep.'' counts how many of the six seeds changed their actions
+when the market information in the state changed, using the behavioural
+test described in Section 5.3; a seed that ignores its state fails this
+test no matter how much it earns. ``Real'' is the mean wealth change per
+month when the trained policy is run, unchanged, on the 180 real
+transfer months of Section 5.10. ``Down condition'' is the mean wealth
+change per episode on the falling-market test episodes alone, which is
+the setting a risk-aware reward is meant to improve.
+
 Financial performance is then followed by a behavioural analysis, as
 returns alone cannot show whether a policy actually used the information
 in its state. For example, a policy that buys simply because buying is
@@ -294,7 +304,7 @@ the problem. Testing it needs a setting where the number of episodes,
 the balance of market conditions, and the match between training and
 test distributions are all controlled. That is what the main study
 provides: 3,000 balanced simulated episodes, a network shrunk from
-18,000 parameters to 2,800, and controlled per-condition testing, with the
+18,000 parameters to 2,800, and controlled testing in each market condition, with the
 real months kept back as a final transfer test. The remainder of this
 chapter reports it, repeating each of its experiments under the corrected
 data.
@@ -395,11 +405,18 @@ strategy, learned or fixed, lost money or broke even on the balanced
 test set. All six DQN seeds were classified as state-dependent, and all
 six were profitable. Table 5.3 summarises the study.
 
-\addcontentsline{lot}{table}{\protect\numberline{5.3}{Main study: mean wealth change per episode on the 600 balanced test episodes, per-condition means, and the mean over the 180-month real transfer set.}}
+\addcontentsline{lot}{table}{\protect\numberline{5.3}{Main study: mean wealth change per episode on the 600 balanced test episodes, the mean within each market condition, and the mean over the 180-month real transfer set.}}
 \emph{Table 5.3: Main study: mean wealth change (\$) per episode on the
-600 balanced test episodes, per-condition means, and the mean over the
-180-month real transfer set (Section 5.10). Mean and standard deviation
-are across six seeds.}
+600 balanced test episodes, the mean within each market condition, and
+the mean over the 180-month real transfer set (Section 5.10). Mean and
+standard deviation are across six seeds.}
+
+In the table, ``Sim test'' is the mean wealth change per episode over
+all 600 simulated test episodes, and ``Std'' is how much that mean
+varies across the six seeds. ``Up'', ``Down'', and ``Flat'' break the
+same result down by the condition the episode was generated from.
+``Real'' is the mean wealth change per month when the same trained
+policy is run, unchanged, on the 180 real transfer months.
 
 {\def\LTcaptype{none}
 \begin{longtable}[]{@{}lrrrrrr@{}}
@@ -418,21 +435,21 @@ Always-buy (\(0.25C_{0}\)) & \(-58.70\) & --- & \(+477.22\) & \(-663.91\) & \(+1
 \end{longtable}
 }
 
-The per-condition columns show what the Deep Q-learning agents actually
-learned. In up episodes they earn \$473.72 of the \$477.22 that
+The columns for each market condition show what the Deep Q-learning
+agents actually learned. In up episodes they earn \$473.72 of the \$477.22 that
 always-buying earns, so they capture 99\% of the available upside. In
 down episodes they lose \$103.35 where always-buying loses \$663.91, an
 84\% reduction in the loss. In flat episodes they roughly match the
 market. That is the state-dependent behaviour the first study looked
 for and could not find: stay invested while the market rises, step aside
-while it falls. Figure 5.2 shows both views: the per-condition means on the
-left, and every seed's simulated result against its real transfer result
-on the right.
+while it falls. Figure 5.2 shows both views: the mean for each market
+condition on the left, and every seed's simulated result against its
+real transfer result on the right.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.98\textwidth]{figs5/fig5_sim.pdf}
-  \caption[Main study: per-condition results and real-data transfer.]{Main study. Left: mean wealth change per episode by test condition for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-market profit while cutting the down-market loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the never-trade origin or the always-buy corner.}
+  \caption[Main study: results by market condition and real-data transfer.]{Main study. Left: mean wealth change per episode by test condition for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-market profit while cutting the down-market loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the never-trade origin or the always-buy corner.}
 \end{figure}
 
 \subsection{The Policy-Gradient Methods Collapse to Corners}
@@ -477,7 +494,9 @@ does adding drawdown to the state change performance or behaviour when
 the reward stays wealth-change? The comparison keeps everything else
 fixed: the same simulated training and test episodes, the same
 \(0.25C_{0}\) trade size, the same six seeds. Table 5.4 reports both
-configurations.
+configurations. As throughout the chapter, ``State-dep.'' counts the
+seeds whose actions respond to the market information, and ``Real'' is
+the mean per month on the 180 real transfer months.
 
 \addcontentsline{lot}{table}{\protect\numberline{5.4}{Nine- against ten-feature state on the simulated test episodes (wealth-change reward, six seeds), with the real-transfer mean.}}
 \emph{Table 5.4: Nine- against ten-feature state on the simulated test
@@ -605,7 +624,9 @@ before abandoning the market.
 
 The selected reward was then evaluated once on the 600 simulated test
 episodes. Table 5.6 compares it with the wealth-change reward at the
-same ten-feature state.
+same ten-feature state. The ``Down condition'' column isolates the
+falling-market episodes, the setting the penalty is meant to improve;
+``Real'' is the mean per month on the 180 real transfer months.
 
 \addcontentsline{lot}{table}{\protect\numberline{5.6}{Wealth-change versus risk-aware reward (λ = 0.25) on the simulated test episodes, ten-feature state, six seeds.}}
 \emph{Table 5.6: Wealth-change versus risk-aware reward (λ = 0.25) on
@@ -638,7 +659,7 @@ the simulated test episodes, ten-feature state, six seeds.}
 For Deep Q-learning, the risk-aware reward now does what it was designed
 to do. The mean return is essentially unchanged (+\$129.38 against
 +\$131.31, a 1.5\% difference), while drawdown falls 31\% and the Sharpe
-ratio rises from 0.285 to 0.332. The per-condition columns show where the
+ratio rises from 0.285 to 0.332. The results by market condition show where the
 improvement comes from: the down-market loss shrinks from \(-\$87.28\)
 to \(-\$23.26\), a 73\% reduction, while the up-market gain keeps 87\%
 of its size (\(+\$411.01\) against \(+\$470.01\)). The agent did not
@@ -663,8 +684,9 @@ support it. Second, the defensiveness costs return on transfer: the
 risk-trained Deep Q agents earn +\$36.58 per month on the 180 real
 months against +\$58.47 for their wealth-trained counterparts, with a
 lower transfer Sharpe (0.156 against 0.218). The real window rose more
-often than the balanced simulation assumes, so insurance calibrated on
-balanced conditions is over-purchased on real data. The wealth-trained
+often than the balanced simulation assumes, so a level of caution chosen
+on balanced conditions turns out to be more than the real market
+rewards. The wealth-trained
 agent remains the better real-market configuration; the risk-trained one
 demonstrates that the reward mechanism works when the data supports it.
 
@@ -812,12 +834,13 @@ zero or negligible in every seed.
 The cost side of the same behaviour is equally visible. Buy-and-hold
 gained \$1,068.28 in the December 2008 rebound and \$1,332.73 in March
 2009 when the market turned; the agents, still reading crisis-level
-volatility, sat both months out. This is the insurance premium in
-concrete form: the agent pays it by missing rebounds, and collects when
-the market falls. Over the whole window the premium costs more than the
-payouts --- that is why buy-and-hold keeps the higher raw return --- but
-the agent takes far less risk to earn what it earns, which is what the
-Sharpe comparison summarises. Figure 5.5 shows the whole window: the
+volatility, sat both months out. This is the trade-off of the defensive
+policy in concrete form: the agent gives up part of the recovery in
+exchange for avoiding part of the crash. Over the whole window the
+missed gains add up to more than the avoided losses --- that is why
+buy-and-hold keeps the higher raw return --- but the agent takes far
+less risk to earn what it earns, which is what the Sharpe comparison
+summarises. Figure 5.5 shows the whole window: the
 agents track the benchmark's rises at reduced scale, and the gap between
 the two lines through 2008--09 is where the drawdown advantage is
 earned.
@@ -920,9 +943,9 @@ at a 1.5\% cost in mean return. Both studies agree on the failure mode
 --- past a threshold weight, abstention becomes the best reply and
 exposure collapses --- but the corrected study locates the threshold
 further out and shows genuine risk management below it. The remaining
-weakness is calibration across domains: insurance priced on balanced
-simulated conditions is over-purchased on real markets that mostly rise,
-which is why the wealth-trained agents transfer better than the
+weakness is calibration across domains: a level of caution chosen on
+balanced simulated conditions is too high for real markets that mostly
+rise, which is why the wealth-trained agents transfer better than the
 risk-trained ones.
 
 \subsection{Costs Test the Nature of the Learned Edge}

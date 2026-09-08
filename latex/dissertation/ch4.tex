@@ -229,35 +229,36 @@ so the constant answer is what gets learned.
 
 \subsection{Generator Design}
 
-The generator produces monthly episodes under three \textbf{market
-conditions}: up, down, and flat. Each episode contains 21 daily bars,
-and all of them are drawn from the same condition. Every simulated
-episode is therefore labelled with the market condition that produced
-it, which means the evaluation can state exactly how an agent performed
-in each type of market.
+The generator creates monthly episodes under three controlled market
+conditions: up, down, and flat. Each episode contains 21 daily bars
+generated from one condition only. This makes it possible to evaluate
+how an agent behaves when the overall market is rising, falling, or
+moving sideways.
 
-Within a condition, the daily log-returns are drawn independently from a
-normal distribution, using the drift and volatility that belong to that
-condition. The high and low prices are created by extending each day's
-close-to-close movement with random wicks, whose size is fitted to match
-the real average true range. Volume is drawn from a lognormal
-distribution. Only the relative volume is used in the feature set, so
-its absolute scale does not affect the observations.
+For each condition, daily log-returns are sampled independently from a
+normal distribution with a specified drift and volatility. The daily
+high and low prices are then created by adding random wicks to the
+close-to-close movement. The size of these wicks is based on the average
+true range observed in the real data. Volume is generated from a
+lognormal distribution. Since the feature set uses relative rather than
+absolute volume, the exact scale of the generated volume is not
+important.
 
-Each generated episode is processed through the same feature pipeline as
-the real data. A warm-up lead of 21 bars is generated before each
-episode and removed after the rolling features are calculated. This
-mirrors the real pipeline, which discards its 2017 warm-up data in the
-same way.
+The generated data is passed through the same feature pipeline used for
+the real SPY data. A 21-bar warm-up period is generated before each
+episode so that rolling features can be calculated before the first
+episode day. These warm-up bars are then removed, matching the way the
+real pipeline uses its 2017 data to initialise rolling features before
+discarding it.
 
-The generator is intentionally kept simple. More realistic market
-generators exist, such as hidden Markov models~\cite{rabiner1989} and
-adversarial time-series generators~\cite{yoon2019timegan}, and these
-produce price paths that look closer to real markets. However, realism
-is not the purpose of the generator in this study. The purpose is
-control. The study needs to report how each agent behaves when the
-market rises, falls, or moves sideways, and this is only possible when
-the condition of every test episode is known.
+The generator is intentionally simple. More complex approaches,
+including hidden Markov models~\cite{rabiner1989} and adversarial
+time-series generators~\cite{yoon2019timegan}, can produce more
+realistic financial time series. However, realism is not the main
+purpose of this experiment. The aim is to control the market condition
+so that the behaviour of each agent can be examined separately in
+rising, falling, and sideways markets. Knowing the condition of every
+generated episode makes this comparison possible.
 
 \subsection{Calibration}
 
@@ -267,7 +268,7 @@ up if it gained more than 2\%, down if it lost more than 2\%, and flat
 otherwise. The daily log-returns of the months in each class are pooled,
 and their mean and standard deviation become that condition's drift and
 volatility. The wick size is fitted so the generated average true range
-matches the real per-condition mean. Table 4.1 shows the fitted values.
+matches the real mean for each condition. Table 4.1 shows the fitted values.
 
 \begin{table}[!htb]
 \centering

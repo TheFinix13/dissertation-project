@@ -95,16 +95,16 @@ def fig_sim(j: dict) -> None:
     ax2.axhline(0, color="black", lw=0.7)
     ax2.axvline(0, color="black", lw=0.7)
     ax2.axhline(real_bah, color=C_BAH, lw=1.0, ls="--")
-    ax2.annotate("real buy-and-hold", xy=(0.02, real_bah), fontsize=7,
+    ax2.annotate("real buy-and-hold", xy=(0.98, real_bah), fontsize=7,
                  color=C_BAH, xycoords=("axes fraction", "data"),
-                 xytext=(0, 3), textcoords="offset points")
+                 xytext=(0, 3), textcoords="offset points", ha="right")
     ax2.set_xlabel("simulated test ($/episode)")
     ax2.set_ylabel("real transfer ($/month)")
     handles = [plt.Line2D([], [], marker="o", ls="", mfc=c, mec=c,
                           label=LABEL[a]) for a, c in SERIES]
     handles.append(plt.Line2D([], [], marker="o", ls="", mfc="white",
                               mec="#666", label="mask-only seed"))
-    ax2.legend(handles=handles, fontsize=7, frameon=False, loc="center left")
+    ax2.legend(handles=handles, fontsize=7, frameon=False, loc="lower right")
 
     fig.tight_layout()
     fig.savefig(OUT / "fig5_sim.pdf")
