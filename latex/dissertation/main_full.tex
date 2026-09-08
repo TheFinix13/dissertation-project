@@ -188,48 +188,49 @@ TurnitinUK to check its originality.
 \addcontentsline{toc}{chapter}{Abstract}
 An investor holding a stock-index fund faces the same decision each day:
 buy more, sell part of the position, or do nothing. This dissertation
-asks whether reinforcement learning, which learns by using rewards via
-trial and error, can make these decisions more effectively than the
-simple strategy of buying and holding permanently.
+asks whether reinforcement learning, which learns by trial and error
+from rewards, can make these decisions more effectively than the simple
+strategy of buying and holding permanently.
 
-Three algorithms are examined: REINFORCE and Deep Q-learning (DQN),
-implemented from scratch, and Proximal Policy Optimisation (PPO), from
-an open-source library. Each agent trades the S\&P 500 exchange-traded
-fund (SPY) in a simulated environment using monthly episodes based on
-daily data from 2018 to 2025. The data is split chronologically into
-training data from 2018--2022, validation data from 2023, and held-out
-test months from 2024--2025.
+Three algorithms are compared: REINFORCE and Deep Q-learning,
+implemented from scratch, and Proximal Policy Optimisation, from an
+open-source library. Each agent trades the S\&P 500 exchange-traded fund
+(SPY) in monthly episodes with transaction fees, action masking, and a
+trade size calibrated on validation data. Every configuration is trained
+with six random seeds, and every experimental decision is made on
+validation data before the test data is touched.
 
-The environment includes the trade size, transaction fees, and action
-validity. Experimental decisions, such as using a trade size equal to
-one quarter of the initial \$10,000 capital, were selected using the
-validation data before being applied to the test data. Each
-configuration was trained using six different random seeds.
+The work consists of two studies. The first trained the agents on real
+daily data alone: 60 monthly episodes from 2018--2022, tested on
+2024--2025. No agent beat buy-and-hold, which earned +\$180.25 per
+month. A behavioural analysis showed why the returns could not be
+trusted: the two policy-gradient methods earned their returns from fixed
+always-buy patterns that never responded to market information, on
+twelve seeds out of twelve, while the only method whose actions did
+depend on its state, Deep Q-learning, earned the least. The diagnosis is
+a data bottleneck. Sixty mostly-rising episodes cannot train networks of
+18,000 parameters beyond memorisation.
 
-None of the learned agents beat buy-and-hold on the held-out test
-period. REINFORCE earned the highest mean return at +\$171.51 per month,
-compared with +\$180.25 for buy-and-hold. PPO earned +\$127.35, while
-DQN earned +\$74.68.
+The main study removed that constraint. A regime-switching market
+simulator, calibrated on the same training years, generated 3,000
+balanced episodes of rising, falling, and flat markets, and the networks
+were reduced to 2,800 parameters. Under these conditions the ranking
+inverted. Deep Q-learning earned +\$126.94 per episode, on all six
+seeds, on a balanced test set where no fixed trading pattern is
+profitable, and kept its edge at ten times the assumed transaction fee.
+The risk-aware reward, which had only suppressed trading in the first
+study, now cut falling-market losses by 73\% at a 1.5\% cost in mean
+return. Transferred unchanged to 180 real months that no training or
+tuning decision ever saw (2006--2017 and 2023--2025), the learned
+policies remained profitable on every seed, held zero exposure through
+October 2008, and earned a higher Sharpe ratio than buy-and-hold (0.224
+against 0.198).
 
-Behavioural analysis provides an important explanation for these
-results. All six DQN seeds changed their actions in response to the
-observed state, whereas none of the twelve policy-gradient seeds
-(REINFORCE and PPO) did so. The returns earned by these policy-gradient
-algorithms were therefore largely tied to fixed buying patterns that
-benefited from the generally rising test period, rather than clear
-evidence of depending on market information to make informed decisions.
-
-Two further experiments supported this interpretation. Adding drawdown
-to the state produced little change in either behaviour or performance
-for any of the algorithms. A risk-aware reward reduced DQN's drawdown by
-41\%, but only by cutting earnings by 32\% and approximately halving
-market exposure.
-
-The main contribution of the study is therefore an evaluative framework
-that uses calibrated trade sizes, simple benchmarks, behavioural
-analysis, and verified implementations, creating a reliable basis for
-interpreting both successful and negative results from reinforcement
-learning in trading.
+The dissertation contributes a verified evaluation framework, a
+behavioural test of whether a policy uses its state, a calibrated market
+simulator for controlled per-regime evaluation, and evidence that the
+amount and balance of training data --- not the choice of algorithm ---
+set the limit on what reinforcement learning can learn in this setting.
 
 % ---------- Acknowledgements ------------------------------------------------
 \chapter*{Acknowledgements}

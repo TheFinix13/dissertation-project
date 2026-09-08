@@ -14,7 +14,7 @@ with three learning algorithms: REINFORCE, Deep Q-learning (DQN), and
 Proximal Policy Optimisation (PPO).
 
 Experimental decisions were made on validation data throughout: the
-12-month 2023 dataset in the pilot, and 300 simulated validation
+12-month 2023 dataset in the first study, and 300 simulated validation
 episodes in the main study. Test data, real or simulated, was used only
 for final evaluations.
 
@@ -53,7 +53,7 @@ The first question considered whether the reinforcement learning agents
 could outperform the buy-and-hold benchmark on unseen data. The answer
 depends on which data, and on which measure.
 
-In the pilot, no learned agent outperformed buy-and-hold. The benchmark
+In the first study, no learned agent outperformed buy-and-hold. The benchmark
 produced a mean wealth change of +\$180.25 per month on the 2024--2025
 test months, while the best learned agent, REINFORCE, achieved
 +\$171.51. PPO achieved +\$127.35 and DQN +\$74.68. The test period
@@ -112,7 +112,7 @@ The third question examined whether adding a drawdown feature to the
 state representation improved agent performance or behaviour.
 
 Both studies give the same answer, and the main study gives it cleanly.
-In the pilot, adding drawdown changed each algorithm's mean return by
+In the first study, adding drawdown changed each algorithm's mean return by
 less than its seed variation. In the main study, where the seeds agree
 and the comparison is therefore meaningful, Deep Q-learning moved from
 +\$126.94 to +\$131.31 per episode --- a +\$4.37 change against a seed
@@ -136,7 +136,7 @@ could encourage the agents to reduce losses and generate a more
 risk-aware behaviour. This is the question on which the two studies
 disagree, and the disagreement is itself the finding.
 
-In the pilot, the risk-aware reward reduced drawdown mainly by reducing
+In the first study, the risk-aware reward reduced drawdown mainly by reducing
 market participation. With the selected penalty of \(\lambda = 0.10\),
 DQN\textquotesingle s drawdown fell 41\% but its return fell 32\%, its
 exposure halved, and its Sharpe ratio dropped from 0.505 to 0.416. The
@@ -152,7 +152,7 @@ up-regime gain kept 87\% of its size. The agent reduced its holdings
 when the market fell, which is exactly the behaviour the reward was
 designed to produce.
 
-The pilot's negative finding was therefore another data artefact. A
+The first study's negative finding was therefore another data artefact. A
 drawdown penalty can only produce selective behaviour if the value
 estimates behind the policy can tell a falling market from a rising one,
 and estimates trained on 60 months could not. Two qualifications remain.

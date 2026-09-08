@@ -33,8 +33,8 @@ wealth:
   behaviour?
 \end{enumerate}
 
-The chapter answers these questions with one main study and one pilot.
-The \textbf{pilot study} trained the agents on the 60 real training
+The chapter answers these questions with two studies.
+The \textbf{first study} trained the agents on the 60 real training
 months and evaluated them on the held-out 2024--2025 months. Its results
 were negative, and Section 5.4 shows that the negative results share one
 cause: 60 episodes cannot train networks of this size. The \textbf{main
@@ -42,7 +42,7 @@ study} corrects this. The agents are trained on 3,000 balanced simulated
 episodes from the generator of Chapter 4, evaluated under controlled
 market regimes, and finally transferred, unchanged, to 180 real months
 that include the 2008 financial crisis. Every experimental question the
-pilot asked is asked again in the main study, under data that can
+first study asked is asked again in the main study, under data that can
 support an answer.
 
 A key part of the analysis is determining whether the learned strategies
@@ -70,7 +70,7 @@ conducted and how the reported results should be interpreted.
 Each configuration trained REINFORCE, Deep Q-learning (DQN), and
 Proximal Policy Optimisation (PPO) separately in the portfolio
 environment. The main study trains each seed for 300,000 steps on the
-simulated episodes; the pilot trained for 80,000 steps on the real
+simulated episodes; the first study trained for 80,000 steps on the real
 months, a budget sized to its far smaller dataset.
 
 To account for randomness in reinforcement learning~\cite{henderson2018}, six random seeds
@@ -85,7 +85,7 @@ value-based algorithms select the action with the highest estimated
 value.
 
 Every experimental decision in this chapter was made on validation data.
-In the pilot, the 2023 months carried these decisions. In the main
+In the first study, the 2023 months carried these decisions. In the main
 study, the 300 simulated validation episodes carry them: the trade size
 in Section 5.5, the risk-penalty weight in Section 5.8, and the
 transaction-fee robustness check in Section 5.9. The simulated test
@@ -153,23 +153,23 @@ achieve their returns through repeated buying rather than by using
 information from its observed state, as it also does not use any market
 or portfolio information when deciding whether to buy.
 
-With the protocols fixed, the next section reports the pilot study and
+With the protocols fixed, the next section reports the first study and
 what it revealed.
 
-\section{The Real-Data Pilot}
+\section{The First Study: Real Data Alone}
 
-This section reports the pilot study: the three algorithms trained on
+This section reports the first study: the three algorithms trained on
 the 60 real training months and tested on the 24 held-out months of
-2024--2025. The pilot ran the full experimental programme --- trade-size
+2024--2025. The first study ran the full experimental programme --- trade-size
 calibration, behavioural analysis, the state and reward comparisons, and
 a fee sweep --- and this section reports what each part found. The
 findings are presented compactly because Section 5.4 shows they share a
 single cause, and the main study re-examines every one of them under
 corrected data.
 
-\subsection{Pilot Setup}
+\subsection{Setup of the First Study}
 
-The pilot used the larger network of two 128-unit hidden layers and a
+The first study used the larger network of two 128-unit hidden layers and a
 budget of 80,000 training steps per seed. Its trade size was calibrated
 on the 2023 validation months by the exposure-ceiling rule described in
 Section 5.5: a Buy commits a fixed fraction of initial capital, so a
@@ -178,14 +178,14 @@ On the validation months, the \(0.25C_{0}\) size was the smallest that
 reached at least 90\% of buy-and-hold's exposure and was fixed for all
 experiments.
 
-\subsection{Pilot Results}
+\subsection{Results of the First Study}
 
-Table 5.1 reports the pilot's held-out test results in the final
+Table 5.1 reports the first study's held-out test results in the final
 configuration: nine-feature state, wealth-change reward, \(0.25C_{0}\)
 trade size, 0.05\% fee, six seeds.
 
-\addcontentsline{lot}{table}{\protect\numberline{5.1}{Pilot study: test results over the 24 held-out real months (2024--2025), benchmarks and the three learned agents in their final configuration, six seeds each.}}
-\emph{Table 5.1: Pilot study: test results over the 24 held-out real
+\addcontentsline{lot}{table}{\protect\numberline{5.1}{First-study test results over the 24 held-out real months (2024--2025), benchmarks and the three learned agents in their final configuration, six seeds each.}}
+\emph{Table 5.1: First-study test results over the 24 held-out real
 months (2024--2025), benchmarks and the three learned agents in their
 final configuration, six seeds each.}
 
@@ -230,10 +230,10 @@ the corners, and only the Deep Q seeds lie between them.
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.9\textwidth]{media4/media/image4.png}
-  \caption[Pilot study: behaviour of each seed.]{Pilot study: behaviour of each seed on the validation months. Hollow-marker seeds show actions that don't depend on their state information; filled-marker seeds are state-dependent ones. Policy-gradient methods (REINFORCE, PPO) cluster at high exposure or collapse towards zero, while all six Deep Q-learning seeds fall between those corners.}
+  \caption[First study: behaviour of each seed.]{First study: behaviour of each seed on the validation months. Hollow-marker seeds show actions that don't depend on their state information; filled-marker seeds are state-dependent ones. Policy-gradient methods (REINFORCE, PPO) cluster at high exposure or collapse towards zero, while all six Deep Q-learning seeds fall between those corners.}
 \end{figure}
 
-The remaining pilot experiments reinforced the same picture, and three
+The remaining first-study experiments reinforced the same picture, and three
 results summarise them. First, adding the drawdown feature to the state
 changed mean wealth by less than the seed spread for every algorithm
 (REINFORCE \(-\$4.12\), Deep Q +\$3.13, both against spreads above
@@ -254,18 +254,18 @@ average of 0.312, and lost \$184.04 --- about the same one-third scaling
 of the benchmark it showed everywhere else. Its lower drawdown came from
 holding less overall, not from recognising when to step aside.
 
-The pilot therefore ends with a puzzle. The only method that
+The first study therefore ends with a puzzle. The only method that
 demonstrably used its state earned the least, and the methods that
 ignored their state earned the most. The next section resolves the
 puzzle.
 
 \section{The Data Bottleneck}
 
-This section explains why the pilot's results look the way they do. The
+This section explains why the first study's results look the way they do. The
 explanation is not about any single algorithm. It is about how little
 data the agents were given.
 
-The training split contains 60 monthly episodes. The pilot's networks
+The training split contains 60 monthly episodes. The first study's networks
 have more than 18,000 trainable parameters. A model with that much
 capacity can reproduce 60 training months exactly, the way a student who
 memorises 60 practice problems scores perfectly on those problems and
@@ -296,13 +296,13 @@ test distributions are all controlled. That is what the main study
 provides: 3,000 balanced simulated episodes, a network shrunk from
 18,000 parameters to 2,800, and controlled per-regime testing, with the
 real months kept back as a final transfer test. The remainder of this
-chapter reports it, repeating each pilot experiment under the corrected
+chapter reports it, repeating each of its experiments under the corrected
 data.
 
 \section{Fixed Trade Size Under the Simulated Data}
 
 Before the algorithms are compared, the fixed transaction size is
-re-calibrated on the simulated validation episodes, exactly as the pilot
+re-calibrated on the simulated validation episodes, exactly as the first study
 calibrated it on the 2023 months. The trade size matters because each
 Buy commits a fixed fraction of initial capital, so the size sets a hard
 ceiling on the exposure an agent can reach within a 21-bar episode. A
@@ -312,7 +312,7 @@ arithmetic, not learning.
 
 The calibration needs no training. For each candidate size, a policy
 that buys whenever buying is valid measures the highest exposure that
-size permits. The selection rule is the pilot's rule: the smallest size
+size permits. The selection rule is the first study's rule: the smallest size
 whose ceiling reaches 90\% of buy-and-hold's exposure. Table 5.2 shows
 the outcome on the 300 simulated validation episodes.
 
@@ -342,7 +342,7 @@ Buy-and-hold & --- & 0.906 & --- \\
 \end{longtable}
 }
 
-The ceilings are almost identical to the pilot's (0.834 against 0.838
+The ceilings are almost identical to the first study's (0.834 against 0.838
 for the \(0.25C_{0}\) size), which is expected: the ceiling is a
 property of the episode length and the action model, not of which market
 generated the prices. The \(0.25C_{0}\) size again clears the 90\%
@@ -351,7 +351,7 @@ every experiment that follows. The \(0.10C_{0}\) size again cannot reach
 the target even in principle, and \(0.50C_{0}\) adds little ceiling
 while halving the agent's control over position changes.
 
-One column of the pilot's version of this table is gone deliberately.
+One column of the first study's version of this table is gone deliberately.
 On the balanced validation episodes, the wealth change of the always-buy
 policy is close to zero at every size (buy-and-hold itself earns only
 +\$5.66), so return no longer separates the candidates. This is the
@@ -378,7 +378,7 @@ slightly smaller magnitudes, losing \$58.70 per episode. A policy that
 never trades ends every episode with exactly its starting capital, a
 wealth change of \$0.00.
 
-On the pilot's real test months, buying and holding earned \$180.25
+On the first study's real test months, buying and holding earned \$180.25
 because the period only rose. On the balanced episodes, no fixed pattern
 is profitable: constant buying loses money and abstaining earns nothing.
 Any agent that earns money here must be reading its observations and
@@ -422,7 +422,7 @@ learned. In up episodes they earn \$473.72 of the \$477.22 that
 always-buying earns, so they capture 99\% of the available upside. In
 down episodes they lose \$103.35 where always-buying loses \$663.91, an
 84\% reduction in the loss. In flat episodes they roughly match the
-market. That is the state-dependent behaviour the pilot looked
+market. That is the state-dependent behaviour the first study looked
 for and could not find: stay invested while the market rises, step aside
 while it falls. Figure 5.2 shows both views: the per-regime means on the
 left, and every seed's simulated result against its real transfer result
@@ -460,7 +460,7 @@ does not find it dependably. One seed in six is an existence proof, not
 a method.
 
 The comparison so far uses the nine-feature state and the plain
-wealth-change reward. The next three sections repeat the pilot's
+wealth-change reward. The next three sections repeat the first study's
 remaining experiments --- the state representation, the risk-aware
 reward, and the transaction fee --- under the corrected data.
 
@@ -468,9 +468,9 @@ reward, and the transaction fee --- under the corrected data.
 
 Chapter 3 defines the nine-feature state as the main state
 representation and treats drawdown as an additional risk-related
-feature. The pilot found that adding drawdown changed nothing
+feature. The first study found that adding drawdown changed nothing
 measurable, but that finding was suspect for the same reason as every
-pilot finding: an agent that memorises 60 months has no use for any
+first-study finding: an agent that memorises 60 months has no use for any
 feature. This section asks the question again under the corrected data:
 does adding drawdown to the state change performance or behaviour when
 the reward stays wealth-change? The comparison keeps everything else
@@ -506,14 +506,14 @@ mean.}
 \end{longtable}
 }
 
-For Deep Q-learning, the pilot's conclusion survives the correction.
+For Deep Q-learning, the first study's conclusion survives the correction.
 Adding drawdown moves the mean from +\$126.94 to +\$131.31, a change of
 +\$4.37 against a seed standard deviation near \$7, and every behavioural
 measure stays put: six of six seeds state-dependent, similar exposure,
 similar trading rate, and a slightly smaller down-regime loss (\(-\$87.28\)
 against \(-\$103.35\)). The extra feature neither helps nor hurts an
 agent whose objective gives it no reason to use its loss history. This
-matches the principle the pilot suggested: information in the state
+matches the principle the first study suggested: information in the state
 only matters when the objective makes it matter, which the next section
 tests directly.
 
@@ -530,7 +530,7 @@ is: no measurable effect under the wealth-change reward.
 
 \section{Effect of the Risk-Aware Reward}
 
-The pilot's sharpest negative finding was about the risk-aware reward:
+The first study's sharpest negative finding was about the risk-aware reward:
 penalising drawdown reduced risk only by reducing participation, and the
 Sharpe ratio fell. This section repeats the experiment on the corrected
 data, and the conclusion changes. The reward is the one defined in
@@ -546,7 +546,7 @@ drawdown information the penalty refers to.
 \subsection{Selection of the Penalty Size}
 
 The penalty weight was selected on the 300 simulated validation
-episodes, using Deep Q-learning as the selector and the pilot's rule:
+episodes, using Deep Q-learning as the selector and the first study's rule:
 the largest \(\lambda\) that keeps at least half of the unpenalised
 return and at least half of the unpenalised exposure. The unpenalised
 agent earned +\$158.29 at exposure 0.598, so the floors were
@@ -586,17 +586,17 @@ exposure ≥ 0.299; the largest value meeting both is λ = 0.25.}
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.95\textwidth]{figs5/fig5_lambda.pdf}
-  \caption[Risk-penalty sweep on the simulated validation episodes.]{Risk-penalty sweep on the simulated validation episodes (Deep Q-learning, six seeds). Left: mean wealth change against λ with the +\$79.14 requirement floor; the dotted line marks the selected λ = 0.25. Right: exposure and drawdown relative to their unpenalised values. The participation cliff sits between λ = 0.25 and 0.5, one grid step further out than in the pilot.}
+  \caption[Risk-penalty sweep on the simulated validation episodes.]{Risk-penalty sweep on the simulated validation episodes (Deep Q-learning, six seeds). Left: mean wealth change against λ with the +\$79.14 requirement floor; the dotted line marks the selected λ = 0.25. Right: exposure and drawdown relative to their unpenalised values. The participation cliff sits between λ = 0.25 and 0.5, one grid step further out than in the first study.}
 \end{figure}
 
-The sweep keeps the pilot's shape but moves its cliff. Exposure still
+The sweep keeps the first study's shape but moves its cliff. Exposure still
 collapses once the penalty dominates the return signal --- from 0.338 at
 \(\lambda = 0.25\) to 0.039 at \(\lambda = 0.5\) --- and large penalties
 still stop trading entirely. But the collapse now happens one grid step
 later, and below the cliff the penalty buys drawdown cheaply: at
 \(\lambda = 0.25\) drawdown falls 47\% while the return stays well above
 the floor. The rule therefore selects \(\boxed{\lambda = 0.25}\), a
-stronger penalty than the pilot could afford (\(\lambda = 0.10\)),
+stronger penalty than the first study could afford (\(\lambda = 0.10\)),
 because agents with reliable value estimates tolerate more penalty
 before abandoning the market.
 
@@ -643,13 +643,13 @@ to \(-\$23.26\), a 73\% reduction, while the up-regime gain keeps 87\%
 of its size (\(+\$411.01\) against \(+\$470.01\)). The agent did not
 simply hold less of the asset; it held less of the asset \emph{when the
 market was falling}. This is precisely the selective risk management the
-pilot found no evidence of.
+first study found no evidence of.
 
-The pilot's conclusion is therefore overturned, and the overturning has
+The first study's conclusion is therefore overturned, and the overturning has
 the same explanation as everything else in this chapter. Penalising
 drawdown can only produce selective behaviour if the agent's value
 estimates can distinguish a falling market from a rising one, and value
-estimates trained on 60 months could not. The pilot measured what the
+estimates trained on 60 months could not. The first study measured what the
 penalty does to an agent that cannot see; this study measures what it
 does to one that can.
 
@@ -725,8 +725,8 @@ trades per episode, and those trades are regime-selective: entering when
 the features say the market is rising, exiting when they say it is
 falling. Each trade is worth far more than even a punitive fee, so the
 agents keep trading --- the rate falls only from 5.5 to 3.7 --- and keep
-most of their profit. This differs from the pilot, where DQN cut its
-trading 83\% as fees rose. The pilot's agent traded on noisy value
+most of their profit. This differs from the first study, where DQN cut its
+trading 83\% as fees rose. The first study's agent traded on noisy value
 estimates, so its trades were marginal and a higher fee tipped them into
 unprofitability; this study's agent trades on reliable estimates, so its
 trades absorb the fee instead.
@@ -784,7 +784,7 @@ buy-and-hold still wins: the market rose over these two decades, and a
 defensive agent gives up some of that rise. On risk-adjusted return, the
 ordering flips. The Deep Q agents' mean monthly Sharpe ratio is 0.224
 against buy-and-hold's 0.198, and five of the six seeds match or beat
-the benchmark on this measure. In the pilot, Deep Q-learning earned less
+the benchmark on this measure. In the first study, Deep Q-learning earned less
 return per unit of risk than buy-and-hold; on the extended window, it
 earns more. The difference is that this window contains real declines,
 so the downside protection the agent learned in simulation finally has
@@ -849,14 +849,14 @@ section discusses what the two studies establish together.
 \section{Discussion of the Main Findings}
 
 The experiments answer the five research questions of Section 5.1. This
-section takes each in turn, using the pilot and the main study together,
-because on three of the five questions the pilot alone would have given
+section takes each in turn, using the first study and the main study together,
+because on three of the five questions the first study alone would have given
 the wrong answer.
 
 \subsection{Performance: The Answer Depends on the Measure}
 
 On raw return against buy-and-hold, the learned agents lose on real
-data. In the pilot, the best agent finished \$8.74 per month behind the
+data. In the first study, the best agent finished \$8.74 per month behind the
 benchmark on the 2024--2025 months. On the 180-month transfer set, the
 Deep Q agents earned +\$60.28 per month against buy-and-hold's +\$80.24.
 A passive index position over a period that mostly rises is very hard to
@@ -878,12 +878,12 @@ state-conditional skill that the raw-return comparison obscures.
 Algorithms}
 
 All three methods condition on the same state, maximise the same reward,
-and see the same data, so the pilot's behavioural split --- six of six
+and see the same data, so the first study's behavioural split --- six of six
 Deep Q seeds state-dependent, none of twelve policy-gradient seeds ---
 cannot mean that one method ``uses the state'' and the others cannot.
 The difference lies in what each method must estimate. A value-based
 method estimates the value of every state it acts in, which takes many
-visits to similar states under a stable distribution; the pilot's 60
+visits to similar states under a stable distribution; the first study's 60
 shifting months could not support those estimates, so Deep Q-learning
 conditioned on noise and earned the least. The policy-gradient methods
 only need a policy that scores well on the training months, and on
@@ -912,7 +912,7 @@ engineering and objective design are not separate questions.
 
 \subsection{The Risk-Aware Reward Works When the Estimates Do}
 
-The pilot concluded that the drawdown penalty was a participation tax.
+The first study concluded that the drawdown penalty was a participation tax.
 The main study shows that with reliable value estimates the same penalty
 produces exactly the intended behaviour: a 73\% smaller down-regime loss
 at a 1.5\% cost in mean return. Both studies agree on the failure mode
@@ -926,7 +926,7 @@ risk-trained ones.
 
 \subsection{Costs Test the Nature of the Learned Edge}
 
-The fee sweep separates marginal edges from robust ones. The pilot's
+The fee sweep separates marginal edges from robust ones. The first study's
 agents, trading on noisy estimates, lost most of their activity and
 profit as fees rose. The main study's Deep Q agents remain profitable at
 a fee ten times the headline assumption, because regime-selective trades
@@ -971,7 +971,7 @@ differences in how they explore and what they must estimate.
 
 \section{Chapter Summary}
 
-The chapter reported one pilot and one main study. The pilot trained the
+The chapter reported two studies. The first study trained the
 agents on the 60 real training months and tested them on 2024--2025: no
 agent beat buy-and-hold, the policy-gradient methods ignored their
 observations, and the one state-dependent method earned the least. The
@@ -986,7 +986,7 @@ trading pattern is profitable, on all six seeds, capturing 99\% of the
 rising-market profit and cutting the falling-market loss by 84\%. The
 trade-size rule re-selected \(0.25C_{0}\); the drawdown feature again
 changed nothing under the wealth objective; the risk-aware reward, which
-had only reduced participation in the pilot, now cut down-regime losses
+had only reduced participation in the first study, now cut down-regime losses
 by 73\% at almost no cost in return; and the learned edge survived a
 tenfold fee increase. Transferred unchanged to 180 real months, the
 policies stayed profitable on every seed, held zero exposure through

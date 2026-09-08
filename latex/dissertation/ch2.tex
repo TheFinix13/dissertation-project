@@ -20,9 +20,13 @@ provides an important baseline for measuring trading performance---judging wheth
 trading opportunities.
 
 The chapter concludes by bringing these points together and identifying
-the small gap addressed by this dissertation---whether financial
-performance is sufficient to establish that a trained trading policy
-actually uses the information available to it.
+the two gaps addressed by this dissertation. The first is whether
+financial performance alone is sufficient to establish that a trained
+trading policy actually uses the information available to it. The second
+is whether the historical record of a single asset contains enough data
+to train such a policy at all --- a question the reviewed studies answer
+implicitly through their workarounds, and this study answers by
+experiment.
 
 \section{Reinforcement Learning for Sequential Decisions}
 Most machine learning taught at the master\textquotesingle s level is
@@ -400,7 +404,7 @@ price is a domain gap, since no generator reproduces real markets
 exactly, so studies that train on synthetic data normally keep a real
 held-out period as a transfer test.
 
-This dissertation follows that pattern. Its pilot study trains on real
+This dissertation follows that pattern. Its first study trains on real
 monthly episodes and shows what goes wrong at that data volume; its main
 study trains on episodes from a calibrated regime-switching generator
 and tests under controlled conditions, with 180 real months --- every
@@ -434,8 +438,8 @@ disadvantaged simply by being unable to invest enough capital.
 The second issue is \textbf{look-ahead bias.} Financial data are ordered
 in time, so treating it like randomly ordered observations and shuffling
 the data before splitting could place future information in the training
-set and produce overly optimistic results. The pilot data in this study
-are therefore divided chronologically: 2018--2022 for training, 2023 for
+set and produce overly optimistic results. The first study's data are
+therefore divided chronologically: 2018--2022 for training, 2023 for
 validation, and 2024--2025 as the held-out test period. The main study
 keeps the separation stricter still: its transfer months made no
 training, calibration, or tuning decision at all, as described in

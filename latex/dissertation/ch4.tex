@@ -20,9 +20,10 @@ sb3-contrib~\cite{raffin2021sb3}. The Gymnasium interface~\cite{towers2024gymnas
 and is used across all the learning algorithms.
 
 The implementation provides two data pipelines. The first prepares real
-SPY market data. It serves three roles: it trains the pilot study, it
-supplies the calibration statistics for the market generator, and it
-provides the real months on which the final policies are transfer-tested.
+SPY market data. It serves three roles: it supplies the training months
+for the first study, the calibration statistics for the market
+generator, and the real months on which the final policies are
+transfer-tested.
 The second pipeline generates the simulated market episodes on which the
 main study trains, and exists because the real data turned out to be too
 small to train the networks without memorisation. Both pipelines produce
@@ -129,7 +130,7 @@ monthly episodes by calendar month. Months containing fewer than 15
 trading days are excluded from the dataset. After this filtering, the
 dataset is left with 96 monthly episodes.
 
-For the pilot study, the experimental data are separated into training,
+For the first study, the experimental data are separated into training,
 validation, and testing periods. The split is chronological rather than
 random because the observations form a time series and the aim is to
 apply the learned policies to current markets.
@@ -174,7 +175,7 @@ same dataset can be used consistently across all experiments.
 \subsection{The Extended Transfer Set}
 
 The main study does not train on real months at all, and that changes
-what the real data can be used for. The pilot had to spend most of its
+what the real data can be used for. The first study had to spend most of its
 history on training and tuning, leaving only 24 months for testing. The
 main study needs real data only for two things: the 60 training months
 calibrate the generator, and everything else can test the learned
@@ -187,9 +188,9 @@ December 2017, and 36 months from January 2023 to December 2025, giving
 months are excluded so that no evaluated month overlaps the data the
 generator's parameters were fitted on. A separate warm-up lead starting
 in September 2005 initialises the rolling features, mirroring the 2017
-warm-up of the pilot pipeline.
+warm-up of the first study's pipeline.
 
-The early window matters most. The 2024--2025 months the pilot tested on
+The early window matters most. The 2024--2025 months the first study tested on
 rose almost throughout, so they could never show what a defensive policy
 is for. The 2006--2017 window contains the 2008 financial crisis, the
 2011 correction, and the 2015--16 drawdowns: the real market declines
@@ -208,11 +209,11 @@ learning algorithms to do more than memorise.
 \subsection{Why the Real Dataset Is Not Enough}
 
 The real training split contains \textbf{60 monthly episodes}. The
-network used by the pilot has two hidden layers of 128 units,
+network used by the first study has two hidden layers of 128 units,
 which is more than 18,000 trainable parameters for the nine-feature
 state. A model with 18,000 free parameters fitted to 60 examples can
 match every training month exactly without learning any rule that
-transfers to new months. The pilot study in Chapter 5 shows exactly
+transfers to new months. The first study in Chapter 5 shows exactly
 this behaviour.
 
 Sixty episodes is also far below what reinforcement learning normally
@@ -315,7 +316,7 @@ The experiments use a fixed sequence that separates training,
 validation, and test data. This separation ensures that the test data
 are not used when making decisions about the model or experimental
 setup. The same sequence applies to both studies; only the data
-differs. The pilot trains on the 60 real training months, validates on
+differs. The first study trains on the 60 real training months, validates on
 the 12 months of 2023, and tests on the 24 months of 2024--2025. The
 main study trains on the 3,000 simulated episodes, validates on the 300
 simulated validation episodes, and tests on the 600 simulated test
@@ -346,7 +347,7 @@ it can be evaluated later using the same settings.
 The validation split carries every decision that has to be made before
 the final test. It determines the fixed transaction amount traded for
 each Buy or Sell action, the weight of the risk-aware penalty, and the
-robustness checks on the transaction fee. In the pilot, these decisions
+robustness checks on the transaction fee. In the first study, these decisions
 used the 12 real months of 2023; in the main study, they use the 300
 simulated validation episodes.
 
@@ -364,7 +365,7 @@ settings are fixed for testing.
 \subsection{Testing}
 
 The final evaluation is run once, on data that made no configuration
-decision. For the pilot this is the held-out real months from January
+decision. For the first study this is the held-out real months from January
 2024 to December 2025. For the main study it is the 600 simulated test
 episodes, reported per market regime, together with the 180 real
 transfer months described in Section 4.2. This ensures that results
@@ -516,11 +517,11 @@ episode draws over those episodes. Validation sweeps, which only rank
 configurations rather than report final numbers, run at half this
 budget (150,000 steps).
 
-The pilot used the same configuration except for two settings. Its
+The first study used the same configuration except for two settings. Its
 network was larger, two hidden layers of 128 units
 (\(d \rightarrow 128 \rightarrow 128 \rightarrow 3\), more than 18,000
 parameters), and its training budget was 80,000 steps, sized to its 60
-training months. The pilot therefore had six times more parameters than
+training months. The first study therefore had six times more parameters than
 training decisions; the main study has more training episodes than
 parameters. Everything else, including the activation functions,
 optimiser, learning rates, discount factor, and the six seeds, is
@@ -761,7 +762,7 @@ update their model parameters.
 
 After training and validation, the final experiment settings are fixed,
 and the trained models are evaluated on the held-out test data: the
-2024--2025 months for the pilot, and the 600 controlled simulated
+2024--2025 months for the first study, and the 600 controlled simulated
 episodes plus the 180-month real transfer set for the main study. The
 resulting metrics, monthly results, training information, configuration
 settings, and performance measures are stored together with information

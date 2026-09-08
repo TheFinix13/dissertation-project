@@ -244,7 +244,7 @@ available.
 A single year of daily data provides approximately 12 monthly episodes
 and around 250 daily trading decisions. Using eight years of data from
 2018 to 2025 gives 96 monthly episodes and approximately 2,000 daily
-transitions. For the pilot study, these episodes are divided
+transitions. For the first study, these episodes are divided
 chronologically into 60 months for training, 12 months for validation,
 and 24 months for the held-out test period, as detailed in Chapter 4.
 The data are not shuffled, which prevents information from later periods
@@ -473,9 +473,11 @@ information only where the previous stage left the agent unable to
 distinguish situations that require different actions. Table 3.4 at the
 end of this section summarises the full progression.
 
-The starting point was a price-only state,
-\(s_{t}^{(0)} = \left\lbrack \Delta P_{t} \right\rbrack\), where
-\(\Delta P_{t} = (P_{t} - P_{t - 1})/P_{t - 1}\) is the one-day return.
+The starting point was a price-only state:
+
+\[s_{t}^{(0)} = \left\lbrack \Delta P_{t} \right\rbrack,\qquad\Delta P_{t} = \frac{P_{t} - P_{t - 1}}{P_{t - 1}}\]
+
+where \(\Delta P_{t}\) is the one-day return.
 This is insufficient because the same market movement can occur in very
 different trading situations. A positive daily return means one thing
 when the agent holds nothing and may consider entering a position, and
@@ -485,19 +487,23 @@ it. The agent cannot see its own portfolio.
 Portfolio, position, and time information were therefore added in turn,
 producing the following features:
 
-\textbf{1. Normalised cash} \(\mathbf{(c}_{\mathbf{t}}\mathbf{)}\),
-defined as \(c_{t} = C_{t}/C_{0}\), is the proportion of the initial
-capital that remains available for future decisions. Using a normalised
-value keeps the information consistent regardless of the starting
-account size.
+\textbf{1. Normalised cash} \(\mathbf{(c}_{\mathbf{t}}\mathbf{)}\):
 
-\textbf{2. Normalised exposure} \(\mathbf{(v}_{\mathbf{t}}\mathbf{)}\),
-defined as \(v_{t} = h_{t}P_{t}/C_{0}\), is the current market value of
-the open position relative to the initial capital. This replaces the raw
-unit count \(h_{t}\) because the same number of units can represent a
-small or large investment depending on the asset price. Together, the
-two portfolio features recover the agent\textquotesingle s current
-wealth as \(c_{t} + v_{t} = W_{t}/C_{0}\).
+\[c_{t} = \frac{C_{t}}{C_{0}}\]
+
+This is the proportion of the initial capital that remains available for
+future decisions. Using a normalised value keeps the information
+consistent regardless of the starting account size.
+
+\textbf{2. Normalised exposure} \(\mathbf{(v}_{\mathbf{t}}\mathbf{)}\):
+
+\[v_{t} = \frac{h_{t}P_{t}}{C_{0}}\]
+
+This is the current market value of the open position relative to the
+initial capital. It replaces the raw unit count \(h_{t}\) because the
+same number of units can represent a small or large investment depending
+on the asset price. Together, the two portfolio features recover the
+agent\textquotesingle s current wealth as \(c_{t} + v_{t} = W_{t}/C_{0}\).
 
 \textbf{3. Unrealised profit/loss}
 \(\mathbf{(Pn}\mathbf{L}_{\mathbf{t}}\mathbf{)}\):
@@ -512,8 +518,11 @@ a price increase may be profitable if it was bought at a lower price,
 or losing money if the position was entered at a higher price before
 the price declined.
 
-\textbf{4. Episode clock} \(\mathbf{(\tau}_{\mathbf{t}}\mathbf{)}\),
-defined as \(\tau_{t} = t/T\), where \(T\) is the total length of the
+\textbf{4. Episode clock} \((\tau_{t})\):
+
+\[\tau_{t} = \frac{t}{T}\]
+
+where \(T\) is the total length of the
 episode. A value close to 0 means the episode has just started, while a
 value close to 1 means the forced close at the final trading day is
 approaching. This matters because the same action can have different
@@ -579,8 +588,10 @@ The normalised trading range is based on the Average True Range (ATR):
 
 \[rng_{t} = \frac{ATR_{n,t}}{P_{t}}\]
 
-The True Range at timestep \(t\) is
-\(TR_{t} = \max\left( H_{t} - L_{t},\,\left| H_{t} - C_{t - 1} \right|,\,\left| L_{t} - C_{t - 1} \right| \right)\),
+The True Range at timestep \(t\) is:
+
+\[TR_{t} = \max\left( H_{t} - L_{t},\,\left| H_{t} - C_{t - 1} \right|,\,\left| L_{t} - C_{t - 1} \right| \right)\]
+
 where \(H_{t}\) and \(L_{t}\) are the current high and low prices and
 \(C_{t - 1}\) is the previous closing price. The ATR is the rolling
 arithmetic mean of the last \((n = 14)\) True Range values (about two
@@ -1017,8 +1028,10 @@ mask}. The mask does not provide any additional market information to
 the agent. It simply indicates which actions can be carried out given
 the current portfolio status.
 
-The mask is represented as
-\(M_{t} = \left\lbrack m_{\text{hold}},m_{\text{buy}},m_{\text{sell}} \right\rbrack \in \left\{ 0,1 \right\}^{3}\),
+The mask is represented as:
+
+\[M_{t} = \left\lbrack m_{\text{hold}},m_{\text{buy}},m_{\text{sell}} \right\rbrack \in \left\{ 0,1 \right\}^{3}\]
+
 where \(M_{t}(a) = 1\) indicates that action \(a\) is available and
 \(M_{t}(a) = 0\) indicates that it is not.
 

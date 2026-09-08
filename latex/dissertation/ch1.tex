@@ -79,6 +79,13 @@ reinforcement learning can produce better financial performance than
 simple benchmarks, and whether that performance stems from a learned
 policy that actually uses the information available to it.
 
+A third problem sits underneath both: data. A network of thousands of
+parameters trained on a few dozen historical months can memorise those
+months instead of learning a rule that carries over to new ones, and a
+market that mostly rises teaches every agent the same shortcut of
+constant buying. Whether the training data can support learning at all
+is therefore examined as a question in its own right, not assumed.
+
 \section{Research Questions and Objectives}
 
 The aim of this dissertation is to evaluate three reinforcement learning
@@ -86,6 +93,18 @@ algorithms --- REINFORCE~\cite{williams1992}, Deep Q-learning (DQN)~\cite{mnih20
 Optimization (PPO)~\cite{schulman2017ppo} --- and determine whether they can learn profitable
 and genuinely intelligent trading strategies for the SPY exchange-traded
 fund.
+
+The evaluation is carried out as two studies. The \textbf{first study}
+trains the three algorithms on the real market months alone and
+evaluates them on held-out months; its negative results are then traced
+to the size and balance of that training data. The \textbf{main study}
+corrects the data: it trains the same algorithms on thousands of
+balanced simulated episodes, evaluates them under controlled rising,
+falling, and flat market conditions, and finally tests the trained
+policies, unchanged, on 180 real months they have never seen. The two
+studies are reported together because each explains the other: the first
+shows what fails at real-world data volumes, and the second shows that
+the failure belonged to the data rather than to the algorithms.
 
 The study is structured around five research questions:
 
@@ -158,7 +177,7 @@ The study is deliberately narrowed to one asset to make the experiments
 more controlled and easier to analyse.
 
 All experiments use the SPY asset, an exchange-traded fund that tracks
-the S\&P 500 index, with daily data from 2006 to 2025. The pilot study
+the S\&P 500 index, with daily data from 2006 to 2025. The first study
 uses the 2018--2025 period, divided chronologically into training
 (2018--2022), validation (2023), and held-out testing (2024--2025). The
 main study trains on a simulated dataset generated from a
@@ -219,10 +238,10 @@ financial return figures alone: all six Deep Q-learning seeds were
 state-dependent, while none of the twelve policy-gradient seeds
 (REINFORCE and PPO) were (Section 5.3).
 
-\textbf{3. An explanation for the pilot's negative results.}
+\textbf{3. An explanation for the first study's negative results.}
 
 None of the three learning algorithms outperformed buy-and-hold across
-the pilot's 24 held-out test months. The behavioural analysis helps explain this
+the first study's 24 held-out test months. The behavioural analysis helps explain this
 outcome. The policies that achieved returns closest to the benchmark,
 REINFORCE, generally did so through a fixed pattern of high exposure,
 while the algorithm that did use its state information, Deep Q-learning,
@@ -276,12 +295,12 @@ verification process, trading environment, and the corrections made
 during development.
 
 Chapter 5 presents the experiment results and analyses them in relation
-to the five research questions. It first reports the real-data pilot and
-diagnoses the data bottleneck behind its negative results. It then
-reports the main study: the controlled per-regime comparison on the
-simulated data, the state, reward, and transaction-cost experiments
-repeated under the corrected data, and the transfer of the trained
-policies to 180 real months including the 2008 crisis.
+to the five research questions. It reports the first study and diagnoses
+the data bottleneck behind its negative results. It then reports the
+main study: the controlled per-regime comparison on the simulated data,
+the state, reward, and transaction-cost experiments repeated under the
+corrected data, and the transfer of the trained policies to 180 real
+months including the 2008 crisis.
 
 Finally, Chapter 6 concludes the dissertation by summarising the main
 findings, critically evaluating the work, discussing its limitations and
