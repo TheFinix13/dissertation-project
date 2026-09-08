@@ -230,29 +230,34 @@ so the constant answer is what gets learned.
 \subsection{Generator Design}
 
 The generator produces monthly episodes under three \textbf{market
-conditions}: up, down, and flat. One episode is 21 daily bars drawn from
-a single condition, so every test result can be attributed to a known
-market condition.
+conditions}: up, down, and flat. Each episode contains 21 daily bars,
+and all of them are drawn from the same condition. Every simulated
+episode is therefore labelled with the market condition that produced
+it, which means the evaluation can state exactly how an agent performed
+in each type of market.
 
-Within a condition, daily log-returns are drawn independently from a
-normal distribution with that condition's drift and volatility. High and low
-prices extend each day's close-to-close move by random wicks whose size
-is fitted to the real average true range. Volume is drawn from a
-lognormal distribution; only relative volume enters the feature set, so
-its absolute scale does not matter.
+Within a condition, the daily log-returns are drawn independently from a
+normal distribution, using the drift and volatility that belong to that
+condition. The high and low prices are created by extending each day's
+close-to-close movement with random wicks, whose size is fitted to match
+the real average true range. Volume is drawn from a lognormal
+distribution. Only the relative volume is used in the feature set, so
+its absolute scale does not affect the observations.
 
-Each generated episode passes through the same feature code as the real
-pipeline. A warm-up lead of 21 bars is generated before each episode and
-discarded after the rolling features are computed, exactly as the real
-pipeline discards its 2017 warm-up data.
+Each generated episode is processed through the same feature pipeline as
+the real data. A warm-up lead of 21 bars is generated before each
+episode and removed after the rolling features are calculated. This
+mirrors the real pipeline, which discards its 2017 warm-up data in the
+same way.
 
-The generator is deliberately simple. Richer market generators exist,
-from hidden Markov models~\cite{rabiner1989} to adversarial time-series
-generators~\cite{yoon2019timegan}, and they produce more realistic
-price paths. Realism is not the goal here. The goal is control: the
-study needs to state how each agent behaves when the market rises,
-falls, or drifts sideways, and that requires knowing which condition
-each test episode belongs to.
+The generator is intentionally kept simple. More realistic market
+generators exist, such as hidden Markov models~\cite{rabiner1989} and
+adversarial time-series generators~\cite{yoon2019timegan}, and these
+produce price paths that look closer to real markets. However, realism
+is not the purpose of the generator in this study. The purpose is
+control. The study needs to report how each agent behaves when the
+market rises, falls, or moves sideways, and this is only possible when
+the condition of every test episode is known.
 
 \subsection{Calibration}
 

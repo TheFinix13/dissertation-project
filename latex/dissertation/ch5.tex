@@ -227,7 +227,7 @@ state-dependent, yet it earned the least, with the lowest exposure
 (0.312). Figure 5.1 shows every seed: the policy-gradient seeds sit at
 the corners, and only the Deep Q seeds lie between them.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{media4/media/image4.png}
   \caption[First study: behaviour of each seed.]{First study: behaviour of each seed on the validation months. Hollow-marker seeds show actions that don't depend on their state information; filled-marker seeds are state-dependent ones. Policy-gradient methods (REINFORCE, PPO) cluster at high exposure or collapse towards zero, while all six Deep Q-learning seeds fall between those corners.}
@@ -708,7 +708,7 @@ points.}
 \end{longtable}
 }
 
-\begin{figure}[!htb]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figs5/fig5_fees.pdf}
   \caption[Transaction-fee sizing on the simulated validation episodes.]{Transaction-fee sizing on the simulated validation episodes. Left: mean wealth change as the fee rises; Deep Q-learning declines but remains profitable at every level, while buy-and-hold turns negative by 10 basis points. Right: trades per episode; the policy-gradient methods abandon trading as costs rise, while Deep Q-learning trims its rate only slightly.}

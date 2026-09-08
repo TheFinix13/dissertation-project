@@ -54,14 +54,7 @@ The first question considered whether the reinforcement learning agents
 could outperform the buy-and-hold benchmark on unseen data. The answer
 depends on which data, and on which measure.
 
-In the first study, no learned agent outperformed buy-and-hold. The benchmark
-produced a mean wealth change of +\$180.25 per month on the 2024--2025
-test months, while the best learned agent, REINFORCE, achieved
-+\$171.51. PPO achieved +\$127.35 and DQN +\$74.68. The test period
-favoured remaining invested, with positive market performance in 17 of
-the 24 months, so buy-and-hold was difficult to beat.
-
-The main study changes the answer in two settings. On the balanced
+The main study gives the positive half of the answer. On the balanced
 simulated test set, where buy-and-hold loses \$60.29 per episode, Deep
 Q-learning earned +\$126.94 and was the only strategy of any kind to
 make money. On the 180-month real transfer set, buy-and-hold kept the
@@ -72,6 +65,14 @@ drawdown, and their mean Sharpe ratio of 0.224 exceeded the benchmark's
 unbeaten; on risk-adjusted return over a window containing real crashes,
 the learned agents finished ahead.
 
+The first study supplies the negative half. Trained on the 60 real
+months alone, no learned agent outperformed buy-and-hold: the benchmark
+produced a mean wealth change of +\$180.25 per month on the 2024--2025
+test months, while the best learned agent, REINFORCE, achieved
++\$171.51. PPO achieved +\$127.35 and DQN +\$74.68. The test period
+favoured remaining invested, with positive market performance in 17 of
+the 24 months, so buy-and-hold was difficult to beat.
+
 Transaction costs and the trade size cannot explain these differences,
 since they were the same throughout the experiments, providing a basis
 for fair comparison.
@@ -81,26 +82,28 @@ for fair comparison.
 The second question examined whether the learned policies genuinely use
 the state information provided to them.
 
-The algorithms showed a clear difference in how they used the state. All
-six DQN seeds changed their actions in response to the observed state,
-while none of the twelve policy-gradient seeds from REINFORCE and PPO
-did so. This changes how the performance results should be interpreted.
-REINFORCE came close to the benchmark in terms of return, at +\$171.51
-per month, but its policies largely shifted to buying rather than using
-the market information provided.
+The behavioural split is the finding on which the two studies agree most
+strongly. In the main study, all six Deep Q-learning seeds were
+state-dependent and earned +\$126.94 per episode, while the
+policy-gradient seeds overwhelmingly collapsed to fixed corner policies
+--- never trading, or buying constantly --- once the balanced data
+removed the free always-buy answer. In the first study, the same split
+appeared without the reward: all six DQN seeds changed their actions in
+response to the observed state, while none of the twelve policy-gradient
+seeds from REINFORCE and PPO did so.
 
-DQN however produced policies that consistently responded to changes in
-the observed state but produced a lower average return than REINFORCE.
-This suggests that state dependence and financial performance are not to
-be treated as equal objectives in the experimental setting. An agent can
-learn to use its observations without that behaviour necessarily
-yielding higher returns.
-
-This differentiation is important because an agent can perform well for
-the wrong reason. During a generally rising market, a policy that
-remains invested can achieve a strong return without needing to learn
-when market conditions require entering, reducing, or exiting a
-position.
+The first study shows why the analysis matters. REINFORCE came close to
+the benchmark in terms of return, at +\$171.51 per month, but its
+policies largely shifted to buying rather than using the market
+information provided. An agent can perform well for the wrong reason:
+during a generally rising market, a policy that remains invested can
+achieve a strong return without needing to learn when market conditions
+require entering, reducing, or exiting a position. DQN produced policies
+that consistently responded to the state yet earned the least, so state
+dependence and financial performance were not the same thing at that
+data volume. The main study resolves the tension: once the data could
+support reliable value estimates, the state-dependent method was also
+the profitable one, on every seed.
 
 Looking only at return would have completely hidden the distinction
 between these behaviours. The behavioural analysis is therefore an
