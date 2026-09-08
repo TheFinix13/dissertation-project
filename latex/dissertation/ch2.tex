@@ -400,12 +400,13 @@ price is a domain gap, since no generator reproduces real markets
 exactly, so studies that train on synthetic data normally keep a real
 held-out period as a transfer test.
 
-This dissertation follows that pattern. Its first study trains on real
-monthly episodes and shows what goes wrong at that data volume; its
-second trains on episodes from a calibrated regime-switching generator
-and tests under controlled conditions, with the real held-out months
-retained as a transfer test. Chapters 3 and 4 define the generator, and
-Chapter 5 reports both studies.
+This dissertation follows that pattern. Its pilot study trains on real
+monthly episodes and shows what goes wrong at that data volume; its main
+study trains on episodes from a calibrated regime-switching generator
+and tests under controlled conditions, with 180 real months --- every
+month outside the generator's calibration window, including the 2008
+financial crisis --- retained as a transfer test. Chapters 3 and 4
+define the generator, and Chapter 5 reports both studies.
 
 The next section therefore focuses more specifically on how to evaluate
 trading agents and on the weaknesses that can arise when financial
@@ -433,11 +434,12 @@ disadvantaged simply by being unable to invest enough capital.
 The second issue is \textbf{look-ahead bias.} Financial data are ordered
 in time, so treating it like randomly ordered observations and shuffling
 the data before splitting could place future information in the training
-set and produce overly optimistic results. The data in this study are
-therefore divided chronologically: 2018--2022 for training, 2023 for
-validation, and 2024--2025 as the held-out test period. The test months
-were not used to select hyperparameters or make any design decisions, as
-described in Chapter 4.
+set and produce overly optimistic results. The pilot data in this study
+are therefore divided chronologically: 2018--2022 for training, 2023 for
+validation, and 2024--2025 as the held-out test period. The main study
+keeps the separation stricter still: its transfer months made no
+training, calibration, or tuning decision at all, as described in
+Chapter 4.
 
 The third issue is \textbf{ignoring transaction costs.} A strategy that
 trades frequently may look profitable when every trade is assumed to be

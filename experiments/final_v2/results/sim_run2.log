@@ -1,0 +1,34 @@
+sim data: train=3000 val=300 test=600 episodes
+real transfer set: 180 months (early 2006-01..2017-12, late 2023-01..2025-12)
+
+baselines (simulated test | real transfer):
+  B0_do_nothing    sim dW=   +0.00  real dW=   +0.00
+  B1a_slice_bah    sim dW=  -58.70  real dW=  +76.48
+  B1b_true_bah     sim dW=  -60.29  real dW=  +80.24
+  B2_random        sim dW=  -26.01  real dW=   -0.02
+
+reinforce: 300,000 steps x seeds [42, 43, 44, 45, 46, 47]
+  seed 42: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (64s)
+  seed 43: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (63s)
+  seed 44: sim dW=  -58.70 [up=+477.22  down=-663.91  flat= +10.58]  real dW=  +76.48 (early  +51.69, late +175.63)  cond=MASK-ONLY  (63s)
+  seed 45: sim dW=  +83.13 [up=+417.02  down=-162.11  flat=  -5.53]  real dW=  +37.01 (early  +24.67, late  +86.36)  cond=state  (65s)
+  seed 46: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (63s)
+  seed 47: sim dW=  -58.70 [up=+477.22  down=-663.91  flat= +10.58]  real dW=  +76.48 (early  +51.69, late +175.63)  cond=MASK-ONLY  (63s)
+
+dqn: 300,000 steps x seeds [42, 43, 44, 45, 46, 47]
+  seed 42: sim dW= +117.44 [up=+472.18  down=-133.31  flat= +13.46]  real dW=  +66.32 (early  +45.86, late +148.13)  cond=state  (220s)
+  seed 43: sim dW= +135.20 [up=+473.23  down= -78.05  flat= +10.42]  real dW=  +61.59 (early  +40.56, late +145.71)  cond=state  (221s)
+  seed 44: sim dW= +136.06 [up=+474.15  down= -77.11  flat= +11.14]  real dW=  +55.15 (early  +37.50, late +125.73)  cond=state  (220s)
+  seed 45: sim dW= +122.84 [up=+475.18  down=-113.61  flat=  +6.95]  real dW=  +61.07 (early  +38.90, late +149.75)  cond=state  (223s)
+  seed 46: sim dW= +123.95 [up=+472.97  down=-113.02  flat= +11.90]  real dW=  +55.66 (early  +36.79, late +131.13)  cond=state  (221s)
+  seed 47: sim dW= +126.14 [up=+474.60  down=-105.01  flat=  +8.84]  real dW=  +61.89 (early  +41.21, late +144.60)  cond=state  (223s)
+
+ppo: 300,000 steps x seeds [42, 43, 44, 45, 46, 47]
+  seed 42: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (134s)
+  seed 43: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (134s)
+  seed 44: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (134s)
+  seed 45: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (134s)
+  seed 46: sim dW=   +0.00 [up=  +0.00  down=  +0.00  flat=  +0.00]  real dW=   +0.00 (early   +0.00, late   +0.00)  cond=MASK-ONLY  (134s)
+  seed 47: sim dW=  -66.99 [up=+406.13  down=-594.25  flat= -12.85]  real dW=  +49.89 (early  +25.69, late +146.72)  cond=MASK-ONLY  (134s)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/sim_results.json

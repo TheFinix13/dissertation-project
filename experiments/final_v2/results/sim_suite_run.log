@@ -1,0 +1,258 @@
+sim data: train=3000 val=300 test=600; real transfer 180 months
+
+slice ceilings on simulated validation (300 episodes, mean length 21.0 bars)
+  buy-and-hold exposure 0.906; ceiling must reach 0.815
+  slice 0.05: exposure 0.452  no
+  slice 0.10: exposure 0.691  no
+  slice 0.25: exposure 0.834  yes
+  slice 0.50: exposure 0.882  yes
+  selected slice = 0.25 C_0
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/sim_slice.json
+
+stage slice done in 0.0 min
+
+lambda selection on simulated validation (300 episodes, dqn, 150,000 steps)
+  lambda = 0.0
+      seed 42: dW= +152.85  trades=  7.0  expo=0.61  ddI=0.030  cond=state  (106.5s)
+      seed 43: dW= +168.24  trades=  4.5  expo=0.60  ddI=0.029  cond=state  (105.4s)
+      seed 44: dW= +159.23  trades=  4.4  expo=0.62  ddI=0.031  cond=state  (105.9s)
+      seed 45: dW= +143.46  trades=  9.6  expo=0.56  ddI=0.028  cond=state  (104.2s)
+      seed 46: dW= +162.93  trades=  4.9  expo=0.60  ddI=0.030  cond=state  (105.5s)
+      seed 47: dW= +163.01  trades=  4.9  expo=0.60  ddI=0.029  cond=state  (106.2s)
+  lambda = 0.05
+      seed 42: dW= +166.01  trades=  5.3  expo=0.59  ddI=0.028  cond=state  (106.2s)
+      seed 43: dW= +168.43  trades=  4.5  expo=0.55  ddI=0.025  cond=state  (106.1s)
+      seed 44: dW= +163.64  trades=  4.3  expo=0.60  ddI=0.029  cond=state  (105.3s)
+      seed 45: dW= +160.59  trades=  5.1  expo=0.58  ddI=0.028  cond=state  (106.5s)
+      seed 46: dW= +172.34  trades=  4.7  expo=0.58  ddI=0.027  cond=state  (106.0s)
+      seed 47: dW= +168.48  trades=  4.5  expo=0.55  ddI=0.026  cond=state  (106.4s)
+  lambda = 0.1
+      seed 42: dW= +146.10  trades=  6.1  expo=0.55  ddI=0.028  cond=state  (106.2s)
+      seed 43: dW= +166.37  trades=  4.3  expo=0.55  ddI=0.025  cond=state  (105.9s)
+      seed 44: dW= +170.77  trades=  4.2  expo=0.57  ddI=0.027  cond=state  (106.0s)
+      seed 45: dW= +143.86  trades=  7.2  expo=0.55  ddI=0.027  cond=state  (105.6s)
+      seed 46: dW= +165.75  trades=  4.9  expo=0.57  ddI=0.027  cond=state  (105.9s)
+      seed 47: dW= +165.81  trades=  4.5  expo=0.59  ddI=0.028  cond=state  (105.5s)
+  lambda = 0.25
+      seed 42: dW= +102.60  trades=  4.0  expo=0.34  ddI=0.016  cond=state  (104.9s)
+      seed 43: dW= +139.12  trades=  5.2  expo=0.44  ddI=0.020  cond=state  (104.4s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.5s)
+      seed 45: dW= +159.97  trades=  4.0  expo=0.53  ddI=0.024  cond=state  (105.3s)
+      seed 46: dW=  +99.17  trades=  6.7  expo=0.38  ddI=0.020  cond=state  (105.4s)
+      seed 47: dW=  +93.92  trades= 10.3  expo=0.33  ddI=0.015  cond=state  (106.1s)
+  lambda = 0.5
+      seed 42: dW=  +65.76  trades=  4.8  expo=0.17  ddI=0.008  cond=state  (105.7s)
+      seed 43: dW=  +28.14  trades=  0.8  expo=0.06  ddI=0.002  cond=state  (106.3s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.9s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.3s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.3s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (104.6s)
+  lambda = 1.0
+      seed 42: dW=   +3.67  trades=  7.2  expo=0.04  ddI=0.003  cond=state  (105.9s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (106.4s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (106.3s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (106.1s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.8s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.8s)
+  lambda = 2.0
+      seed 42: dW=   -0.25  trades=  0.2  expo=0.00  ddI=0.000  cond=state  (105.4s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.7s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.8s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.9s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.3s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (105.6s)
+  unpenalised: dW=+158.29, exposure=0.598
+  floors: dW >= +79.14 and exposure >= 0.299
+    lambda=0.05  dW= +166.58  expo=0.575  ddI=0.0271  pass
+    lambda=0.1   dW= +159.78  expo=0.562  ddI=0.0270  pass
+    lambda=0.25  dW=  +99.13  expo=0.338  ddI=0.0158  pass
+    lambda=0.5   dW=  +15.65  expo=0.039  ddI=0.0017  fail
+    lambda=1     dW=   +0.61  expo=0.007  ddI=0.0005  fail
+    lambda=2     dW=   -0.04  expo=0.000  ddI=0.0000  fail
+  selected lambda = 0.25
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/sim_lambda.json
+
+stage lambda done in 74.4 min
+
+cell SIM_S4_wealth (lambda=0.0, 300,000 steps, seeds [42, 43, 44, 45, 46, 47])
+  reinforce
+    seed 42: sim dW=  -58.70  real dW=  +76.48  cond=MASK-ONLY  (63s)
+    seed 43: sim dW=  -58.70  real dW=  +76.48  cond=MASK-ONLY  (63s)
+    seed 44: sim dW=  -52.39  real dW=  +75.83  cond=state  (64s)
+    seed 45: sim dW=  -58.70  real dW=  +76.48  cond=MASK-ONLY  (63s)
+    seed 46: sim dW=  -26.63  real dW=  +57.73  cond=state  (63s)
+    seed 47: sim dW=  -18.16  real dW=  +55.31  cond=state  (63s)
+  dqn
+    seed 42: sim dW= +134.88  real dW=  +58.60  cond=state  (219s)
+    seed 43: sim dW= +139.62  real dW=  +53.00  cond=state  (218s)
+    seed 44: sim dW= +134.56  real dW=  +61.72  cond=state  (220s)
+    seed 45: sim dW= +129.39  real dW=  +68.58  cond=state  (220s)
+    seed 46: sim dW= +120.87  real dW=  +62.01  cond=state  (219s)
+    seed 47: sim dW= +128.57  real dW=  +46.89  cond=state  (220s)
+  ppo
+    seed 42: sim dW=  +28.37  real dW=  +22.19  cond=state  (135s)
+    seed 43: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (134s)
+    seed 44: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (134s)
+    seed 45: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (134s)
+    seed 46: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (133s)
+    seed 47: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (132s)
+
+cell SIM_S4_risk (lambda=0.25, 300,000 steps, seeds [42, 43, 44, 45, 46, 47])
+  reinforce
+    seed 42: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (63s)
+    seed 43: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (62s)
+    seed 44: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (62s)
+    seed 45: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (62s)
+    seed 46: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (62s)
+    seed 47: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (62s)
+  dqn
+    seed 42: sim dW= +103.47  real dW=  +25.43  cond=state  (218s)
+    seed 43: sim dW= +138.39  real dW=  +40.10  cond=state  (220s)
+    seed 44: sim dW= +143.26  real dW=  +46.66  cond=state  (217s)
+    seed 45: sim dW= +125.26  real dW=  +33.73  cond=state  (219s)
+    seed 46: sim dW= +129.63  real dW=  +44.25  cond=state  (219s)
+    seed 47: sim dW= +136.27  real dW=  +29.30  cond=state  (218s)
+  ppo
+    seed 42: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (134s)
+    seed 43: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (133s)
+    seed 44: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (133s)
+    seed 45: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (134s)
+    seed 46: sim dW=   +0.26  real dW=   +0.31  cond=state  (133s)
+    seed 47: sim dW=   +0.00  real dW=   +0.00  cond=MASK-ONLY  (133s)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/sim_cells.json
+
+stage cells done in 83.0 min
+
+fee sensitivity on simulated validation (300 episodes, 150,000 steps, seeds [42, 43, 44, 45, 46, 47])
+
+  fee = 0 bps
+      B1b_true_bah     dW=  +15.67
+    reinforce
+      seed 42: dW=  +25.50  trades=  1.0  expo=0.09  ddI=0.006  cond=state  (30.8s)
+      seed 43: dW=   +6.90  trades=  4.4  expo=0.65  ddI=0.045  cond=state  (30.5s)
+      seed 44: dW=  +10.91  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (30.7s)
+      seed 45: dW=  +19.00  trades=  0.5  expo=0.06  ddI=0.003  cond=state  (30.6s)
+      seed 46: dW=  +10.91  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (30.8s)
+      seed 47: dW=   +8.27  trades= 21.0  expo=0.74  ddI=0.052  cond=MASK-ONLY  (30.6s)
+    dqn
+      seed 42: dW= +161.73  trades=  7.4  expo=0.56  ddI=0.027  cond=state  (105.9s)
+      seed 43: dW= +173.19  trades=  4.7  expo=0.56  ddI=0.026  cond=state  (105.2s)
+      seed 44: dW= +177.24  trades=  5.6  expo=0.58  ddI=0.027  cond=state  (105.2s)
+      seed 45: dW= +171.26  trades=  5.8  expo=0.60  ddI=0.030  cond=state  (104.8s)
+      seed 46: dW= +179.15  trades=  5.3  expo=0.59  ddI=0.029  cond=state  (105.2s)
+      seed 47: dW= +170.94  trades=  4.1  expo=0.61  ddI=0.029  cond=state  (105.3s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.7s)
+      seed 43: dW=   +8.27  trades= 21.0  expo=0.74  ddI=0.052  cond=MASK-ONLY  (64.7s)
+      seed 44: dW=  +25.45  trades= 21.0  expo=0.49  ddI=0.033  cond=state  (64.7s)
+      seed 45: dW=   -0.87  trades=  5.0  expo=0.14  ddI=0.019  cond=state  (64.5s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.5s)
+      seed 47: dW=   +8.27  trades= 21.0  expo=0.74  ddI=0.052  cond=MASK-ONLY  (65.3s)
+
+  fee = 5 bps
+      B1b_true_bah     dW=   +5.66
+    reinforce
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.6s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.8s)
+      seed 44: dW=   +0.90  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (30.8s)
+      seed 45: dW=  +35.91  trades=  0.9  expo=0.13  ddI=0.008  cond=state  (30.8s)
+      seed 46: dW=   +0.90  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (30.5s)
+      seed 47: dW=   +0.90  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (30.5s)
+    dqn
+      seed 42: dW= +134.06  trades=  5.7  expo=0.64  ddI=0.036  cond=state  (104.9s)
+      seed 43: dW= +161.37  trades=  4.1  expo=0.60  ddI=0.029  cond=state  (105.6s)
+      seed 44: dW= +171.83  trades=  5.7  expo=0.56  ddI=0.025  cond=state  (106.1s)
+      seed 45: dW= +157.56  trades=  4.9  expo=0.60  ddI=0.030  cond=state  (106.3s)
+      seed 46: dW= +164.65  trades=  5.0  expo=0.60  ddI=0.029  cond=state  (105.3s)
+      seed 47: dW= +168.31  trades=  4.1  expo=0.59  ddI=0.028  cond=state  (105.7s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.7s)
+      seed 43: dW=   +0.75  trades=  0.1  expo=0.02  ddI=0.001  cond=state  (65.1s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.3s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.8s)
+      seed 46: dW=  -21.70  trades= 21.0  expo=0.74  ddI=0.053  cond=MASK-ONLY  (64.6s)
+      seed 47: dW=  -21.70  trades= 21.0  expo=0.74  ddI=0.053  cond=MASK-ONLY  (64.6s)
+
+  fee = 10 bps
+      B1b_true_bah     dW=   -4.34
+    reinforce
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.2s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.5s)
+      seed 44: dW=   -9.09  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (30.2s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.1s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.0s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.4s)
+    dqn
+      seed 42: dW= +153.04  trades=  6.1  expo=0.54  ddI=0.025  cond=state  (106.3s)
+      seed 43: dW= +156.28  trades=  4.3  expo=0.58  ddI=0.028  cond=state  (104.6s)
+      seed 44: dW= +142.81  trades=  4.2  expo=0.62  ddI=0.032  cond=state  (104.7s)
+      seed 45: dW= +149.68  trades=  4.6  expo=0.60  ddI=0.029  cond=state  (104.4s)
+      seed 46: dW= +141.45  trades=  5.7  expo=0.60  ddI=0.031  cond=state  (105.1s)
+      seed 47: dW= +170.54  trades=  4.2  expo=0.53  ddI=0.023  cond=state  (104.8s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.4s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.9s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.7s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.8s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.8s)
+      seed 47: dW=   -9.09  trades=  5.0  expo=0.83  ddI=0.058  cond=MASK-ONLY  (64.7s)
+
+  fee = 25 bps
+      B1b_true_bah     dW=  -34.29
+    reinforce
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.5s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.6s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.5s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.4s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.6s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.6s)
+    dqn
+      seed 42: dW= +143.18  trades=  4.5  expo=0.56  ddI=0.026  cond=state  (105.8s)
+      seed 43: dW= +145.99  trades=  4.1  expo=0.57  ddI=0.026  cond=state  (105.4s)
+      seed 44: dW= +149.03  trades=  4.1  expo=0.57  ddI=0.026  cond=state  (104.4s)
+      seed 45: dW= +123.74  trades=  3.7  expo=0.60  ddI=0.029  cond=state  (105.5s)
+      seed 46: dW= +138.93  trades=  4.1  expo=0.56  ddI=0.026  cond=state  (105.8s)
+      seed 47: dW= +152.57  trades=  4.0  expo=0.54  ddI=0.024  cond=state  (106.1s)
+    ppo
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.7s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.5s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (65.2s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.7s)
+      seed 46: dW=  -39.02  trades=  5.0  expo=0.83  ddI=0.059  cond=MASK-ONLY  (64.5s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.0s)
+
+  fee = 50 bps
+      B1b_true_bah     dW=  -83.99
+    reinforce
+      seed 42: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.6s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.5s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.5s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.3s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.0s)
+      seed 47: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (30.5s)
+    dqn
+      seed 42: dW=  +67.80  trades=  3.6  expo=0.47  ddI=0.025  cond=state  (104.9s)
+      seed 43: dW= +111.33  trades=  3.9  expo=0.54  ddI=0.025  cond=state  (105.7s)
+      seed 44: dW=  +74.56  trades=  3.2  expo=0.45  ddI=0.022  cond=state  (104.9s)
+      seed 45: dW= +102.84  trades=  3.8  expo=0.56  ddI=0.027  cond=state  (104.4s)
+      seed 46: dW= +104.82  trades=  4.1  expo=0.56  ddI=0.027  cond=state  (105.5s)
+      seed 47: dW= +110.28  trades=  3.8  expo=0.56  ddI=0.026  cond=state  (105.3s)
+    ppo
+      seed 42: dW=  +11.96  trades=  0.4  expo=0.04  ddI=0.002  cond=state  (64.4s)
+      seed 43: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.1s)
+      seed 44: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.5s)
+      seed 45: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.6s)
+      seed 46: dW=   +0.00  trades=  0.0  expo=0.00  ddI=0.000  cond=MASK-ONLY  (64.7s)
+      seed 47: dW=   +4.33  trades=  1.7  expo=0.19  ddI=0.012  cond=state  (64.6s)
+
+  behavioural response to cost
+      reinforce  trades 6.1 -> 2.6 -> 0.8 -> 0.0 -> 0.0  (change +6.1, noise 20.5, FLAT)
+      dqn        trades 5.5 -> 4.9 -> 4.8 -> 4.1 -> 3.7  (change +1.7, noise 3.4, FLAT)
+      ppo        trades 11.3 -> 7.0 -> 0.8 -> 0.8 -> 0.3  (change +11.0, noise 21.0, FLAT)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/sim_fees.json
+
+stage fees done in 101.8 min

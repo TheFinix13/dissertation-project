@@ -20,11 +20,14 @@ sb3-contrib~\cite{raffin2021sb3}. The Gymnasium interface~\cite{towers2024gymnas
 and is used across all the learning algorithms.
 
 The implementation provides two data pipelines. The first prepares real
-SPY market data. The second generates simulated market episodes under
-controlled conditions, and exists because the real data turned out to be
-too small to train the networks without memorisation. Both pipelines
-produce episodes in the same format, so the environment, the agents, and
-the evaluation code do not know which kind of data they are running on.
+SPY market data. It serves three roles: it trains the pilot study, it
+supplies the calibration statistics for the market generator, and it
+provides the real months on which the final policies are transfer-tested.
+The second pipeline generates the simulated market episodes on which the
+main study trains, and exists because the real data turned out to be too
+small to train the networks without memorisation. Both pipelines produce
+episodes in the same format, so the environment, the agents, and the
+evaluation code do not know which kind of data they are running on.
 
 The implementation also addressed several practical issues stated in the
 methodology that the mathematical formulation could not capture. These
@@ -126,10 +129,10 @@ monthly episodes by calendar month. Months containing fewer than 15
 trading days are excluded from the dataset. After this filtering, the
 dataset is left with 96 monthly episodes.
 
-The experimental data are separated into training, validation, and
-testing periods. The split is chronological rather than random because
-the observations form a time series and the aim is to apply the learned
-policies to current markets.
+For the pilot study, the experimental data are separated into training,
+validation, and testing periods. The split is chronological rather than
+random because the observations form a time series and the aim is to
+apply the learned policies to current markets.
 
 Figure 4.1 shows the split.
 
@@ -168,17 +171,44 @@ to compare the learned strategies.
 The processed episodes and their metadata are cached locally so that the
 same dataset can be used consistently across all experiments.
 
+\subsection{The Extended Transfer Set}
+
+The main study does not train on real months at all, and that changes
+what the real data can be used for. The pilot had to spend most of its
+history on training and tuning, leaving only 24 months for testing. The
+main study needs real data only for two things: the 60 training months
+calibrate the generator, and everything else can test the learned
+policies.
+
+The transfer set therefore contains \textbf{every available SPY month
+outside the calibration window}: 144 months from January 2006 to
+December 2017, and 36 months from January 2023 to December 2025, giving
+\textbf{180 real test months} in total. The 2018--2022 calibration
+months are excluded so that no evaluated month overlaps the data the
+generator's parameters were fitted on. A separate warm-up lead starting
+in September 2005 initialises the rolling features, mirroring the 2017
+warm-up of the pilot pipeline.
+
+The early window matters most. The 2024--2025 months the pilot tested on
+rose almost throughout, so they could never show what a defensive policy
+is for. The 2006--2017 window contains the 2008 financial crisis, the
+2011 correction, and the 2015--16 drawdowns: the real market declines
+that the simulated down regime stands in for. A policy that claims to
+manage downside risk can now be checked against actual downside months
+that no part of the training or calibration process ever saw.
+
 \section{Simulated Market Data}
 
-This section describes the second data pipeline. It generates simulated
-market episodes for the controlled study reported in Chapter 5, and it
-exists because the real dataset cannot supply enough training episodes
-for the learning algorithms to do more than memorise.
+This section describes the second data pipeline, which produces the
+training data for the main study reported in Chapter 5. It generates
+simulated market episodes under controlled conditions, and it exists
+because the real dataset cannot supply enough training episodes for the
+learning algorithms to do more than memorise.
 
 \subsection{Why the Real Dataset Is Not Enough}
 
 The real training split contains \textbf{60 monthly episodes}. The
-network described in Chapter 3 has two hidden layers of 128 units,
+network used by the pilot has two hidden layers of 128 units,
 which is more than 18,000 trainable parameters for the nine-feature
 state. A model with 18,000 free parameters fitted to 60 examples can
 match every training month exactly without learning any rule that
@@ -282,14 +312,19 @@ next section alongside the real-data procedure.
 \section{Training, Validation and Testing Procedure}
 
 The experiments use a fixed sequence that separates training,
-validation, and test periods. This separation ensures that the test data
+validation, and test data. This separation ensures that the test data
 are not used when making decisions about the model or experimental
-setup.
+setup. The same sequence applies to both studies; only the data
+differs. The pilot trains on the 60 real training months, validates on
+the 12 months of 2023, and tests on the 24 months of 2024--2025. The
+main study trains on the 3,000 simulated episodes, validates on the 300
+simulated validation episodes, and tests on the 600 simulated test
+episodes plus the 180-month real transfer set.
 
 \subsection{Training}
 
 During training, each learning algorithm interacts with the monthly
-episodes in the training period. Each algorithm is given the same market
+episodes in the training split. Each algorithm is given the same market
 data, state representation, portfolio conditions, and trading
 constraints. The main difference between the algorithms is how they use
 the collected experience to update their parameters.
@@ -308,11 +343,12 @@ it can be evaluated later using the same settings.
 
 \subsection{Validation}
 
-The validation set contains the 12 monthly episodes from 2023.
-
-This period is used for decisions that need to be made before the final
-test. For example, it determines the fixed transaction amount traded for
-each Buy or Sell action.
+The validation split carries every decision that has to be made before
+the final test. It determines the fixed transaction amount traded for
+each Buy or Sell action, the weight of the risk-aware penalty, and the
+robustness checks on the transaction fee. In the pilot, these decisions
+used the 12 real months of 2023; in the main study, they use the 300
+simulated validation episodes.
 
 The candidate transaction sizes are 0.05, 0.10, 0.25, and 0.50 of the
 initial capital.
@@ -327,11 +363,12 @@ settings are fixed for testing.
 
 \subsection{Testing}
 
-The final evaluation uses the held-out data from January 2024 to
-December 2025.
-
-The test data are not used to make configuration decisions. This ensures
-that results provide an independent assessment of the methods.
+The final evaluation is run once, on data that made no configuration
+decision. For the pilot this is the held-out real months from January
+2024 to December 2025. For the main study it is the 600 simulated test
+episodes, reported per market regime, together with the 180 real
+transfer months described in Section 4.2. This ensures that results
+provide an independent assessment of the methods.
 
 Each trained model is evaluated in the same trading environment and
 using the same evaluation procedure, which includes the initial capital,
@@ -429,14 +466,13 @@ The main settings used for REINFORCE, DQN, and PPO are shown below.
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Network & MLP with 2 hidden layers of 128
+Network & Pyramid MLP
 
-\(d \rightarrow 128 \rightarrow 128 \rightarrow 3\) & MLP with 2 hidden
-layers of 128
+\(d \rightarrow 64 \rightarrow 32 \rightarrow 3\) & Pyramid MLP
 
-\(d \rightarrow 128 \rightarrow 128 \rightarrow 3\) & \(MlpPolicy\)
+\(d \rightarrow 64 \rightarrow 32 \rightarrow 3\) & \(MlpPolicy\)
 
-\(d \rightarrow 128 \rightarrow 128\) \\
+\(d \rightarrow 64 \rightarrow 32\) \\
 \rowsep
 Activation & tanh & ReLU & \\
 \rowsep
@@ -465,27 +501,31 @@ PPO epochs & --- & --- & 10 \\
 \rowsep
 Entropy coefficient & --- & --- & 0 \\
 \rowsep
-Training budget & 80,000 steps & 80,000 steps & 80,000 steps \\
+Training budget & 300,000 steps & 300,000 steps & 300,000 steps \\
 \rowsep
 Random seeds & 42--47 & 42--47 & 42--47 \\
 \end{longtable}
 }
 
-All three methods use the same training budget of 80,000 steps and the
-same six random seeds to keep the computational budget similar
-throughout when comparing performance.
+All three methods use the same training budget and the same six random
+seeds to keep the computational budget similar throughout when comparing
+performance. The pyramid network has about 2,800 trainable parameters
+for the nine-feature state, against the 3,000 training episodes of the
+main study. The 300,000-step budget corresponds to roughly 15,000
+episode draws over those episodes. Validation sweeps, which only rank
+configurations rather than report final numbers, run at half this
+budget (150,000 steps).
 
-The simulated-data study changes two of these settings, and only these
-two. The network shrinks to a pyramid of two hidden layers,
-\(d \rightarrow 64 \rightarrow 32 \rightarrow 3\), which is about 2,800
-parameters for the nine-feature state. The training budget rises to
-300,000 steps, which is roughly 15,000 episode draws over the 3,000
-simulated training episodes. The old configuration had 18,000 parameters
-and 60 episodes; the new one has 2,800 parameters and 3,000 episodes.
-The data now outnumbers the parameters instead of the other way around.
-Everything else, including the activation functions, optimiser, learning
-rates, discount factor, and the six seeds, is unchanged, so the two
-studies differ only in the data and in the network sized to match it.
+The pilot used the same configuration except for two settings. Its
+network was larger, two hidden layers of 128 units
+(\(d \rightarrow 128 \rightarrow 128 \rightarrow 3\), more than 18,000
+parameters), and its training budget was 80,000 steps, sized to its 60
+training months. The pilot therefore had six times more parameters than
+training decisions; the main study has more training episodes than
+parameters. Everything else, including the activation functions,
+optimiser, learning rates, discount factor, and the six seeds, is
+identical, so the two studies differ only in the data and in the network
+sized to match it.
 
 The experiments consider the different state and reward configurations
 described in Chapter 5. These include the standard nine-feature state,
@@ -704,7 +744,9 @@ period needed to calculate the rolling features. The market features are
 then calculated on the continuous dataset using only information
 available up to said observation. Once feature construction is complete,
 the data are divided chronologically into the training, validation, and
-test datasets.
+test datasets. For the main study, the generator is calibrated on the
+real training months and produces the simulated splits; the remaining
+real months form the transfer set.
 
 The observations are then grouped into monthly episodes. At the start of
 each episode, the portfolio resets to the initial capital with no asset
@@ -718,10 +760,12 @@ Their main difference is how each algorithm processes the experience to
 update their model parameters.
 
 After training and validation, the final experiment settings are fixed,
-and the trained models are evaluated on the held-out 2024-2025 test
-datasets. The resulting metrics, monthly results, training information,
-configuration settings, and performance measures are stored together
-with information about the software environment used to produce them.
+and the trained models are evaluated on the held-out test data: the
+2024--2025 months for the pilot, and the 600 controlled simulated
+episodes plus the 180-month real transfer set for the main study. The
+resulting metrics, monthly results, training information, configuration
+settings, and performance measures are stored together with information
+about the software environment used to produce them.
 
 This pipeline clearly links the methodological decisions defined in
 Chapter 3, their implementation in the system, and the experiment

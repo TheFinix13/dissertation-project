@@ -48,10 +48,11 @@ VAL_END = "2023-12"
 MIN_BARS = 15
 
 
-def fetch(ticker: str = TICKER) -> pd.DataFrame:
+def fetch(ticker: str = TICKER, *, start: str = WARMUP_START,
+          end: str = NOMINAL_END) -> pd.DataFrame:
     import yfinance as yf
 
-    df = yf.download(ticker, start=WARMUP_START, end=NOMINAL_END,
+    df = yf.download(ticker, start=start, end=end,
                      auto_adjust=True, progress=False)
     if df is None or len(df) == 0:
         raise RuntimeError("download returned no rows")
@@ -67,7 +68,8 @@ def fetch(ticker: str = TICKER) -> pd.DataFrame:
     return df.sort_index()
 
 
-def build_episodes(df: pd.DataFrame) -> list[dict]:
+def build_episodes(df: pd.DataFrame, *,
+                   nominal_start: str = NOMINAL_START) -> list[dict]:
     """Compute features on the continuous series, then cut monthly episodes."""
     feats = compute_market_features(df)
 
@@ -75,14 +77,14 @@ def build_episodes(df: pd.DataFrame) -> list[dict]:
     # row already carries a complete history.
     if len(df) <= WARMUP_BARS:
         raise RuntimeError("series shorter than the feature warm-up")
-    keep = df.index >= pd.Timestamp(NOMINAL_START)
+    keep = df.index >= pd.Timestamp(nominal_start)
     if keep.sum() == 0:
         raise RuntimeError("no rows on or after the nominal start")
     first_kept = int(np.flatnonzero(keep)[0])
     if first_kept < WARMUP_BARS:
         raise RuntimeError(
             f"warm-up lead too short: only {first_kept} bars before "
-            f"{NOMINAL_START}, need {WARMUP_BARS}")
+            f"{nominal_start}, need {WARMUP_BARS}")
 
     df = df.loc[keep]
     feats = feats.loc[keep]

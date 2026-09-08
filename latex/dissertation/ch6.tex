@@ -13,9 +13,10 @@ reward and an optional risk-aware reward that penalised drawdown, along
 with three learning algorithms: REINFORCE, Deep Q-learning (DQN), and
 Proximal Policy Optimisation (PPO).
 
-Experimental decisions were made on the 12-month validation dataset
-(2023), while keeping the 24-month test set (2024-2025) separate and
-using it only for final evaluations.
+Experimental decisions were made on validation data throughout: the
+12-month 2023 dataset in the pilot, and 300 simulated validation
+episodes in the main study. Test data, real or simulated, was used only
+for final evaluations.
 
 The experiments followed a fixed sequence. First, the trade size was
 adjusted to ensure the agents could reach a reasonable level of exposure
@@ -37,8 +38,10 @@ train networks of 18,000 parameters to do anything except memorise. A
 regime-switching market simulator was calibrated on the training years,
 3,000 balanced episodes were generated, the network was reduced to about
 2,800 parameters, and all three algorithms were retrained and evaluated
-under controlled rising, falling, and flat conditions, with the real
-test months kept as a transfer test.
+under controlled rising, falling, and flat conditions. The trained
+policies were then transferred, unchanged, to 180 real months that no
+training or tuning step ever read --- 2006 to 2017 and 2023 to 2025,
+including the 2008 financial crisis.
 
 \section{Conclusions Against the Research Questions}
 
@@ -47,27 +50,30 @@ The experiments in Chapter 5 address the five questions asked in 5.1.
 \subsection{Performance}
 
 The first question considered whether the reinforcement learning agents
-could outperform the buy-and-hold benchmark on unseen data.
+could outperform the buy-and-hold benchmark on unseen data. The answer
+depends on which data, and on which measure.
 
-The results do not provide any evidence that they could. No learned
-agent outperformed the simple buy-and-hold strategy on the held-out test
-period. Buy-and-hold produced a mean wealth change of +\$180.25 per
-month, while the best learned agent, REINFORCE, achieved +\$171.51. PPO
-achieved +\$127.35 and DQN +\$74.68.
+In the pilot, no learned agent outperformed buy-and-hold. The benchmark
+produced a mean wealth change of +\$180.25 per month on the 2024--2025
+test months, while the best learned agent, REINFORCE, achieved
++\$171.51. PPO achieved +\$127.35 and DQN +\$74.68. The test period
+favoured remaining invested, with positive market performance in 17 of
+the 24 months, so buy-and-hold was difficult to beat.
 
-The result should not be interpreted as reinforcement learning
-algorithms being incapable of learning profitable trading strategies.
-All agents produced positive average wealth changes. Instead, the more
-specific conclusion is that none of the tested algorithms learned a
-level of trading skill that could outperform the simple investment
-strategy on unseen data.
+The main study changes the answer in two settings. On the balanced
+simulated test set, where buy-and-hold loses \$60.29 per episode, Deep
+Q-learning earned +\$126.94 and was the only strategy of any kind to
+make money. On the 180-month real transfer set, buy-and-hold kept the
+higher raw return (+\$80.24 against +\$60.28 per month), but the Deep Q
+agents earned it at three-quarters of the exposure and two-thirds of the
+drawdown, and their mean Sharpe ratio of 0.224 exceeded the benchmark's
+0.198. On raw return over a rising market, buy-and-hold remains
+unbeaten; on risk-adjusted return over a window containing real crashes,
+the learned agents finished ahead.
 
-Transaction costs and the trade size also cannot explain the difference,
-since they were the same throughout the experiment, providing a basis
-for fair comparison. The test period, however, favoured remaining
-invested, with positive market performance in 17 of the 24 months. Under
-these conditions, buy-and-hold was difficult to beat as it benefits from
-the rising market direction.
+Transaction costs and the trade size cannot explain these differences,
+since they were the same throughout the experiments, providing a basis
+for fair comparison.
 
 \subsection{Behaviour}
 
@@ -105,58 +111,58 @@ clear difference between the value-based and policy-gradient methods.
 The third question examined whether adding a drawdown feature to the
 state representation improved agent performance or behaviour.
 
-Adding drawdown to the nine-feature state produced only limited changes
-using the wealth-change reward. REINFORCE\textquotesingle s mean monthly
-wealth change decreased by \$4.12, while DQN\textquotesingle s increased
-by \$3.13. Both changes were small compared with the variation between
-their random seeds and cannot be reasonably treated as reliable
-improvements.
+Both studies give the same answer, and the main study gives it cleanly.
+In the pilot, adding drawdown changed each algorithm's mean return by
+less than its seed variation. In the main study, where the seeds agree
+and the comparison is therefore meaningful, Deep Q-learning moved from
++\$126.94 to +\$131.31 per episode --- a +\$4.37 change against a seed
+standard deviation near \$7 --- with identical behaviour on every
+measure. The extra information neither helped nor hurt while the
+objective remained plain wealth change.
 
-PPO\textquotesingle s mean return increased by \$32.62, but its seed
-spread also changed heavily, from \$179.80 to \$94.00. This improvement
-cannot confidently be attributed to the drawdown feature itself.
-
-Overall, the results suggest that providing additional information does
+Overall, the results show that providing additional information does
 not automatically produce a better policy or improve learning unless the
 objective specifies it. This is consistent with an important principle
 noticed from the experiments: \textbf{information in the state is only
 useful when the learning objective and optimisation process give the
-agent a reason to use it}. Hence, the agent must be able to learn a
-relationship between the additional information and actions that improve
-the objective being optimised.
+agent a reason to use it}. The risk-aware reward experiment below is the
+positive half of the same principle: once the objective referred to
+drawdown, the drawdown feature earned its place.
 
 \subsection{Reward Formulation}
 
 The fourth question considered whether adding drawdown into the reward
 could encourage the agents to reduce losses and generate a more
-risk-aware behaviour.
+risk-aware behaviour. This is the question on which the two studies
+disagree, and the disagreement is itself the finding.
 
-The risk-aware reward reduced drawdown mainly by reducing market
-participation, not by improving understanding of market conditions. With
-the selected penalty of \(\symbf{\lambda = 0.10}\),
-DQN\textquotesingle s mean drawdown fell by 41\%, from 0.0140 to 0.0082.
-However, its mean return also fell by 32\%, from +\$77.81 to +\$52.90,
-while its exposure was approximately halved. Its Sharpe ratio fell from
-0.505 to 0.416, so the reduced drawdown did not result in better
-risk-adjusted performance. The reward therefore encouraged the agent to
-hold less of the asset rather than to identify and avoid declining
-markets. This is also reflected in March 2025, when reducing exposure
-would have been particularly useful: DQN\textquotesingle s exposure
-during the month was higher than its overall average, and it still
-experienced 46\% of the benchmark\textquotesingle s loss.
+In the pilot, the risk-aware reward reduced drawdown mainly by reducing
+market participation. With the selected penalty of \(\lambda = 0.10\),
+DQN\textquotesingle s drawdown fell 41\% but its return fell 32\%, its
+exposure halved, and its Sharpe ratio dropped from 0.505 to 0.416. The
+reward appeared to tax participation rather than teach risk management.
 
-The result illustrates an important limitation of using drawdown as a
-standalone penalty. The easiest way for an agent to reduce exposure to
-drawdown is to reduce its participation in the market. This behaviour
-can theoretically satisfy the risk conditions of the reward without
-necessarily producing a better ability to identify when the market is
-likely to decline.
+The main study overturns that conclusion. With \(\lambda = 0.25\),
+selected on the simulated validation episodes by the same rule, Deep
+Q-learning kept its return almost unchanged (+\$129.38 against +\$131.31
+per episode) while cutting drawdown by 31\% and raising its Sharpe ratio
+from 0.285 to 0.332. The per-regime results show the improvement is
+selective, not proportional: the down-regime loss fell 73\% while the
+up-regime gain kept 87\% of its size. The agent reduced its holdings
+when the market fell, which is exactly the behaviour the reward was
+designed to produce.
 
-The penalty-weight analysis proves this interpretation. A relatively
-small increase in the penalty produced a major behavioural change, with
-exposure falling from 0.344 at λ = 0.10 to 0.074 at λ = 0.25. This
-indicates that the reward formulation created a strong correlation
-between market participation and risk avoidance.
+The pilot's negative finding was therefore another data artefact. A
+drawdown penalty can only produce selective behaviour if the value
+estimates behind the policy can tell a falling market from a rising one,
+and estimates trained on 60 months could not. Two qualifications remain.
+The penalty pushed every policy-gradient seed into complete abstention,
+so the mechanism is only usable by a method with reliable estimates and
+sustained exploration. And the risk-trained agents transfer more
+conservatively than the real market rewards: on the 180 real months they
+earned +\$36.58 per month against +\$58.47 for the wealth-trained
+agents, so the wealth-trained configuration remains the better
+real-market choice.
 
 \subsection{Data}
 
@@ -171,10 +177,12 @@ seeds were profitable and all six were state-dependent. The per-regime
 results show the behaviour the real-data study looked for: the agents
 captured 99\% of the profit available in rising episodes and cut the
 falling-episode loss by 84\% relative to always buying. The same
-policies remained profitable when transferred unchanged to the real
-2024--2025 months, earning +\$130.61 per month against buy-and-hold's
-+\$180.25; the shortfall is the cost of defensive behaviour in a period
-that never fell.
+policies remained profitable on every seed when transferred unchanged to
+the 180 real transfer months, and the defensive behaviour they learned
+in simulation appeared where it mattered: all six agents held zero
+exposure through October 2008, the month buy-and-hold lost \$1,665.24,
+and across the seven crisis months from September 2008 to March 2009
+they lost \$180.34 where the benchmark lost \$3,045.66.
 
 The study also explains the real-data algorithm ranking. Deep
 Q-learning was worst on real data not because it is unsuited to trading
@@ -269,16 +277,17 @@ basis for evaluating the learned trading policies.
 The findings of this study should be considered within the scope of the
 experimental design, but there are several limitations.
 
-\subsection{One asset and a limited market period}
+\subsection{One asset}
 
-The experiments use SPY as the only asset, and the real held-out period
-from 2024 to 2025 was generally favourable to holding the asset due to
-rising markets. The simulated-data study addresses the market-condition
-half of this limitation by testing under controlled falling and flat
-regimes, but only for simulated prices; no real declining period was
-available for testing. The findings cannot therefore be automatically
-generalised to other assets or to real bear markets without further
-testing.
+The experiments use SPY as the only asset. The main study's transfer set
+does cover a wide range of real market conditions, including the 2008
+crisis, so the earlier concern that no real declining period was tested
+no longer applies. What remains untested is breadth across instruments:
+a single, highly liquid index fund cannot show how the approach behaves
+on individual stocks, other asset classes, or portfolios of several
+assets, where correlations and idiosyncratic events matter. The findings
+cannot therefore be automatically generalised beyond broad index trading
+without further testing.
 
 \subsection{Simulator realism and the domain gap}
 
@@ -288,10 +297,13 @@ persist, and regimes change mid-month. The generator also holds one
 regime for a whole episode, so the agents never face a mid-month crash.
 These simplifications are the price of a controlled experiment, and the
 transfer test measures their cost directly: the Deep Q-learning agents
-kept roughly three-quarters of buy-and-hold's real-data return while
-being trained on simulated data alone. Conclusions about absolute
-profitability on real markets should therefore rest on the transfer
-numbers, not the simulated ones.
+kept roughly three-quarters of buy-and-hold's return over the 180 real
+transfer months while being trained on simulated data alone, and their
+timing around real turning points was imperfect --- they sat out the
+December 2008 and March 2009 rebounds because real regime changes
+announce themselves less cleanly than the generator's fixed regimes.
+Conclusions about absolute profitability on real markets should
+therefore rest on the transfer numbers, not the simulated ones.
 
 \subsection{Policy-gradient training was not separately tuned}
 
@@ -340,9 +352,9 @@ Six seeds were used for each configuration, and the seed-level results
 and variation between them are reported throughout the results. This is
 stronger than relying on a single training run, but it does not provide
 sufficient statistics for formal claims about small differences. For
-example, the \$3.13 change observed for DQN and \textbf{−\$4.12} for
-REINFORCE when the state representation was changed is not large enough
-to be treated as a meaningful improvement.
+example, the +\$4.37 change observed for Deep Q-learning when drawdown
+was added to the state sits within a seed standard deviation of about
+\$7 and is not large enough to be treated as a meaningful improvement.
 
 \subsection{Risk Penalty Selection was based on DQN}
 
@@ -363,10 +375,12 @@ While drawdown is directly relevant to losses, it does not fully
 represent the portfolio risk. A reward that relates return to risk,
 rather than penalizing risk alone, was not tested.
 
-Additionally, as shown in Section 5.7, the agents could reduce the
-penalty simply by reducing their exposure to the asset or not trading at
-all. The experiments showed that a lower drawdown value should not
-automatically be associated with evidence of better risk management.
+The main study shows the penalty working as intended at the selected
+weight, but the sweep in Section 5.8 also shows the failure mode is
+still there: one grid step past the selected weight, exposure collapses
+and the agents leave the market. The penalty's usefulness therefore
+depends on a calibration that the study performed on validation data; a
+reward whose optimum did not sit next to a cliff would be more robust.
 
 \section{Future Work}
 
@@ -388,14 +402,17 @@ Each step up in realism should shrink the domain gap that the transfer
 test measures, and the transfer test itself provides the yardstick for
 whether it does.
 
-\subsection{Longer and More Challenging Real Market Periods}
+\subsection{Walk-Forward Evaluation and Other Markets}
 
-The real-data transfer test could be extended over longer periods
-containing genuine declines, such as 2022 or the COVID-19 crash, using a
-walk-forward approach in which the simulator is recalibrated and the
-agents retrained as conditions change. The controlled study shows the
-agents defend well in simulated declines; a real decline is the missing
-test of that behaviour.
+The transfer test now covers two decades of real months, including the
+2008 crisis, but it evaluates fixed policies calibrated once on
+2018--2022. A walk-forward design, in which the simulator is
+recalibrated and the agents retrained as conditions change, would test
+whether the approach holds up as an operating procedure rather than as
+a one-shot experiment. Extending the evaluation to other index funds,
+individual stocks, or non-equity assets would test whether the learned
+regime response is specific to SPY's statistics or carries across
+markets.
 
 \subsection{Predictive and Uncertainty-Aware State Information}
 
@@ -412,15 +429,16 @@ market understanding and trading decisions.
 
 \subsection{Risk-Efficiency Objectives}
 
-The most direct correction to the drawdown penalty could be to replace
-it with a reward that considers return relative to risk, such as a
-Sharpe-based or drawdown-relative objective~\cite{moody2001}. This would make simply
-reducing market exposure a less effective way of improving the reward,
-as seen in the current experiments.
-
-The results in Section 5.7 make this future rework highly relevant
-because the tested penalty mainly caused agents to reduce exposure
-rather than learn when downside risk is increasing.
+The most direct refinement of the drawdown penalty would be a reward
+that considers return relative to risk, such as a Sharpe-based or
+drawdown-relative objective~\cite{moody2001}. Two results motivate
+this. The penalty sweep in Section 5.8 shows a cliff one step past the
+selected weight, where reducing exposure to zero becomes the best reply;
+a risk-relative objective would remove abstention as a way of scoring
+well. And the transfer results show the risk-trained agents buying more
+downside insurance than real markets repay; an objective that prices
+risk against return, rather than penalising risk alone, should calibrate
+that trade-off automatically.
 
 \subsection{More Seeds for Better Statistical Analysis}
 
@@ -449,12 +467,15 @@ follow a simple trading behaviour.
 The study's contribution is what it did with that failure. The
 behavioural analysis showed the strong-looking returns were not evidence
 of learning; the diagnosis traced the failure to 60 training episodes
-feeding 18,000 parameters; and the simulated-data study removed that
-constraint and showed the same algorithms succeeding, with Deep
-Q-learning profitable and state-dependent on every seed and its policies
-transferring, still profitable, to real unseen months. The negative
-result and the positive one are the same finding viewed from two sides:
-what these methods learn is decided by the data they are given.
+feeding 18,000 parameters; and the main study removed that constraint
+and showed the same algorithms succeeding. Deep Q-learning became
+profitable and state-dependent on every seed, and its policies, trained
+on simulated prices alone, stayed profitable across 180 real months they
+had never seen --- stepping fully out of the market through October
+2008 and finishing the two decades with a better risk-adjusted return
+than buy-and-hold. The negative result and the positive one are the same
+finding viewed from two sides: what these methods learn is decided by
+the data they are given.
 
 The implementation, the market simulator, the experimental framework and
 the behavioural analysis developed in this study provide a useful basis

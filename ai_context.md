@@ -1,5 +1,6 @@
 # ai_context.md · final submission state
-Last updated: 2026-09-07 evening (post Nguyen meeting; sim-data redo underway)
+Last updated: 2026-09-08 (sim-data redo COMPLETE: full suite rerun, 180-month
+real transfer set, Chapter 5 rewritten from scratch)
 
 Compact state of the project for future AI sessions.
 
@@ -7,10 +8,14 @@ Compact state of the project for future AI sessions.
 
 MSc dissertation (EEEM004, Surrey; supervisor Dr Cuong Nguyen).
 Question: can REINFORCE / DQN / PPO learn profitable, **state-dependent**
-trading policies for SPY versus buy-and-hold on held-out 2024–2025 data?
-Headline answer: no learned agent beat buy-and-hold (+$180.25/mo);
-best was REINFORCE (+$171.51) but behaviourally state-independent
-(0/12 policy-gradient seeds state-dependent vs 6/6 for DQN).
+trading policies for SPY versus buy-and-hold?
+Headline answer (two studies): the real-data PILOT (60 train months,
+test 2024-25) failed — no agent beat buy-and-hold, policy-gradient seeds
+state-independent. The MAIN sim-data study (3000 balanced episodes,
+2.8k-param pyramid net) succeeded: DQN +$126.94/ep on all 6 seeds where
+no fixed pattern profits, and transferred to 180 real months (2006-17 +
+2023-25) profitably with a higher Sharpe than buy-and-hold (0.224 vs
+0.198), holding zero exposure through Oct 2008. Data was the bottleneck.
 
 ## 2) Live artifacts (everything else was deleted in the restructure)
 
@@ -59,17 +64,31 @@ Redo (in `experiments/final_v2/`, primary study going forward):
 - On balanced sim test, buy-and-hold LOSES (-$60/mo): always-buy no longer
   wins by construction. Report asterisk fix done (ch4 3×10^-4, recompiled).
 - RESULTS (300k steps, 6 seeds): DQN +$126.94/ep (std 7.3), 6/6 state-dep,
-  up +473.72 / down -103.35 / flat +10.45, real transfer +$130.61/mo (vs
-  BAH +180.25). REINFORCE -5.71 (1/6 state-dep; 3 abstain, 2 always-buy,
-  1 conditioned at +83). PPO -11.16 (0/6). Ranking inverts vs real study.
-- Chapter ripple DONE (all six chapters, 2026-09-07 evening): ch1 RQ5+O8+
-  contributions 4&5; ch2 sec 2.3.1 "Data requirements and simulated
-  markets" + gap; ch3 "The Simulated Market Model" (3.2.x) + net sizes;
-  ch4 "Simulated Market Data" section (Table 4.1 calibration) + config;
-  ch5 "The Data Bottleneck" + "Simulated-Data Study" (Table 5.8, Figure
-  5.8 via scripts/make_sim_figures.py) + rewritten Discussion/Summary;
-  ch6 fifth conclusions subsection, appraisal, limitations, future work,
-  closing. PDF 120pp, 0 errors. yoon2019timegan added to references.bib.
+  up +473.72 / down -103.35 / flat +10.45. REINFORCE -5.71 (1/6 state-dep;
+  3 abstain, 2 always-buy, 1 conditioned at +83). PPO -11.16 (0/6).
+  Ranking inverts vs the real-data pilot.
+- FULL SUITE RERUN on sim data (`run_sim_suite.py`, results in
+  `results/sim_{slice,lambda,cells,fees}.json`): trade-size re-selects
+  0.25 C0; drawdown feature again no effect under wealth reward; lambda
+  sweep selects 0.25 — risk reward now WORKS for DQN (down-loss −73%,
+  return −1.5%, Sharpe up), overturning the pilot conclusion; fee sweep:
+  DQN stays +$95.27/ep at 50 bps (10× fee) while BAH goes negative.
+- EXTENDED REAL TRANSFER SET (`real_transfer.py` -> `data/spy_transfer.npz`):
+  180 SPY months outside the 2018-22 calibration window (2006-2017 +
+  2023-2025), incl. the 2008 crisis. DQN transfer: +$60.28/mo (BAH +80.24)
+  but Sharpe 0.224 vs 0.198, profitable on all 6 seeds, ZERO exposure
+  through Oct 2008 (crisis Sep08–Mar09: agents −$180 vs BAH −$3,046).
+- Chapter restructure DONE 2026-09-08 (per user: eliminate old content,
+  don't append). ch5 REWRITTEN from scratch (999 lines vs 1579): pilot
+  compressed to one ~5pp section (5.3), then bottleneck (5.4), sim
+  trade-size (5.5), main regime comparison (5.6), state (5.7), risk
+  reward (5.8), fees (5.9), real transfer + 2008 worked example (5.10),
+  discussion (5.11), summary (5.12). Old ch5 archived at
+  `notes/archive/ch5_pilot_only_2026-09-07.tex`. ch1/2/3/4/6 rewritten
+  for consistency (ch4 has "The Extended Transfer Set" + pyramid-net
+  config; ch6 conclusions/limitations/future-work now transfer-aware).
+  Figures: `scripts/make_sim_figures.py` -> figs5/fig5_{sim,transfer,
+  lambda,fees}.pdf. PDF 113pp, 0 errors, no undefined refs.
 - EC decision pending. Viva prep: key numbers above; DQN-worst-on-real
   explained by value estimation needing stable/large data, not "uses state".
 

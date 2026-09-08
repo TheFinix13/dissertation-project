@@ -66,7 +66,7 @@ an episode. \\
 \rowsep
 \emph{Δ} = \emph{f} \emph{C\textsubscript{0}} & fixed monetary size of
 each trade; the fraction \emph{f} is selected on validation data
-(Section 5.3) \\
+(Section 5.5) \\
 \rowsep
 \emph{γ} & discount factor used to determine the importance of future
 rewards \\
@@ -244,11 +244,13 @@ available.
 A single year of daily data provides approximately 12 monthly episodes
 and around 250 daily trading decisions. Using eight years of data from
 2018 to 2025 gives 96 monthly episodes and approximately 2,000 daily
-transitions. These episodes are divided chronologically into 60 months
-for training, 12 months for validation, and 24 months for the held-out
-test period, as detailed in Chapter 4. The data are not shuffled, which
-prevents information from later periods from being used during training
-and helps avoid look-ahead leakage.
+transitions. For the pilot study, these episodes are divided
+chronologically into 60 months for training, 12 months for validation,
+and 24 months for the held-out test period, as detailed in Chapter 4.
+The data are not shuffled, which prevents information from later periods
+from being used during training and helps avoid look-ahead leakage. The
+main study additionally evaluates on real months from 2006 to 2017,
+which no training or calibration step ever reads.
 
 The same environment could also be adapted to shorter intervals, such
 as minute-level data, without a fundamental change to its design, but
@@ -256,26 +258,23 @@ intraday trading is outside the scope of this study.
 
 \subsection{Selection of the Historical Period}
 
-The experiments use daily market data from 2018 to 2025 as a fixed
-period. Earlier data, including data from 2016 and before, were not
-included in the main experimental period because the study aims to
-evaluate the learning algorithms under relatively recent and varied
-market conditions. These selected periods contain a range of market
-conditions, including relatively stable periods in 2018, the market
-decline associated with the COVID-19 pandemic and its subsequent
-recovery, the later period of increased inflation and interest rates,
-and the war in Ukraine in 2022, which caused weaker market conditions.
-As a result, the dataset is not limited to a single type of market
-condition, providing a useful range for evaluating the behaviour of the
-portfolios trading agents without extending the dataset into
-substantially older market years.
+The training and calibration data use daily market data from 2018 to
+2025 as a fixed period. Earlier data were not included in the training
+period because the study aims to train the learning algorithms under
+relatively recent and varied market conditions. The selected period
+contains a range of market conditions, including relatively stable
+periods in 2018, the market decline associated with the COVID-19
+pandemic and its subsequent recovery, the later period of increased
+inflation and interest rates, and the war in Ukraine in 2022, which
+caused weaker market conditions.
 
-Including older data, such as 2016 or earlier, would increase the
-number of observations but could also introduce market conditions that
-differ considerably from those in the selected period, such as older
-microstructure and fee regimes. Earlier historical data are therefore
-left to future work as an additional robustness test of how well the
-trained agents generalise across market regimes.
+Older data, from 2006 to 2017, is used differently: as evaluation-only
+transfer data for the main study. Because no agent trains on it and no
+design decision reads it, market conditions that differ from the
+training period --- older microstructure, different fee regimes, and
+above all the 2008 financial crisis --- become an asset rather than a
+contamination risk. They test how well policies trained on recent,
+calibrated conditions generalise to markets they have never seen.
 
 \subsection{The Simulated Market Model}
 
@@ -984,7 +983,7 @@ the asset price.
 
 The fraction \(f\) is treated as an experimental setting rather than a
 fixed design constant. It is selected using the validation data before
-the final experiments, as reported in Section 5.3.
+the final experiments, as reported in Section 5.5.
 
 The number of units bought or sold at price \(P_{t}\) is:
 

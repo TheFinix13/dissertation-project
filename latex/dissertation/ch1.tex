@@ -126,26 +126,27 @@ and 4).
 
 \textbf{O3.} Calibrate the fixed trade size on validation data so the
 agents' exposure to the market is not limited, providing a fair
-comparison to the buy-and-hold benchmark (Section 5.3).
+comparison to the buy-and-hold benchmark (Section 5.5).
 
 \textbf{O4.} Apply behavioural analysis to determine whether the learned
-policies change their actions in response to the observed state (Section
-5.4).
+policies change their actions in response to the observed state
+(Sections 5.3 and 5.6).
 
 \textbf{O5.} Measure the effect of adding drawdown to the state while
-keeping the other experimental conditions fixed (Section 5.5).
+keeping the other experimental conditions fixed (Section 5.7).
 
 \textbf{O6.} Compare the final learned agents with the benchmark
-strategies over 24 held-out test months, using six independently trained
-random seeds for each configuration (Section 5.6).
+strategies on held-out data, using six independently trained random
+seeds for each configuration (Chapter 5).
 
 \textbf{O7.} Examine whether results change when a different reward
-formula is used (Section 5.7).
+formula is used (Section 5.8).
 
 \textbf{O8.} Build a calibrated market simulator with controlled up,
 down, and flat regimes, retrain all three algorithms on thousands of
-balanced simulated episodes, and evaluate them per regime and on the
-real held-out months (Chapters 3--5).
+balanced simulated episodes, and evaluate them per regime and on 180
+real months that no training or tuning decision ever saw, including the
+2008 financial crisis (Chapters 3--5).
 
 These objectives create a structured way to evaluate both the financial
 performance and the learned behaviour of the three reinforcement
@@ -157,13 +158,15 @@ The study is deliberately narrowed to one asset to make the experiments
 more controlled and easier to analyse.
 
 All experiments use the SPY asset, an exchange-traded fund that tracks
-the S\&P 500 index, with daily data from 2018 to 2025. The data are
-divided chronologically into training (2018--2022), validation (2023),
-and held-out for testing periods (2024--2025). A second, simulated
-dataset is generated from a regime-switching model calibrated on the
-training years alone; it supplies thousands of balanced episodes for the
-controlled study, while the real 2024--2025 months serve as its transfer
-test.
+the S\&P 500 index, with daily data from 2006 to 2025. The pilot study
+uses the 2018--2025 period, divided chronologically into training
+(2018--2022), validation (2023), and held-out testing (2024--2025). The
+main study trains on a simulated dataset generated from a
+regime-switching model calibrated on the 2018--2022 training years
+alone; it supplies thousands of balanced episodes for the controlled
+study, while every real month outside the calibration window ---
+2006--2017 and 2023--2025, 180 months including the 2008 financial
+crisis --- serves as its transfer test.
 
 Each monthly episode starts with \$10,000 of capital and no asset
 holdings, and each transaction to open a position incurs a 0.05\% fee.
@@ -214,12 +217,12 @@ learned network\textquotesingle s internal representations.
 This reveals a difference between algorithms that would not be seen from
 financial return figures alone: all six Deep Q-learning seeds were
 state-dependent, while none of the twelve policy-gradient seeds
-(REINFORCE and PPO) were (Section 5.4).
+(REINFORCE and PPO) were (Section 5.3).
 
-\textbf{3. An explanation for the negative results.}
+\textbf{3. An explanation for the pilot's negative results.}
 
 None of the three learning algorithms outperformed buy-and-hold across
-the 24 held-out test months. The behavioural analysis helps explain this
+the pilot's 24 held-out test months. The behavioural analysis helps explain this
 outcome. The policies that achieved returns closest to the benchmark,
 REINFORCE, generally did so through a fixed pattern of high exposure,
 while the algorithm that did use its state information, Deep Q-learning,
@@ -247,11 +250,14 @@ Retraining the same three algorithms on 3,000 balanced simulated
 episodes, with a smaller network, inverts the real-data ranking. Deep
 Q-learning, the worst method on real data, becomes profitable and
 state-dependent on all six seeds, earning \$126.94 per episode on a
-test set where no fixed trading pattern is profitable, and transferring
-profitably to the real held-out months. The policy-gradient methods
-collapse to fixed corner policies once always-buying stops paying. The
-comparison shows that the real-data failure was a property of 60
-imbalanced training episodes, not of the learning methods.
+test set where no fixed trading pattern is profitable. Transferred
+unchanged to 180 real months, its policies stay profitable on every
+seed and hold zero exposure through October 2008, the worst month of
+the financial crisis, earning a higher risk-adjusted return than
+buy-and-hold over the window. The policy-gradient methods collapse to
+fixed corner policies once always-buying stops paying. The comparison
+shows that the real-data failure was a property of 60 imbalanced
+training episodes, not of the learning methods.
 
 \section{Dissertation Structure}
 
@@ -270,12 +276,12 @@ verification process, trading environment, and the corrections made
 during development.
 
 Chapter 5 presents the experiment results and analyses them in relation
-to the five research questions. It reports the trade-size calibration,
-behavioural analysis, benchmark comparison, state representation and
-reward experiment, and transaction-cost calibration on the real data,
-then diagnoses the data bottleneck behind those results and reports the
-simulated-data study with its controlled per-regime evaluation and
-real-data transfer test.
+to the five research questions. It first reports the real-data pilot and
+diagnoses the data bottleneck behind its negative results. It then
+reports the main study: the controlled per-regime comparison on the
+simulated data, the state, reward, and transaction-cost experiments
+repeated under the corrected data, and the transfer of the trained
+policies to 180 real months including the 2008 crisis.
 
 Finally, Chapter 6 concludes the dissertation by summarising the main
 findings, critically evaluating the work, discussing its limitations and
