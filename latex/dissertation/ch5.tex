@@ -467,12 +467,13 @@ method does not have this failure mode, since epsilon-greedy exploration
 keeps visiting both actions regardless of what the current policy
 prefers.
 
-The single conditioned REINFORCE seed is still informative. It earned
-\$83.13 on the simulated test, keeping \$417.02 of the up-market profit
-while cutting the down-market loss to \$162.11. The desired policy is
-therefore within REINFORCE's reach, but the training process does not
-find it dependably. One seed in six shows that the policy can be
-learned, not that the method learns it reliably.
+One REINFORCE seed did learn a conditioned policy, and its result shows
+what the method could have achieved. It earned \$83.13 on the simulated
+test, keeping \$417.02 of the up-market profit while cutting the
+down-market loss to \$162.11. The desired policy is therefore within
+REINFORCE's reach, but the training process does not find it dependably.
+One seed in six shows that the policy can be learned, not that the
+method learns it reliably.
 
 The comparison so far uses the nine-feature state and the plain
 wealth-change reward. The next three sections repeat the first study's
