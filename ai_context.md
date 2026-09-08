@@ -1,6 +1,8 @@
 # ai_context.md · final submission state
-Last updated: 2026-09-08 (sim-data redo COMPLETE: full suite rerun, 180-month
-real transfer set, Chapter 5 rewritten from scratch)
+Last updated: 2026-09-08 (sim-data redo COMPLETE + examiner-readability pass:
+abstract rewritten, "pilot" renamed "the first study" everywhere, two-study
+design introduced in ch1 before first use, ch3 formulas moved to display
+equations. PDF 114pp, 0 errors.)
 
 Compact state of the project for future AI sessions.
 
