@@ -128,46 +128,40 @@ still allowing rolling features to use historical observations.
 After feature construction, the continuous dataset is divided into
 monthly episodes by calendar month. Months containing fewer than 15
 trading days are excluded from the dataset. After this filtering, the
-dataset is left with 96 monthly episodes.
+2018--2025 dataset is left with 96 monthly episodes.
 
-For the first study, the experimental data are separated into training,
-validation, and testing periods. The split is chronological rather than
-random because the observations form a time series and the aim is to
-apply the learned policies to current markets.
+These 96 episodes are separated chronologically into three periods:
+2018--2022 (60 months), 2023 (12 months), and 2024--2025 (24 months).
+The boundary is chronological rather than random because the
+observations form a time series; shuffling before splitting would let
+future information leak into training~\cite{lopezdeprado2018}, which
+would not reflect how a trading strategy is developed in practice.
 
-Figure 4.1 shows the split.
+This one boundary serves both studies, in different ways. In the first
+study, the three periods play the classic roles: the agents train on the
+60 months of 2018--2022, decisions made during development, such as the
+fixed trading amount, use the 2023 validation months, and the 24 months
+of 2024--2025 are the held-out test, touched once for the final
+evaluation. In the main study, the same boundary decides what the market
+generator of Section 4.3 is allowed to read. Its parameters are
+calibrated on the 60 training months only; simulated episodes take over
+the training and validation roles; and every real month outside the
+calibration window --- 2023--2025 together with the earlier 2006--2017
+months --- is reserved for the transfer test described next. Figure 4.1
+shows both uses side by side.
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.9\textwidth]{media4/media/image1.png}
-  \caption[Chronological split of the 96 monthly episodes (first study)]{Chronological split of the 96 monthly episodes used by the first study: 60 training months, 12 validation months, and 24 held-out test months. The main study trains and validates on simulated episodes instead and uses the real months only for calibration and the transfer test (Sections 4.2.4 and 4.3).}
+  \includegraphics[width=0.95\textwidth]{figs5/fig4_timeline.pdf}
+  \caption[How the two studies use the real SPY months]{How the two studies use the real SPY months. The first study trains, validates, and tests inside 2018--2025 and never touches the earlier years. The main study reads real data only to calibrate the market generator (2018--2022); it trains and validates on simulated episodes, and every other real month --- 2006--2017 and 2023--2025, 180 in total --- becomes its transfer test.}
 \end{figure}
 
-
-The episodes are kept in chronological order within the splits and are
-not randomly shuffled between the three periods. The training set covers
-January 2018 to December 2022 (60 monthly episodes) and is used to learn
-the algorithms' parameters. The validation set covers 2023 (12 months)
-and is used for decisions made during development, such as the fixed
-trading amount. The test set contains the final 24 months, January 2024
-to December 2025, and is kept separate from these decisions for only the
-final evaluation.
-
-Maintaining a chronological split is important for financial data~\cite{lopezdeprado2018}. This
-prevents observations from later periods from entering the training set
-and influencing the model's development. This would not reflect how a
-trading strategy would be developed in practice.
-
-The training period includes most market conditions, including the
-volatility experienced in 2018, the COVID-19 market crash and recovery
-in 2020, and the 2022 downtrend. The 2023 period is used for validation,
-while 2024 and 2025 form the final test period.
-
-The separation between validation and test data is especially important
-for the experiments in Chapter 5. A configuration that performs well on
-the validation period may therefore be selected to examine its
-performance on the held-out test period. The test results are then used
-to compare the learned strategies.
+The 2018--2022 window carries the calibration because it includes most
+market conditions: the volatility of 2018, the COVID-19 crash and
+recovery in 2020, and the 2022 downtrend. Chapter 5 nevertheless shows
+that 60 episodes are far too few to train on directly; the consequences
+of that, and the simulated data that fix it, are the subject of
+Section 4.3.
 
 The processed episodes and their metadata are cached locally so that the
 same dataset can be used consistently across all experiments.
