@@ -211,10 +211,10 @@ depend on its state, Deep Q-learning, earned the least. The diagnosis is
 a data bottleneck. Sixty mostly-rising episodes cannot train networks of
 18,000 parameters beyond memorisation.
 
-The main study removed that constraint. A regime-switching market
-simulator, calibrated on the same training years, generated 3,000
-balanced episodes of rising, falling, and flat markets, and the networks
-were reduced to 2,800 parameters. Under these conditions the ranking
+The main study removed that constraint. A market simulator with three
+controlled conditions --- rising, falling, and flat --- was calibrated
+on the same training years and generated 3,000 balanced episodes, and
+the networks were reduced to 2,800 parameters. Under these conditions the ranking
 inverted. Deep Q-learning earned +\$126.94 per episode, on all six
 seeds, on a balanced test set where no fixed trading pattern is
 profitable, and kept its edge at ten times the assumed transaction fee.
@@ -228,7 +228,7 @@ against 0.198).
 
 The dissertation contributes a verified evaluation framework, a
 behavioural test of whether a policy uses its state, a calibrated market
-simulator for controlled per-regime evaluation, and evidence that the
+simulator for controlled per-condition evaluation, and evidence that the
 amount and balance of training data --- not the choice of algorithm ---
 set the limit on what reinforcement learning can learn in this setting.
 

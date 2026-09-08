@@ -80,7 +80,7 @@ def fig_sim(j: dict) -> None:
     ax1.axhline(0, color="black", lw=0.7)
     ax1.set_xticks(x, [r.capitalize() for r in regimes])
     ax1.set_ylabel("mean wealth change per episode ($)")
-    ax1.set_xlabel("simulated test regime")
+    ax1.set_xlabel("simulated test condition")
     ax1.legend(fontsize=7, frameon=False, ncol=2, loc="lower left")
 
     # Right: per-seed sim vs real transfer.

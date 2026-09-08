@@ -140,7 +140,7 @@ Figure 4.1 shows the split.
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.9\textwidth]{media4/media/image1.png}
-  \caption[Chronological split of the 96 monthly episodes]{Chronological split of the 96 monthly episodes: 60 training months, 12 validation months, and 24 held-out test months.}
+  \caption[Chronological split of the 96 monthly episodes (first study)]{Chronological split of the 96 monthly episodes used by the first study: 60 training months, 12 validation months, and 24 held-out test months. The main study trains and validates on simulated episodes instead and uses the real months only for calibration and the transfer test (Sections 4.2.4 and 4.3).}
 \end{figure}
 
 
@@ -194,7 +194,7 @@ The early window matters most. The 2024--2025 months the first study tested on
 rose almost throughout, so they could never show what a defensive policy
 is for. The 2006--2017 window contains the 2008 financial crisis, the
 2011 correction, and the 2015--16 drawdowns: the real market declines
-that the simulated down regime stands in for. A policy that claims to
+that the simulated down condition stands in for. A policy that claims to
 manage downside risk can now be checked against actual downside months
 that no part of the training or calibration process ever saw.
 
@@ -233,12 +233,12 @@ so the constant answer is what gets learned.
 \subsection{Generator Design}
 
 The generator produces monthly episodes under three \textbf{market
-regimes}: up, down, and flat. One episode is 21 daily bars drawn from a
-single regime, so every test result can be attributed to a known market
-condition.
+conditions}: up, down, and flat. One episode is 21 daily bars drawn from
+a single condition, so every test result can be attributed to a known
+market condition.
 
-Within a regime, daily log-returns are drawn independently from a normal
-distribution with that regime's drift and volatility. High and low
+Within a condition, daily log-returns are drawn independently from a
+normal distribution with that condition's drift and volatility. High and low
 prices extend each day's close-to-close move by random wicks whose size
 is fitted to the real average true range. Volume is drawn from a
 lognormal distribution; only relative volume enters the feature set, so
@@ -263,16 +263,16 @@ The generator's parameters come from the \textbf{real training months
 only}. Each of the 60 real training months is labelled by its return:
 up if it gained more than 2\%, down if it lost more than 2\%, and flat
 otherwise. The daily log-returns of the months in each class are pooled,
-and their mean and standard deviation become that regime's drift and
+and their mean and standard deviation become that condition's drift and
 volatility. The wick size is fitted so the generated average true range
-matches the real per-regime mean. Table 4.1 shows the fitted values.
+matches the real per-condition mean. Table 4.1 shows the fitted values.
 
 \begin{table}[!htb]
 \centering
 \caption{Generator parameters fitted on the 60 real training months.}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Regime} & \textbf{Months} & \textbf{Daily drift} &
+\textbf{Condition} & \textbf{Months} & \textbf{Daily drift} &
 \textbf{Daily volatility} & \textbf{Mean ATR/close} \\
 \midrule
 Up   & 29 & \(+0.244\%\) & \(0.967\%\) & \(1.38\%\) \\
@@ -285,7 +285,7 @@ Flat & 15 & \(+0.012\%\) & \(1.095\%\) & \(1.25\%\) \\
 The fitted values behave as market data should. Down months carry twice
 the volatility of up months, which is the volatility clustering seen in
 real crashes. As a calibration check, the generated episodes reproduce
-the target average true range to within 4\% in every regime. The real
+the target average true range to within 4\% in every condition. The real
 validation and test months are never read by the generator, so the
 transfer test in Chapter 5 stays untouched by any generation decision.
 
@@ -301,7 +301,8 @@ volume problem: 3,000 episodes of 20 decisions each give 60,000
 transitions per pass over the data, against 1,200 for the real training
 split. Second, the distribution problem: train and test are now drawn
 from the same distribution by construction, so a policy that fails on
-the test episodes cannot blame a regime shift between the periods.
+the test episodes cannot blame a change in market conditions between the
+periods.
 
 The balance also removes the constant-answer shortcut. An agent that
 always buys earns well in the up third, loses more in the down third,
@@ -367,7 +368,7 @@ settings are fixed for testing.
 The final evaluation is run once, on data that made no configuration
 decision. For the first study this is the held-out real months from January
 2024 to December 2025. For the main study it is the 600 simulated test
-episodes, reported per market regime, together with the 180 real
+episodes, reported per market condition, together with the 180 real
 transfer months described in Section 4.2. This ensures that results
 provide an independent assessment of the methods.
 

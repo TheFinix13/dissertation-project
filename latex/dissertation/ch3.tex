@@ -271,7 +271,7 @@ caused weaker market conditions.
 Older data, from 2006 to 2017, is used differently: as evaluation-only
 transfer data for the main study. Because no agent trains on it and no
 design decision reads it, market conditions that differ from the
-training period --- older microstructure, different fee regimes, and
+training period --- older microstructure, different fee structures, and
 above all the 2008 financial crisis --- become an asset rather than a
 contamination risk. They test how well policies trained on recent,
 calibrated conditions generalise to markets they have never seen.
@@ -286,22 +286,22 @@ standard pattern in reinforcement learning: when real experience is
 scarce, generate experience from a model of the task and keep the real
 data for a final test~\cite{silver2016}.
 
-The simulated market has three \textbf{regimes}: up, down, and flat. An
-episode is a sequence of 21 daily bars drawn entirely from one regime
-\(m\). Within the regime, daily log-returns are independent draws from a
-normal distribution,
+The simulated market has three \textbf{market conditions}: up, down, and
+flat. An episode is a sequence of 21 daily bars drawn entirely from one
+condition \(m\). Within the condition, daily log-returns are independent
+draws from a normal distribution,
 
 \[r_{t} = \ln\frac{P_{t}}{P_{t - 1}} \sim \mathcal{N}\left( \mu_{m},\sigma_{m}^{2} \right),\]
 
 so the price follows a geometric random walk whose drift \(\mu_{m}\) and
-volatility \(\sigma_{m}\) belong to the regime. High and low prices
+volatility \(\sigma_{m}\) belong to the condition. High and low prices
 extend each day's move by random wicks sized to match the real average
 true range, and volume is drawn from a lognormal distribution. The
-regime parameters are estimated from the real training months only;
-Chapter 4 reports the fitted values.
+parameters of each condition are estimated from the real training months
+only; Chapter 4 reports the fitted values.
 
 The model is deliberately the simplest one that supports a controlled
-experiment. Because the generator's regime is known for every episode,
+experiment. Because the generator's condition is known for every episode,
 the evaluation can report how a policy behaves in rising, falling, and
 flat markets separately, which no historical test period can guarantee
 to provide. Because episodes are generated, the training set can be as
@@ -311,8 +311,8 @@ assumption of Section 3.2.2, which is a simplification for real months,
 holds exactly in simulation.
 
 The cost of this simplicity is realism. Real returns are not
-independent across days, volatility clusters within months, and regimes
-change mid-month. A policy trained on the simulated market therefore
+independent across days, volatility clusters within months, and market
+conditions change mid-month. A policy trained on the simulated market therefore
 faces a domain gap when applied to real data, and Chapter 5 measures
 that gap directly by evaluating the simulation-trained agents on the
 real held-out months.

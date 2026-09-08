@@ -40,7 +40,7 @@ were negative, and Section 5.4 shows that the negative results share one
 cause: 60 episodes cannot train networks of this size. The \textbf{main
 study} corrects this. The agents are trained on 3,000 balanced simulated
 episodes from the generator of Chapter 4, evaluated under controlled
-market regimes, and finally transferred, unchanged, to 180 real months
+market conditions, and finally transferred, unchanged, to 180 real months
 that include the 2008 financial crisis. Every experimental question the
 first study asked is asked again in the main study, under data that can
 support an answer.
@@ -294,7 +294,7 @@ the problem. Testing it needs a setting where the number of episodes,
 the balance of market conditions, and the match between training and
 test distributions are all controlled. That is what the main study
 provides: 3,000 balanced simulated episodes, a network shrunk from
-18,000 parameters to 2,800, and controlled per-regime testing, with the
+18,000 parameters to 2,800, and controlled per-condition testing, with the
 real months kept back as a final transfer test. The remainder of this
 chapter reports it, repeating each of its experiments under the corrected
 data.
@@ -359,15 +359,16 @@ first sign of the property the simulated data was built for: no fixed
 trading pattern is profitable on balanced data. The main comparison
 makes that property do its work.
 
-\section{Main Results: The Controlled Regime Comparison}
+\section{Main Results: The Controlled Comparison Across Market
+Conditions}
 
 This section reports the central experiment of the dissertation: the
 three algorithms trained on the 3,000 balanced simulated episodes and
-evaluated on 600 fresh episodes, 200 in each market regime. Six seeds
+evaluated on 600 fresh episodes, 200 in each market condition. Six seeds
 per algorithm, 300,000 steps each, with the pyramid network of about
 2,800 parameters.
 
-\subsection{Benchmarks Under Balanced Regimes}
+\subsection{Benchmarks Under Balanced Conditions}
 
 The balanced test set changes what the two benchmarks earn, and this
 change is the point of the design. Buy-and-hold now loses \$60.29 per
@@ -382,7 +383,7 @@ On the first study's real test months, buying and holding earned \$180.25
 because the period only rose. On the balanced episodes, no fixed pattern
 is profitable: constant buying loses money and abstaining earns nothing.
 Any agent that earns money here must be reading its observations and
-behaving differently in different regimes. The benchmarks are no longer
+behaving differently in different conditions. The benchmarks are no longer
 a wall to climb; they are a test of whether the agent conditions on its
 state.
 
@@ -394,9 +395,9 @@ strategy, learned or fixed, lost money or broke even on the balanced
 test set. All six DQN seeds were classified as state-dependent, and all
 six were profitable. Table 5.3 summarises the study.
 
-\addcontentsline{lot}{table}{\protect\numberline{5.3}{Main study: mean wealth change per episode on the 600 balanced test episodes, per-regime means, and the mean over the 180-month real transfer set.}}
+\addcontentsline{lot}{table}{\protect\numberline{5.3}{Main study: mean wealth change per episode on the 600 balanced test episodes, per-condition means, and the mean over the 180-month real transfer set.}}
 \emph{Table 5.3: Main study: mean wealth change (\$) per episode on the
-600 balanced test episodes, per-regime means, and the mean over the
+600 balanced test episodes, per-condition means, and the mean over the
 180-month real transfer set (Section 5.10). Mean and standard deviation
 are across six seeds.}
 
@@ -417,21 +418,21 @@ Always-buy (\(0.25C_{0}\)) & \(-58.70\) & --- & \(+477.22\) & \(-663.91\) & \(+1
 \end{longtable}
 }
 
-The per-regime columns show what the Deep Q-learning agents actually
+The per-condition columns show what the Deep Q-learning agents actually
 learned. In up episodes they earn \$473.72 of the \$477.22 that
 always-buying earns, so they capture 99\% of the available upside. In
 down episodes they lose \$103.35 where always-buying loses \$663.91, an
 84\% reduction in the loss. In flat episodes they roughly match the
 market. That is the state-dependent behaviour the first study looked
 for and could not find: stay invested while the market rises, step aside
-while it falls. Figure 5.2 shows both views: the per-regime means on the
+while it falls. Figure 5.2 shows both views: the per-condition means on the
 left, and every seed's simulated result against its real transfer result
 on the right.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.98\textwidth]{figs5/fig5_sim.pdf}
-  \caption[Main study: per-regime results and real-data transfer.]{Main study. Left: mean wealth change per episode by test regime for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-regime profit while cutting the down-regime loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the never-trade origin or the always-buy corner.}
+  \caption[Main study: per-condition results and real-data transfer.]{Main study. Left: mean wealth change per episode by test condition for each algorithm and for always-buy. Deep Q-learning keeps almost all of the up-market profit while cutting the down-market loss by 84\%. Right: each seed's simulated test result against its real transfer result; filled markers are state-dependent seeds, hollow markers are mask-only seeds. All six Deep Q-learning seeds cluster in the profitable upper-right; the policy-gradient seeds sit at the never-trade origin or the always-buy corner.}
 \end{figure}
 
 \subsection{The Policy-Gradient Methods Collapse to Corners}
@@ -453,8 +454,8 @@ keeps visiting both actions regardless of what the current policy
 prefers.
 
 The single conditioned REINFORCE seed matters, though. It earned
-\$83.13 on the simulated test, keeping \$417.02 of the up-regime profit
-while cutting the down-regime loss to \$162.11. The policy the study
+\$83.13 on the simulated test, keeping \$417.02 of the up-market profit
+while cutting the down-market loss to \$162.11. The policy the study
 wants is therefore inside REINFORCE's reach; the training process just
 does not find it dependably. One seed in six is an existence proof, not
 a method.
@@ -510,7 +511,7 @@ For Deep Q-learning, the first study's conclusion survives the correction.
 Adding drawdown moves the mean from +\$126.94 to +\$131.31, a change of
 +\$4.37 against a seed standard deviation near \$7, and every behavioural
 measure stays put: six of six seeds state-dependent, similar exposure,
-similar trading rate, and a slightly smaller down-regime loss (\(-\$87.28\)
+similar trading rate, and a slightly smaller down-market loss (\(-\$87.28\)
 against \(-\$103.35\)). The extra feature neither helps nor hurts an
 agent whose objective gives it no reason to use its loss history. This
 matches the principle the first study suggested: information in the state
@@ -614,7 +615,7 @@ the simulated test episodes, ten-feature state, six seeds.}
 \begin{longtable}[]{@{}llrrrrrr@{}}
 \toprule\noalign{}
 \textbf{Algorithm} & \textbf{Reward} & \textbf{ΔW (\$)} &
-\textbf{Exposure} & \textbf{DD} & \textbf{Sharpe} & \textbf{Down regime}
+\textbf{Exposure} & \textbf{DD} & \textbf{Sharpe} & \textbf{Down condition}
 & \textbf{Real} \\
 \midrule\noalign{}
 \endhead
@@ -637,9 +638,9 @@ the simulated test episodes, ten-feature state, six seeds.}
 For Deep Q-learning, the risk-aware reward now does what it was designed
 to do. The mean return is essentially unchanged (+\$129.38 against
 +\$131.31, a 1.5\% difference), while drawdown falls 31\% and the Sharpe
-ratio rises from 0.285 to 0.332. The per-regime columns show where the
-improvement comes from: the down-regime loss shrinks from \(-\$87.28\)
-to \(-\$23.26\), a 73\% reduction, while the up-regime gain keeps 87\%
+ratio rises from 0.285 to 0.332. The per-condition columns show where the
+improvement comes from: the down-market loss shrinks from \(-\$87.28\)
+to \(-\$23.26\), a 73\% reduction, while the up-market gain keeps 87\%
 of its size (\(+\$411.01\) against \(+\$470.01\)). The agent did not
 simply hold less of the asset; it held less of the asset \emph{when the
 market was falling}. This is precisely the selective risk management the
@@ -721,7 +722,7 @@ give it no free upward drift to hide the cost). The agent's edge does
 not depend on the optimistic fee assumption.
 
 The trading columns explain why. The Deep Q agents make about five
-trades per episode, and those trades are regime-selective: entering when
+trades per episode, and those trades are condition-selective: entering when
 the features say the market is rising, exiting when they say it is
 falling. Each trade is worth far more than even a punitive fee, so the
 agents keep trading --- the rate falls only from 5.5 to 3.7 --- and keep
@@ -748,7 +749,7 @@ real SPY month from 2006 to 2017 and from 2023 to 2025, excluding only
 the 2018--2022 calibration window. No agent, and no tuning decision,
 ever saw any of these months. The window includes the 2008 financial
 crisis, the 2011 correction, and the 2015--16 drawdowns, so it tests
-exactly the conditions the simulated down regime stands in for.
+exactly the conditions the simulated down condition stands in for.
 
 \subsection{Overall Transfer Results}
 
@@ -798,7 +799,7 @@ Q-learning agents held \textbf{zero exposure for the entire month} and
 lost nothing. None of them had ever seen October 2008, or any real
 month: their training data was simulated, and their calibration months
 (2018--2022) lie a decade later. The agents stepped aside because the
-month's volatility features matched the simulated down regime they had
+month's volatility features matched the simulated down condition they had
 learned to avoid.
 
 The same pattern holds across the crisis. From September 2008 to March
@@ -838,8 +839,8 @@ transfers: the agents reduce exposure in real declines exactly as they
 learned to do in simulated ones. Third, precision does not fully
 transfer: the agents' timing around real turning points is imperfect ---
 sitting out the December 2008 and March 2009 rebounds is the clearest
-case --- because real regime changes announce themselves less cleanly
-than the generator's fixed regimes.
+case --- because real markets change condition less cleanly than the
+generator's fixed ones.
 
 The algorithm ordering on real data matches the simulated ordering
 (Deep Q, then REINFORCE, then PPO), which is further evidence that the
@@ -914,7 +915,7 @@ engineering and objective design are not separate questions.
 
 The first study concluded that the drawdown penalty was a participation tax.
 The main study shows that with reliable value estimates the same penalty
-produces exactly the intended behaviour: a 73\% smaller down-regime loss
+produces exactly the intended behaviour: a 73\% smaller down-market loss
 at a 1.5\% cost in mean return. Both studies agree on the failure mode
 --- past a threshold weight, abstention becomes the best reply and
 exposure collapses --- but the corrected study locates the threshold
@@ -929,7 +930,7 @@ risk-trained ones.
 The fee sweep separates marginal edges from robust ones. The first study's
 agents, trading on noisy estimates, lost most of their activity and
 profit as fees rose. The main study's Deep Q agents remain profitable at
-a fee ten times the headline assumption, because regime-selective trades
+a fee ten times the headline assumption, because condition-selective trades
 are worth far more than they cost. An edge that survives a tenfold cost
 increase is unlikely to be an artefact of the cost assumption.
 
@@ -957,7 +958,7 @@ too noisy to pay.
 
 Given enough balanced data, they can. Deep Q-learning earned money on a
 test set where every fixed strategy loses, did so on all six seeds,
-behaved correctly in each controlled regime, kept its edge under
+behaved correctly in each controlled condition, kept its edge under
 punitive transaction costs, used the risk-aware reward as designed, and
 transferred its behaviour to two decades of real months --- including
 stepping fully out of the market through the worst of the 2008 crisis
@@ -986,7 +987,7 @@ trading pattern is profitable, on all six seeds, capturing 99\% of the
 rising-market profit and cutting the falling-market loss by 84\%. The
 trade-size rule re-selected \(0.25C_{0}\); the drawdown feature again
 changed nothing under the wealth objective; the risk-aware reward, which
-had only reduced participation in the first study, now cut down-regime losses
+had only reduced participation in the first study, now cut down-market losses
 by 73\% at almost no cost in return; and the learned edge survived a
 tenfold fee increase. Transferred unchanged to 180 real months, the
 policies stayed profitable on every seed, held zero exposure through

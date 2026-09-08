@@ -35,7 +35,8 @@ methods responded to changes in transaction costs.
 The real-data results then motivated a second study. The failures of the
 first were diagnosed as a data problem: 60 training episodes cannot
 train networks of 18,000 parameters to do anything except memorise. A
-regime-switching market simulator was calibrated on the training years,
+market simulator with three controlled conditions --- up, down, and flat
+--- was calibrated on the training years,
 3,000 balanced episodes were generated, the network was reduced to about
 2,800 parameters, and all three algorithms were retrained and evaluated
 under controlled rising, falling, and flat conditions. The trained
@@ -146,9 +147,9 @@ The main study overturns that conclusion. With \(\lambda = 0.25\),
 selected on the simulated validation episodes by the same rule, Deep
 Q-learning kept its return almost unchanged (+\$129.38 against +\$131.31
 per episode) while cutting drawdown by 31\% and raising its Sharpe ratio
-from 0.285 to 0.332. The per-regime results show the improvement is
-selective, not proportional: the down-regime loss fell 73\% while the
-up-regime gain kept 87\% of its size. The agent reduced its holdings
+from 0.285 to 0.332. The per-condition results show the improvement is
+selective, not proportional: the down-market loss fell 73\% while the
+up-market gain kept 87\% of its size. The agent reduced its holdings
 when the market fell, which is exactly the behaviour the reward was
 designed to produce.
 
@@ -173,7 +174,7 @@ the behaviour. The simulated-data study answers yes to both.
 On 3,000 balanced simulated episodes, Deep Q-learning earned +\$126.94
 per episode across six seeds (standard deviation \$7.30) on a test set
 where buy-and-hold loses \$60.29 and doing nothing earns \$0.00. All six
-seeds were profitable and all six were state-dependent. The per-regime
+seeds were profitable and all six were state-dependent. The per-condition
 results show the behaviour the real-data study looked for: the agents
 captured 99\% of the profit available in rising episodes and cut the
 falling-episode loss by 84\% relative to always buying. The same
@@ -292,16 +293,17 @@ without further testing.
 \subsection{Simulator realism and the domain gap}
 
 The market generator draws each day's return independently within a
-regime. Real returns are not independent: volatility clusters, trends
-persist, and regimes change mid-month. The generator also holds one
-regime for a whole episode, so the agents never face a mid-month crash.
+condition. Real returns are not independent: volatility clusters, trends
+persist, and market conditions change mid-month. The generator also holds
+one condition for a whole episode, so the agents never face a mid-month
+crash.
 These simplifications are the price of a controlled experiment, and the
 transfer test measures their cost directly: the Deep Q-learning agents
 kept roughly three-quarters of buy-and-hold's return over the 180 real
 transfer months while being trained on simulated data alone, and their
 timing around real turning points was imperfect --- they sat out the
-December 2008 and March 2009 rebounds because real regime changes
-announce themselves less cleanly than the generator's fixed regimes.
+December 2008 and March 2009 rebounds because real markets change
+condition less cleanly than the generator's fixed ones.
 Conclusions about absolute profitability on real markets should
 therefore rest on the transfer numbers, not the simulated ones.
 
@@ -394,9 +396,9 @@ alongside performance improvements.
 
 The simulated-data study used the simplest generator that supports a
 controlled experiment. The natural next step is a generator that keeps
-the control but adds the structure the current one omits: regime
-switches within an episode, driven by a hidden Markov chain, and
-volatility clustering within a regime. Learned generators such as
+the control but adds the structure the current one omits: changes of
+market condition within an episode, driven by a hidden Markov chain, and
+volatility clustering within a condition. Learned generators such as
 time-series GANs offer more realism again, at the cost of transparency.
 Each step up in realism should shrink the domain gap that the transfer
 test measures, and the transfer test itself provides the yardstick for
@@ -411,8 +413,8 @@ recalibrated and the agents retrained as conditions change, would test
 whether the approach holds up as an operating procedure rather than as
 a one-shot experiment. Extending the evaluation to other index funds,
 individual stocks, or non-equity assets would test whether the learned
-regime response is specific to SPY's statistics or carries across
-markets.
+response to market conditions is specific to SPY's statistics or carries
+across markets.
 
 \subsection{Predictive and Uncertainty-Aware State Information}
 

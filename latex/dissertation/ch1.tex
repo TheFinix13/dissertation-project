@@ -162,8 +162,8 @@ seeds for each configuration (Chapter 5).
 formula is used (Section 5.8).
 
 \textbf{O8.} Build a calibrated market simulator with controlled up,
-down, and flat regimes, retrain all three algorithms on thousands of
-balanced simulated episodes, and evaluate them per regime and on 180
+down, and flat conditions, retrain all three algorithms on thousands of
+balanced simulated episodes, and evaluate them per condition and on 180
 real months that no training or tuning decision ever saw, including the
 2008 financial crisis (Chapters 3--5).
 
@@ -180,9 +180,9 @@ All experiments use the SPY asset, an exchange-traded fund that tracks
 the S\&P 500 index, with daily data from 2006 to 2025. The first study
 uses the 2018--2025 period, divided chronologically into training
 (2018--2022), validation (2023), and held-out testing (2024--2025). The
-main study trains on a simulated dataset generated from a
-regime-switching model calibrated on the 2018--2022 training years
-alone; it supplies thousands of balanced episodes for the controlled
+main study trains on a simulated dataset generated from a market model
+with up, down, and flat conditions, calibrated on the 2018--2022
+training years alone; it supplies thousands of balanced episodes for the controlled
 study, while every real month outside the calibration window ---
 2006--2017 and 2023--2025, 180 months including the 2008 financial
 crisis --- serves as its transfer test.
@@ -255,9 +255,9 @@ costs supports it as a finding rather than a failure.
 
 \textbf{4. A calibrated market simulator for controlled evaluation.}
 
-The study builds a regime-switching market generator whose drift,
-volatility, and intraday range are fitted on the real training years
-alone. The generator supplies thousands of balanced training episodes
+The study builds a market generator with three controlled conditions ---
+up, down, and flat --- whose drift, volatility, and intraday range are
+fitted on the real training years alone. The generator supplies thousands of balanced training episodes
 and, more importantly, labelled test conditions: every test episode is
 known to be a rising, falling, or flat market, so the evaluation can
 state how each agent behaves in each condition rather than in whatever
@@ -297,7 +297,7 @@ during development.
 Chapter 5 presents the experiment results and analyses them in relation
 to the five research questions. It reports the first study and diagnoses
 the data bottleneck behind its negative results. It then reports the
-main study: the controlled per-regime comparison on the simulated data,
+main study: the controlled per-condition comparison on the simulated data,
 the state, reward, and transaction-cost experiments repeated under the
 corrected data, and the transfer of the trained policies to 180 real
 months including the 2008 crisis.
