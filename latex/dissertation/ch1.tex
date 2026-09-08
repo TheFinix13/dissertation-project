@@ -140,32 +140,35 @@ using monthly episodes, transaction fees, and action masking, and verify
 the environment (Chapter 4).
 
 \textbf{O2.} Implement REINFORCE, DQN, and PPO and verify their
-implementations before running the main trading experiments (Chapters 3
+implementations before running the trading experiments (Chapters 3
 and 4).
 
-\textbf{O3.} Calibrate the fixed trade size on validation data so the
-agents' exposure to the market is not limited, providing a fair
-comparison to the buy-and-hold benchmark (Section 5.5).
+\textbf{O3.} Carry out the first study: train the three algorithms on
+the real training months, compare them with the benchmark strategies on
+held-out months using six independently trained seeds, and apply
+behavioural analysis to determine whether the learned policies change
+their actions in response to the observed state (Section 5.3).
 
-\textbf{O4.} Apply behavioural analysis to determine whether the learned
-policies change their actions in response to the observed state
-(Sections 5.3 and 5.6).
+\textbf{O4.} Diagnose the negative results of the first study and trace
+them to the size and balance of the training data (Section 5.4).
 
-\textbf{O5.} Measure the effect of adding drawdown to the state while
-keeping the other experimental conditions fixed (Section 5.7).
+\textbf{O5.} Build a market simulator with controlled up, down, and
+flat conditions, calibrated on the real training months only, and
+generate thousands of balanced simulated episodes (Section 4.3).
 
-\textbf{O6.} Compare the final learned agents with the benchmark
-strategies on held-out data, using six independently trained random
-seeds for each configuration (Chapter 5).
+\textbf{O6.} Retrain the three algorithms on the simulated episodes and
+evaluate them against the benchmark strategies in each market
+condition, using the same behavioural analysis and the same six-seed
+protocol (Section 5.6).
 
-\textbf{O7.} Examine whether results change when a different reward
-formula is used (Section 5.8).
+\textbf{O7.} Repeat the supporting experiments under the corrected
+data: the trade-size calibration, the drawdown state feature, the
+risk-aware reward, and the transaction-fee sensitivity (Sections 5.5,
+5.7, 5.8, and 5.9).
 
-\textbf{O8.} Build a calibrated market simulator with controlled up,
-down, and flat conditions, retrain all three algorithms on thousands of
-balanced simulated episodes, and evaluate them per condition and on 180
-real months that no training or tuning decision ever saw, including the
-2008 financial crisis (Chapters 3--5).
+\textbf{O8.} Test the trained policies, unchanged, on 180 real months
+that no training or tuning decision ever saw, including the 2008
+financial crisis (Section 5.10).
 
 These objectives create a structured way to evaluate both the financial
 performance and the learned behaviour of the three reinforcement

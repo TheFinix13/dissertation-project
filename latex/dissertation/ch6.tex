@@ -138,7 +138,7 @@ drawdown, the drawdown feature earned its place.
 The fourth question considered whether adding drawdown into the reward
 could encourage the agents to reduce losses and generate a more
 risk-aware behaviour. This is the question on which the two studies
-disagree, and the disagreement is itself the finding.
+disagree, and the disagreement is informative in its own right.
 
 In the first study, the risk-aware reward reduced drawdown mainly by reducing
 market participation. With the selected penalty of \(\lambda = 0.10\),
@@ -385,7 +385,8 @@ weight, but the sweep in Section 5.8 also shows the failure mode is
 still there: one grid step past the selected weight, exposure collapses
 and the agents leave the market. The penalty's usefulness therefore
 depends on a calibration that the study performed on validation data; a
-reward whose optimum did not sit next to a cliff would be more robust.
+reward whose optimum did not sit next to a collapse point would be more
+robust.
 
 \section{Future Work}
 
@@ -395,7 +396,7 @@ in the experiments. The behavioural analysis should also be applied to
 these future works to determine the agent's behaviour to changes
 alongside performance improvements.
 
-\subsection{More Realistic Market Generators}
+\subsection{Realistic Market Generators}
 
 The simulated-data study used the simplest generator that supports a
 controlled experiment. The natural next step is a generator that keeps
@@ -437,8 +438,9 @@ market understanding and trading decisions.
 The most direct refinement of the drawdown penalty would be a reward
 that considers return relative to risk, such as a Sharpe-based or
 drawdown-relative objective~\cite{moody2001}. Two results motivate
-this. The penalty sweep in Section 5.8 shows a cliff one step past the
-selected weight, where reducing exposure to zero becomes the best reply;
+this. The penalty sweep in Section 5.8 shows a collapse one step past
+the selected weight, where reducing exposure to zero becomes the best
+reply;
 a risk-relative objective would remove abstention as a way of scoring
 well. And the transfer results show the risk-trained agents giving up
 more return for downside protection than the real market's declines

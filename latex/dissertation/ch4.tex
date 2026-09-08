@@ -81,7 +81,7 @@ of a month should still use data from previous months and should not
 restart simply because the environment starts a new monthly episode.
 
 Calculating these features only in each monthly episode would mean that
-the first few days of every month can't access or use data from the
+the first few days of every month cannot access or use data from the
 previous month. This would artificially shorten that feature's
 historical window at the beginning of the experiment.
 
@@ -230,35 +230,36 @@ so the constant answer is what gets learned.
 \subsection{Generator Design}
 
 The generator creates monthly episodes under three controlled market
-conditions: up, down, and flat. Each episode contains 21 daily bars
-generated from one condition only. This makes it possible to evaluate
-how an agent behaves when the overall market is rising, falling, or
-moving sideways.
+conditions: up, down, and flat. Each episode contains 21 daily bars,
+and all of them are generated from one condition only. This means that
+every simulated episode is labelled with the condition that produced
+it, so the evaluation can state exactly how an agent behaves when the
+overall market is rising, falling, or moving sideways.
 
-For each condition, daily log-returns are sampled independently from a
-normal distribution with a specified drift and volatility. The daily
-high and low prices are then created by adding random wicks to the
-close-to-close movement. The size of these wicks is based on the average
-true range observed in the real data. Volume is generated from a
-lognormal distribution. Since the feature set uses relative rather than
-absolute volume, the exact scale of the generated volume is not
-important.
+For each condition, the daily log-returns are sampled independently
+from a normal distribution with that condition's drift and volatility.
+The daily high and low prices are then created by adding random wicks
+to the close-to-close movement, and the size of these wicks is based on
+the average true range observed in the real data. Volume is generated
+from a lognormal distribution. Since the feature set only uses relative
+volume, the exact scale of the generated volume does not affect the
+observations.
 
-The generated data is passed through the same feature pipeline used for
-the real SPY data. A 21-bar warm-up period is generated before each
-episode so that rolling features can be calculated before the first
-episode day. These warm-up bars are then removed, matching the way the
-real pipeline uses its 2017 data to initialise rolling features before
+The generated data is passed through the same feature pipeline as the
+real SPY data. A 21-bar warm-up period is generated before each episode
+so that the rolling features can be calculated before the first episode
+day. These warm-up bars are then removed, in the same way that the real
+pipeline uses its 2017 data to initialise the rolling features before
 discarding it.
 
-The generator is intentionally simple. More complex approaches,
-including hidden Markov models~\cite{rabiner1989} and adversarial
-time-series generators~\cite{yoon2019timegan}, can produce more
-realistic financial time series. However, realism is not the main
-purpose of this experiment. The aim is to control the market condition
-so that the behaviour of each agent can be examined separately in
-rising, falling, and sideways markets. Knowing the condition of every
-generated episode makes this comparison possible.
+The generator is intentionally simple. More complex approaches, such as
+hidden Markov models~\cite{rabiner1989} and adversarial time-series
+generators~\cite{yoon2019timegan}, can produce more realistic financial
+time series. However, realism is not the main purpose of this
+experiment. The purpose is to control the market condition, so that the
+behaviour of each agent can be examined separately in rising, falling,
+and sideways markets. This comparison is only possible when the
+condition of every generated episode is known.
 
 \subsection{Calibration}
 

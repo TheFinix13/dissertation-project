@@ -198,7 +198,7 @@ open-source library. Each agent trades the S\&P 500 exchange-traded fund
 (SPY) in monthly episodes with transaction fees, action masking, and a
 trade size calibrated on validation data. Every configuration is trained
 with six random seeds, and every experimental decision is made on
-validation data before the test data is touched.
+validation data before the test data is used.
 
 The work consists of two studies. The first trained the agents on real
 daily data alone: 60 monthly episodes from 2018--2022, tested on
@@ -207,8 +207,8 @@ month. A behavioural analysis showed why the returns could not be
 trusted: the two policy-gradient methods earned their returns from fixed
 always-buy patterns that never responded to market information, on
 twelve seeds out of twelve, while the only method whose actions did
-depend on its state, Deep Q-learning, earned the least. The diagnosis is
-a data bottleneck. Sixty mostly-rising episodes cannot train networks of
+depend on its state, Deep Q-learning, earned the least. The cause is a
+data bottleneck: 60 mostly-rising episodes cannot train networks of
 18,000 parameters beyond memorisation.
 
 The main study removed that constraint. A market simulator with three
@@ -217,7 +217,7 @@ on the same training years and generated 3,000 balanced episodes, and
 the networks were reduced to 2,800 parameters. Under these conditions the ranking
 inverted. Deep Q-learning earned +\$126.94 per episode, on all six
 seeds, on a balanced test set where no fixed trading pattern is
-profitable, and kept its edge at ten times the assumed transaction fee.
+profitable, and remained profitable at ten times the assumed transaction fee.
 The risk-aware reward, which had only suppressed trading in the first
 study, now cut falling-market losses by 73\% at a 1.5\% cost in mean
 return. Transferred unchanged to 180 real months that no training or

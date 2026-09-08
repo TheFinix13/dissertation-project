@@ -220,7 +220,7 @@ final configuration, six seeds each.}
 \end{longtable}
 }
 
-The headline is negative: no learned agent beat buy-and-hold's +\$180.25
+The main result is negative: no learned agent beat buy-and-hold's +\$180.25
 per month. REINFORCE came closest at +\$171.51, PPO earned +\$127.35,
 and Deep Q-learning earned +\$74.68. Always-buy at \(0.25C_{0}\),
 which needs no market information at all, earned +\$179.75 --- within
@@ -240,7 +240,7 @@ the corners, and only the Deep Q seeds lie between them.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{media4/media/image4.png}
-  \caption[First study: behaviour of each seed.]{First study: behaviour of each seed on the validation months. Hollow-marker seeds show actions that don't depend on their state information; filled-marker seeds are state-dependent ones. Policy-gradient methods (REINFORCE, PPO) cluster at high exposure or collapse towards zero, while all six Deep Q-learning seeds fall between those corners.}
+  \caption[First study: behaviour of each seed.]{First study: behaviour of each seed on the validation months. Hollow-marker seeds show actions that do not depend on their state information; filled-marker seeds are state-dependent ones. Policy-gradient methods (REINFORCE, PPO) cluster at high exposure or collapse towards zero, while all six Deep Q-learning seeds fall between those corners.}
 \end{figure}
 
 The remaining first-study experiments reinforced the same picture, and three
@@ -264,10 +264,10 @@ average of 0.312, and lost \$184.04 --- about the same one-third scaling
 of the benchmark it showed everywhere else. Its lower drawdown came from
 holding less overall, not from recognising when to step aside.
 
-The first study therefore ends with a puzzle. The only method that
-demonstrably used its state earned the least, and the methods that
-ignored their state earned the most. The next section resolves the
-puzzle.
+The first study therefore ends with a contradiction. The only method
+that demonstrably used its state earned the least, and the methods that
+ignored their state earned the most. The next section explains where
+this contradiction comes from.
 
 \section{The Data Bottleneck}
 
@@ -277,10 +277,10 @@ data the agents were given.
 
 The training split contains 60 monthly episodes. The first study's networks
 have more than 18,000 trainable parameters. A model with that much
-capacity can reproduce 60 training months exactly, the way a student who
-memorises 60 practice problems scores perfectly on those problems and
-then fails a fresh exam. Nothing forces the network to learn a rule that
-transfers, because memorising the answers is cheaper.
+capacity can reproduce 60 training months exactly, in the same way that
+a student who memorises 60 practice problems scores perfectly on those
+problems and still fails a new exam. Nothing forces the network to learn
+a rule that transfers, because memorising the answers is easier.
 
 The training months are also imbalanced. Of the 60 months, 29 rose by
 more than 2\% and only 16 fell by more than 2\%, and the test
@@ -317,8 +317,9 @@ calibrated it on the 2023 months. The trade size matters because each
 Buy commits a fixed fraction of initial capital, so the size sets a hard
 ceiling on the exposure an agent can reach within a 21-bar episode. A
 policy judged against buy-and-hold must first be able to reach
-buy-and-hold's exposure in principle; otherwise a poor result reports
-arithmetic, not learning.
+buy-and-hold's exposure in principle; otherwise a poor result would only
+reflect the exposure limit rather than the quality of the learned
+policy.
 
 The calibration needs no training. For each candidate size, a policy
 that buys whenever buying is valid measures the highest exposure that
@@ -361,13 +362,13 @@ every experiment that follows. The \(0.10C_{0}\) size again cannot reach
 the target even in principle, and \(0.50C_{0}\) adds little ceiling
 while halving the agent's control over position changes.
 
-One column of the first study's version of this table is gone deliberately.
-On the balanced validation episodes, the wealth change of the always-buy
-policy is close to zero at every size (buy-and-hold itself earns only
-+\$5.66), so return no longer separates the candidates. This is the
-first sign of the property the simulated data was built for: no fixed
-trading pattern is profitable on balanced data. The main comparison
-makes that property do its work.
+One column from the first study's version of this table is deliberately
+not repeated. On the balanced validation episodes, the wealth change of
+the always-buy policy is close to zero at every size (buy-and-hold
+itself earns only +\$5.66), so return no longer separates the
+candidates. This is the first sign of the property the simulated data
+was built for: no fixed trading pattern is profitable on balanced data.
+The main comparison relies on this property.
 
 \section{Main Results: The Controlled Comparison Across Market
 Conditions}
@@ -381,7 +382,7 @@ per algorithm, 300,000 steps each, with the pyramid network of about
 \subsection{Benchmarks Under Balanced Conditions}
 
 The balanced test set changes what the two benchmarks earn, and this
-change is the point of the design. Buy-and-hold now loses \$60.29 per
+change is intentional. Buy-and-hold now loses \$60.29 per
 episode on average. It gains \$510.17 in the average up episode, loses
 \$710.06 in the average down episode, and roughly breaks even when the
 market is flat. Always-buy at \(0.25C_{0}\) behaves the same way at
@@ -393,9 +394,9 @@ On the first study's real test months, buying and holding earned \$180.25
 because the period only rose. On the balanced episodes, no fixed pattern
 is profitable: constant buying loses money and abstaining earns nothing.
 Any agent that earns money here must be reading its observations and
-behaving differently in different conditions. The benchmarks are no longer
-a wall to climb; they are a test of whether the agent conditions on its
-state.
+behaving differently in different conditions. The benchmarks are
+therefore no longer a difficult target to beat; instead, they test
+whether the agent conditions on its state.
 
 \subsection{Main Results}
 
@@ -461,7 +462,7 @@ the always-buy row to the cent), and one learned a genuinely
 conditioned policy. PPO was similar: five seeds never traded and one
 adopted a fixed buying pattern. No PPO seed was state-dependent.
 
-The corners are not senseless. On balanced data, unconditional buying
+There is a reason the seeds settle on these corners. On balanced data, unconditional buying
 loses money, so never trading is a locally safe answer: it earns
 nothing, but it cannot lose. A policy-gradient method that drifts toward
 either deterministic corner stops exploring, because the gradient of a
@@ -470,12 +471,12 @@ method does not have this failure mode, since epsilon-greedy exploration
 keeps visiting both actions regardless of what the current policy
 prefers.
 
-The single conditioned REINFORCE seed matters, though. It earned
+The single conditioned REINFORCE seed is still informative. It earned
 \$83.13 on the simulated test, keeping \$417.02 of the up-market profit
-while cutting the down-market loss to \$162.11. The policy the study
-wants is therefore inside REINFORCE's reach; the training process just
-does not find it dependably. One seed in six is an existence proof, not
-a method.
+while cutting the down-market loss to \$162.11. The desired policy is
+therefore within REINFORCE's reach, but the training process does not
+find it dependably. One seed in six shows that the policy can be
+learned, not that the method learns it reliably.
 
 The comparison so far uses the nine-feature state and the plain
 wealth-change reward. The next three sections repeat the first study's
@@ -529,7 +530,7 @@ mean.}
 For Deep Q-learning, the first study's conclusion survives the correction.
 Adding drawdown moves the mean from +\$126.94 to +\$131.31, a change of
 +\$4.37 against a seed standard deviation near \$7, and every behavioural
-measure stays put: six of six seeds state-dependent, similar exposure,
+measure stays the same: six of six seeds state-dependent, similar exposure,
 similar trading rate, and a slightly smaller down-market loss (\(-\$87.28\)
 against \(-\$103.35\)). The extra feature neither helps nor hurts an
 agent whose objective gives it no reason to use its loss history. This
@@ -537,16 +538,17 @@ matches the principle the first study suggested: information in the state
 only matters when the objective makes it matter, which the next section
 tests directly.
 
-The policy-gradient rows mostly re-describe corner instability rather
-than a feature effect. REINFORCE's six ten-feature seeds all traded this
+The policy-gradient rows mainly reflect the corner instability of
+Section 5.6 rather than an effect of the feature. REINFORCE's six ten-feature seeds all traded this
 time (five near the always-buy corner, none finding the conditioned
 policy its nine-feature run found once), and PPO moved from five
 abstaining seeds to five abstaining seeds with one weakly conditioned
 run. With seed distributions this bimodal, the mean differences between
 the state configurations say more about which corner more seeds fell
 into than about the feature. The feature question can only be answered
-cleanly by the method whose seeds agree, and for that method the answer
-is: no measurable effect under the wealth-change reward.
+cleanly by the method whose seeds agree, and for Deep Q-learning the
+answer is that the feature has no measurable effect under the
+wealth-change reward.
 
 \section{Effect of the Risk-Aware Reward}
 
@@ -606,14 +608,15 @@ exposure ≥ 0.299; the largest value meeting both is λ = 0.25.}
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=0.95\textwidth]{figs5/fig5_lambda.pdf}
-  \caption[Risk-penalty sweep on the simulated validation episodes.]{Risk-penalty sweep on the simulated validation episodes (Deep Q-learning, six seeds). Left: mean wealth change against λ with the +\$79.14 requirement floor; the dotted line marks the selected λ = 0.25. Right: exposure and drawdown relative to their unpenalised values. The participation cliff sits between λ = 0.25 and 0.5, one grid step further out than in the first study.}
+  \caption[Risk-penalty sweep on the simulated validation episodes.]{Risk-penalty sweep on the simulated validation episodes (Deep Q-learning, six seeds). Left: mean wealth change against λ with the +\$79.14 requirement floor; the dotted line marks the selected λ = 0.25. Right: exposure and drawdown relative to their unpenalised values. Exposure collapses between λ = 0.25 and 0.5, one grid step further out than in the first study.}
 \end{figure}
 
-The sweep keeps the first study's shape but moves its cliff. Exposure still
-collapses once the penalty dominates the return signal --- from 0.338 at
-\(\lambda = 0.25\) to 0.039 at \(\lambda = 0.5\) --- and large penalties
-still stop trading entirely. But the collapse now happens one grid step
-later, and below the cliff the penalty buys drawdown cheaply: at
+The sweep has the same shape as in the first study, but the collapse
+point moves. Exposure still collapses once the penalty dominates the
+return signal --- from 0.338 at \(\lambda = 0.25\) to 0.039 at
+\(\lambda = 0.5\) --- and large penalties still stop trading entirely.
+But the collapse now happens one grid step later, and below that point
+the penalty reduces drawdown at little cost to return: at
 \(\lambda = 0.25\) drawdown falls 47\% while the return stays well above
 the floor. The rule therefore selects \(\boxed{\lambda = 0.25}\), a
 stronger penalty than the first study could afford (\(\lambda = 0.10\)),
@@ -671,11 +674,12 @@ The first study's conclusion is therefore overturned, and the overturning has
 the same explanation as everything else in this chapter. Penalising
 drawdown can only produce selective behaviour if the agent's value
 estimates can distinguish a falling market from a rising one, and value
-estimates trained on 60 months could not. The first study measured what the
-penalty does to an agent that cannot see; this study measures what it
-does to one that can.
+estimates trained on 60 months could not. The first study measured the
+penalty's effect on an agent whose estimates could not make that
+distinction; this study measures its effect on an agent whose estimates
+can.
 
-Two caveats keep the result honest. First, the policy-gradient methods
+Two qualifications remain. First, the policy-gradient methods
 collapse completely under the penalty: every REINFORCE seed and
 effectively every PPO seed stops trading, because for an unreliable
 policy the penalty makes abstention strictly safer than participation.
@@ -696,12 +700,12 @@ Transaction costs are an important part of the trading environment
 because frequent trading can reduce the returns produced by a strategy,
 even when individual decisions appear reasonable. The main experiments
 assume a fee of 0.05\% per trade, which is defensible for a liquid
-instrument like SPY but is still an assumption. A result that only
-survives at an optimistic cost is not a result, so the fee was swept
-from 0 to 50 basis points on the simulated validation episodes with the
-nine-feature state and everything else held fixed. Six freshly trained
-seeds per algorithm per fee level. Table 5.7 and Figure 5.4 report the
-outcome.
+instrument like SPY but is still an assumption. A conclusion that only
+holds under an optimistic cost assumption would not be reliable, so the
+fee was swept from 0 to 50 basis points on the simulated validation
+episodes with the nine-feature state and everything else held fixed.
+Six seeds were freshly trained for each algorithm at every fee level.
+Table 5.7 and Figure 5.4 report the outcome.
 
 \addcontentsline{lot}{table}{\protect\numberline{5.7}{Transaction-fee sizing on the simulated validation episodes; six seeds. Trades are per episode. Fees are shown in basis points.}}
 \emph{Table 5.7: Transaction-fee sizing on the simulated validation
@@ -736,12 +740,13 @@ points.}
   \caption[Transaction-fee sizing on the simulated validation episodes.]{Transaction-fee sizing on the simulated validation episodes. Left: mean wealth change as the fee rises; Deep Q-learning declines but remains profitable at every level, while buy-and-hold turns negative by 10 basis points. Right: trades per episode; the policy-gradient methods abandon trading as costs rise, while Deep Q-learning trims its rate only slightly.}
 \end{figure}
 
-The headline number is Deep Q-learning's +\$95.27 at 50 basis points, a
-fee ten times the study's assumption. Its profit declines as costs rise,
-as it must, but it stays firmly positive at every level while
+The most important number is Deep Q-learning's +\$95.27 at 50 basis
+points, a fee ten times the study's assumption. Its profit declines as
+costs rise, as expected, but it remains positive at every level while
 buy-and-hold turns negative by 10 basis points (the balanced episodes
-give it no free upward drift to hide the cost). The agent's edge does
-not depend on the optimistic fee assumption.
+give it no free upward drift to hide the cost). The agent's
+profitability therefore does not depend on the optimistic fee
+assumption.
 
 The trading columns explain why. The Deep Q agents make about five
 trades per episode, and those trades are condition-selective: entering when
@@ -754,18 +759,19 @@ estimates, so its trades were marginal and a higher fee tipped them into
 unprofitability; this study's agent trades on reliable estimates, so its
 trades absorb the fee instead.
 
-The policy-gradient methods respond by leaving. REINFORCE's trading
-falls from 6.1 trades per episode to zero by 25 basis points, and PPO's
-from 11.3 to 0.3: rising costs make the abstention corner more
-attractive, and the corner-seeking dynamics of Section 5.6 finish the
-job. Fees, like the balanced data itself, separate the method that
-prices its actions from the methods that pick a fixed answer. The final
-experiment drops the trained policies onto real market data.
+The policy-gradient methods respond by giving up trading. REINFORCE's
+trading falls from 6.1 trades per episode to zero by 25 basis points,
+and PPO's from 11.3 to 0.3: rising costs make the abstention corner more
+attractive, and the corner behaviour described in Section 5.6 completes
+the collapse. Fees, like the balanced data itself, separate the method
+that evaluates each trade from the methods that settle on a fixed
+pattern. The final experiment evaluates the trained policies on real
+market data.
 
 \section{Transfer to Real Markets}
 
 The last question is whether policies trained purely on simulated
-episodes survive contact with real data. Each trained policy was
+episodes still perform when they are evaluated on real data. Each trained policy was
 evaluated, unchanged, on the 180-month transfer set of Chapter 4: every
 real SPY month from 2006 to 2017 and from 2023 to 2025, excluding only
 the 2018--2022 calibration window. No agent, and no tuning decision,
@@ -802,7 +808,7 @@ PPO & \(+8.32\) & \(+4.28\) & \(+24.45\) & 0.124 & 0.0052 & 0.026 \\
 \end{longtable}
 }
 
-The headline comparison needs both of its halves. On raw return,
+This comparison has two halves, and both are needed. On raw return,
 buy-and-hold still wins: the market rose over these two decades, and a
 defensive agent gives up some of that rise. On risk-adjusted return, the
 ordering flips. The Deep Q agents' mean monthly Sharpe ratio is 0.224
@@ -833,7 +839,7 @@ zero or negligible in every seed.
 
 The cost side of the same behaviour is equally visible. Buy-and-hold
 gained \$1,068.28 in the December 2008 rebound and \$1,332.73 in March
-2009 when the market turned; the agents, still reading crisis-level
+2009 when the market turned; the agents, still observing crisis-level
 volatility, sat both months out. This is the trade-off of the defensive
 policy in concrete form: the agent gives up part of the recovery in
 exchange for avoiding part of the crash. Over the whole window the
@@ -877,7 +883,7 @@ section takes each in turn, using the first study and the main study together,
 because on three of the five questions the first study alone would have given
 the wrong answer.
 
-\subsection{Performance: The Answer Depends on the Measure}
+\subsection{Performance}
 
 On raw return against buy-and-hold, the learned agents lose on real
 data. In the first study, the best agent finished \$8.74 per month behind the
@@ -898,8 +904,7 @@ the market's average direction, but they earn their return with
 measurably less risk, and they demonstrably possess the
 state-conditional skill that the raw-return comparison obscures.
 
-\subsection{Behaviour: The Ranking Measures the Data, Not the
-Algorithms}
+\subsection{Behaviour}
 
 All three methods condition on the same state, maximise the same reward,
 and see the same data, so the first study's behavioural split --- six of six
@@ -924,7 +929,7 @@ by it, at least not at these settings. The ranking on either dataset
 alone would mislead; together, the two rankings identify data volume and
 balance as the deciding variable.
 
-\subsection{State Information Matters Only When the Objective Uses It}
+\subsection{State Representation}
 
 Adding the drawdown feature under the wealth-change reward changed
 nothing measurable in either study. Adding the same feature under a
@@ -934,7 +939,7 @@ concrete: information in the state earns its place only when the
 learning objective gives the agent a reason to read it. Feature
 engineering and objective design are not separate questions.
 
-\subsection{The Risk-Aware Reward Works When the Estimates Do}
+\subsection{Reward Formulation}
 
 The first study concluded that the drawdown penalty was a participation tax.
 The main study shows that with reliable value estimates the same penalty
@@ -948,23 +953,24 @@ balanced simulated conditions is too high for real markets that mostly
 rise, which is why the wealth-trained agents transfer better than the
 risk-trained ones.
 
-\subsection{Costs Test the Nature of the Learned Edge}
+\subsection{Transaction Costs}
 
-The fee sweep separates marginal edges from robust ones. The first study's
-agents, trading on noisy estimates, lost most of their activity and
-profit as fees rose. The main study's Deep Q agents remain profitable at
-a fee ten times the headline assumption, because condition-selective trades
-are worth far more than they cost. An edge that survives a tenfold cost
-increase is unlikely to be an artefact of the cost assumption.
+The fee sweep separates fragile advantages from robust ones. The first
+study's agents, trading on noisy estimates, lost most of their activity
+and profit as fees rose. The main study's Deep Q agents remain
+profitable at a fee ten times the main assumption, because
+condition-selective trades are worth far more than they cost. An
+advantage that survives a tenfold cost increase is unlikely to be an
+artefact of the cost assumption.
 
-\subsection{Seed Consistency Is a Result, Not a Nuisance}
+\subsection{Seed Consistency}
 
 The clearest single diagnostic across both studies is the across-seed
 spread. Deep Q-learning's main-study seed standard deviation is \$7.30
 on a mean of +\$126.94; REINFORCE's is \$52.17 on a mean near zero,
 because its seeds split between corners. A method whose six runs agree
-is reporting a property of the method; a method whose runs disagree is
-reporting a lottery. Single-seed evaluations, still common in the
+is showing a consistent property of the method; a method whose runs
+disagree is showing the effect of chance. Single-seed evaluations, still common in the
 applied literature reviewed in Chapter 2, could have reported the lucky
 REINFORCE seed (+\$83.13) as a successful trading system.
 
@@ -986,12 +992,12 @@ punitive transaction costs, used the risk-aware reward as designed, and
 transferred its behaviour to two decades of real months --- including
 stepping fully out of the market through the worst of the 2008 crisis
 --- with a better risk-adjusted return than buy-and-hold. The capability
-was never absent from the method. It was absent from the data. The
-binding constraint in this problem was not the reward function, the
-state design, or the trade size, although each mattered at the margin;
-it was the amount and balance of training data, and once that constraint
-was lifted, the remaining differences between algorithms were
-differences in how they explore and what they must estimate.
+was not missing from the method; it was missing from the data. The main
+constraint in this problem was not the reward function, the state
+design, or the trade size, although each had a smaller effect; it was
+the amount and balance of training data, and once that constraint was
+removed, the remaining differences between algorithms were differences
+in how they explore and what they must estimate.
 
 \section{Chapter Summary}
 
