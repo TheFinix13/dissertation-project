@@ -148,11 +148,14 @@ calibrated on the 60 training months only; simulated episodes take over
 the training and validation roles; and every real month outside the
 calibration window --- 2023--2025 together with the earlier 2006--2017
 months --- is reserved for the transfer test described next. Figure 4.1
-shows both uses side by side.
+shows both uses.
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.95\textwidth]{figs5/fig4_timeline.pdf}
+  {\small\textbf{First study} (real months only, 2018--2025)}\\[3pt]
+  \includegraphics[width=0.9\textwidth]{media4/media/image1.png}\\[10pt]
+  {\small\textbf{Main study} (trains and validates on simulated episodes; real months 2006--2025 evaluate only)}\\[3pt]
+  \includegraphics[width=0.93\textwidth]{figs5/fig4_timeline.pdf}
   \caption[How the two studies use the real SPY months]{How the two studies use the real SPY months. The first study trains, validates, and tests inside 2018--2025 and never touches the earlier years. The main study reads real data only to calibrate the market generator (2018--2022); it trains and validates on simulated episodes, and every other real month --- 2006--2017 and 2023--2025, 180 in total --- becomes its transfer test.}
 \end{figure}
 

@@ -49,36 +49,23 @@ def block(ax, y, x0, x1, color, label, sub="", hatch=None):
 
 
 def main() -> None:
-    fig, ax = plt.subplots(figsize=(6.4, 2.3))
+    fig, ax = plt.subplots(figsize=(6.4, 1.25))
 
-    y1, y2 = 1.0, 0.0   # first study row, main study row
-
-    # --- first study ---------------------------------------------------
-    block(ax, y1, 2006, 2018, C_UNUSED, "not used")
-    block(ax, y1, 2018, 2023, C_TRAIN, "training: 60 months", "agents learn here")
-    block(ax, y1, 2023, 2024, C_VAL, "val.", "12 mo.")
-    block(ax, y1, 2024, 2026, C_TEST, "test", "24 months,\ntouched once")
+    y = 0.0
 
     # --- main study ----------------------------------------------------
-    block(ax, y2, 2006, 2018, C_TEST, "transfer test: 144 months",
+    block(ax, y, 2006, 2018, C_TEST, "transfer test: 144 months",
           "incl. the 2008 crisis")
-    block(ax, y2, 2018, 2023, C_TRAIN, "generator calibration",
+    block(ax, y, 2018, 2023, C_TRAIN, "generator calibration",
           "no other use")
-    block(ax, y2, 2023, 2026, C_TEST, "transfer test", "36 months")
+    block(ax, y, 2023, 2026, C_TEST, "transfer test", "36 months")
 
-    ax.text(2005.6, y1 + 0.52, "First study (real months only)",
-            fontsize=8.4, fontweight="bold", ha="left")
-    ax.text(2005.6, y2 + 0.52,
-            "Main study (trains and validates on 3,300 simulated episodes;"
-            " real months evaluate only)",
-            fontsize=8.4, fontweight="bold", ha="left")
-
-    for yr in (2006, 2018, 2023, 2024, 2026):
+    for yr in (2006, 2018, 2023, 2026):
         ax.axvline(yr, color="#999", lw=0.4, ls=":", zorder=0)
         ax.text(yr, -0.62, str(yr), ha="center", fontsize=7.4, color="#444")
 
     ax.set_xlim(2005.5, 2026.5)
-    ax.set_ylim(-0.85, 1.85)
+    ax.set_ylim(-0.85, 0.45)
     ax.axis("off")
     fig.tight_layout()
     out = OUT / "fig4_timeline.pdf"
