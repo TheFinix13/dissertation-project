@@ -272,8 +272,8 @@ memorises 60 practice problems scores perfectly on those problems and
 then fails a fresh exam. Nothing forces the network to learn a rule that
 transfers, because memorising the answers is cheaper.
 
-The training months are also imbalanced. Twenty-nine of the 60 months
-rose by more than 2\% and only 16 fell by more than 2\%, and the test
+The training months are also imbalanced. Of the 60 months, 29 rose by
+more than 2\% and only 16 fell by more than 2\%, and the test
 years 2024--2025 rise almost throughout. Under that distribution,
 ``always buy'' is a nearly optimal answer that requires no state
 information at all. This is the same trap as training a classifier on a
@@ -284,7 +284,7 @@ agents in Section 5.3 are exactly this artefact.
 The same reasoning explains why Deep Q-learning performed worst on the
 real test months. A value-based method must estimate the value of each
 state it visits, which needs many visits to similar states under a
-stable state distribution. Sixty episodes from a shifting market provide
+stable state distribution. The 60 episodes of a shifting market provide
 neither. The behavioural finding stands --- six of six DQN seeds did
 condition on their state --- but the values behind those decisions were
 estimated from too little data, so conditioning on them did not pay.
@@ -951,7 +951,7 @@ Overall, the two studies together answer the main research question of
 whether reinforcement learning algorithms can learn profitable,
 state-dependent trading strategies for a portfolio.
 
-On real data at the volumes a single asset provides, they cannot. Sixty
+On real data at the volumes a single asset provides, they cannot. The 60
 training months support memorisation, not learning, and the agents
 either memorised the majority answer or conditioned on value estimates
 too noisy to pay.
