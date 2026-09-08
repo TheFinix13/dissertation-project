@@ -388,7 +388,8 @@ wealth change of \$0.00.
 
 On the first study's real test months, buying and holding earned \$180.25
 because the period only rose. On the balanced episodes, no fixed pattern
-is profitable: constant buying loses money and abstaining earns nothing.
+is profitable: constant buying loses money and never trading earns
+nothing.
 Any agent that earns money here must be reading its observations and
 behaving differently in different conditions. The benchmarks are
 therefore no longer a difficult target to beat; instead, they test
@@ -536,20 +537,21 @@ only matters when the objective makes it matter, which the next section
 tests directly.
 
 The policy-gradient rows mainly reflect the corner instability of
-Section 5.6 rather than an effect of the feature. REINFORCE's six ten-feature seeds all traded this
-time (five near the always-buy corner, none finding the conditioned
-policy its nine-feature run found once), and PPO moved from five
-abstaining seeds to five abstaining seeds with one weakly conditioned
-run. With seed distributions this bimodal, the mean differences between
-the state configurations say more about which corner more seeds fell
-into than about the feature. The feature question can only be answered
-cleanly by the method whose seeds agree, and for Deep Q-learning the
-answer is that the feature has no measurable effect under the
-wealth-change reward.
+Section 5.6 rather than an effect of the feature. REINFORCE's six
+ten-feature seeds all traded this time, with five settling near the
+always-buy corner and none finding the conditioned policy that its
+nine-feature run found once. PPO barely changed: five seeds still never
+trade, and the sixth learned only a weakly conditioned policy. Because
+the seeds split between the two corner policies, the mean differences
+between the state configurations mainly show how many seeds landed on
+each corner, not what the feature contributed. Only Deep Q-learning,
+whose six seeds agree, can answer the feature question, and its answer
+is that the feature has no measurable effect under the wealth-change
+reward.
 
 \section{Effect of the Risk-Aware Reward}
 
-The first study's sharpest negative finding was about the risk-aware reward:
+The first study's strongest negative finding was about the risk-aware reward:
 penalising drawdown reduced risk only by reducing participation, and the
 Sharpe ratio fell. This section repeats the experiment on the corrected
 data, and the conclusion changes. The reward is the one defined in
@@ -932,10 +934,11 @@ balance as the deciding variable.
 Adding the drawdown feature under the wealth-change reward changed
 nothing measurable in either study. Adding the same feature under a
 reward that penalises drawdown produced selective downside protection
-and a higher Sharpe ratio. The pair of results makes a single principle
-concrete: information in the state earns its place only when the
-learning objective gives the agent a reason to read it. Feature
-engineering and objective design are not separate questions.
+and a higher Sharpe ratio. Together, the two results support one
+conclusion: information in the state only helps when the learning
+objective gives the agent a reason to use it. The choice of features and
+the choice of objective therefore cannot be treated as separate
+decisions.
 
 \subsection{Reward Formulation}
 
