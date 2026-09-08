@@ -85,8 +85,8 @@ value-based algorithms select the action with the highest estimated
 value.
 
 Every experimental decision in this chapter was made on validation data.
-In the first study, the 2023 months carried these decisions. In the main
-study, the 300 simulated validation episodes carry them: the trade size
+In the first study, these decisions were made on the 2023 months. In the
+main study, they are made on the 300 simulated validation episodes: the trade size
 in Section 5.5, the risk-penalty weight in Section 5.8, and the
 transaction-fee robustness check in Section 5.9. The simulated test
 episodes and the real transfer months made no configuration decision and
@@ -286,7 +286,7 @@ The training months are also imbalanced. Of the 60 months, 29 rose by
 more than 2\% and only 16 fell by more than 2\%, and the test
 years 2024--2025 rise almost throughout. Under that distribution,
 ``always buy'' is a nearly optimal answer that requires no state
-information at all. This is the same trap as training a classifier on a
+information at all. This is the same problem as training a classifier on a
 dataset that is 99\% one class: predicting the majority class scores
 well and learns nothing. The always-buy policies of the policy-gradient
 agents in Section 5.3 are exactly this artefact.
@@ -744,7 +744,7 @@ The most important number is Deep Q-learning's +\$95.27 at 50 basis
 points, a fee ten times the study's assumption. Its profit declines as
 costs rise, as expected, but it remains positive at every level while
 buy-and-hold turns negative by 10 basis points (the balanced episodes
-give it no free upward drift to hide the cost). The agent's
+give it no upward drift to offset the cost). The agent's
 profitability therefore does not depend on the optimistic fee
 assumption.
 
@@ -915,13 +915,14 @@ method estimates the value of every state it acts in, which takes many
 visits to similar states under a stable distribution; the first study's 60
 shifting months could not support those estimates, so Deep Q-learning
 conditioned on noise and earned the least. The policy-gradient methods
-only need a policy that scores well on the training months, and on
-upward-leaning data the always-buy answer is available at zero cost.
+only need a policy that scores well on the training months, and on data
+from a mostly rising market, always buying scores well without using any
+state information.
 
 The main study confirms this account by inverting the ranking. Given
 3,000 balanced episodes, the value estimates become reliable and Deep
 Q-learning wins on every seed, while the policy-gradient methods lose
-their free answer and collapse to corners: across all main-study
+that easy answer and collapse to corner policies: across all main-study
 configurations, their seeds land overwhelmingly on never-trade or
 fixed-buying policies. The single conditioned REINFORCE seed shows the
 optimum is reachable by policy-gradient training but not reliably found
@@ -971,8 +972,8 @@ on a mean of +\$126.94; REINFORCE's is \$52.17 on a mean near zero,
 because its seeds split between corners. A method whose six runs agree
 is showing a consistent property of the method; a method whose runs
 disagree is showing the effect of chance. Single-seed evaluations, still common in the
-applied literature reviewed in Chapter 2, could have reported the lucky
-REINFORCE seed (+\$83.13) as a successful trading system.
+applied literature reviewed in Chapter 2, could have reported the one
+successful REINFORCE seed (+\$83.13) as a working trading system.
 
 \subsection{Implications for the Research Objectives}
 
@@ -1006,8 +1007,8 @@ agents on the 60 real training months and tested them on 2024--2025: no
 agent beat buy-and-hold, the policy-gradient methods ignored their
 observations, and the one state-dependent method earned the least. The
 diagnosis attributed all of it to data: 60 episodes cannot train
-networks of 18,000 parameters beyond memorisation, and an upward-leaning
-market makes constant buying an unbeatable shortcut.
+networks of 18,000 parameters beyond memorisation, and a market that
+mostly rises makes constant buying a nearly optimal answer.
 
 The main study removed those conditions and re-ran everything. On 3,000
 balanced simulated episodes with a 2,800-parameter network, Deep

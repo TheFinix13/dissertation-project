@@ -159,7 +159,7 @@ shows both uses.
   \caption[How the two studies use the real SPY months]{How the two studies use the real SPY months. The first study trains, validates, and tests inside 2018--2025 and never touches the earlier years. The main study reads real data only to calibrate the market generator (2018--2022); it trains and validates on simulated episodes, and every other real month --- 2006--2017 and 2023--2025, 180 in total --- becomes its transfer test.}
 \end{figure}
 
-The 2018--2022 window carries the calibration because it includes most
+The 2018--2022 window is used for the calibration because it includes most
 market conditions: the volatility of 2018, the COVID-19 crash and
 recovery in 2020, and the 2022 downtrend. Chapter 5 nevertheless shows
 that 60 episodes are far too few to train on directly; the consequences
@@ -308,7 +308,7 @@ from the same distribution by construction, so a policy that fails on
 the test episodes cannot blame a change in market conditions between the
 periods.
 
-The balance also removes the constant-answer shortcut. An agent that
+The balance also removes the advantage of a constant answer. An agent that
 always buys earns well in the up third, loses more in the down third,
 and roughly breaks even in the flat third. Buying regardless of state
 now loses money on average, so a profitable policy must read its
