@@ -300,8 +300,8 @@ condition. Real returns are not independent: volatility clusters, trends
 persist, and market conditions change mid-month. The generator also holds
 one condition for a whole episode, so the agents never face a mid-month
 crash.
-These simplifications are the price of a controlled experiment, and the
-transfer test measures their cost directly: the Deep Q-learning agents
+These simplifications are what make the controlled experiment possible,
+and the transfer test measures their cost directly: the Deep Q-learning agents
 kept roughly three-quarters of buy-and-hold's return over the 180 real
 transfer months while being trained on simulated data alone, and their
 timing around real turning points was imperfect --- they sat out the

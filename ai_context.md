@@ -107,6 +107,22 @@ Redo (in `experiments/final_v2/`, primary study going forward):
   ("kept its edge"/"learned edge" slang also fixed); tocdepth=1 (ToC
   2pp). appendix_algorithms ref updated 3.8.5->3.8. 0 errors, bibtex OK.
 
+## 5b) FINAL DRAFT STATUS (9 Sep 2026)
+
+- The LaTeX build (`latex/dissertation/main_full.pdf`) is the FINAL DRAFT
+  for submission: main body exactly 80 printed pages (handbook guideline),
+  101 physical pages total incl. refs + appendices A-D, 0 LaTeX errors,
+  bibtex clean, no undefined refs.
+- Voice: three full style audits against
+  `brain-box/school/methodology/fiyin-writing-style.md` plus ~15
+  user-flagged passages fixed on 8 Sep (bimodal seeds, single principle,
+  earned its place, isolates/mean per month, informative, carries,
+  price of a controlled experiment). Remaining agent-register markers
+  sweep clean except the deliberate glossed "regime-switching models"
+  citation in ch2.
+- Any further edit before submission should be compiled twice + bibtex
+  and re-checked to stay at 80 body pages.
+
 ## 6) Known open items
 
 - External-review self-grade ≈72 (report). Highest-value improvements:
