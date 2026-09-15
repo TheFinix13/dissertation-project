@@ -1,5 +1,8 @@
 """Feature definitions and the state-design ladder, in one place.
 
+STUDY: shared — the 9 state features (dissertation Table 3.1) used by
+both studies.
+
 Two rules are enforced here and they are the reason this module exists.
 
 1. Market features are computed ONCE on the continuous price series and only

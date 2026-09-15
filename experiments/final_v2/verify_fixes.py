@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Quantify the two substantive defects found in the earlier setup.
 
+STUDY: shared — documents why final_v2 replaced the deleted final_model
+package. Writes results/verify_fixes.json.
+
 This script exists so the corrections reported in the dissertation are backed by
 measured magnitudes rather than by argument alone. It trains nothing.
 

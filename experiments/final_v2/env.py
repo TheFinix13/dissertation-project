@@ -1,5 +1,8 @@
 """Trading environment for the final experiments.
 
+STUDY: shared — the MDP used by both the first (real-data) study and the
+main (simulated-data) study. Imported by every runner; writes nothing.
+
 Design decisions that differ from the earlier environment, each traceable to a
 specific defect:
 

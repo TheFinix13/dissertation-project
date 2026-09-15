@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Calibrate the trade slice against the exposure ceiling it implies.
 
+STUDY: first (real-data pilot) — selected the 0.25 C0 slice. Writes
+results/slice_calibration.json.
+
 The problem this exposes
 ------------------------
 A Buy commits a fixed fraction of initial capital, so becoming fully invested

@@ -39,20 +39,22 @@ latex/*.out
 latex/*.run.xml
 latex/*.synctex.gz
 latex/*.toc
-latex/main.pdf
-latex/main.docx
-latex/chapters/*.aux
-latex/simple_modelling/*.aux
-latex/simple_modelling/*.log
-latex/simple_modelling/*.out
-latex/simple_modelling/*.toc
-latex/tikz/*.aux
-latex/tikz/*.log
 texput.log
 
 # Generated Word build (reproducible via latex/build_docx.sh)
 /dissertation.docx
 latex/_docx_build/
+
+# Private post-viva material — local only, never on the public repo
+notes/viva/2026-09-14-*.md
+notes/viva/examiner_brief_nikitopoulos.md
+notes/viva/ai_context_post_viva.md
+notes/supervision/2026-09-1[0-5]-*.md
+notes/supervision/2026-09-XX-*.md
+
+# Viva deck backups (iteration snapshots, not deliverables)
+latex/viva/*.pptx.bak
+latex/viva/viva_deck_user_edits_backup.pptx
 
 # LaTeX build artefacts (regenerable; figure PDFs are kept because they are included)
 *.aux

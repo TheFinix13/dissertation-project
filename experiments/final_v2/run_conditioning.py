@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Diagnostic: why is the seed-to-seed spread as large as the signal?
 
+STUDY: first (real-data pilot) — superseded by run_conditioning_v2.py;
+kept because results/conditioning_results.json cites it.
+
 The first ladder run produced a spread across seeds that exceeded every
 difference between adjacent rungs, so the stopping rule could not discriminate
 between representations. That is a statement about the measurement, not about

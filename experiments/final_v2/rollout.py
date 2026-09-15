@@ -1,5 +1,7 @@
 """Episode rollout and metrics.
 
+STUDY: shared — evaluation metrics for both studies.
+
 Two metric corrections over the earlier version.
 
 * **Drawdown is measured inside episodes, not only across them.** The earlier

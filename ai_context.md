@@ -5,6 +5,10 @@ design introduced in ch1 before first use, ch3 formulas moved to display
 equations. PDF 114pp, 0 errors.)
 
 Compact state of the project for future AI sessions.
+NOTE: the post-viva state (viva 14 Sep 2026 and after) is maintained
+locally in `notes/viva/ai_context_post_viva.md`, which is not tracked.
+Read that file first if it exists. The workspace map is in
+`docs/WORKSPACE_CATALOG.md`.
 
 ## 1) What this project is
 

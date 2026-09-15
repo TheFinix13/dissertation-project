@@ -1,5 +1,7 @@
 """Shared plumbing for the experiment scripts.
 
+STUDY: shared — training, evaluation and reporting for both studies.
+
 One module owns training, evaluation and reporting so that `run_ladder.py` and
 `run_final.py` cannot differ in any way they do not explicitly declare. Every
 difference between two reported rows therefore comes from the configuration

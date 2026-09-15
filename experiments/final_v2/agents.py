@@ -1,5 +1,8 @@
 """From-scratch REINFORCE and Deep Q-learning for the trading MDP.
 
+STUDY: shared — both studies train these agents. The first study used a
+128x128 network; the main study uses the 64-32 pyramid defined here.
+
 Carried over from the earlier implementation with three corrections.
 
 * **Month sampling is driven by the run seed.** Previously the scratch methods

@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>viva transcript — read-along</title>
+<style>
+  :root { --fs: 30px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #10151f;
+    color: #e8e6e0;
+    font-family: Charter, Georgia, "Times New Roman", serif;
+  }
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 22px;
+    background: rgba(16,21,31,0.94);
+    border-bottom: 1px solid #263143;
+    font-family: -apple-system, "SF Pro Text", Helvetica, sans-serif;
+    font-size: 14px; color: #93a1b8;
+  }
+  header .title { font-weight: 600; color: #cfd8e6; margin-right: auto; }
+  header button {
+    background: #1d2635; color: #cfd8e6; border: 1px solid #33415a;
+    border-radius: 8px; padding: 6px 14px; font-size: 14px; cursor: pointer;
+  }
+  header button:hover { background: #263349; }
+  header button.on { background: #14532d; border-color: #1e7a42; color: #d7f5e2; }
+  #timer { font-variant-numeric: tabular-nums; min-width: 52px; }
+  #status { font-style: italic; }
+  #status.ok { color: #58d68d; font-style: normal; font-weight: 600; }
+  #status.bad { color: #ff7b6b; font-style: normal; font-weight: 600; }
+  #heardT { font-style: italic; color: #64748b; max-width: 300px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 42vh 60px 55vh 60px;   /* current line sits mid-screen */
+  }
+  .slide h2 {
+    font-family: -apple-system, "SF Pro Text", Helvetica, sans-serif;
+    font-size: 20px; font-weight: 700; color: #7f92ad;
+    margin: 2.4em 0 0.9em 0; letter-spacing: 0.01em;
+  }
+  .chip {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    background: #1d2635; border: 1px solid #33415a;
+    font-size: 13px; font-weight: 600; color: #9fb3d1;
+    vertical-align: 2px; margin-right: 6px;
+  }
+  .chip.num { background: #24344e; color: #cfe0f5; }
+  .line {
+    font-size: var(--fs);
+    line-height: 1.55;
+    margin: 0.55em 0;
+    padding-left: 22px;
+    border-left: 4px solid transparent;
+    opacity: 0.42;
+    cursor: pointer;
+    transition: opacity .25s, border-color .25s, color .25s;
+  }
+  .line.past { opacity: 0.22; }
+  .line.current {
+    opacity: 1; color: #ffffff;
+    border-left-color: #e8912d;
+  }
+  .careful {
+    font-family: -apple-system, "SF Pro Text", Helvetica, sans-serif;
+    font-size: 15px; line-height: 1.5; color: #d8b36a;
+    border-left: 3px solid #a97c2f;
+    background: rgba(169,124,47,0.08);
+    padding: 10px 16px; margin: 1em 0 1em 22px; border-radius: 0 8px 8px 0;
+    max-width: 62ch;
+  }
+  .careful::before { content: "CAREFUL — "; font-weight: 700; }
+  .pending {
+    font-family: -apple-system, "SF Pro Text", Helvetica, sans-serif;
+    font-size: 17px; font-style: italic; color: #64748b;
+    padding-left: 26px;
+  }
+  footer {
+    font-family: -apple-system, sans-serif; font-size: 13px;
+    color: #4b5a70; text-align: center; padding-bottom: 40px;
+  }
+
+  /* ---- light mode (14 Sep — the dark page reflected in Fiyin's
+     glasses on camera; warm paper, no glare, same layout) ---- */
+  body.light { background: #f7f4ee; color: #2a3040; }
+  body.light header { background: rgba(247,244,238,0.95);
+    border-bottom: 1px solid #d8d2c4; color: #5a6578; }
+  body.light header .title { color: #33415a; }
+  body.light header button { background: #eae5da; color: #33415a;
+    border-color: #c9c2b2; }
+  body.light header button:hover { background: #e0dacc; }
+  body.light header button.on { background: #d9f2e2;
+    border-color: #2f9e5d; color: #14532d; }
+  body.light #status.ok { color: #1e7a42; }
+  body.light #status.bad { color: #c0392b; }
+  body.light #heardT { color: #8a94a6; }
+  body.light .slide h2 { color: #5a6b85; }
+  body.light .chip { background: #eae5da; border-color: #c9c2b2;
+    color: #4c5c74; }
+  body.light .chip.num { background: #dce6f5; color: #24344e; }
+  body.light .line.current { color: #000000; }
+  body.light .careful { color: #7a5a14; background: rgba(169,124,47,0.10); }
+  body.light .pending { color: #8a94a6; }
+  body.light footer { color: #a49f92; }
+</style>
+</head>
+<body>
+<header>
+  <span class="title">viva read-along</span>
+  <span id="status">voice: off</span>
+  <span id="heardT"></span>
+  <span id="pace"></span>
+  <button id="voiceBtn">🎤 start voice tracking</button>
+  <button id="followBtn" style="display:none"
+          title="mic stays on for the Q&A board — only the auto-scroll stops">🧭 follow: on</button>
+  <button id="themeBtn">☀️ light</button>
+  <button id="smaller">A−</button>
+  <button id="bigger">A+</button>
+  <button id="timerBtn">⏱ start</button>
+  <span id="timer">00:00</span>
+</header>
+<main>
+
+<section class="slide" id="slide1">
+  <h2><span class="chip num">Slide 1</span> Title <span class="chip">~15 sec</span></h2>
+  <p class="line" id="L0" data-i="0">Good morning, professors.</p><p class="line" id="L1" data-i="1">Today I&#x27;ll be presenting my dissertation, which is an evaluation of reinforcement learning algorithms for portfolio management — the applicable field here being finance: trading and stock portfolios.</p>
+</section>
+
+<section class="slide" id="slide2">
+  <h2><span class="chip num">Slide 2</span> The problem <span class="chip">~55 sec</span></h2>
+  <p class="line" id="L2" data-i="2">So what exactly is the problem, or the research question?</p><p class="line" id="L3" data-i="3">A regular person who invests in stocks can decide on a day-to-day basis whether to buy more shares of that stock, leave it and do nothing, or sell — depending on a number of reasons.</p><p class="line" id="L4" data-i="4">Let&#x27;s say the market is declining and you want to protect your money, or you just need cash at hand for an emergency.</p><p class="line" id="L5" data-i="5">This leads to the main research question: can a reinforcement learning algorithm learn a strategy that is overall better than simply buying and holding an asset for the long term?</p><p class="line" id="L6" data-i="6">Performance here can be measured by how much more profitable the algorithm is compared to just buying and holding — or by whether the learned strategy reduces its exposure to the asset during a market decline, limiting the losses in that period.</p><aside class="careful">CAREFUL — changed from your recording. You said reducing exposure in a decline means &quot;maximising the most profits at that period&quot;. In a decline the honest claim is *limiting losses*, not maximising profit. Reworded.</aside>
+</section>
+
+<section class="slide" id="slide3">
+  <h2><span class="chip num">Slide 3</span> The trading environment <span class="chip">~70 sec</span></h2>
+  <p class="line" id="L7" data-i="7">To understand the trading environment, we first need to understand reinforcement learning.</p><p class="line" id="L8" data-i="8">Unlike supervised learning, where a model is given true labels to predict from a dataset, reinforcement learning learns by trial and error — from the rewards it gets for taking a specific action in its current state.</p><p class="line" id="L9" data-i="9">Now, I&#x27;ve said a lot of things there, so let me break it down into simpler terms.</p><p class="line" id="L10" data-i="10">We have an agent and an environment.</p><p class="line" id="L11" data-i="11">The agent is a small neural network — in our case a policy network, or a Q-network — which outputs an action — buy, hold, or sell — for its current state.</p><p class="line" id="L12" data-i="12">The environment is the market and the portfolio together, and the agent interacts with it in episodes.</p><p class="line" id="L13" data-i="13">An episode is a sequence of trading days — the trajectory, in more technical terms.</p><p class="line" id="L14" data-i="14">In this case an episode represents one month of trading, which is typically 18 to 23 trading days depending on the month.</p><p class="line" id="L15" data-i="15">So over an episode, the environment feeds the agent the daily price of the asset as it moves, and at the end of the month it reports the total change in portfolio wealth.</p><aside class="careful">CAREFUL — changed from your recording. Three things. You said the environment watches the daily price &quot;increase&quot; — prices also fall, so it now says &quot;move&quot;. You said &quot;the environment represents the episode&quot; — the environment is the market plus the portfolio; the episode is one month of interaction with it. Saying they&#x27;re the same invites a definition question from Nguyen. And the dissertation says a month is 18 to 23 trading days, not 16 to 23.</aside>
+</section>
+
+<section class="slide" id="slide4">
+  <h2><span class="chip num">Slide 4</span> The three algorithms <span class="chip">~75 sec</span></h2>
+  <p class="line" id="L16" data-i="16">Moving on to the reinforcement learning algorithms.</p><p class="line" id="L17" data-i="17">There are two families here: the value-based methods, like Deep Q-learning, and the policy-based methods, where REINFORCE and PPO fall.</p><p class="line" id="L18" data-i="18">Deep Q-learning learns the value of an action.</p><p class="line" id="L19" data-i="19">In essence, it estimates how good each action is, and selects the highest estimate.</p><p class="line" id="L20" data-i="20">So the agent is asking: how good is buying in this scenario?</p><p class="line" id="L21" data-i="21">How good is selling?</p><p class="line" id="L22" data-i="22">And it picks whichever value is highest.</p><p class="line" id="L23" data-i="23">REINFORCE, on the other hand, learns the policy directly.</p><p class="line" id="L24" data-i="24">The policy is a probability distribution over the actions — say, a probability of 0.6 for buying, 0.3 for selling, and 0.1 for holding.</p><p class="line" id="L25" data-i="25">After each episode it adjusts those probabilities based on the outcome that followed: actions that led to good outcomes become more likely, and actions that led to poor outcomes become less likely.</p><p class="line" id="L26" data-i="26">The outcome here is the reward — in our case, the change in the portfolio&#x27;s wealth.</p><p class="line" id="L27" data-i="27">So the more profitable an action turns out to be, the higher its probability becomes, and the less profitable, the lower.</p><p class="line" id="L28" data-i="28">PPO is like REINFORCE, but it learns the policy in a safer manner.</p><p class="line" id="L29" data-i="29">It has a clipping parameter that limits how large any single update to the policy can be, so the new policy never strays too far from the old one.</p><aside class="careful">CAREFUL — changed from your recording. You said REINFORCE &quot;selects which probability gives the highest reward&quot;. REINFORCE does not select a maximum — it *shifts probabilities* toward actions that led to better outcomes. The wording above is safe if Nguyen pushes on the mechanics.</aside>
+</section>
+
+<section class="slide" id="slide5">
+  <h2><span class="chip num">Slide 5</span> Dataset splits <span class="chip">~80 sec</span></h2>
+  <p class="line" id="L30" data-i="30">Now for the dataset splits.</p><p class="line" id="L31" data-i="31">The first study used real data from the SPY index, to be as realistic as possible.</p><p class="line" id="L32" data-i="32">This didn&#x27;t turn out great — which led to the main study we&#x27;ll come back to.</p><p class="line" id="L33" data-i="33">We used 2018 to 2022 as the training period: 60 months.</p><p class="line" id="L34" data-i="34">This is what the agents were trained on, and later what the simulator was calibrated on.</p><p class="line" id="L35" data-i="35">For validation we used the whole of 2023.</p><p class="line" id="L36" data-i="36">This is where hyperparameters were fine-tuned into one fixed setting used for all tests, so the comparisons stay equal along the way.</p><p class="line" id="L37" data-i="37">And the test period was 2024 to 2025 — which also had issues we&#x27;ll come to.</p><p class="line" id="L38" data-i="38">Because of these dataset constraints, we then moved to a simulator and a transfer test.</p><p class="line" id="L39" data-i="39">From the same 2018-to-2022 training months we generated 3,000 episodes across different market conditions: 1,000 for rising markets, 1,000 for falling markets, and 1,000 for consolidation, where prices move within roughly the same range.</p><p class="line" id="L40" data-i="40">Transfer testing was then done on 180 real months the agents had never seen: 2006 to 2017 — which covers the 2008 market crash — plus 2023 to 2025.</p><p class="line" id="L41" data-i="41">Those are the two grey bands on the timeline: 144 months before 2018, and 36 after 2022 — 180 in total.</p><p class="line" id="L42" data-i="42">All of this is to prevent look-ahead leakage, and to stop the agent memorising patterns.</p><aside class="careful">CAREFUL — changed from your recording. Two slips on tape: you said the transfer months run &quot;from 2008&quot; (they run from 2006; 2006–2017 plus 2023–2025 is what makes 180 months), and you once said the training period was &quot;2020 to 2022&quot; (it is 2018 to 2022).</aside>
+</section>
+
+<section class="slide" id="slide6">
+  <h2><span class="chip num">Slide 6</span> First study result <span class="chip">~90 sec</span></h2>
+  <p class="line" id="L43" data-i="43">So for the first study, trained on the 60 real months: no agent actually beat the simple buy-and-hold benchmark.</p><p class="line" id="L44" data-i="44">If you had bought at the beginning of January 2024 and held to the end of 2025, you would have earned an average of $180.25 per month.</p><p class="line" id="L45" data-i="45">The closest learned agent was REINFORCE at $171.51, then PPO at $127.35, and Deep Q-learning at the bottom with $74.68 per month.</p><p class="line" id="L46" data-i="46">At first glance you could say REINFORCE was nearly efficient.</p><p class="line" id="L47" data-i="47">But looking closer at the seed distribution, we noticed that REINFORCE and PPO — the policy methods — weren&#x27;t state-dependent.</p><p class="line" id="L48" data-i="48">So what do we mean by state-dependent?</p><p class="line" id="L49" data-i="49">It&#x27;s a behavioural check on whether the agent actually uses the information from its current state to change its decisions.</p><p class="line" id="L50" data-i="50">In reinforcement learning, every agent is given the state information — the question is how much that information actually drives its decision-making.</p><p class="line" id="L51" data-i="51">A quick word on seeds: a seed is the random starting point of a training run.</p><p class="line" id="L52" data-i="52">We trained each algorithm six separate times, with six different seeds — six independent repeats of the same experiment.</p><p class="line" id="L53" data-i="53">None of those six runs showed REINFORCE or PPO acting on the information provided by their states: they mostly moved to always buying, or never trading at all — the two extremes.</p><p class="line" id="L54" data-i="54">Part of the blame is the testing period itself: 2024 to 2025 was a strong rising market, so always-buy was close to the best possible fixed pattern.</p><p class="line" id="L55" data-i="55">But there was also a deeper underlying cause — overfitting — which I&#x27;ll show on the next slide.</p><aside class="careful">CAREFUL — changed from your recording. Your latest take said &quot;the closest was PPO at 171.51&quot;. $171.51 is REINFORCE, and REINFORCE was the closest; PPO earned $127.35. Your earlier take had the order right. Also kept Nguyen&#x27;s grammar rule: &quot;acting on the information provided by their states&quot;, never &quot;ignored its state&quot;.</aside>
+</section>
+
+<section class="slide" id="slide7">
+  <h2><span class="chip num">Slide 7</span> The diagnosis <span class="chip">~90 sec</span></h2>
+  <p class="line" id="L56" data-i="56">So why did this happen?</p><p class="line" id="L57" data-i="57">In the first study we used a multi-layer perceptron with two hidden layers of 128 units each — around 18,000 trainable parameters — trained on only 60 data points.</p><p class="line" id="L58" data-i="58">With far more trainable weights than training months, the network can memorise all 60 months perfectly.</p><p class="line" id="L59" data-i="59">Nothing forces it to learn a rule that works in a different market condition.</p><p class="line" id="L60" data-i="60">It&#x27;s like a student preparing for an exam using the demo questions, then getting to the exam and seeing completely different questions.</p><p class="line" id="L61" data-i="61">What added to this is that the training months were imbalanced: 29 of the 60 were rising markets, and only 16 were falling markets — like the COVID crash in 2020.</p><p class="line" id="L62" data-i="62">That imbalance constantly teaches the agent to always buy, since that returns the highest reward for the policy methods.</p><p class="line" id="L63" data-i="63">Coupled with memorisation from insufficient data, the policies never needed to rely on the information provided by the state — even though the state contains multiple features that describe the market and the portfolio.</p><p class="line" id="L64" data-i="64">And it explains why the policy methods appeared to do well in the test period, which was also a strongly rising market.</p><p class="line" id="L65" data-i="65">Deep Q-learning, on the other hand, came lowest because estimating the worth of an action needs many similar situations to average over.</p><p class="line" id="L66" data-i="66">Sixty months that never repeat, without balanced market conditions, make its value estimates very noisy.</p><aside class="careful">CAREFUL — changed from your recording. Three slips on tape: the hidden layers are 128 units (you said 120), the training set is 60 data points (transcription heard &quot;16&quot;), and 16 of the 60 months were falling (you said 19).</aside>
+</section>
+
+<section class="slide" id="slide8">
+  <h2><span class="chip num">Slide 8</span> The main study <span class="chip">~75 sec</span></h2>
+  <p class="line" id="L67" data-i="67">After understanding the limitations of the first study — and accepting the corrections from my supervisor, thank you, Doctor — I built a small market simulator that generates monthly prices for the main study.</p><p class="line" id="L68" data-i="68">It is still calibrated on the same training period, 2018 to 2022 — deliberately, because the simulator should only ever see the data the agents were already allowed to see.</p><p class="line" id="L69" data-i="69">That keeps the validation and test years untouched, and it keeps the comparison with the first study fair: same information, more of it.</p><p class="line" id="L70" data-i="70">The good thing is that we can now recreate the different market conditions ourselves.</p><p class="line" id="L71" data-i="71">And the training window gives the simulator real examples of each condition to calibrate from: the steady rises of 2019 and 2021, the COVID crash and its sharp recovery in 2020, and the 2022 decline.</p><p class="line" id="L72" data-i="72">So we created 3,000 balanced training episodes: 1,000 per condition, for the rising market, the falling market, and the consolidation market where prices move side to side.</p><p class="line" id="L73" data-i="73">Now that we had substantial volume in the data, the other thing to fix was the network.</p><p class="line" id="L74" data-i="74">We reduced the MLP&#x27;s hidden layers to 64 and 32 units — about 2,800 parameters in total — which sits comfortably with the 3,000 training episodes: roughly 20 training examples per weight.</p><p class="line" id="L75" data-i="75">And from the simulator we don&#x27;t just get volume — we get labelled market conditions, so we can distinguish rising from falling markets and evaluate how the agent acts in each.</p><p class="line" id="L76" data-i="76">With these changes came very different results, and different behaviours — which is the next slide.</p><aside class="careful">CAREFUL — changed from your recording. You said &quot;the same training period from 2018 to 2012&quot; — it is 2018 to 2022. Transcription also heard &quot;labour market conditions&quot;; it now reads &quot;labelled market conditions&quot;. On the noteworthy periods you suggested: there was no &quot;2022 recovery&quot; — 2022 was a decline (SPY fell roughly 19%), and 2018 ended slightly down after a late-year drop. The safe examples are the ones now in the text: rises in 2019 and 2021, the 2020 COVID crash and recovery, the 2022 decline.</aside>
+</section>
+
+<section class="slide" id="slide9">
+  <h2><span class="chip num">Slide 9</span> The result flips <span class="chip">~150 sec</span></h2>
+  <p class="line" id="L77" data-i="77">The main result shows that once we balance the data, the always-buy strategy can&#x27;t work the way it did before.</p><p class="line" id="L78" data-i="78">The market is no longer constantly rising — there is a mix of different market conditions.</p><p class="line" id="L79" data-i="79">The agent now has to learn a policy that works in each of these conditions, and that forces it to rely on the information provided by the state.</p><p class="line" id="L80" data-i="80">The chart on the left shows the average earned in each market condition — rising, falling and consolidating — for every method.</p><p class="line" id="L81" data-i="81">In this simulated held-out test set, Deep Q-learning performed well in all market conditions.</p><p class="line" id="L82" data-i="82">In rising markets it kept $473.72 of the $477.22 that the benchmark always-buy strategy earns — that is 99% of the gains.</p><p class="line" id="L83" data-i="83">And in falling markets it lost $103.35 where always-buy lost $663.91 — an 84% reduction in losses.</p><p class="line" id="L84" data-i="84">The chart on the right shows all 600 test episodes overall.</p><p class="line" id="L85" data-i="85">Deep Q-learning was the only method that landed a stable policy: it earns $126.94 per episode, across all six seeds.</p><p class="line" id="L86" data-i="86">Because this is simulated, balanced data — with no constantly rising market — the fixed patterns the policy methods developed would lose to falling markets, to consolidations, or to transaction fees: the cost of making a trade.</p><p class="line" id="L87" data-i="87">As for REINFORCE and PPO ending in negative values — minus $5.71 and minus $11.16 per episode — they could not develop a fixed strategy suitable for all markets, which caused a collapse.</p><p class="line" id="L88" data-i="88">On balanced data, even the benchmark — always-buy — loses money.</p><p class="line" id="L89" data-i="89">So never trading becomes the locally safe answer: it earns nothing, but it cannot lose.</p><p class="line" id="L90" data-i="90">And once a policy-gradient method drifts close to either extreme — always buying or never trading — its gradient carries no signal.</p><p class="line" id="L91" data-i="91">It stops exploring, and it gets stuck there.</p><p class="line" id="L92" data-i="92">Deep Q-learning doesn&#x27;t have this failure mode, because its epsilon-greedy exploration keeps trying every action a fraction of the time, no matter what the current policy prefers.</p><p class="line" id="L93" data-i="93">It is noteworthy that one of the six REINFORCE seeds actually did rely on information from its state, gaining $83.13 per episode for that seed alone.</p><p class="line" id="L94" data-i="94">But with five of the six collapsing, we can&#x27;t consider that a reliable result.</p><aside class="careful">CAREFUL — changed from your recording. Transcription garble cleaned: &quot;epsilon gradient&quot; is epsilon-greedy, &quot;always mine&quot; is always-buy, and the conditioned REINFORCE seed earned $83.13. All the numbers you spoke were verified against Table 5.3 and are correct: $473.72 of $477.22 (99%), $103.35 vs $663.91 (84% less), $126.94 overall.</aside>
+</section>
+
+<section class="slide" id="slide10">
+  <h2><span class="chip num">Slide 10</span> The transfer test <span class="chip">~140 sec</span></h2>
+  <p class="line" id="L95" data-i="95">For the final transfer test, I took the policies trained on the simulator and ran them, unchanged, on 180 real months that the training never saw.</p><p class="line" id="L96" data-i="96">That is 2006 to 2017, plus 2023 to 2025 — everything outside the 2018-to-2022 window that was used to calibrate the simulator.</p><p class="line" id="L97" data-i="97">The left chart is the actual real SPY data, showing all the algorithms.</p><p class="line" id="L98" data-i="98">Note that buy-and-hold still ends the highest by 2025: we couldn&#x27;t beat the market, as it rose almost constantly over the span of two decades.</p><p class="line" id="L99" data-i="99">On the right side, Deep Q-learning had the highest average of the learned methods at $60.28 per month, followed by REINFORCE at $31.66 and PPO at $8.32.</p><p class="line" id="L100" data-i="100">Buy-and-hold still gave the highest return, at $80.24 a month.</p><p class="line" id="L101" data-i="101">The policy-gradient methods are weaker here because most of their seeds collapsed to fixed patterns.</p><p class="line" id="L102" data-i="102">Coming back to the main graph, we notice an unexpected behaviour in Deep Q-learning.</p><p class="line" id="L103" data-i="103">During the 2008 financial crisis, buy-and-hold lost $1,665 in October alone — you can see the line plunge downwards.</p><p class="line" id="L104" data-i="104">But all six of our Deep Q seeds held zero shares through that period, so their line barely dips — through the shaded band it actually sits highest.</p><p class="line" id="L105" data-i="105">The agent reduced its losses by itself.</p><p class="line" id="L106" data-i="106">It was never given this data at all, not even in the first study.</p><p class="line" id="L107" data-i="107">So a safe assumption is that the volatility features it observed matched the falling condition it had learned, and it stepped aside for that period.</p><p class="line" id="L108" data-i="108">In turn it gave up some market momentum and didn&#x27;t gain profit — but it avoided most of the crash, unlike REINFORCE and PPO.</p><aside class="careful">CAREFUL — changed from your recording. Three fixes that matter in front of examiners. You said &quot;the Great Depression of 2008&quot; — the Great Depression was the 1930s; it is now &quot;the 2008 financial crisis&quot;. Buy-and-hold&#x27;s October 2008 loss is $1,665, not 1,655. And the calibration window is 2018 to 2022 — on tape you said &quot;2008 to 2022&quot;.</aside>
+</section>
+
+<section class="slide" id="slide11">
+  <h2><span class="chip num">Slide 11</span> Conclusions <span class="chip">~220 sec</span></h2>
+  <p class="line" id="L109" data-i="109">To conclude — we found some interesting points over the course of this dissertation.</p><p class="line" id="L110" data-i="110">First, the findings.</p><p class="line" id="L111" data-i="111">The algorithms were never the problem; the data was.</p><p class="line" id="L112" data-i="112">As with any deep learning method, data is essential to a decent result: 60 real months could never teach an 18,000-weight network, but 3,000 balanced simulated episodes could, to a significant degree.</p><p class="line" id="L113" data-i="113">Next, the algorithms behaved very differently, and that traces back to their core mechanisms.</p><p class="line" id="L114" data-i="114">REINFORCE and PPO, the policy methods, drifted to fixed habits — always buying, or never trading — because once a policy becomes near-certain, its gradient carries almost no signal, and it stops exploring.</p><p class="line" id="L115" data-i="115">Deep Q-learning, on the other hand, kept exploring through its epsilon-greedy rule, and it was the only method that learned a policy that changes with the state — on all six seeds.</p><p class="line" id="L116" data-i="116">And that learned behaviour carried into real markets: run unchanged on 180 unseen months, it stayed profitable, and it stepped aside through the October 2008 crash.</p><p class="line" id="L117" data-i="117">What does this work contribute to the body of literature?</p><p class="line" id="L118" data-i="118">First, a careful way to evaluate.</p><p class="line" id="L119" data-i="119">Every decision was calibrated on validation data alone — the trade size, the cost of trading, the risk coefficient.</p><p class="line" id="L120" data-i="120">We used six seeds rather than relying on one result, and automated tests guarded the accounting, combined with action masking that prevents unavailable actions from being executed.</p><p class="line" id="L121" data-i="121">Second, a behavioural test, which tells whether a policy genuinely reads the market information provided to it, apart from executing a fixed habit the way REINFORCE and PPO did.</p><p class="line" id="L122" data-i="122">This changed how every result was read: without it, we would have read REINFORCE as very profitable, not knowing it was overfitting to rising markets.</p><p class="line" id="L123" data-i="123">The test doesn&#x27;t tell us which piece of information was used — volatility, moving average, or true range — and that goes to future work.</p><p class="line" id="L124" data-i="124">Lastly, a calibrated simulator, which gives us volume, control and balance in our data.</p><p class="line" id="L125" data-i="125">We can replicate multiple market conditions, and test exactly where needed.</p><p class="line" id="L126" data-i="126">For our limitations: we studied one asset only — SPY, which tracks the S&amp;P 500 — so the findings do not automatically carry to other markets.</p><p class="line" id="L127" data-i="127">We used a deliberately simple simulator: months are categorised as rising, falling or consolidating, with no market change inside a month.</p><p class="line" id="L128" data-i="128">The transfer test shows the cost of that simplicity — the gap between the simulated results and the real-month results is the price we paid for it.</p><p class="line" id="L129" data-i="129">The policy methods were also not separately tuned: validation choices were made with Deep Q-learning, the method most responsive to its state, so we cannot tell whether the policy methods would have done better with their own tuning.</p><p class="line" id="L130" data-i="130">And the evidence is modest — six seeds, with no formal significance tests.</p><p class="line" id="L131" data-i="131">For future work: more seeds, with confidence intervals, and other assets, for stronger evidence.</p><p class="line" id="L132" data-i="132">Better simulators, that represent realistic market change rather than fixed categories — and continuous months: real trading is continuous, months carry over into each other, and we treated each month independently to keep the modelling simple.</p><p class="line" id="L133" data-i="133">And better reward functions, so that an agent cannot benefit from never trading — the same way balancing the data stopped the always-buy habit.</p><p class="line" id="L134" data-i="134">So, coming back to the research question: can reinforcement learning learn a strategy that beats buy-and-hold?</p><p class="line" id="L135" data-i="135">On raw returns, on one asset, it did not.</p><p class="line" id="L136" data-i="136">But given the right data, it learned something buy-and-hold can never do: to read the market&#x27;s condition, and step aside when it turns.</p><p class="line" id="L137" data-i="137">What these methods learn is decided by the data they are given.</p><p class="line" id="L138" data-i="138">Thank you.</p><p class="line" id="L139" data-i="139">I&#x27;m happy to take your questions.</p><aside class="careful">CAREFUL — gaps filled and fixes from your recording. The &quot;dash dash dash&quot; gaps are filled with the mechanism: policy methods stall because a near-certain policy has no gradient signal; Deep Q keeps exploring via epsilon-greedy. The outro you asked for is the last four paragraphs — it answers the research question directly before the one-line takeaway. Transcription fixes: &quot;60 Romans&quot; = 60 real months, &quot;rainforest&quot; = REINFORCE, &quot;work forward through calibration&quot; = walk-forward recalibration, &quot;gained by refusing to trade&quot; = gamed. The asset: say &quot;SPY, which tracks the S&amp;P 500&quot; (on tape you said &quot;SBI&quot;). I dropped &quot;trading grows exponentially&quot; — hard to defend. And &quot;the cost of simplicity&quot; you queried now has its plain meaning in the text: the gap between simulated and real results is the price of the simple simulator.</aside>
+</section>
+<footer>↓ / space = next line &nbsp;·&nbsp; ↑ = back &nbsp;·&nbsp; click any line to jump &nbsp;·&nbsp; voice tracking advances automatically as you read</footer>
+</main>
+<script>
+const LINES = [{"i": 0, "slide": 1, "text": "Good morning, professors."}, {"i": 1, "slide": 1, "text": "Today I'll be presenting my dissertation, which is an evaluation of reinforcement learning algorithms for portfolio management \u2014 the applicable field here being finance: trading and stock portfolios."}, {"i": 2, "slide": 2, "text": "So what exactly is the problem, or the research question?"}, {"i": 3, "slide": 2, "text": "A regular person who invests in stocks can decide on a day-to-day basis whether to buy more shares of that stock, leave it and do nothing, or sell \u2014 depending on a number of reasons."}, {"i": 4, "slide": 2, "text": "Let's say the market is declining and you want to protect your money, or you just need cash at hand for an emergency."}, {"i": 5, "slide": 2, "text": "This leads to the main research question: can a reinforcement learning algorithm learn a strategy that is overall better than simply buying and holding an asset for the long term?"}, {"i": 6, "slide": 2, "text": "Performance here can be measured by how much more profitable the algorithm is compared to just buying and holding \u2014 or by whether the learned strategy reduces its exposure to the asset during a market decline, limiting the losses in that period."}, {"i": 7, "slide": 3, "text": "To understand the trading environment, we first need to understand reinforcement learning."}, {"i": 8, "slide": 3, "text": "Unlike supervised learning, where a model is given true labels to predict from a dataset, reinforcement learning learns by trial and error \u2014 from the rewards it gets for taking a specific action in its current state."}, {"i": 9, "slide": 3, "text": "Now, I've said a lot of things there, so let me break it down into simpler terms."}, {"i": 10, "slide": 3, "text": "We have an agent and an environment."}, {"i": 11, "slide": 3, "text": "The agent is a small neural network \u2014 in our case a policy network, or a Q-network \u2014 which outputs an action \u2014 buy, hold, or sell \u2014 for its current state."}, {"i": 12, "slide": 3, "text": "The environment is the market and the portfolio together, and the agent interacts with it in episodes."}, {"i": 13, "slide": 3, "text": "An episode is a sequence of trading days \u2014 the trajectory, in more technical terms."}, {"i": 14, "slide": 3, "text": "In this case an episode represents one month of trading, which is typically 18 to 23 trading days depending on the month."}, {"i": 15, "slide": 3, "text": "So over an episode, the environment feeds the agent the daily price of the asset as it moves, and at the end of the month it reports the total change in portfolio wealth."}, {"i": 16, "slide": 4, "text": "Moving on to the reinforcement learning algorithms."}, {"i": 17, "slide": 4, "text": "There are two families here: the value-based methods, like Deep Q-learning, and the policy-based methods, where REINFORCE and PPO fall."}, {"i": 18, "slide": 4, "text": "Deep Q-learning learns the value of an action."}, {"i": 19, "slide": 4, "text": "In essence, it estimates how good each action is, and selects the highest estimate."}, {"i": 20, "slide": 4, "text": "So the agent is asking: how good is buying in this scenario?"}, {"i": 21, "slide": 4, "text": "How good is selling?"}, {"i": 22, "slide": 4, "text": "And it picks whichever value is highest."}, {"i": 23, "slide": 4, "text": "REINFORCE, on the other hand, learns the policy directly."}, {"i": 24, "slide": 4, "text": "The policy is a probability distribution over the actions \u2014 say, a probability of 0.6 for buying, 0.3 for selling, and 0.1 for holding."}, {"i": 25, "slide": 4, "text": "After each episode it adjusts those probabilities based on the outcome that followed: actions that led to good outcomes become more likely, and actions that led to poor outcomes become less likely."}, {"i": 26, "slide": 4, "text": "The outcome here is the reward \u2014 in our case, the change in the portfolio's wealth."}, {"i": 27, "slide": 4, "text": "So the more profitable an action turns out to be, the higher its probability becomes, and the less profitable, the lower."}, {"i": 28, "slide": 4, "text": "PPO is like REINFORCE, but it learns the policy in a safer manner."}, {"i": 29, "slide": 4, "text": "It has a clipping parameter that limits how large any single update to the policy can be, so the new policy never strays too far from the old one."}, {"i": 30, "slide": 5, "text": "Now for the dataset splits."}, {"i": 31, "slide": 5, "text": "The first study used real data from the SPY index, to be as realistic as possible."}, {"i": 32, "slide": 5, "text": "This didn't turn out great \u2014 which led to the main study we'll come back to."}, {"i": 33, "slide": 5, "text": "We used 2018 to 2022 as the training period: 60 months."}, {"i": 34, "slide": 5, "text": "This is what the agents were trained on, and later what the simulator was calibrated on."}, {"i": 35, "slide": 5, "text": "For validation we used the whole of 2023."}, {"i": 36, "slide": 5, "text": "This is where hyperparameters were fine-tuned into one fixed setting used for all tests, so the comparisons stay equal along the way."}, {"i": 37, "slide": 5, "text": "And the test period was 2024 to 2025 \u2014 which also had issues we'll come to."}, {"i": 38, "slide": 5, "text": "Because of these dataset constraints, we then moved to a simulator and a transfer test."}, {"i": 39, "slide": 5, "text": "From the same 2018-to-2022 training months we generated 3,000 episodes across different market conditions: 1,000 for rising markets, 1,000 for falling markets, and 1,000 for consolidation, where prices move within roughly the same range."}, {"i": 40, "slide": 5, "text": "Transfer testing was then done on 180 real months the agents had never seen: 2006 to 2017 \u2014 which covers the 2008 market crash \u2014 plus 2023 to 2025."}, {"i": 41, "slide": 5, "text": "Those are the two grey bands on the timeline: 144 months before 2018, and 36 after 2022 \u2014 180 in total."}, {"i": 42, "slide": 5, "text": "All of this is to prevent look-ahead leakage, and to stop the agent memorising patterns."}, {"i": 43, "slide": 6, "text": "So for the first study, trained on the 60 real months: no agent actually beat the simple buy-and-hold benchmark."}, {"i": 44, "slide": 6, "text": "If you had bought at the beginning of January 2024 and held to the end of 2025, you would have earned an average of $180.25 per month."}, {"i": 45, "slide": 6, "text": "The closest learned agent was REINFORCE at $171.51, then PPO at $127.35, and Deep Q-learning at the bottom with $74.68 per month."}, {"i": 46, "slide": 6, "text": "At first glance you could say REINFORCE was nearly efficient."}, {"i": 47, "slide": 6, "text": "But looking closer at the seed distribution, we noticed that REINFORCE and PPO \u2014 the policy methods \u2014 weren't state-dependent."}, {"i": 48, "slide": 6, "text": "So what do we mean by state-dependent?"}, {"i": 49, "slide": 6, "text": "It's a behavioural check on whether the agent actually uses the information from its current state to change its decisions."}, {"i": 50, "slide": 6, "text": "In reinforcement learning, every agent is given the state information \u2014 the question is how much that information actually drives its decision-making."}, {"i": 51, "slide": 6, "text": "A quick word on seeds: a seed is the random starting point of a training run."}, {"i": 52, "slide": 6, "text": "We trained each algorithm six separate times, with six different seeds \u2014 six independent repeats of the same experiment."}, {"i": 53, "slide": 6, "text": "None of those six runs showed REINFORCE or PPO acting on the information provided by their states: they mostly moved to always buying, or never trading at all \u2014 the two extremes."}, {"i": 54, "slide": 6, "text": "Part of the blame is the testing period itself: 2024 to 2025 was a strong rising market, so always-buy was close to the best possible fixed pattern."}, {"i": 55, "slide": 6, "text": "But there was also a deeper underlying cause \u2014 overfitting \u2014 which I'll show on the next slide."}, {"i": 56, "slide": 7, "text": "So why did this happen?"}, {"i": 57, "slide": 7, "text": "In the first study we used a multi-layer perceptron with two hidden layers of 128 units each \u2014 around 18,000 trainable parameters \u2014 trained on only 60 data points."}, {"i": 58, "slide": 7, "text": "With far more trainable weights than training months, the network can memorise all 60 months perfectly."}, {"i": 59, "slide": 7, "text": "Nothing forces it to learn a rule that works in a different market condition."}, {"i": 60, "slide": 7, "text": "It's like a student preparing for an exam using the demo questions, then getting to the exam and seeing completely different questions."}, {"i": 61, "slide": 7, "text": "What added to this is that the training months were imbalanced: 29 of the 60 were rising markets, and only 16 were falling markets \u2014 like the COVID crash in 2020."}, {"i": 62, "slide": 7, "text": "That imbalance constantly teaches the agent to always buy, since that returns the highest reward for the policy methods."}, {"i": 63, "slide": 7, "text": "Coupled with memorisation from insufficient data, the policies never needed to rely on the information provided by the state \u2014 even though the state contains multiple features that describe the market and the portfolio."}, {"i": 64, "slide": 7, "text": "And it explains why the policy methods appeared to do well in the test period, which was also a strongly rising market."}, {"i": 65, "slide": 7, "text": "Deep Q-learning, on the other hand, came lowest because estimating the worth of an action needs many similar situations to average over."}, {"i": 66, "slide": 7, "text": "Sixty months that never repeat, without balanced market conditions, make its value estimates very noisy."}, {"i": 67, "slide": 8, "text": "After understanding the limitations of the first study \u2014 and accepting the corrections from my supervisor, thank you, Doctor \u2014 I built a small market simulator that generates monthly prices for the main study."}, {"i": 68, "slide": 8, "text": "It is still calibrated on the same training period, 2018 to 2022 \u2014 deliberately, because the simulator should only ever see the data the agents were already allowed to see."}, {"i": 69, "slide": 8, "text": "That keeps the validation and test years untouched, and it keeps the comparison with the first study fair: same information, more of it."}, {"i": 70, "slide": 8, "text": "The good thing is that we can now recreate the different market conditions ourselves."}, {"i": 71, "slide": 8, "text": "And the training window gives the simulator real examples of each condition to calibrate from: the steady rises of 2019 and 2021, the COVID crash and its sharp recovery in 2020, and the 2022 decline."}, {"i": 72, "slide": 8, "text": "So we created 3,000 balanced training episodes: 1,000 per condition, for the rising market, the falling market, and the consolidation market where prices move side to side."}, {"i": 73, "slide": 8, "text": "Now that we had substantial volume in the data, the other thing to fix was the network."}, {"i": 74, "slide": 8, "text": "We reduced the MLP's hidden layers to 64 and 32 units \u2014 about 2,800 parameters in total \u2014 which sits comfortably with the 3,000 training episodes: roughly 20 training examples per weight."}, {"i": 75, "slide": 8, "text": "And from the simulator we don't just get volume \u2014 we get labelled market conditions, so we can distinguish rising from falling markets and evaluate how the agent acts in each."}, {"i": 76, "slide": 8, "text": "With these changes came very different results, and different behaviours \u2014 which is the next slide."}, {"i": 77, "slide": 9, "text": "The main result shows that once we balance the data, the always-buy strategy can't work the way it did before."}, {"i": 78, "slide": 9, "text": "The market is no longer constantly rising \u2014 there is a mix of different market conditions."}, {"i": 79, "slide": 9, "text": "The agent now has to learn a policy that works in each of these conditions, and that forces it to rely on the information provided by the state."}, {"i": 80, "slide": 9, "text": "The chart on the left shows the average earned in each market condition \u2014 rising, falling and consolidating \u2014 for every method."}, {"i": 81, "slide": 9, "text": "In this simulated held-out test set, Deep Q-learning performed well in all market conditions."}, {"i": 82, "slide": 9, "text": "In rising markets it kept $473.72 of the $477.22 that the benchmark always-buy strategy earns \u2014 that is 99% of the gains."}, {"i": 83, "slide": 9, "text": "And in falling markets it lost $103.35 where always-buy lost $663.91 \u2014 an 84% reduction in losses."}, {"i": 84, "slide": 9, "text": "The chart on the right shows all 600 test episodes overall."}, {"i": 85, "slide": 9, "text": "Deep Q-learning was the only method that landed a stable policy: it earns $126.94 per episode, across all six seeds."}, {"i": 86, "slide": 9, "text": "Because this is simulated, balanced data \u2014 with no constantly rising market \u2014 the fixed patterns the policy methods developed would lose to falling markets, to consolidations, or to transaction fees: the cost of making a trade."}, {"i": 87, "slide": 9, "text": "As for REINFORCE and PPO ending in negative values \u2014 minus $5.71 and minus $11.16 per episode \u2014 they could not develop a fixed strategy suitable for all markets, which caused a collapse."}, {"i": 88, "slide": 9, "text": "On balanced data, even the benchmark \u2014 always-buy \u2014 loses money."}, {"i": 89, "slide": 9, "text": "So never trading becomes the locally safe answer: it earns nothing, but it cannot lose."}, {"i": 90, "slide": 9, "text": "And once a policy-gradient method drifts close to either extreme \u2014 always buying or never trading \u2014 its gradient carries no signal."}, {"i": 91, "slide": 9, "text": "It stops exploring, and it gets stuck there."}, {"i": 92, "slide": 9, "text": "Deep Q-learning doesn't have this failure mode, because its epsilon-greedy exploration keeps trying every action a fraction of the time, no matter what the current policy prefers."}, {"i": 93, "slide": 9, "text": "It is noteworthy that one of the six REINFORCE seeds actually did rely on information from its state, gaining $83.13 per episode for that seed alone."}, {"i": 94, "slide": 9, "text": "But with five of the six collapsing, we can't consider that a reliable result."}, {"i": 95, "slide": 10, "text": "For the final transfer test, I took the policies trained on the simulator and ran them, unchanged, on 180 real months that the training never saw."}, {"i": 96, "slide": 10, "text": "That is 2006 to 2017, plus 2023 to 2025 \u2014 everything outside the 2018-to-2022 window that was used to calibrate the simulator."}, {"i": 97, "slide": 10, "text": "The left chart is the actual real SPY data, showing all the algorithms."}, {"i": 98, "slide": 10, "text": "Note that buy-and-hold still ends the highest by 2025: we couldn't beat the market, as it rose almost constantly over the span of two decades."}, {"i": 99, "slide": 10, "text": "On the right side, Deep Q-learning had the highest average of the learned methods at $60.28 per month, followed by REINFORCE at $31.66 and PPO at $8.32."}, {"i": 100, "slide": 10, "text": "Buy-and-hold still gave the highest return, at $80.24 a month."}, {"i": 101, "slide": 10, "text": "The policy-gradient methods are weaker here because most of their seeds collapsed to fixed patterns."}, {"i": 102, "slide": 10, "text": "Coming back to the main graph, we notice an unexpected behaviour in Deep Q-learning."}, {"i": 103, "slide": 10, "text": "During the 2008 financial crisis, buy-and-hold lost $1,665 in October alone \u2014 you can see the line plunge downwards."}, {"i": 104, "slide": 10, "text": "But all six of our Deep Q seeds held zero shares through that period, so their line barely dips \u2014 through the shaded band it actually sits highest."}, {"i": 105, "slide": 10, "text": "The agent reduced its losses by itself."}, {"i": 106, "slide": 10, "text": "It was never given this data at all, not even in the first study."}, {"i": 107, "slide": 10, "text": "So a safe assumption is that the volatility features it observed matched the falling condition it had learned, and it stepped aside for that period."}, {"i": 108, "slide": 10, "text": "In turn it gave up some market momentum and didn't gain profit \u2014 but it avoided most of the crash, unlike REINFORCE and PPO."}, {"i": 109, "slide": 11, "text": "To conclude \u2014 we found some interesting points over the course of this dissertation."}, {"i": 110, "slide": 11, "text": "First, the findings."}, {"i": 111, "slide": 11, "text": "The algorithms were never the problem; the data was."}, {"i": 112, "slide": 11, "text": "As with any deep learning method, data is essential to a decent result: 60 real months could never teach an 18,000-weight network, but 3,000 balanced simulated episodes could, to a significant degree."}, {"i": 113, "slide": 11, "text": "Next, the algorithms behaved very differently, and that traces back to their core mechanisms."}, {"i": 114, "slide": 11, "text": "REINFORCE and PPO, the policy methods, drifted to fixed habits \u2014 always buying, or never trading \u2014 because once a policy becomes near-certain, its gradient carries almost no signal, and it stops exploring."}, {"i": 115, "slide": 11, "text": "Deep Q-learning, on the other hand, kept exploring through its epsilon-greedy rule, and it was the only method that learned a policy that changes with the state \u2014 on all six seeds."}, {"i": 116, "slide": 11, "text": "And that learned behaviour carried into real markets: run unchanged on 180 unseen months, it stayed profitable, and it stepped aside through the October 2008 crash."}, {"i": 117, "slide": 11, "text": "What does this work contribute to the body of literature?"}, {"i": 118, "slide": 11, "text": "First, a careful way to evaluate."}, {"i": 119, "slide": 11, "text": "Every decision was calibrated on validation data alone \u2014 the trade size, the cost of trading, the risk coefficient."}, {"i": 120, "slide": 11, "text": "We used six seeds rather than relying on one result, and automated tests guarded the accounting, combined with action masking that prevents unavailable actions from being executed."}, {"i": 121, "slide": 11, "text": "Second, a behavioural test, which tells whether a policy genuinely reads the market information provided to it, apart from executing a fixed habit the way REINFORCE and PPO did."}, {"i": 122, "slide": 11, "text": "This changed how every result was read: without it, we would have read REINFORCE as very profitable, not knowing it was overfitting to rising markets."}, {"i": 123, "slide": 11, "text": "The test doesn't tell us which piece of information was used \u2014 volatility, moving average, or true range \u2014 and that goes to future work."}, {"i": 124, "slide": 11, "text": "Lastly, a calibrated simulator, which gives us volume, control and balance in our data."}, {"i": 125, "slide": 11, "text": "We can replicate multiple market conditions, and test exactly where needed."}, {"i": 126, "slide": 11, "text": "For our limitations: we studied one asset only \u2014 SPY, which tracks the S&P 500 \u2014 so the findings do not automatically carry to other markets."}, {"i": 127, "slide": 11, "text": "We used a deliberately simple simulator: months are categorised as rising, falling or consolidating, with no market change inside a month."}, {"i": 128, "slide": 11, "text": "The transfer test shows the cost of that simplicity \u2014 the gap between the simulated results and the real-month results is the price we paid for it."}, {"i": 129, "slide": 11, "text": "The policy methods were also not separately tuned: validation choices were made with Deep Q-learning, the method most responsive to its state, so we cannot tell whether the policy methods would have done better with their own tuning."}, {"i": 130, "slide": 11, "text": "And the evidence is modest \u2014 six seeds, with no formal significance tests."}, {"i": 131, "slide": 11, "text": "For future work: more seeds, with confidence intervals, and other assets, for stronger evidence."}, {"i": 132, "slide": 11, "text": "Better simulators, that represent realistic market change rather than fixed categories \u2014 and continuous months: real trading is continuous, months carry over into each other, and we treated each month independently to keep the modelling simple."}, {"i": 133, "slide": 11, "text": "And better reward functions, so that an agent cannot benefit from never trading \u2014 the same way balancing the data stopped the always-buy habit."}, {"i": 134, "slide": 11, "text": "So, coming back to the research question: can reinforcement learning learn a strategy that beats buy-and-hold?"}, {"i": 135, "slide": 11, "text": "On raw returns, on one asset, it did not."}, {"i": 136, "slide": 11, "text": "But given the right data, it learned something buy-and-hold can never do: to read the market's condition, and step aside when it turns."}, {"i": 137, "slide": 11, "text": "What these methods learn is decided by the data they are given."}, {"i": 138, "slide": 11, "text": "Thank you."}, {"i": 139, "slide": 11, "text": "I'm happy to take your questions."}];
+let cur = 0;
+let started = null;
+
+/* Pace budget (13 Sep, from the 22.7-min practice run): the second is
+   the clock time each slide should be FINISHED by, summing to 19:30. */
+const DEADLINE = {1: 30, 2: 90, 3: 180, 4: 285, 5: 390, 6: 510,
+                  7: 615, 8: 735, 9: 900, 10: 1035, 11: 1170};
+function fmt(sec) {
+  return String(Math.floor(sec / 60)).padStart(2, "0") + ":" +
+         String(sec % 60).padStart(2, "0");
+}
+function updatePace() {
+  const slide = (LINES[cur] || {}).slide;
+  if (!slide || !DEADLINE[slide]) return;
+  const el = document.getElementById("pace");
+  el.textContent = "finish slide " + slide + " by " + fmt(DEADLINE[slide]);
+  if (started !== null) {
+    const elapsed = (Date.now() - started) / 1000;
+    const late = elapsed > DEADLINE[slide];
+    el.style.color = late ? "#e06c5a" : "#6fbf8a";
+    document.getElementById("timer").style.color =
+      late ? "#e06c5a" : "#93a1b8";
+  }
+}
+
+function norm(w) { return w.toLowerCase().replace(/[^a-z0-9]/g, ""); }
+const tokens = LINES.map(l => l.text.split(/\s+/).map(norm).filter(Boolean));
+
+function render() {
+  LINES.forEach(l => {
+    const el = document.getElementById("L" + l.i);
+    el.classList.toggle("current", l.i === cur);
+    el.classList.toggle("past", l.i < cur);
+  });
+  const el = document.getElementById("L" + cur);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  updatePace();
+}
+function go(i) {
+  cur = Math.max(0, Math.min(LINES.length - 1, i));
+  ptr = 0;
+  matched = 0;
+  render();
+}
+
+/* Clicking a line is a hard anchor: "I am HERE." The tracker starts
+   fresh at that line, forgets recent mishears (so a stale resync
+   cannot fire), and silently absorbs leftover words of the previous
+   line. From an anchor it can only move ONE line forward, and only
+   on voice evidence for that next line. */
+document.querySelectorAll(".line").forEach(el =>
+  el.addEventListener("click", () => {
+    const i = +el.dataset.i;
+    go(i);
+    nextPtr = 0;
+    missCount = 0;
+    recentHeard.length = 0;
+    tailLine = i - 1;
+    tailPtr = 0;
+  }));
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowDown" || e.key === " ") { e.preventDefault(); go(cur + 1); }
+  if (e.key === "ArrowUp") { e.preventDefault(); go(cur - 1); }
+  if (e.key === "Home") { e.preventDefault(); go(0); }
+});
+
+/* ---- timer: a plain stopwatch (14 Sep — keep the controls simple).
+   One button. Click = start from 00:00. Click again = stop (the time
+   stays on screen). Click again = start a fresh run from 00:00. ---- */
+let timerInterval = null;
+document.getElementById("timerBtn").onclick = () => {
+  const b = document.getElementById("timerBtn");
+  if (timerInterval) {                     // running -> stop
+    clearInterval(timerInterval);
+    timerInterval = null;
+    started = null;
+    b.textContent = "⏱ start";
+    b.classList.remove("on");
+    return;
+  }
+  started = Date.now();                    // stopped -> run from zero
+  document.getElementById("timer").textContent = "00:00";
+  b.textContent = "⏱ stop";
+  b.classList.add("on");
+  timerInterval = setInterval(() => {
+    const s = Math.floor((Date.now() - started) / 1000);
+    document.getElementById("timer").textContent = fmt(s);
+    updatePace();
+  }, 1000);
+  updatePace();
+};
+
+/* ---- follow toggle: the mic keeps running (and keeps feeding the
+   Q&A board over the shared channel) but the transcript stops
+   auto-scrolling when following is off ---- */
+let followOn = true;
+document.getElementById("followBtn").onclick = () => {
+  followOn = !followOn;
+  const b = document.getElementById("followBtn");
+  b.textContent = followOn ? "🧭 follow: on" : "🧭 follow: OFF";
+  b.classList.toggle("on", followOn);
+  if (!followOn) setStatus("voice: heard but NOT moving the page — use ↓/↑", "");
+};
+
+/* ---- font size ---- */
+let fs = +(localStorage.getItem("fs") || 30);
+function applyFs() {
+  document.documentElement.style.setProperty("--fs", fs + "px");
+  localStorage.setItem("fs", fs);
+}
+document.getElementById("bigger").onclick = () => { fs += 2; applyFs(); };
+document.getElementById("smaller").onclick = () => { fs = Math.max(18, fs - 2); applyFs(); };
+applyFs();
+
+/* ---- light / dark (both windows switch together via localStorage) ---- */
+function applyTheme() {
+  const light = localStorage.getItem("vivaTheme") === "light";
+  document.body.classList.toggle("light", light);
+  document.getElementById("themeBtn").textContent = light ? "🌙 dark" : "☀️ light";
+}
+document.getElementById("themeBtn").onclick = () => {
+  localStorage.setItem("vivaTheme",
+    localStorage.getItem("vivaTheme") === "light" ? "dark" : "light");
+  applyTheme();
+};
+window.addEventListener("storage", applyTheme);  // follow the other window
+applyTheme();
+
+/* ---- voice tracking (Spotify-style) ----
+   Stricter rules (13 Sep — the first version ran ahead of the reader):
+   - numbers only match spoken numbers, never ordinary words;
+   - filler words (the, and, of...) only count at the exact pointer;
+   - a line completes only when ~85% of it has been heard;
+   - jumping to the next line needs TWO consecutive matching words,
+     the first of them a content word;
+   - auto-advance is rate-limited: never twice within 1.1 seconds. */
+let ptr = 0;
+let rec = null, voiceOn = false;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const STOP = new Set(["the","a","an","and","or","but","of","to","in","on",
+  "at","is","are","was","were","it","its","we","i","you","so","that","this",
+  "as","for","with","be","by","not","now","if","can","from","one","all"]);
+
+function fuzzyEq(a, b) {
+  if (!a || !b) return false;
+  if (/\d/.test(a)) return /\d/.test(b);   // numbers only match numbers
+  if (a === b) return true;
+  return a.length >= 5 && b.length >= 5 &&
+         (a.startsWith(b.slice(0, 5)) || b.startsWith(a.slice(0, 5)));
+}
+
+let nextPtr = 0;         // consecutive hits into the NEXT line
+let lastAdvance = 0;
+let matched = 0;         // words of the CURRENT line actually heard
+let tailLine = -1;       // line just completed by an early advance...
+let tailPtr = 0;         // ...and how far into it we had matched
+
+function autoAdvance(toPtr) {
+  const now = Date.now();
+  if (now - lastAdvance < 1100) return;    // no line takes <1.1s to read
+  lastAdvance = now;
+  // remember the leftover of the line we are leaving: the reader will
+  // still SPEAK its last words, and they must not count as misses on
+  // the new line (14 Sep 3am — that pattern made resync drag the
+  // highlight BACK to the finished line)
+  tailLine = cur;
+  tailPtr = ptr;
+  go(cur + 1);
+  ptr = toPtr;
+  nextPtr = 0;
+}
+
+/* Stall recovery, tightened 13 Sep late evening. The first version
+   resynced on TWO consecutive words over a 9-line window and it made
+   the highlight leap ahead of the reader. Now: THREE consecutive
+   content words, a short window (one line back, three ahead), closest
+   line wins, and at most one resync every 4 seconds. */
+let missCount = 0;
+let lastResync = 0;
+const recentHeard = [];
+
+function resync() {
+  const now = Date.now();
+  if (now - lastResync < 2500) return false;
+  const tail = recentHeard.slice(-3);
+  if (tail.length < 3) return false;
+  // ONE-LINE RULE (Fiyin, 14 Sep): the tracker may never move more
+  // than one line at a time, and never backwards on its own. Resync
+  // only re-anchors within the current line or steps to the next.
+  const order = [cur, cur + 1];
+  for (const L of order) {
+    if (L < 0 || L >= LINES.length) continue;
+    const exp = tokens[L] || [];
+    for (let k = 0; k + 2 < exp.length; k++) {
+      if (fuzzyEq(exp[k], tail[0]) && fuzzyEq(exp[k + 1], tail[1]) &&
+          fuzzyEq(exp[k + 2], tail[2])) {
+        if (L !== cur) go(L);
+        ptr = k + 3;
+        matched = 3;
+        nextPtr = 0;
+        missCount = 0;
+        lastResync = now;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function feed(words) {
+  for (const wRaw of words) {
+    const w = norm(wRaw);
+    if (!w) continue;
+    const exp = tokens[cur] || [];
+    // content words may look 4 ahead (survives a dropped ASR word);
+    // filler only matches at the pointer
+    const ahead = STOP.has(w) ? 1 : 4;
+    let hit = -1;
+    for (let k = ptr; k < Math.min(ptr + ahead, exp.length); k++) {
+      if (fuzzyEq(exp[k], w)) { hit = k; break; }
+    }
+    if (hit >= 0) {
+      ptr = hit + 1;
+      matched++;
+      nextPtr = 0;
+      missCount = 0;
+      // a line completes when the pointer has reached ~70% of it AND
+      // close to half its words were actually HEARD. (85%/55% proved
+      // too slow on 14 Sep — the recogniser lags the voice, so the
+      // highlight must move a beat BEFORE the line is fully spoken.)
+      const need = exp.length <= 4 ? exp.length
+                                   : Math.ceil(exp.length * 0.70);
+      const heardEnough = matched >= Math.max(2, Math.ceil(exp.length * 0.45));
+      if (ptr >= need && heardEnough) autoAdvance(0);
+      continue;
+    }
+    // moved on already? require consecutive words of the next line —
+    // two if a fair part of the current line was heard, three if not
+    const nxt = tokens[cur + 1] || [];
+    const nextNeed = matched >= exp.length * 0.35 ? 2 : 3;
+    if (nextPtr > 0 && nextPtr < nxt.length && fuzzyEq(nxt[nextPtr], w)) {
+      nextPtr++;
+      if (nextPtr >= nextNeed) autoAdvance(nextPtr);
+      continue;
+    } else if (nxt.length && !STOP.has(w) && fuzzyEq(nxt[0], w)) {
+      nextPtr = 1;
+    } else {
+      nextPtr = 0;
+    }
+    // leftover of the line we just advanced out of? consume silently
+    if (tailLine === cur - 1) {
+      const tl = tokens[tailLine] || [];
+      let tHit = -1;
+      for (let k = tailPtr; k < Math.min(tailPtr + 4, tl.length); k++) {
+        if (fuzzyEq(tl[k], w)) { tHit = k; break; }
+      }
+      if (tHit >= 0) { tailPtr = tHit + 1; continue; }
+    }
+    // a genuine miss — remember it and consider resyncing
+    if (!STOP.has(w)) {
+      recentHeard.push(w);
+      if (recentHeard.length > 6) recentHeard.shift();
+      missCount++;
+      if (missCount >= 4) resync();
+    }
+  }
+}
+
+function setStatus(t, cls) {
+  const el = document.getElementById("status");
+  el.textContent = t;
+  el.className = cls || "";
+}
+
+/* ---- ONE mic for both windows ----
+   transcript.html and qa.html share heard words over a
+   BroadcastChannel: start voice tracking in EITHER window and the
+   other follows the same microphone. (13 Sep night — the two pages
+   were fighting over the mic and Chrome kept re-prompting.) */
+const bc = window.BroadcastChannel ? new BroadcastChannel("viva-voice") : null;
+if (bc) bc.onmessage = e => {
+  if (voiceOn) return;                    // this window owns the mic
+  feed(e.data);
+  document.getElementById("heardT").textContent =
+    "…" + e.data.slice(-6).join(" ");
+  setStatus("voice: shared from the other window ✓", "ok");
+};
+
+/* file:// pages cannot remember mic permission — send Fiyin to the
+   served copy where Chrome asks exactly once. */
+if (location.protocol === "file:") {
+  const w = document.createElement("div");
+  w.style.cssText = "position:fixed;top:52px;left:0;right:0;z-index:99;" +
+    "background:#7a1f1f;color:#ffe;padding:10px 22px;font:15px " +
+    "-apple-system,sans-serif;text-align:center";
+  w.innerHTML = "You opened the FILE copy — the mic permission will not " +
+    "stick and Chrome will keep asking. Use " +
+    "<a href='http://localhost:8749/transcript.html' " +
+    "style='color:#ffd9a0;font-weight:700'>localhost:8749/transcript.html</a>";
+  document.body.appendChild(w);
+}
+
+document.getElementById("voiceBtn").onclick = () => {
+  if (!SR) { setStatus("voice: not supported in this browser — use Chrome"); return; }
+  if (voiceOn) { voiceOn = false; rec.stop(); setStatus("voice: off");
+    document.getElementById("voiceBtn").classList.remove("on");
+    document.getElementById("followBtn").style.display = "none"; return; }
+  document.getElementById("followBtn").style.display = "";
+  rec = new SR();
+  rec.lang = "en-GB";
+  rec.continuous = true;
+  rec.interimResults = true;
+  let fed = 0;              // words of the live utterance already consumed
+  let fatal = false;
+  rec.onresult = e => {
+    const r = e.results[e.results.length - 1];
+    const words = r[0].transcript.trim().split(/\s+/).filter(Boolean);
+    // feed only the words not seen before — NEVER replay an utterance
+    // (the old version re-fed every final result from word 0, which is
+    // what made the highlight run ahead of the reader)
+    if (words.length > fed) {
+      const fresh = words.slice(fed);
+      if (followOn) feed(fresh);       // follow OFF = hear, don't scroll
+      if (bc) bc.postMessage(fresh);   // share the mic with qa.html
+      document.getElementById("heardT").textContent =
+        "…" + words.slice(-6).join(" ");
+      setStatus(followOn ? "voice: hearing you ✓"
+                         : "voice: hearing (follow off)", "ok");
+    }
+    fed = r.isFinal ? 0 : words.length;
+  };
+  rec.onerror = ev => {
+    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
+      fatal = true; voiceOn = false;
+      setStatus("MIC BLOCKED — open http://localhost:8749/transcript.html " +
+                "in Chrome and click Allow", "bad");
+      document.getElementById("voiceBtn").classList.remove("on");
+    } else if (ev.error === "aborted") {
+      // the OTHER window took the mic — follow it over the channel
+      fatal = true; voiceOn = false;
+      setStatus("mic moved to the other window — following it here ✓", "ok");
+      document.getElementById("voiceBtn").classList.remove("on");
+    } else if (ev.error !== "no-speech") {
+      setStatus("voice: error (" + ev.error + ") — restarting", "bad");
+    }
+  };
+  rec.onend = () => { if (voiceOn && !fatal) rec.start(); };  // auto-restart
+  rec.start();
+  voiceOn = true;
+  setStatus("voice: listening (say something to confirm)", "ok");
+  document.getElementById("voiceBtn").classList.add("on");
+};
+
+render();
+</script>
+</body>
+</html>

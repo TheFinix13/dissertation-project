@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Generate the per-month results appendix from the results JSON.
 
+STUDY: shared — appendix tables for the dissertation.
+
 The appendix is generated rather than transcribed so that it cannot drift from
 the numbers it reports. Regenerating it after any re-run is a one-line command,
 and a mismatch between the table and the results file becomes impossible rather

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Extended real-data transfer set: every SPY month outside the calibration window.
 
+STUDY: main (simulated redo) — builds data/spy_transfer.npz: 180 real
+months (2006-17 + 2023-25), including the 2008 crisis. In the dissertation.
+
 Why this module exists
 ----------------------
 The pilot split the real series 60/12/24 (train/val/test) because the agents

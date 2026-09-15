@@ -1,5 +1,7 @@
 """Tests for the final environment, features and baselines.
 
+STUDY: shared — the 21 verification tests cover both studies.
+
 Each test corresponds to a claim made in Chapter 3 or Chapter 4, so a failing
 test points at a specific sentence in the dissertation. The synthetic series
 below is used only to make the tests independent of network access; no result

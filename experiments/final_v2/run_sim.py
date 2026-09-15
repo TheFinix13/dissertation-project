@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Simulated-data study: train on generated episodes, test under control.
 
+STUDY: main (simulated redo) — the headline main-study run. Writes
+results/sim_results.json. In the dissertation (Chapter 5, Sections 5.5-5.10).
+
 This is the redesign of the final study after the real-data version was found
 to be data-starved (60 training episodes against a ~16k-parameter network).
 Three changes, each fixing one identified defect:

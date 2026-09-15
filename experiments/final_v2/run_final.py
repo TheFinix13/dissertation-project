@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Final experiments: three algorithms, three admissible cells, one action axis.
 
+STUDY: first (real-data pilot) — the headline pilot run. Writes
+results/final_results.json. In the dissertation (Chapter 5, Section 5.3).
+
 Structure
 ---------
 Stage 1 (validation) selects the one free hyper-parameter of the risk-aware

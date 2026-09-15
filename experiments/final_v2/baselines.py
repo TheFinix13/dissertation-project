@@ -1,5 +1,7 @@
 """Reference strategies, including a corrected buy-and-hold.
 
+STUDY: shared — the benchmarks both studies are measured against.
+
 The defect being fixed
 ----------------------
 The earlier "buy-and-hold" baseline was a policy that bought one slice whenever

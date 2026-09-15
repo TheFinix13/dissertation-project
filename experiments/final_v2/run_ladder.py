@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Saturation study: does each rung of the state ladder change what is learned?
 
+STUDY: first (real-data pilot) — validation-year only. Writes
+results/ladder_results.json.
+
 Chapter 3 argues the ladder from information requirements. This script tests it,
 and it does so on the **validation** year, not the test years. That is
 deliberate. Choosing where the ladder stops is a design decision, and a design

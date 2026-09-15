@@ -32,4 +32,9 @@ Talha's exemplar reports on disk (imitate the style on the page, not just tone):
 - Limitations before future work, always.
 - Harvard citations for Surrey deliverables.
 - Equations are LaTeX; never Word's equation editor as source.
+- Equations are ALWAYS properly typeset in the delivered medium: real
+  LaTeX in documents; LaTeX rendered to crisp images (matplotlib
+  mathtext, 300 dpi) for slides and HTML pages. Unicode approximations
+  (`𝔼_{τ~π_θ}[Σ γ^t r_t]`) are never acceptable as display equations —
+  they must be readable to the human eye, alongside explaining prose.
 - Run the six-question self-check in `readability-and-clarity.md` before calling any chapter done.

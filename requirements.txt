@@ -1,5 +1,6 @@
-# Simple-modelling track dependencies (Python 3.11)
-# No FinRL / DeepAR / GluonTS — those belong to the old v0.17 stack on other branches.
+# Dependencies for the two-study dissertation experiments (experiments/final_v2).
+# The era-1 uncertainty stack (FinRL / DeepAR / GluonTS) is not used; it lives
+# only under the git tag era1-uncertainty-ppo.
 
 pandas>=2.0
 numpy>=1.24
@@ -11,5 +12,8 @@ torch>=2.0
 matplotlib>=3.7
 tqdm>=4.65
 
-# Phase 0 optional games (install separately if needed):
-#   pip install flappy-bird-gymnasium "gymnasium[box2d]"
+# MaskablePPO (used by month_sampler.py / the PPO runs)
+sb3-contrib>=2.0
+
+# python-pptx is only needed to rebuild the viva decks (scripts/make_viva_pptx*.py):
+#   pip install python-pptx

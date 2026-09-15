@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Conditioning diagnostic v2: all three algorithms at both trade slices.
 
+STUDY: first (real-data pilot) — the state-dependence diagnostic. Writes
+results/conditioning_v2_results.json. In the dissertation.
+
 The original conditioning study (`run_conditioning.py`) predates the slice
 calibration: it ran at the 0.10 C0 slice, covered only REINFORCE and DQN, and
 crossed them with a reward-scaling axis that the dissertation does not use.

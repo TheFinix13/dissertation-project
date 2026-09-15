@@ -1,6 +1,8 @@
 """Episode-sampling wrapper so Stable-Baselines3 sees the same task as the
 from-scratch agents.
 
+STUDY: shared — the MaskablePPO adapter used by both studies.
+
 SB3 treats one environment as one long-running task, whereas the trading task is
 a distribution over monthly episodes. This wrapper draws a new month on every
 reset, from a generator seeded by the run seed, so the SB3 agent's seed-to-seed

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Fee sensitivity: how much does the assumed transaction cost matter?
 
+STUDY: first (real-data pilot) — writes results/fee_results.json. The
+main study reruns this axis on simulated data in run_sim_suite.py.
+
 The headline experiments assume 5 basis points per trade, which is defensible
 for a retail investor trading one of the world's most liquid instruments but is
 still an assumption, and a favourable one. A trading result that only survives

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """The pilot's full experiment suite, rerun on the simulated data.
 
+STUDY: main (simulated redo) — writes results/sim_{slice,lambda,cells,fees}.json.
+In the dissertation.
+
 `run_sim.py` answers the algorithm question under the fixed setup (pyramid
 network, 3,000 balanced simulated episodes). The pilot answered four further
 questions - trade sizing, state features, the risk-aware reward, transaction

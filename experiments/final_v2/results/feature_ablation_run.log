@@ -1,0 +1,41 @@
+sim train=3000 test=600  transfer=180 months
+  S3_full     obs_dim=9  ret_1, mom_k, vol_k, ma_gap, atr_norm, clock, cash_frac, exposure_frac, pnl
+  S3_novol    obs_dim=7  ret_1, mom_k, ma_gap, clock, cash_frac, exposure_frac, pnl
+  S3_account  obs_dim=4  clock, cash_frac, exposure_frac, pnl
+
+buy-and-hold 2008-10: dW -1665.24, exposure 0.754
+
+=== S3_full (9 features) ===
+  seed 42: sim dW= +117.44  down= -133.31  real dW= +66.32  expo(2008-10)=0.000  expo(band)=0.020  cond=state  (103s)
+  seed 43: sim dW= +135.20  down=  -78.05  real dW= +61.59  expo(2008-10)=0.000  expo(band)=0.017  cond=state  (105s)
+  seed 44: sim dW= +136.06  down=  -77.11  real dW= +55.15  expo(2008-10)=0.000  expo(band)=0.034  cond=state  (105s)
+  seed 45: sim dW= +122.84  down= -113.61  real dW= +61.07  expo(2008-10)=0.000  expo(band)=0.012  cond=state  (105s)
+  seed 46: sim dW= +123.95  down= -113.02  real dW= +55.66  expo(2008-10)=0.000  expo(band)=0.017  cond=state  (106s)
+  seed 47: sim dW= +126.14  down= -105.01  real dW= +61.89  expo(2008-10)=0.000  expo(band)=0.029  cond=state  (108s)
+
+=== S3_novol (7 features) ===
+  seed 42: sim dW= +101.49  down= -156.58  real dW= +49.58  expo(2008-10)=0.021  expo(band)=0.289  cond=state  (106s)
+  seed 43: sim dW= +103.11  down= -165.66  real dW= +47.96  expo(2008-10)=0.010  expo(band)=0.306  cond=state  (106s)
+  seed 44: sim dW=  +95.90  down= -200.25  real dW= +52.34  expo(2008-10)=0.010  expo(band)=0.248  cond=state  (106s)
+  seed 45: sim dW=  +93.84  down= -218.88  real dW= +58.38  expo(2008-10)=0.010  expo(band)=0.395  cond=state  (106s)
+  seed 46: sim dW= +128.15  down= -107.87  real dW= +53.99  expo(2008-10)=0.000  expo(band)=0.294  cond=state  (106s)
+  seed 47: sim dW= +101.37  down= -169.27  real dW= +35.96  expo(2008-10)=0.021  expo(band)=0.293  cond=state  (106s)
+
+=== S3_account (4 features) ===
+  seed 42: sim dW=  +44.80  down= -333.71  real dW= +35.26  expo(2008-10)=0.031  expo(band)=0.253  cond=state  (104s)
+  seed 43: sim dW=   +6.71  down= -466.14  real dW= +69.87  expo(2008-10)=0.120  expo(band)=0.422  cond=state  (104s)
+  seed 44: sim dW=  +34.81  down= -382.73  real dW= +63.21  expo(2008-10)=0.052  expo(band)=0.390  cond=state  (104s)
+  seed 45: sim dW=   +2.06  down= -486.72  real dW= +70.98  expo(2008-10)=0.088  expo(band)=0.413  cond=state  (104s)
+  seed 46: sim dW=  +43.06  down= -333.24  real dW= +34.79  expo(2008-10)=0.031  expo(band)=0.267  cond=state  (106s)
+  seed 47: sim dW=  +44.78  down= -316.19  real dW= +44.38  expo(2008-10)=0.031  expo(band)=0.252  cond=state  (104s)
+
+wrote /Users/the1finix/Documents/GitHub/dissertation project -uncertainty-aware portfolio agent/experiments/final_v2/results/feature_ablation.json
+
+=== ABLATION SUMMARY (6-seed means) ===
+cell           sim dW  spread      down  real dW expo 08-10 expo band  state
+S3_full       +126.94   18.62   -103.35   +60.28      0.000     0.022 6/   6
+S3_novol      +103.98   34.31   -169.75   +49.70      0.012     0.304 6/   6
+S3_account     +29.37   42.74   -386.46   +53.08      0.059     0.333 6/   6
+buy&hold            —       — 80.23621555106357        —      0.754     0.852
+
+FEATURE_ABLATION_DONE

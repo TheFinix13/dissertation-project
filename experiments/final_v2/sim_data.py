@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Simulated market data: regime-switching episodes calibrated on real SPY.
 
+STUDY: main (simulated redo) — builds data/sim_episodes.npz: 3000 train /
+300 validation / 600 test balanced episodes. In the dissertation.
+
 Why this module exists
 ----------------------
 The real-data study trains on 60 monthly episodes. The policy network has

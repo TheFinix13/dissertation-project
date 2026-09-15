@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Data pipeline for the final experiments: OHLCV, continuous features, 3-way split.
 
+STUDY: first (real-data pilot) — builds data/spy_episodes.npz: 60 train
+months 2018-22, validation 2023, test 2024-25. In the dissertation.
+
 Three deliberate differences from the earlier pipeline.
 
 1. **OHLCV is retained.** The earlier pipeline kept `Close` and discarded the

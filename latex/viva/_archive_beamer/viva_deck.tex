@@ -1,0 +1,298 @@
+% Viva presentation — EEEM004, Fiyinfoluwa Akano, September 2026.
+% 12 slides (handbook maximum), sized for a 15-20 minute talk.
+% Compile: xelatex viva_deck.tex   (run twice)
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usetheme{default}
+\usecolortheme{seahorse}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill\scriptsize\insertframenumber/\inserttotalframenumber\hspace{2mm}\vspace{2mm}}
+\setbeamertemplate{itemize items}{\textbullet}
+\setbeamerfont{frametitle}{series=\bfseries,size=\large}
+\setbeamercolor{frametitle}{fg=black,bg=white}
+\setbeamercolor{normal text}{fg=black}
+\setbeamercolor{structure}{fg=black!70}
+
+\usepackage{fontspec}
+\IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{}
+\usefonttheme{serif}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\graphicspath{{../dissertation/}}
+
+\title{Evaluating Reinforcement Learning Algorithms\\for Portfolio Trading}
+\subtitle{A Reinforcement Learning Study on the S\&P 500 ETF (SPY)}
+\author{Fiyinfoluwa Akano \\ \small URN 6962514 · MSc Artificial Intelligence}
+\institute{Supervisor: Dr Cuong Nguyen \\ University of Surrey}
+\date{September 2026}
+
+\begin{document}
+
+% ---------- 1. Title ----------
+\begin{frame}
+  \titlepage
+  \begin{center}
+    \includegraphics[width=0.22\textwidth]{figs/surrey_logo.png}
+  \end{center}
+\end{frame}
+
+% ---------- 2. Problem ----------
+\begin{frame}{The problem}
+  An investor holding a stock-index fund faces the same decision each
+  day: buy more, sell part of the position, or do nothing.
+  \vspace{4pt}
+  \begin{itemize}
+    \item \textbf{Question 1 — performance.} Can reinforcement learning
+      make these decisions better than buying and holding, after
+      transaction costs?
+    \item \textbf{Question 2 — behaviour.} Does the learned agent
+      actually use its market information? A market that mostly rises
+      rewards constant buying, so a profitable agent has not
+      necessarily learned anything.
+    \item \textbf{Question 3 — data.} Is the historical record of one
+      asset large enough to train these networks at all?
+  \end{itemize}
+  \vspace{4pt}
+  Three algorithms compared: REINFORCE and Deep Q-learning (DQN),
+  implemented from scratch, and PPO from a library. The dissertation
+  answers with \textbf{two studies}: real data first, then corrected
+  data.
+\end{frame}
+
+% ---------- 3. Environment ----------
+\begin{frame}{The trading environment}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item Monthly episodes of daily SPY bars (18--23 trading days),
+          \$10,000 starting capital, any open position sold on the
+          final day.
+        \item \textbf{State}: nine features --- five market (return,
+          momentum, volatility, trend gap, range) and four portfolio
+          (cash, exposure, unrealised PnL, episode clock).
+        \item \textbf{Actions}: hold, buy, or sell a fixed
+          \(0.25\,C_0\); invalid actions masked.
+        \item \textbf{Reward}: change in wealth after a 0.05\% fee.
+          Risk-aware variant subtracts \(\lambda C_0\,\Delta dd_t\).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \includegraphics[width=\textwidth]{media/media/image1_ch3.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------- 4. Methodology ----------
+\begin{frame}{How the evaluation earns trust}
+  \begin{itemize}
+    \item \textbf{Chronological splits.} Train 2018--2022, validate
+      2023, test 2024--2025. No shuffling, so no look-ahead leakage.
+    \item \textbf{Validation-only decisions.} Trade size, risk-penalty
+      weight, and fee checks were all selected on validation data.
+      Every test set was touched once.
+    \item \textbf{Six seeds per configuration}, spread reported next to
+      every mean. One good run proves nothing.
+    \item \textbf{21 verification tests.} They caught a benchmark bug
+      worth \$38.95 per month --- enough to flip the headline
+      conclusion.
+    \item \textbf{State-dependence test.} A policy that picks different
+      actions at steps with the \emph{same action mask} must be reading
+      its state. Reported per seed, next to the returns.
+  \end{itemize}
+  \vspace{2pt}
+  The last test separates a policy that responds to the market from one
+  that follows a fixed pattern --- the returns alone cannot.
+\end{frame}
+
+% ---------- 5. First study ----------
+\begin{frame}{First study: real data alone --- a negative result}
+  Trained on the 60 real months of 2018--2022, tested on 2024--2025.
+  \vspace{4pt}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \small
+      \begin{tabular}{@{}lrr@{}}
+        \toprule
+        Policy & \(\Delta W\) (\$/mo) & State-dep. \\
+        \midrule
+        Buy-and-hold & +180.25 & --- \\
+        Always-buy   & +179.75 & --- \\
+        REINFORCE    & +171.51 & 0/6 \\
+        PPO          & +127.35 & 0/6 \\
+        Deep Q-learning & +74.68 & \textbf{6/6} \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \includegraphics[width=\textwidth]{media4/media/image4.png}
+    \end{column}
+  \end{columns}
+  \vspace{6pt}
+  No agent beat buy-and-hold. The methods that earned the most ignored
+  their state on every seed; the only method that used its state earned
+  the least. The contradiction needed an explanation.
+\end{frame}
+
+% ---------- 6. Diagnosis ----------
+\begin{frame}{The diagnosis: the data, not the algorithms}
+  \begin{itemize}
+    \item \textbf{60 episodes against 18,000 parameters.} A network
+      that size can memorise every training month; nothing forces it to
+      learn a rule that transfers.
+    \item \textbf{The months lean upward.} 29 of 60 training months
+      rose more than 2\%; only 16 fell. Under that distribution,
+      always-buy is a nearly optimal answer that needs no state
+      information --- the same failure as a classifier trained on a
+      99\%-one-class dataset.
+    \item \textbf{Why DQN was worst.} Value estimation needs many
+      visits to similar states under a stable distribution. Sixty
+      shifting months provide neither, so DQN conditioned on noisy
+      estimates.
+  \end{itemize}
+  \vspace{4pt}
+  None of this can be tested on the real data, because the real data is
+  the problem. Testing it needs control over volume, balance, and
+  conditions --- which is what the main study builds.
+\end{frame}
+
+% ---------- 7. The fix ----------
+\begin{frame}{The main study: controlled data, right-sized model}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item Market generator with three conditions --- up, down, flat
+          --- calibrated on the 60 real training months \emph{only}.
+        \item 3,000 balanced training episodes, 300 validation, 600
+          test. About 60,000 transitions per pass.
+        \item Network cut to 64 and 32 units: \(\approx\)2,800
+          parameters. Data now outnumbers parameters \(\sim\)20:1.
+        \item On the balanced test set, \textbf{no fixed pattern
+          profits}: buy-and-hold loses \$60.29 per episode; never
+          trading earns \$0. Any profit requires reading the state.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \small
+      \begin{tabular}{@{}lrrr@{}}
+        \toprule
+        & Months & Drift & Vol. \\
+        \midrule
+        Up   & 29 & +0.244\% & 0.97\% \\
+        Down & 16 & −0.358\% & 2.00\% \\
+        Flat & 15 & +0.012\% & 1.10\% \\
+        \bottomrule
+      \end{tabular}
+      \vspace{4pt}
+
+      \scriptsize Fitted daily parameters per condition; generated ATR
+      matches the real mean within 4\%.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------- 8. Main result ----------
+\begin{frame}{Main result: the ranking inverts}
+  \centering
+  \includegraphics[width=0.76\textwidth]{figs5/fig5_sim.pdf}
+  \vspace{2pt}
+  \begin{itemize}\small
+    \item \textbf{DQN: +\$126.94 per episode} (seed std \$7.30), all
+      six seeds profitable and state-dependent. It keeps 99\% of the
+      up-market profit and cuts the down-market loss by 84\%.
+    \item REINFORCE and PPO collapse to corner policies --- never trade
+      or always buy. One REINFORCE seed in six found the conditioned
+      policy (+\$83.13), so it is reachable but not reliably found.
+  \end{itemize}
+\end{frame}
+
+% ---------- 9. Robustness ----------
+\begin{frame}{The result survives its assumptions}
+  \textbf{Risk-aware reward} (\(\lambda=0.25\), selected on validation):
+  \begin{itemize}
+    \item Down-market loss falls 73\% (−\$87.28 to −\$23.26) for a
+      1.5\% cost in mean return; Sharpe rises 0.285 to 0.332.
+    \item The agent holds less \emph{when the market falls}, not less
+      overall --- the selective behaviour the first study could not
+      produce.
+  \end{itemize}
+  \vspace{4pt}
+  \textbf{Transaction fees} swept 0 to 50 basis points:
+  \begin{itemize}
+    \item DQN stays profitable at every level: +\$95.27 per episode at
+      50 bps, ten times the study's assumption. Buy-and-hold turns
+      negative by 10 bps on balanced data.
+    \item Trades fall only from 5.5 to 3.7 per episode ---
+      condition-selective trades are worth more than they cost.
+  \end{itemize}
+  \vspace{4pt}
+  \textbf{Drawdown state feature}: +\$4.37 change against a \$7 seed
+  std --- information only helps when the objective gives a reason to
+  use it.
+\end{frame}
+
+% ---------- 10. Transfer ----------
+\begin{frame}{Transfer: 180 real months the training never saw}
+  \centering
+  \includegraphics[width=0.68\textwidth]{figs5/fig5_transfer.pdf}
+  \vspace{2pt}
+  \begin{itemize}\small
+    \item Every real month outside calibration: 2006--2017 and
+      2023--2025, including the 2008 crisis. Profitable on all six
+      seeds (+\$60.28/mo); \textbf{Sharpe 0.224 vs buy-and-hold's
+      0.198} at three-quarters of the exposure.
+    \item \textbf{October 2008}: all six agents held zero exposure;
+      buy-and-hold lost \$1,665. Crisis total: −\$180 vs −\$3,046.
+    \item The honest half: raw return is lower (+\$60 vs +\$80), and
+      the agents sat out the Dec 2008 / Mar 2009 rebounds. The claim is
+      risk-adjusted, not absolute.
+  \end{itemize}
+\end{frame}
+
+% ---------- 11. Limitations ----------
+\begin{frame}{Limitations and future work}
+  \textbf{Limitations}
+  \begin{itemize}
+    \item One asset; findings do not automatically generalise past
+      broad index trading.
+    \item The generator is deliberately simple: returns independent
+      within a condition, no mid-month regime change. The transfer test
+      measures the cost of that gap directly.
+    \item Six seeds, no formal significance testing; policy-gradient
+      methods were not separately tuned (entropy coefficient 0).
+  \end{itemize}
+  \vspace{4pt}
+  \textbf{Future work}
+  \begin{itemize}
+    \item Regime switching within episodes (hidden Markov chain) and
+      volatility clustering; walk-forward recalibration.
+    \item Risk-relative objectives that cannot score well by
+      abstention; more seeds with bootstrap confidence intervals;
+      other assets.
+  \end{itemize}
+\end{frame}
+
+% ---------- 12. Conclusions ----------
+\begin{frame}{Conclusions}
+  \begin{enumerate}
+    \item A verified evaluation framework: validation-only decisions,
+      six seeds, 21 automated tests.
+    \item A behavioural test that separates state-driven policies from
+      fixed patterns --- and changed the interpretation of every
+      result.
+    \item An explained negative result: at real single-asset volumes,
+      none of the algorithms learns a genuine policy.
+    \item A calibrated simulator that turns market condition into a
+      controlled variable.
+    \item Evidence that \textbf{the amount and balance of training
+      data --- not the choice of algorithm --- set the limit}: fixing
+      the data inverted the ranking, and the learned policy carried its
+      defensive behaviour into two decades of real markets it had never
+      seen.
+  \end{enumerate}
+  \vspace{6pt}
+  \centering
+  What these methods learn is decided by the data they are given.
+\end{frame}
+
+\end{document}
