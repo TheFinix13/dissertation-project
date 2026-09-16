@@ -31,6 +31,7 @@ The viva took place on 14 September 2026.
 | `scripts/` | Figure generators (dissertation and viva), deck builders, prompter/demo page builders |
 | `latex/viva/` | Viva slide decks (PPTX) and slide figures |
 | `demo/` | QR demo page shown at the viva (SPY transfer animation) |
+| `notebooks/` | Reproduction notebook (verify results, recompute baselines, retrain guide) |
 | `notes/` | Supervision notes and viva preparation |
 | `docs/` | Project documentation, including the full workspace catalog |
 
@@ -68,6 +69,20 @@ python run_sim.py
 
 The full runner list for both studies is in
 [experiments/final_v2/README.md](experiments/final_v2/README.md).
+
+## Reproduce it yourself
+
+The guided path for anyone who wants to verify this work is
+[notebooks/reproduce_main_study.ipynb](notebooks/reproduce_main_study.ipynb)
+— it runs on
+[Google Colab](https://colab.research.google.com/github/TheFinix13/dissertation-project/blob/main/notebooks/reproduce_main_study.ipynb)
+with no local setup. It works in three levels: verify the committed
+result files against the dissertation's headline numbers (seconds),
+recompute the deterministic baselines from the committed episode data
+and run the 21 verification tests (about two minutes), and a documented
+full retrain (under an hour of training for the main study). Every
+result file embeds its provenance: git commit, library versions,
+seeds, and wall-clock time.
 
 ## Project history
 

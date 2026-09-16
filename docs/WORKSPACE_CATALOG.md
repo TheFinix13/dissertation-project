@@ -180,6 +180,11 @@ buy-and-hold (0.224 vs 0.198).
 | `results/feature_ablation.json` + log | Ablation results |
 | `experiments/final_v2/run_other_assets.py` | AAPL/QQQ transfer for the demo page |
 | `results/other_assets.json` | Other-asset results |
+| `experiments/final_v2/run_stop_loss.py` | Tuned stop-loss baseline (answers Nikitopoulos's "why not a simple rule?") |
+| `results/stop_loss.json` | Stop-loss results |
+| `notebooks/reproduce_main_study.ipynb` | Reproduction notebook for outside researchers (verify → recompute → retrain); Colab-ready |
+| `notes/post-viva/improvement-backlog.md` | Ranked post-viva improvement backlog |
+| `notes/post-viva/lit-review-right-data.md` | Gate-1 literature review: what makes the right data |
 
 ### Notes and supervision
 
