@@ -1,0 +1,1712 @@
+{
+  "study": "post-viva stop-loss baseline: does a simple rule match the learned agent's crash protection?",
+  "not_in_dissertation": true,
+  "protocol": {
+    "rule": "fully invested at first bar; sell all when the position falls `threshold` below entry (fixed) or below its peak since entry (trailing); stay in cash to liquidation",
+    "tuning": "selected on the 300 simulated validation episodes only",
+    "selection_rule": "highest mean wealth change on validation",
+    "grid": {
+      "variants": [
+        "fixed",
+        "trailing"
+      ],
+      "thresholds": [
+        0.02,
+        0.05,
+        0.08,
+        0.1,
+        0.15
+      ]
+    },
+    "environment": "S3 features, fee 5 bps, slice_frac=1.0 (buy-and-hold powers)"
+  },
+  "config": {
+    "name": "STOPLOSS_S3",
+    "rung": "S3",
+    "obs_dim": 9,
+    "features": [
+      "ret_1",
+      "mom_k",
+      "vol_k",
+      "ma_gap",
+      "atr_norm",
+      "clock",
+      "cash_frac",
+      "exposure_frac",
+      "pnl"
+    ],
+    "risk_lambda": 0.0,
+    "reward": "wealth_change",
+    "action_model": "slice",
+    "slice_frac": 0.25,
+    "fee": 0.0005
+  },
+  "sweep_validation": [
+    {
+      "variant": "fixed",
+      "threshold": 0.02,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 99.00235473223911,
+        "std_delta_w": 523.8498030682294,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.04952844033578,
+        "mean_exposure": 0.5900338362947051,
+        "sharpe_monthly": 0.1889899626808573,
+        "mdd_monthly_pnl": 0.41746021921228016,
+        "mdd_intra_mean": 0.03607590677910977,
+        "mdd_intra_max": 0.11505009595005233,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "fixed",
+      "threshold": 0.05,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 91.48386021428173,
+        "std_delta_w": 611.9178463513599,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.045767312512892,
+        "mean_exposure": 0.7806873499422233,
+        "sharpe_monthly": 0.14950350077182128,
+        "mdd_monthly_pnl": 0.5732831080881491,
+        "mdd_intra_mean": 0.04775655209544895,
+        "mdd_intra_max": 0.14922260585770475,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "fixed",
+      "threshold": 0.08,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 50.70601731172859,
+        "std_delta_w": 679.1707397666181,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.02536819150111,
+        "mean_exposure": 0.8418230002924844,
+        "sharpe_monthly": 0.07465871885050963,
+        "mdd_monthly_pnl": 0.773187325884769,
+        "mdd_intra_mean": 0.05403541318107607,
+        "mdd_intra_max": 0.17373857123573133,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "fixed",
+      "threshold": 0.1,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 37.801550978072534,
+        "std_delta_w": 706.6614035235676,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.018912730603834,
+        "mean_exposure": 0.8687711124275185,
+        "sharpe_monthly": 0.05349315922673256,
+        "mdd_monthly_pnl": 0.8461369148976844,
+        "mdd_intra_mean": 0.056648583969525414,
+        "mdd_intra_max": 0.18748726420381057,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "fixed",
+      "threshold": 0.15,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 11.54029388614496,
+        "std_delta_w": 760.3316176618902,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.005775533459298,
+        "mean_exposure": 0.8985676001548984,
+        "sharpe_monthly": 0.015177974475969734,
+        "mdd_monthly_pnl": 0.9773886984084313,
+        "mdd_intra_mean": 0.060808814406329716,
+        "mdd_intra_max": 0.1989451541463464,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "trailing",
+      "threshold": 0.02,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 86.7782671229274,
+        "std_delta_w": 440.89671749856427,
+        "mean_trades": 2.23,
+        "mean_fees_paid": 10.043413338980448,
+        "mean_exposure": 0.4190026885397653,
+        "sharpe_monthly": 0.19682221182154752,
+        "mdd_monthly_pnl": 0.312453881632189,
+        "mdd_intra_mean": 0.02656826769142158,
+        "mdd_intra_max": 0.06689132647993057,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "trailing",
+      "threshold": 0.05,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 102.03132105979624,
+        "std_delta_w": 567.7095587912534,
+        "mean_trades": 2.06,
+        "mean_fees_paid": 10.051043681119953,
+        "mean_exposure": 0.7317726700486603,
+        "sharpe_monthly": 0.17972450785757005,
+        "mdd_monthly_pnl": 0.47850450659875055,
+        "mdd_intra_mean": 0.043071031190081696,
+        "mdd_intra_max": 0.09656869086241393,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "trailing",
+      "threshold": 0.08,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 73.48806483481131,
+        "std_delta_w": 648.2963178284297,
+        "mean_trades": 2.013333333333333,
+        "mean_fees_paid": 10.03676491362371,
+        "mean_exposure": 0.8232561406123119,
+        "sharpe_monthly": 0.11335567211143682,
+        "mdd_monthly_pnl": 0.6718483894931588,
+        "mdd_intra_mean": 0.05088974385243306,
+        "mdd_intra_max": 0.11505009595005233,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "trailing",
+      "threshold": 0.1,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 45.358643398646805,
+        "std_delta_w": 692.9276449074139,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.022693167032333,
+        "mean_exposure": 0.8515831645116309,
+        "sharpe_monthly": 0.0654594223971356,
+        "mdd_monthly_pnl": 0.7996394487899453,
+        "mdd_intra_mean": 0.05492194562193291,
+        "mdd_intra_max": 0.1394794442778473,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    {
+      "variant": "trailing",
+      "threshold": 0.15,
+      "val_summary": {
+        "n_episodes": 300,
+        "mean_delta_w": 13.410076952721235,
+        "std_delta_w": 755.2539759802445,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.00671089267219,
+        "mean_exposure": 0.8940072625402607,
+        "sharpe_monthly": 0.01775571844599198,
+        "mdd_monthly_pnl": 0.9679537739309492,
+        "mdd_intra_mean": 0.06012128668690132,
+        "mdd_intra_max": 0.18553133179112025,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    }
+  ],
+  "chosen": {
+    "variant": "trailing",
+    "threshold": 0.05
+  },
+  "stop_loss": {
+    "sim_test": {
+      "n_episodes": 600,
+      "mean_delta_w": 59.45645525686984,
+      "std_delta_w": 581.3144589489489,
+      "mean_trades": 2.035,
+      "mean_fees_paid": 10.029745599177518,
+      "mean_exposure": 0.6999975099228921,
+      "sharpe_monthly": 0.10227933322761426,
+      "mdd_monthly_pnl": 0.6242542324731277,
+      "mdd_intra_mean": 0.043180455727521036,
+      "mdd_intra_max": 0.10987145322526048,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "sim_test_per_regime": {
+      "up": {
+        "n_episodes": 200,
+        "mean_delta_w": 494.2750396554309,
+        "std_delta_w": 462.45199570441895,
+        "mean_trades": 2.005,
+        "mean_fees_paid": 10.24726365040241,
+        "mean_exposure": 0.9098630210105825,
+        "sharpe_monthly": 1.0688137239034685,
+        "mdd_monthly_pnl": 0.037597910176691784,
+        "mdd_intra_mean": 0.025895445537314207,
+        "mdd_intra_max": 0.06542991303541634,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      },
+      "down": {
+        "n_episodes": 200,
+        "mean_delta_w": -337.9332958205113,
+        "std_delta_w": 470.4043889310986,
+        "mean_trades": 2.09,
+        "mean_fees_paid": 9.83095132650249,
+        "mean_exposure": 0.40461085319388934,
+        "sharpe_monthly": -0.7183889091434674,
+        "mdd_monthly_pnl": 6.758665916410226,
+        "mdd_intra_mean": 0.0624573563740709,
+        "mdd_intra_max": 0.10987145322526048,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      },
+      "flat": {
+        "n_episodes": 200,
+        "mean_delta_w": 22.027621935689968,
+        "std_delta_w": 481.5560082283919,
+        "mean_trades": 2.01,
+        "mean_fees_paid": 10.011021820627654,
+        "mean_exposure": 0.7855186555642044,
+        "sharpe_monthly": 0.04574259599984625,
+        "mdd_monthly_pnl": 0.3127507759464502,
+        "mdd_intra_mean": 0.04118856527117802,
+        "mdd_intra_max": 0.07683849411583599,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    "transfer": {
+      "n_episodes": 180,
+      "mean_delta_w": 45.260642552644036,
+      "std_delta_w": 385.08420526265036,
+      "mean_trades": 2.0055555555555555,
+      "mean_fees_paid": 10.022644142096864,
+      "mean_exposure": 0.831217617665515,
+      "sharpe_monthly": 0.117534403992949,
+      "mdd_monthly_pnl": 0.5579438330247486,
+      "mdd_intra_mean": 0.03175690745956652,
+      "mdd_intra_max": 0.10538633348291859,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "transfer_per_window": {
+      "early": {
+        "n_episodes": 144,
+        "mean_delta_w": 21.93328848028635,
+        "std_delta_w": 379.80447574785205,
+        "mean_trades": 2.0069444444444446,
+        "mean_fees_paid": 10.01097463030479,
+        "mean_exposure": 0.82270730303076,
+        "sharpe_monthly": 0.05774889418324712,
+        "mdd_monthly_pnl": 0.5579438330247486,
+        "mdd_intra_mean": 0.03198904502048054,
+        "mdd_intra_max": 0.09860983587402095,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      },
+      "late": {
+        "n_episodes": 36,
+        "mean_delta_w": 138.57005884207476,
+        "std_delta_w": 397.28101845471514,
+        "mean_trades": 2.0,
+        "mean_fees_paid": 10.069322189265165,
+        "mean_exposure": 0.8652588762045348,
+        "sharpe_monthly": 0.34879607231441373,
+        "mdd_monthly_pnl": 0.11358951863372113,
+        "mdd_intra_mean": 0.030828357215910405,
+        "mdd_intra_max": 0.10538633348291859,
+        "max_accounting_gap": 0.0,
+        "accounting_ok": true,
+        "illegal_rate": 0.0
+      }
+    },
+    "transfer_crisis_band": {
+      "months": [
+        "2008-09",
+        "2008-10",
+        "2008-11",
+        "2008-12",
+        "2009-01",
+        "2009-02",
+        "2009-03"
+      ],
+      "sum_delta_w": -3105.354400559565,
+      "mean_exposure": 0.362842933239686,
+      "oct_2008_delta_w": -986.0983587402097,
+      "oct_2008_exposure": 0.12240545256548789
+    },
+    "transfer_per_month": [
+      {
+        "id": "2006-01",
+        "delta_w": 53.08542256148576,
+        "n_trades": 2,
+        "mean_exposure": 0.9079832976680917,
+        "intra_dd": 0.025829052206123082
+      },
+      {
+        "id": "2006-02",
+        "delta_w": -22.44674553794721,
+        "n_trades": 2,
+        "mean_exposure": 0.8895078339579906,
+        "intra_dd": 0.023153918777963245
+      },
+      {
+        "id": "2006-03",
+        "delta_w": 65.39618176955992,
+        "n_trades": 2,
+        "mean_exposure": 0.915295064042549,
+        "intra_dd": 0.01587412560254564
+      },
+      {
+        "id": "2006-04",
+        "delta_w": 123.99818376121766,
+        "n_trades": 2,
+        "mean_exposure": 0.8974687813591944,
+        "intra_dd": 0.01809001512731523
+      },
+      {
+        "id": "2006-05",
+        "delta_w": -410.66631349277304,
+        "n_trades": 2,
+        "mean_exposure": 0.7226379257313266,
+        "intra_dd": 0.05664705218704369
+      },
+      {
+        "id": "2006-06",
+        "delta_w": -489.5908877672791,
+        "n_trades": 2,
+        "mean_exposure": 0.3551926987840513,
+        "intra_dd": 0.05047524008790227
+      },
+      {
+        "id": "2006-07",
+        "delta_w": -6.085704070803331,
+        "n_trades": 2,
+        "mean_exposure": 0.8857542133068537,
+        "intra_dd": 0.03538082908348439
+      },
+      {
+        "id": "2006-08",
+        "delta_w": 258.55978927727847,
+        "n_trades": 2,
+        "mean_exposure": 0.9252425614157567,
+        "intra_dd": 0.01121304633604181
+      },
+      {
+        "id": "2006-09",
+        "delta_w": 198.85941139080023,
+        "n_trades": 2,
+        "mean_exposure": 0.9050408499358295,
+        "intra_dd": 0.013367147492246656
+      },
+      {
+        "id": "2006-10",
+        "delta_w": 343.5743630282104,
+        "n_trades": 2,
+        "mean_exposure": 0.9314891904722148,
+        "intra_dd": 0.007629798352903561
+      },
+      {
+        "id": "2006-11",
+        "delta_w": 257.89712955954565,
+        "n_trades": 2,
+        "mean_exposure": 0.9197298256376795,
+        "intra_dd": 0.01773980682527443
+      },
+      {
+        "id": "2006-12",
+        "delta_w": 145.9676848527124,
+        "n_trades": 2,
+        "mean_exposure": 0.912582685649501,
+        "intra_dd": 0.011170195807214345
+      },
+      {
+        "id": "2007-01",
+        "delta_w": 158.18426269177507,
+        "n_trades": 2,
+        "mean_exposure": 0.9053652083391777,
+        "intra_dd": 0.013199021122617172
+      },
+      {
+        "id": "2007-02",
+        "delta_w": -264.2188597556851,
+        "n_trades": 2,
+        "mean_exposure": 0.8955482568805015,
+        "intra_dd": 0.044782403014362204
+      },
+      {
+        "id": "2007-03",
+        "delta_w": 135.98959357965214,
+        "n_trades": 2,
+        "mean_exposure": 0.9117504709377083,
+        "intra_dd": 0.02297747221523261
+      },
+      {
+        "id": "2007-04",
+        "delta_w": 420.77663542966366,
+        "n_trades": 2,
+        "mean_exposure": 0.9268647872296712,
+        "intra_dd": 0.009583387505526342
+      },
+      {
+        "id": "2007-05",
+        "delta_w": 302.4611182869903,
+        "n_trades": 2,
+        "mean_exposure": 0.9248937395628729,
+        "intra_dd": 0.01045250206916537
+      },
+      {
+        "id": "2007-06",
+        "delta_w": -204.61081901235048,
+        "n_trades": 2,
+        "mean_exposure": 0.8907384546162638,
+        "intra_dd": 0.03391290392244828
+      },
+      {
+        "id": "2007-07",
+        "delta_w": -449.6404481891532,
+        "n_trades": 2,
+        "mean_exposure": 0.8608407090310674,
+        "intra_dd": 0.06469724519213305
+      },
+      {
+        "id": "2007-08",
+        "delta_w": -377.7181880060871,
+        "n_trades": 2,
+        "mean_exposure": 0.43168376919693946,
+        "intra_dd": 0.059137219394305385
+      },
+      {
+        "id": "2007-09",
+        "delta_w": 273.05426787587385,
+        "n_trades": 2,
+        "mean_exposure": 0.9001921945013417,
+        "intra_dd": 0.022557775919849532
+      },
+      {
+        "id": "2007-10",
+        "delta_w": 12.66391938160632,
+        "n_trades": 2,
+        "mean_exposure": 0.9097119081504211,
+        "intra_dd": 0.043520250046536146
+      },
+      {
+        "id": "2007-11",
+        "delta_w": -494.8456211797784,
+        "n_trades": 2,
+        "mean_exposure": 0.3268703290518983,
+        "intra_dd": 0.055512969697459
+      },
+      {
+        "id": "2007-12",
+        "delta_w": -56.94582387656919,
+        "n_trades": 2,
+        "mean_exposure": 0.9042259486617233,
+        "intra_dd": 0.04609486038221233
+      },
+      {
+        "id": "2008-01",
+        "delta_w": -557.986589752516,
+        "n_trades": 2,
+        "mean_exposure": 0.4612433234112081,
+        "intra_dd": 0.0557986589752516
+      },
+      {
+        "id": "2008-02",
+        "delta_w": -422.2507129096957,
+        "n_trades": 2,
+        "mean_exposure": 0.8736316994220044,
+        "intra_dd": 0.047259933385181085
+      },
+      {
+        "id": "2008-03",
+        "delta_w": -75.59749637286404,
+        "n_trades": 2,
+        "mean_exposure": 0.8895013540383129,
+        "intra_dd": 0.04356225091011967
+      },
+      {
+        "id": "2008-04",
+        "delta_w": 110.6637515727798,
+        "n_trades": 2,
+        "mean_exposure": 0.9109080310919834,
+        "intra_dd": 0.029991000413229663
+      },
+      {
+        "id": "2008-05",
+        "delta_w": -64.50371693378838,
+        "n_trades": 2,
+        "mean_exposure": 0.8999691144441782,
+        "intra_dd": 0.037818894724301
+      },
+      {
+        "id": "2008-06",
+        "delta_w": -489.1314328053613,
+        "n_trades": 2,
+        "mean_exposure": 0.6520748888432173,
+        "intra_dd": 0.061145007525278405
+      },
+      {
+        "id": "2008-07",
+        "delta_w": -585.0539468673178,
+        "n_trades": 2,
+        "mean_exposure": 0.39719758643229963,
+        "intra_dd": 0.05850539468673177
+      },
+      {
+        "id": "2008-08",
+        "delta_w": 198.25873106255312,
+        "n_trades": 2,
+        "mean_exposure": 0.9207581370542098,
+        "intra_dd": 0.028460223404850882
+      },
+      {
+        "id": "2008-09",
+        "delta_w": -626.61492629032,
+        "n_trades": 2,
+        "mean_exposure": 0.4172161525771759,
+        "intra_dd": 0.06266149262903198
+      },
+      {
+        "id": "2008-10",
+        "delta_w": -986.0983587402097,
+        "n_trades": 2,
+        "mean_exposure": 0.12240545256548789,
+        "intra_dd": 0.09860983587402095
+      },
+      {
+        "id": "2008-11",
+        "delta_w": -652.9502265829688,
+        "n_trades": 2,
+        "mean_exposure": 0.15571944816538447,
+        "intra_dd": 0.09556257768436627
+      },
+      {
+        "id": "2008-12",
+        "delta_w": 594.9775889709072,
+        "n_trades": 3,
+        "mean_exposure": 0.7944967077658063,
+        "intra_dd": 0.05479246915398783
+      },
+      {
+        "id": "2009-01",
+        "delta_w": -655.8714763380085,
+        "n_trades": 2,
+        "mean_exposure": 0.2924902824221906,
+        "intra_dd": 0.07022080638706996
+      },
+      {
+        "id": "2009-02",
+        "delta_w": -416.4658395569695,
+        "n_trades": 2,
+        "mean_exposure": 0.5338689999097652,
+        "intra_dd": 0.09092535769283439
+      },
+      {
+        "id": "2009-03",
+        "delta_w": -362.3311620219956,
+        "n_trades": 2,
+        "mean_exposure": 0.2237034892719919,
+        "intra_dd": 0.05094135050106985
+      },
+      {
+        "id": "2009-04",
+        "delta_w": 773.8248366496173,
+        "n_trades": 2,
+        "mean_exposure": 0.9477656009934822,
+        "intra_dd": 0.041915479949896084
+      },
+      {
+        "id": "2009-05",
+        "delta_w": 517.4082066858336,
+        "n_trades": 2,
+        "mean_exposure": 0.9265193258709271,
+        "intra_dd": 0.04624652242735561
+      },
+      {
+        "id": "2009-06",
+        "delta_w": -535.5531725094806,
+        "n_trades": 2,
+        "mean_exposure": 0.6717860333246752,
+        "intra_dd": 0.056169124990128605
+      },
+      {
+        "id": "2009-07",
+        "delta_w": 691.1358422262474,
+        "n_trades": 2,
+        "mean_exposure": 0.9189405792549376,
+        "intra_dd": 0.047806001746075855
+      },
+      {
+        "id": "2009-08",
+        "delta_w": 190.92285188742244,
+        "n_trades": 2,
+        "mean_exposure": 0.9114700658775762,
+        "intra_dd": 0.03209659490494965
+      },
+      {
+        "id": "2009-09",
+        "delta_w": 577.5383068948322,
+        "n_trades": 2,
+        "mean_exposure": 0.9483332800806371,
+        "intra_dd": 0.02447002569441492
+      },
+      {
+        "id": "2009-10",
+        "delta_w": 47.242609682127295,
+        "n_trades": 2,
+        "mean_exposure": 0.9458620944911798,
+        "intra_dd": 0.057216937551774705
+      },
+      {
+        "id": "2009-11",
+        "delta_w": 528.1964303057484,
+        "n_trades": 2,
+        "mean_exposure": 0.9424640588850348,
+        "intra_dd": 0.01715452373448767
+      },
+      {
+        "id": "2009-12",
+        "delta_w": 56.426706978454604,
+        "n_trades": 2,
+        "mean_exposure": 0.9103108021046996,
+        "intra_dd": 0.01567621175285916
+      },
+      {
+        "id": "2010-01",
+        "delta_w": -373.1701287845608,
+        "n_trades": 2,
+        "mean_exposure": 0.6858414650406037,
+        "intra_dd": 0.05131775173032649
+      },
+      {
+        "id": "2010-02",
+        "delta_w": 143.8960781786991,
+        "n_trades": 2,
+        "mean_exposure": 0.8943335145312701,
+        "intra_dd": 0.04067710995553431
+      },
+      {
+        "id": "2010-03",
+        "delta_w": 489.26003845398736,
+        "n_trades": 2,
+        "mean_exposure": 0.9440304917307188,
+        "intra_dd": 0.007069120569421217
+      },
+      {
+        "id": "2010-04",
+        "delta_w": 75.65744892758994,
+        "n_trades": 2,
+        "mean_exposure": 0.9212546908561854,
+        "intra_dd": 0.02733766360765888
+      },
+      {
+        "id": "2010-05",
+        "delta_w": -625.086642233051,
+        "n_trades": 2,
+        "mean_exposure": 0.1442070523588676,
+        "intra_dd": 0.06250866422330514
+      },
+      {
+        "id": "2010-06",
+        "delta_w": -272.3734318787083,
+        "n_trades": 2,
+        "mean_exposure": 0.9225641430754414,
+        "intra_dd": 0.0677712598557304
+      },
+      {
+        "id": "2010-07",
+        "delta_w": 720.106463842314,
+        "n_trades": 2,
+        "mean_exposure": 0.9527018057790867,
+        "intra_dd": 0.027534250827585094
+      },
+      {
+        "id": "2010-08",
+        "delta_w": -509.6777133405085,
+        "n_trades": 2,
+        "mean_exposure": 0.6656872231987995,
+        "intra_dd": 0.05242565978135094
+      },
+      {
+        "id": "2010-09",
+        "delta_w": 568.5339274582311,
+        "n_trades": 2,
+        "mean_exposure": 0.9411216430754061,
+        "intra_dd": 0.014972194747606471
+      },
+      {
+        "id": "2010-10",
+        "delta_w": 328.2075161160501,
+        "n_trades": 2,
+        "mean_exposure": 0.9254724973835374,
+        "intra_dd": 0.013104354927549688
+      },
+      {
+        "id": "2010-11",
+        "delta_w": -13.364846245420267,
+        "n_trades": 2,
+        "mean_exposure": 0.9178940590198656,
+        "intra_dd": 0.03715787565706008
+      },
+      {
+        "id": "2010-12",
+        "delta_w": 435.91169059025196,
+        "n_trades": 2,
+        "mean_exposure": 0.936883154994542,
+        "intra_dd": 0.004572216870345369
+      },
+      {
+        "id": "2011-01",
+        "delta_w": 118.17061420579921,
+        "n_trades": 2,
+        "mean_exposure": 0.9085106020509555,
+        "intra_dd": 0.017462652779700494
+      },
+      {
+        "id": "2011-02",
+        "delta_w": 174.15259742424132,
+        "n_trades": 2,
+        "mean_exposure": 0.905258305347659,
+        "intra_dd": 0.026759408947939267
+      },
+      {
+        "id": "2011-03",
+        "delta_w": -372.4198101968741,
+        "n_trades": 2,
+        "mean_exposure": 0.4776533558888576,
+        "intra_dd": 0.05509118534366331
+      },
+      {
+        "id": "2011-04",
+        "delta_w": 236.099617066262,
+        "n_trades": 2,
+        "mean_exposure": 0.8986459890247191,
+        "intra_dd": 0.023193241435804923
+      },
+      {
+        "id": "2011-05",
+        "delta_w": -106.79854134971356,
+        "n_trades": 2,
+        "mean_exposure": 0.8890269674155776,
+        "intra_dd": 0.03183047372382475
+      },
+      {
+        "id": "2011-06",
+        "delta_w": 47.15002222615476,
+        "n_trades": 2,
+        "mean_exposure": 0.888479462594902,
+        "intra_dd": 0.03726002996089961
+      },
+      {
+        "id": "2011-07",
+        "delta_w": -352.3978258610041,
+        "n_trades": 2,
+        "mean_exposure": 0.8912844988777465,
+        "intra_dd": 0.04502592793832483
+      },
+      {
+        "id": "2011-08",
+        "delta_w": -670.924287087937,
+        "n_trades": 2,
+        "mean_exposure": 0.12550360727112422,
+        "intra_dd": 0.06709242870879373
+      },
+      {
+        "id": "2011-09",
+        "delta_w": -629.1950931485517,
+        "n_trades": 2,
+        "mean_exposure": 0.6532245989673966,
+        "intra_dd": 0.0717281386279438
+      },
+      {
+        "id": "2011-10",
+        "delta_w": 1404.9454672534048,
+        "n_trades": 2,
+        "mean_exposure": 0.9965472368945983,
+        "intra_dd": 0.02482089311721869
+      },
+      {
+        "id": "2011-11",
+        "delta_w": -201.60454951828615,
+        "n_trades": 2,
+        "mean_exposure": 0.6801323024121957,
+        "intra_dd": 0.06474678977835635
+      },
+      {
+        "id": "2011-12",
+        "delta_w": 95.99772127142023,
+        "n_trades": 2,
+        "mean_exposure": 0.9031661854832849,
+        "intra_dd": 0.04479673396284223
+      },
+      {
+        "id": "2012-01",
+        "delta_w": 289.31504510229934,
+        "n_trades": 2,
+        "mean_exposure": 0.9181174416334764,
+        "intra_dd": 0.00984951190736516
+      },
+      {
+        "id": "2012-02",
+        "delta_w": 333.1384909178396,
+        "n_trades": 2,
+        "mean_exposure": 0.9203976584564364,
+        "intra_dd": 0.007387693735434131
+      },
+      {
+        "id": "2012-03",
+        "delta_w": 258.16794436409873,
+        "n_trades": 2,
+        "mean_exposure": 0.919543054266867,
+        "intra_dd": 0.022125486297865482
+      },
+      {
+        "id": "2012-04",
+        "delta_w": -148.74543534964505,
+        "n_trades": 2,
+        "mean_exposure": 0.8780896654532906,
+        "intra_dd": 0.042356941107558166
+      },
+      {
+        "id": "2012-05",
+        "delta_w": -535.2620786420666,
+        "n_trades": 2,
+        "mean_exposure": 0.4406441639270858,
+        "intra_dd": 0.0535262078642067
+      },
+      {
+        "id": "2012-06",
+        "delta_w": 663.8917499927284,
+        "n_trades": 2,
+        "mean_exposure": 0.9380736017703695,
+        "intra_dd": 0.03227688833358411
+      },
+      {
+        "id": "2012-07",
+        "delta_w": 77.8220192320914,
+        "n_trades": 2,
+        "mean_exposure": 0.9003872312195368,
+        "intra_dd": 0.02838231011507264
+      },
+      {
+        "id": "2012-08",
+        "delta_w": 249.21513053479066,
+        "n_trades": 2,
+        "mean_exposure": 0.9340772870612493,
+        "intra_dd": 0.011955476966198697
+      },
+      {
+        "id": "2012-09",
+        "delta_w": 252.70462211171252,
+        "n_trades": 2,
+        "mean_exposure": 0.9208934021025816,
+        "intra_dd": 0.021632036778591268
+      },
+      {
+        "id": "2012-10",
+        "delta_w": -217.6163806114946,
+        "n_trades": 2,
+        "mean_exposure": 0.9017508297013938,
+        "intra_dd": 0.03543077314340137
+      },
+      {
+        "id": "2012-11",
+        "delta_w": -508.6892172618409,
+        "n_trades": 2,
+        "mean_exposure": 0.4631832723985598,
+        "intra_dd": 0.05125804062157513
+      },
+      {
+        "id": "2012-12",
+        "delta_w": 129.13856903318992,
+        "n_trades": 2,
+        "mean_exposure": 0.9091761296070556,
+        "intra_dd": 0.029901833154165613
+      },
+      {
+        "id": "2013-01",
+        "delta_w": 238.97297222694215,
+        "n_trades": 2,
+        "mean_exposure": 0.9156926196915647,
+        "intra_dd": 0.006869054476213443
+      },
+      {
+        "id": "2013-02",
+        "delta_w": 14.43900369550829,
+        "n_trades": 2,
+        "mean_exposure": 0.8948458906095539,
+        "intra_dd": 0.02773210904777479
+      },
+      {
+        "id": "2013-03",
+        "delta_w": 335.2595423519415,
+        "n_trades": 2,
+        "mean_exposure": 0.9202158202889059,
+        "intra_dd": 0.010741225666694776
+      },
+      {
+        "id": "2013-04",
+        "delta_w": 222.38463451128518,
+        "n_trades": 2,
+        "mean_exposure": 0.913539234936342,
+        "intra_dd": 0.031723238601898296
+      },
+      {
+        "id": "2013-05",
+        "delta_w": 316.3178469286031,
+        "n_trades": 2,
+        "mean_exposure": 0.9444699082238909,
+        "intra_dd": 0.022741221270710765
+      },
+      {
+        "id": "2013-06",
+        "delta_w": -197.2871244250873,
+        "n_trades": 2,
+        "mean_exposure": 0.8886831104304838,
+        "intra_dd": 0.0473571746954119
+      },
+      {
+        "id": "2013-07",
+        "delta_w": 445.0516007990882,
+        "n_trades": 2,
+        "mean_exposure": 0.9400497167188603,
+        "intra_dd": 0.005781693310256797
+      },
+      {
+        "id": "2013-08",
+        "delta_w": -420.347127129251,
+        "n_trades": 2,
+        "mean_exposure": 0.8903052779403393,
+        "intra_dd": 0.04457407290120263
+      },
+      {
+        "id": "2013-09",
+        "delta_w": 259.75001586656435,
+        "n_trades": 2,
+        "mean_exposure": 0.9277858972235877,
+        "intra_dd": 0.024880785647156012
+      },
+      {
+        "id": "2013-10",
+        "delta_w": 370.51530320546044,
+        "n_trades": 2,
+        "mean_exposure": 0.926182848402464,
+        "intra_dd": 0.023282933172824927
+      },
+      {
+        "id": "2013-11",
+        "delta_w": 261.5680826125663,
+        "n_trades": 2,
+        "mean_exposure": 0.9116772966381588,
+        "intra_dd": 0.012643330860472979
+      },
+      {
+        "id": "2013-12",
+        "delta_w": 275.69169601401154,
+        "n_trades": 2,
+        "mean_exposure": 0.9074664889005652,
+        "intra_dd": 0.018136623762398885
+      },
+      {
+        "id": "2014-01",
+        "delta_w": -268.86223826984315,
+        "n_trades": 2,
+        "mean_exposure": 0.9007843375297159,
+        "intra_dd": 0.03958632997586975
+      },
+      {
+        "id": "2014-02",
+        "delta_w": 685.1797326590367,
+        "n_trades": 2,
+        "mean_exposure": 0.9346385264094491,
+        "intra_dd": 0.006621368395690275
+      },
+      {
+        "id": "2014-03",
+        "delta_w": 144.20562065469858,
+        "n_trades": 2,
+        "mean_exposure": 0.9135599327372537,
+        "intra_dd": 0.019122499504545365
+      },
+      {
+        "id": "2014-04",
+        "delta_w": -6.813749217742952,
+        "n_trades": 2,
+        "mean_exposure": 0.8939813982019954,
+        "intra_dd": 0.03901945507677307
+      },
+      {
+        "id": "2014-05",
+        "delta_w": 220.7573863718335,
+        "n_trades": 2,
+        "mean_exposure": 0.9076965295017003,
+        "intra_dd": 0.013476630517613386
+      },
+      {
+        "id": "2014-06",
+        "delta_w": 184.61480974894585,
+        "n_trades": 2,
+        "mean_exposure": 0.9154945751792393,
+        "intra_dd": 0.010532012134476298
+      },
+      {
+        "id": "2014-07",
+        "delta_w": -209.7677383944283,
+        "n_trades": 2,
+        "mean_exposure": 0.910282732255219,
+        "intra_dd": 0.028474660091467707
+      },
+      {
+        "id": "2014-08",
+        "delta_w": 416.0733405073388,
+        "n_trades": 2,
+        "mean_exposure": 0.9222772024575685,
+        "intra_dd": 0.014750738345403747
+      },
+      {
+        "id": "2014-09",
+        "delta_w": -142.91275628870608,
+        "n_trades": 2,
+        "mean_exposure": 0.9013115621270774,
+        "intra_dd": 0.02260566869917391
+      },
+      {
+        "id": "2014-10",
+        "delta_w": -417.10491420043945,
+        "n_trades": 2,
+        "mean_exposure": 0.4297377421368055,
+        "intra_dd": 0.05239687317749675
+      },
+      {
+        "id": "2014-11",
+        "delta_w": 258.855344268306,
+        "n_trades": 2,
+        "mean_exposure": 0.9072658729106613,
+        "intra_dd": 0.0039668981121274705
+      },
+      {
+        "id": "2014-12",
+        "delta_w": 34.4024584938179,
+        "n_trades": 2,
+        "mean_exposure": 0.909750777848413,
+        "intra_dd": 0.04850972255536745
+      },
+      {
+        "id": "2015-01",
+        "delta_w": -300.80008401199484,
+        "n_trades": 2,
+        "mean_exposure": 0.8871509737575008,
+        "intra_dd": 0.033414360136176935
+      },
+      {
+        "id": "2015-02",
+        "delta_w": 422.41655260607695,
+        "n_trades": 2,
+        "mean_exposure": 0.9235962346023282,
+        "intra_dd": 0.0072287044578532855
+      },
+      {
+        "id": "2015-03",
+        "delta_w": -228.58586796142663,
+        "n_trades": 2,
+        "mean_exposure": 0.8931036957020122,
+        "intra_dd": 0.0358139023605718
+      },
+      {
+        "id": "2015-04",
+        "delta_w": 124.0471969324517,
+        "n_trades": 2,
+        "mean_exposure": 0.9212399200304914,
+        "intra_dd": 0.015564603099669228
+      },
+      {
+        "id": "2015-05",
+        "delta_w": 9.918834965248607,
+        "n_trades": 2,
+        "mean_exposure": 0.9024933992352393,
+        "intra_dd": 0.015521590520926942
+      },
+      {
+        "id": "2015-06",
+        "delta_w": -232.80430996610994,
+        "n_trades": 2,
+        "mean_exposure": 0.9046686772676193,
+        "intra_dd": 0.031220446054460615
+      },
+      {
+        "id": "2015-07",
+        "delta_w": 134.43775583310344,
+        "n_trades": 2,
+        "mean_exposure": 0.916606178008983,
+        "intra_dd": 0.02728253048547946
+      },
+      {
+        "id": "2015-08",
+        "delta_w": -579.5165301279321,
+        "n_trades": 2,
+        "mean_exposure": 0.6608025536627766,
+        "intra_dd": 0.06106121980835655
+      },
+      {
+        "id": "2015-09",
+        "delta_w": -154.9494758296314,
+        "n_trades": 2,
+        "mean_exposure": 0.8743596250616783,
+        "intra_dd": 0.056384674576072547
+      },
+      {
+        "id": "2015-10",
+        "delta_w": 811.5403187601642,
+        "n_trades": 2,
+        "mean_exposure": 0.9582397164757359,
+        "intra_dd": 0.011065804307495264
+      },
+      {
+        "id": "2015-11",
+        "delta_w": -90.71706380643991,
+        "n_trades": 2,
+        "mean_exposure": 0.890350627484479,
+        "intra_dd": 0.040094942426894375
+      },
+      {
+        "id": "2015-12",
+        "delta_w": -275.3788577860669,
+        "n_trades": 2,
+        "mean_exposure": 0.8880497504171434,
+        "intra_dd": 0.045425224718683266
+      },
+      {
+        "id": "2016-01",
+        "delta_w": -615.7965028689905,
+        "n_trades": 2,
+        "mean_exposure": 0.35609700471332845,
+        "intra_dd": 0.06269541586897076
+      },
+      {
+        "id": "2016-02",
+        "delta_w": -566.6275565442065,
+        "n_trades": 2,
+        "mean_exposure": 0.387100663759209,
+        "intra_dd": 0.05666275565442069
+      },
+      {
+        "id": "2016-03",
+        "delta_w": 417.12059191603475,
+        "n_trades": 2,
+        "mean_exposure": 0.9299798972578036,
+        "intra_dd": 0.010917797329719203
+      },
+      {
+        "id": "2016-04",
+        "delta_w": -38.478184770663574,
+        "n_trades": 2,
+        "mean_exposure": 0.9063960260491732,
+        "intra_dd": 0.01843458391830044
+      },
+      {
+        "id": "2016-05",
+        "delta_w": 79.83315028643847,
+        "n_trades": 2,
+        "mean_exposure": 0.8976181450678806,
+        "intra_dd": 0.020388549117169474
+      },
+      {
+        "id": "2016-06",
+        "delta_w": -467.6130274253992,
+        "n_trades": 2,
+        "mean_exposure": 0.8131409920392095,
+        "intra_dd": 0.055715258918888066
+      },
+      {
+        "id": "2016-07",
+        "delta_w": 332.651818959097,
+        "n_trades": 2,
+        "mean_exposure": 0.920214593392282,
+        "intra_dd": 0.007688955588220248
+      },
+      {
+        "id": "2016-08",
+        "delta_w": 10.266212906513829,
+        "n_trades": 2,
+        "mean_exposure": 0.9168098762592348,
+        "intra_dd": 0.00830137098192485
+      },
+      {
+        "id": "2016-09",
+        "delta_w": -9.872346673237189,
+        "n_trades": 2,
+        "mean_exposure": 0.8992681522431557,
+        "intra_dd": 0.026845343378459563
+      },
+      {
+        "id": "2016-10",
+        "delta_w": -159.53099403481428,
+        "n_trades": 2,
+        "mean_exposure": 0.897136823144567,
+        "intra_dd": 0.017486778282552518
+      },
+      {
+        "id": "2016-11",
+        "delta_w": 433.61661215442473,
+        "n_trades": 2,
+        "mean_exposure": 0.9289926094828825,
+        "intra_dd": 0.012152070920490421
+      },
+      {
+        "id": "2016-12",
+        "delta_w": 230.117921205705,
+        "n_trades": 2,
+        "mean_exposure": 0.9290898659239818,
+        "intra_dd": 0.013281194896514803
+      },
+      {
+        "id": "2017-01",
+        "delta_w": 91.57190311284103,
+        "n_trades": 2,
+        "mean_exposure": 0.9071581082319458,
+        "intra_dd": 0.009381832173637417
+      },
+      {
+        "id": "2017-02",
+        "delta_w": 378.4242934656213,
+        "n_trades": 2,
+        "mean_exposure": 0.9153323606055924,
+        "intra_dd": 0.003197688667387455
+      },
+      {
+        "id": "2017-03",
+        "delta_w": -135.5860218478756,
+        "n_trades": 2,
+        "mean_exposure": 0.9017067775877718,
+        "intra_dd": 0.02194080496514539
+      },
+      {
+        "id": "2017-04",
+        "delta_w": 106.74743593034509,
+        "n_trades": 2,
+        "mean_exposure": 0.8946832689013348,
+        "intra_dd": 0.012612428215709959
+      },
+      {
+        "id": "2017-05",
+        "delta_w": 105.52757312200447,
+        "n_trades": 2,
+        "mean_exposure": 0.9116575109460382,
+        "intra_dd": 0.018643270165422887
+      },
+      {
+        "id": "2017-06",
+        "delta_w": -25.629315212225265,
+        "n_trades": 2,
+        "mean_exposure": 0.9107785246092589,
+        "intra_dd": 0.013610889974931872
+      },
+      {
+        "id": "2017-07",
+        "delta_w": 178.08222609549557,
+        "n_trades": 2,
+        "mean_exposure": 0.9103081937758667,
+        "intra_dd": 0.009144592840314214
+      },
+      {
+        "id": "2017-08",
+        "delta_w": -3.126088004488338,
+        "n_trades": 2,
+        "mean_exposure": 0.9057380597789518,
+        "intra_dd": 0.020817308196285578
+      },
+      {
+        "id": "2017-09",
+        "delta_w": 176.90661559377077,
+        "n_trades": 2,
+        "mean_exposure": 0.9062807122994189,
+        "intra_dd": 0.007678205071565802
+      },
+      {
+        "id": "2017-10",
+        "delta_w": 181.23823518686186,
+        "n_trades": 2,
+        "mean_exposure": 0.9193049199254042,
+        "intra_dd": 0.007078550452457089
+      },
+      {
+        "id": "2017-11",
+        "delta_w": 281.76473595229254,
+        "n_trades": 2,
+        "mean_exposure": 0.9098218502711549,
+        "intra_dd": 0.010304340541555379
+      },
+      {
+        "id": "2017-12",
+        "delta_w": 132.18988947132857,
+        "n_trades": 2,
+        "mean_exposure": 0.9078742458679621,
+        "intra_dd": 0.005494031706514524
+      },
+      {
+        "id": "2023-01",
+        "delta_w": 663.1413138514927,
+        "n_trades": 2,
+        "mean_exposure": 0.932601733400644,
+        "intra_dd": 0.02474263959451839
+      },
+      {
+        "id": "2023-02",
+        "delta_w": -363.5835023765121,
+        "n_trades": 2,
+        "mean_exposure": 0.8870828371790161,
+        "intra_dd": 0.04971010445183843
+      },
+      {
+        "id": "2023-03",
+        "delta_w": 400.3080313662922,
+        "n_trades": 2,
+        "mean_exposure": 0.9158895246562883,
+        "intra_dd": 0.04724716818104713
+      },
+      {
+        "id": "2023-04",
+        "delta_w": 111.06491946011556,
+        "n_trades": 2,
+        "mean_exposure": 0.8935817286055464,
+        "intra_dd": 0.023780406271027288
+      },
+      {
+        "id": "2023-05",
+        "delta_w": 46.264848754861305,
+        "n_trades": 2,
+        "mean_exposure": 0.9044618794472609,
+        "intra_dd": 0.02546870007896518
+      },
+      {
+        "id": "2023-06",
+        "delta_w": 537.2405033221985,
+        "n_trades": 2,
+        "mean_exposure": 0.9316462204788858,
+        "intra_dd": 0.021593723189411662
+      },
+      {
+        "id": "2023-07",
+        "delta_w": 305.15492551657553,
+        "n_trades": 2,
+        "mean_exposure": 0.9107268064532914,
+        "intra_dd": 0.012301257988144298
+      },
+      {
+        "id": "2023-08",
+        "delta_w": -144.14939298096942,
+        "n_trades": 2,
+        "mean_exposure": 0.8878553932688973,
+        "intra_dd": 0.04470740864530476
+      },
+      {
+        "id": "2023-09",
+        "delta_w": -537.1323760411669,
+        "n_trades": 2,
+        "mean_exposure": 0.7839466626008779,
+        "intra_dd": 0.053713237604116726
+      },
+      {
+        "id": "2023-10",
+        "delta_w": -355.0665773573983,
+        "n_trades": 2,
+        "mean_exposure": 0.8178898373220971,
+        "intra_dd": 0.054951015929256775
+      },
+      {
+        "id": "2023-11",
+        "delta_w": 787.4860848244516,
+        "n_trades": 2,
+        "mean_exposure": 0.9539387340375471,
+        "intra_dd": 0.007798612756973133
+      },
+      {
+        "id": "2023-12",
+        "delta_w": 384.66691954324597,
+        "n_trades": 2,
+        "mean_exposure": 0.9178539895046379,
+        "intra_dd": 0.013857262627366751
+      },
+      {
+        "id": "2024-01",
+        "delta_w": 206.2283178503676,
+        "n_trades": 2,
+        "mean_exposure": 0.9163080187187963,
+        "intra_dd": 0.017569593364055835
+      },
+      {
+        "id": "2024-02",
+        "delta_w": 375.5538915481484,
+        "n_trades": 2,
+        "mean_exposure": 0.9196289739807719,
+        "intra_dd": 0.014206024679735973
+      },
+      {
+        "id": "2024-03",
+        "delta_w": 220.7432911297601,
+        "n_trades": 2,
+        "mean_exposure": 0.9055891629837763,
+        "intra_dd": 0.011549914636193925
+      },
+      {
+        "id": "2024-04",
+        "delta_w": -526.5596945775542,
+        "n_trades": 2,
+        "mean_exposure": 0.622448991843346,
+        "intra_dd": 0.052655969457755414
+      },
+      {
+        "id": "2024-05",
+        "delta_w": 529.4869083669128,
+        "n_trades": 2,
+        "mean_exposure": 0.9502711549387303,
+        "intra_dd": 0.016467200432599527
+      },
+      {
+        "id": "2024-06",
+        "delta_w": 334.02616758727527,
+        "n_trades": 2,
+        "mean_exposure": 0.9175790083643475,
+        "intra_dd": 0.0072912012122861025
+      },
+      {
+        "id": "2024-07",
+        "delta_w": 90.20579293297305,
+        "n_trades": 2,
+        "mean_exposure": 0.9204206376270936,
+        "intra_dd": 0.0468258728942178
+      },
+      {
+        "id": "2024-08",
+        "delta_w": 370.2810591829384,
+        "n_trades": 2,
+        "mean_exposure": 0.9134264714027661,
+        "intra_dd": 0.0476759905156543
+      },
+      {
+        "id": "2024-09",
+        "delta_w": 414.15374287492523,
+        "n_trades": 2,
+        "mean_exposure": 0.9145784126345063,
+        "intra_dd": 0.021718192321212526
+      },
+      {
+        "id": "2024-10",
+        "delta_w": -9.64262279833747,
+        "n_trades": 2,
+        "mean_exposure": 0.9279966895666559,
+        "intra_dd": 0.027770390382736543
+      },
+      {
+        "id": "2024-11",
+        "delta_w": 541.2540117540702,
+        "n_trades": 2,
+        "mean_exposure": 0.9327817655570616,
+        "intra_dd": 0.021728125868000547
+      },
+      {
+        "id": "2024-12",
+        "delta_w": -267.8004923465487,
+        "n_trades": 2,
+        "mean_exposure": 0.9001890666823507,
+        "intra_dd": 0.03571843985709644
+      },
+      {
+        "id": "2025-01",
+        "delta_w": 283.56693958507094,
+        "n_trades": 2,
+        "mean_exposure": 0.9171531341655257,
+        "intra_dd": 0.02497634562971296
+      },
+      {
+        "id": "2025-02",
+        "delta_w": -69.98992606990214,
+        "n_trades": 2,
+        "mean_exposure": 0.9021863001866085,
+        "intra_dd": 0.045486684737774064
+      },
+      {
+        "id": "2025-03",
+        "delta_w": -563.59956112094,
+        "n_trades": 2,
+        "mean_exposure": 0.369769961932146,
+        "intra_dd": 0.05635995611209399
+      },
+      {
+        "id": "2025-04",
+        "delta_w": -1001.7466597467865,
+        "n_trades": 2,
+        "mean_exposure": 0.13630279445381005,
+        "intra_dd": 0.10538633348291859
+      },
+      {
+        "id": "2025-05",
+        "delta_w": 543.1062974058532,
+        "n_trades": 2,
+        "mean_exposure": 0.9394613583165737,
+        "intra_dd": 0.026460426571967677
+      },
+      {
+        "id": "2025-06",
+        "delta_w": 444.5205299562276,
+        "n_trades": 2,
+        "mean_exposure": 0.9133616902675067,
+        "intra_dd": 0.012775206113055604
+      },
+      {
+        "id": "2025-07",
+        "delta_w": 223.39872194437885,
+        "n_trades": 2,
+        "mean_exposure": 0.9236507736521046,
+        "intra_dd": 0.008375481300347487
+      },
+      {
+        "id": "2025-08",
+        "delta_w": 364.8794484046939,
+        "n_trades": 2,
+        "mean_exposure": 0.9307837576232169,
+        "intra_dd": 0.01457478954287883
+      },
+      {
+        "id": "2025-09",
+        "delta_w": 423.0910514401494,
+        "n_trades": 2,
+        "mean_exposure": 0.9292116320551281,
+        "intra_dd": 0.013181571271498549
+      },
+      {
+        "id": "2025-10",
+        "delta_w": 193.4059115969485,
+        "n_trades": 2,
+        "mean_exposure": 0.9160580513921325,
+        "intra_dd": 0.02984653787017777
+      },
+      {
+        "id": "2025-11",
+        "delta_w": -9.263555700939833,
+        "n_trades": 2,
+        "mean_exposure": 0.8783143116748257,
+        "intra_dd": 0.045564470400102475
+      },
+      {
+        "id": "2025-12",
+        "delta_w": 43.82684923182023,
+        "n_trades": 2,
+        "mean_exposure": 0.9143720763884865,
+        "intra_dd": 0.02578460380073122
+      }
+    ]
+  },
+  "buy_and_hold": {
+    "sim_test": {
+      "n_episodes": 600,
+      "mean_delta_w": -60.29430482952698,
+      "std_delta_w": 795.5461979188974,
+      "mean_trades": 2.0,
+      "mean_fees_paid": 9.969840266467966,
+      "mean_exposure": 0.9015408284238363,
+      "sharpe_monthly": -0.07578982212127139,
+      "mdd_monthly_pnl": 1.26757084073677,
+      "mdd_intra_mean": 0.06480503469503088,
+      "mdd_intra_max": 0.2726029526962739,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "transfer": {
+      "n_episodes": 180,
+      "mean_delta_w": 80.23621555106357,
+      "std_delta_w": 405.69935543393524,
+      "mean_trades": 2.0,
+      "mean_fees_paid": 10.040140676863457,
+      "mean_exposure": 0.9075207449637048,
+      "sharpe_monthly": 0.19777259804922065,
+      "mdd_monthly_pnl": 0.5501573297601752,
+      "mdd_intra_mean": 0.03670071406389189,
+      "mdd_intra_max": 0.2770285303533073,
+      "max_accounting_gap": 0.0,
+      "accounting_ok": true,
+      "illegal_rate": 0.0
+    },
+    "transfer_crisis_band": {
+      "months": [
+        "2008-09",
+        "2008-10",
+        "2008-11",
+        "2008-12",
+        "2009-01",
+        "2009-02",
+        "2009-03"
+      ],
+      "sum_delta_w": -3045.657107356177,
+      "mean_exposure": 0.8716776307518952,
+      "oct_2008_delta_w": -1665.2397212074757,
+      "oct_2008_exposure": 0.7537234434514559
+    }
+  },
+  "dqn_reference": {
+    "sim_test_delta_w": {
+      "mean": 126.93786367598773,
+      "std": 7.320997072875008,
+      "min": 117.44071049980579,
+      "max": 136.05977474777572,
+      "spread": 18.61906424796993
+    },
+    "transfer_delta_w": {
+      "mean": 60.277723845752284,
+      "min": 55.146742103410766,
+      "max": 66.3163038466407
+    },
+    "transfer_sharpe": [
+      0.2560880991983435,
+      0.24014780728130758,
+      0.2038234020602974,
+      0.22062662424658677,
+      0.1956547667346231,
+      0.2270452726492107
+    ],
+    "crisis_band_sum_delta_w": {
+      "mean": -180.34462478865922,
+      "min": -224.3083953529258,
+      "max": -150.09033105360868
+    },
+    "source": "sim_results.json"
+  },
+  "provenance": {
+    "git_commit": "bea418a64a7ba27e466c39ab554ec6df638a4483",
+    "git_dirty": true,
+    "python": "3.14.4",
+    "torch": "2.13.0",
+    "numpy": "2.5.2",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "timestamp": "2026-09-16T01:22:09+0100"
+  }
+}
