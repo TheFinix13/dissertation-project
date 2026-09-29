@@ -1,0 +1,288 @@
+{
+  "study": "post-viva gate audit (no training)",
+  "features": [
+    "ret_1",
+    "mom_k",
+    "vol_k",
+    "ma_gap",
+    "atr_norm",
+    "clock",
+    "cash_frac",
+    "exposure_frac",
+    "pnl"
+  ],
+  "capacity": {
+    "obs_dim": 9,
+    "params": {
+      "dqn": 2819,
+      "reinforce": 2819,
+      "ppo": 5572
+    },
+    "train_episodes": 3000,
+    "steps_per_episode": 20,
+    "distinct_transitions": 60000,
+    "transitions_per_param": {
+      "dqn": 21.28414331323164,
+      "reinforce": 21.28414331323164,
+      "ppo": 10.768126346015793
+    },
+    "episodes_per_param": {
+      "dqn": 1.0642071656615821,
+      "ppo": 0.5384063173007897
+    },
+    "budget_timesteps": 300000,
+    "passes_over_train_set": 5.0,
+    "gradient_updates": {
+      "dqn": 299000,
+      "reinforce": 15000,
+      "ppo": 47040
+    },
+    "samples_through_gradient": {
+      "dqn": 19136000,
+      "reinforce": 300000,
+      "ppo": 3010560
+    },
+    "ppo_defaults_used": {
+      "learning_rate": 0.0003,
+      "n_steps": 2048,
+      "batch_size": 64,
+      "n_epochs": 10,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "ent_coef": 0.0,
+      "vf_coef": 0.5,
+      "clip_range": 0.2,
+      "normalize_advantage": true,
+      "reward_normalisation": "none (raw dollars into the value loss)"
+    }
+  },
+  "balance": {
+    "sim_test_constant": {
+      "B0_do_nothing": 0.0,
+      "B1a_slice_bah": -58.704251431859305,
+      "B1b_true_bah": -60.29430482952698,
+      "B2_random": -26.011221238529814
+    },
+    "sim_test_per_regime": {
+      "B0_do_nothing": {
+        "up": 0.0,
+        "down": 0.0,
+        "flat": 0.0
+      },
+      "B1a_slice_bah": {
+        "up": 477.21868771646257,
+        "down": -663.9089548293186,
+        "flat": 10.577512817278247
+      },
+      "B1b_true_bah": {
+        "up": 510.17202981015333,
+        "down": -710.0577307836794,
+        "flat": 19.002786484945183
+      },
+      "B2_random": {
+        "up": 190.73397551402726,
+        "down": -260.3977443247879,
+        "flat": -8.369894904828817
+      }
+    },
+    "regime_known_constant_ceiling": {
+      "per_regime": {
+        "up": 510.17202981015333,
+        "down": 0.0,
+        "flat": 19.002786484945183
+      },
+      "mean": 176.3916054316995
+    },
+    "dqn_sim_mean": 126.93786367598773,
+    "dqn_regime_means": {
+      "up": 473.7161266773706,
+      "down": -103.35360844732018,
+      "flat": 10.451072797912692
+    },
+    "real_constant": {
+      "B0_do_nothing": 0.0,
+      "B1a_slice_bah": 76.47953568103381,
+      "B1b_true_bah": 80.23621555106357,
+      "B2_random": -0.024189671383010137
+    }
+  },
+  "signal": {
+    "bar_0": {
+      "generating_regime_accuracy_sim": {
+        "accuracy": 0.77,
+        "majority_baseline": 0.3333333333333333
+      },
+      "realised_label_accuracy": {
+        "sim_to_sim": 0.575,
+        "sim_majority_baseline": 0.4083333333333333,
+        "sim_to_real": 0.37777777777777777,
+        "real_to_real": 0.38333333333333336,
+        "real_majority_baseline": 0.40555555555555556
+      },
+      "rest_of_month_oos_r2": {
+        "sim_to_sim": 0.23143128740717323,
+        "sim_to_real": -1.585739983661885,
+        "real_to_real": -0.15492743254166141,
+        "real_to_real_ci95": [
+          -0.4135060031019812,
+          0.01175416627861275
+        ],
+        "benchmark": "training-mean forecast; the real calibration mean for both real rows"
+      }
+    },
+    "bar_5": {
+      "generating_regime_accuracy_sim": {
+        "accuracy": 0.7683333333333333,
+        "majority_baseline": 0.3333333333333333
+      },
+      "realised_label_accuracy": {
+        "sim_to_sim": 0.6183333333333333,
+        "sim_majority_baseline": 0.4083333333333333,
+        "sim_to_real": 0.46111111111111114,
+        "real_to_real": 0.4666666666666667,
+        "real_majority_baseline": 0.40555555555555556
+      },
+      "rest_of_month_oos_r2": {
+        "sim_to_sim": 0.17255092157508722,
+        "sim_to_real": -1.4365154865189953,
+        "real_to_real": -0.05981293966276291,
+        "real_to_real_ci95": [
+          -0.14546190736240577,
+          0.003138331132618599
+        ],
+        "benchmark": "training-mean forecast; the real calibration mean for both real rows"
+      }
+    },
+    "bar_10": {
+      "generating_regime_accuracy_sim": {
+        "accuracy": 0.7716666666666666,
+        "majority_baseline": 0.3333333333333333
+      },
+      "realised_label_accuracy": {
+        "sim_to_sim": 0.6633333333333333,
+        "sim_majority_baseline": 0.4083333333333333,
+        "sim_to_real": 0.5722222222222222,
+        "real_to_real": 0.5277777777777778,
+        "real_majority_baseline": 0.40555555555555556
+      },
+      "rest_of_month_oos_r2": {
+        "sim_to_sim": 0.1422603348389756,
+        "sim_to_real": -1.6773682599504864,
+        "real_to_real": -0.21765159946074575,
+        "real_to_real_ci95": [
+          -0.4272033706412045,
+          -0.0345170161376451
+        ],
+        "benchmark": "training-mean forecast; the real calibration mean for both real rows"
+      }
+    },
+    "bar_15": {
+      "generating_regime_accuracy_sim": {
+        "accuracy": 0.7616666666666667,
+        "majority_baseline": 0.3333333333333333
+      },
+      "realised_label_accuracy": {
+        "sim_to_sim": 0.735,
+        "sim_majority_baseline": 0.4083333333333333,
+        "sim_to_real": 0.6666666666666666,
+        "real_to_real": 0.6833333333333333,
+        "real_majority_baseline": 0.40555555555555556
+      },
+      "rest_of_month_oos_r2": {
+        "sim_to_sim": 0.08502213334104025,
+        "sim_to_real": -0.9120704382827058,
+        "real_to_real": -0.40843569435856497,
+        "real_to_real_ci95": [
+          -0.7921490433772428,
+          -0.055798160383809185
+        ],
+        "benchmark": "training-mean forecast; the real calibration mean for both real rows"
+      }
+    }
+  },
+  "realism": {
+    "sim_train": {
+      "n_daily": 60000,
+      "excess_kurtosis": 1.2440902500930289,
+      "acf1_return": 0.02411651325013668,
+      "acf1_abs_return": 0.15343080360542907,
+      "half_month_sign_flip": 0.404
+    },
+    "real_transfer_180": {
+      "n_daily": 3592,
+      "excess_kurtosis": 15.886518568651784,
+      "acf1_return": -0.08226899449491666,
+      "acf1_abs_return": 0.3001483483452199,
+      "half_month_sign_flip": 0.5277777777777778
+    },
+    "real_consecutive_months": {
+      "n_months": 144,
+      "monthly_vol_autocorr": 0.7244460798979201,
+      "label_transition_prob": {
+        "up": {
+          "up": 0.38461538461538464,
+          "down": 0.15384615384615385,
+          "flat": 0.46153846153846156
+        },
+        "down": {
+          "up": 0.3448275862068966,
+          "down": 0.27586206896551724,
+          "flat": 0.3793103448275862
+        },
+        "flat": {
+          "up": 0.3548387096774194,
+          "down": 0.20967741935483872,
+          "flat": 0.43548387096774194
+        }
+      },
+      "label_counts": {
+        "up": 52,
+        "down": 29,
+        "flat": 63
+      },
+      "sim_equivalent": "0 by construction: every episode is an independent draw"
+    }
+  },
+  "coverage": {
+    "policy": "uniform over legal actions",
+    "episodes": 3000,
+    "cells_reachable": 90,
+    "cells_visited_30_plus": 90,
+    "min_visits_reachable": 51,
+    "full_exposure_share_by_last_bar": 0.13233333333333333
+  },
+  "seeds_vs_months": {
+    "reinforce": {
+      "mean_diff_vs_bah": -48.57492964995706,
+      "ci_half_width": {
+        "6_seeds": 49.10712364982954,
+        "20_seeds_projected": 41.507338910034335,
+        "months_only": 38.66498404386938
+      },
+      "months_only_share_of_6_seed_width": 0.7873599830358542
+    },
+    "dqn": {
+      "mean_diff_vs_bah": -19.95849170531128,
+      "ci_half_width": {
+        "6_seeds": 43.1157155340888,
+        "20_seeds_projected": 42.32450254842823,
+        "months_only": 43.49152875307911
+      },
+      "months_only_share_of_6_seed_width": 1.0087163859937145
+    },
+    "ppo": {
+      "mean_diff_vs_bah": -71.92058786489541,
+      "ci_half_width": {
+        "6_seeds": 54.87948931641511,
+        "20_seeds_projected": 53.720642716548426,
+        "months_only": 52.620568864934484
+      },
+      "months_only_share_of_6_seed_width": 0.9588385300297436
+    }
+  },
+  "notes": {
+    "signal_real_train": "the 60 calibration months 2018-2022",
+    "signal_real_test": "the 180 transfer months",
+    "regime_labels": "monthly return > +2% up, < -2% down, else flat"
+  }
+}

@@ -45,6 +45,19 @@ Web searches run 16 Sep 2026. Strings, verbatim:
 8. "volatility managed portfolios Moreira Muir VIX regime timing equity
    returns risk management improves Sharpe"
 
+Second round, run 29 Sep 2026 for Themes F and G:
+
+9. "Rydén Teräsvirta Åsbrink 1998 stylized facts of daily return series
+   and the hidden Markov model Journal of Applied Econometrics"
+10. "Nystrup Madsen Lindström dynamic portfolio optimization across
+    hidden market regimes Quantitative Finance 2018"
+11. "Andrychowicz 2021 What matters in on-policy reinforcement learning
+    large-scale empirical study ICLR observation reward normalization
+    value loss"
+12. "Agarwal 2021 deep reinforcement learning at the edge of the
+    statistical precipice few runs stratified bootstrap interquartile
+    mean NeurIPS"
+
 Next search round (snowballing from the anchors, not yet done): forward
 citations of Gu, Kelly and Xiu (2020); Goyal, Welch and Zafirov (2021)
 "A Comprehensive Look ... II"; offline RL for finance; distributional
@@ -210,7 +223,95 @@ environment, entropy coefficient swept instead of defaulted, entropy
 logged. The literature predicts the collapse and names the cure; the
 experiment tests whether the cure closes the DQN-PPO gap.
 
-## 8. What this means for Gate 2 (data and state design) — provisional
+## 8. Theme F — regimes as a hidden state
+
+This theme answers Dr Nguyen's framing in the viva and his email. He
+described the market as a hidden Markov model, where an unobserved state
+drives the price and the observed data is noise around it.
+
+**Hamilton (1989, Econometrica 57(2), 357–384).** The founding
+regime-switching model. The economy moves between a small number of
+states under a Markov chain, and each state has its own mean growth.
+The state is never observed. It is inferred from data as a probability,
+and that probability is the useful output.
+
+**Rydén, Teräsvirta and Åsbrink (1998, Journal of Applied Econometrics
+13(3), 217–244).** They fitted hidden Markov models to about 17,000
+daily S&P 500 returns. A mixture of normal distributions switching
+under a hidden chain reproduced most of the known properties of daily
+returns. It failed on one: the slow decay in the autocorrelation of
+squared returns, which is volatility clustering over long horizons.
+The parameters also changed a lot between subperiods.
+
+**Nystrup, Madsen and Lindström (2015, Quantitative Finance; 2018,
+Quantitative Finance 18(1), 83–95).** The 2015 paper extends the
+Rydén result. Three states and heavier-tailed state distributions fit
+the stylised facts better than two normal states. The 2018 paper uses
+a hidden Markov model with time-varying parameters to forecast the mean
+and variance of returns, then re-optimises the allocation each day.
+After costs and a one-day delay, it earned a higher return and lower
+risk than buy-and-hold on several major indices. This is the closest
+published analogue to what the main study's agent attempts, and it
+works through the variance, not the mean.
+
+**Ang and Timmermann (2012, Annual Review of Financial Economics 4,
+313–337).** A survey of regime changes in financial markets. Regimes
+are persistent, volatility differs more between regimes than the mean
+does, and regime probabilities are a natural input to allocation.
+
+The Theme F synthesis: the literature treats the regime as a hidden
+state that must be inferred, and it finds the regime shows up mainly
+in volatility. The main study's simulator does the opposite. Each
+episode is one regime, drawn independently, and its warm-up history
+shares the regime, so the state is close to observed from the first
+bar. The measured consequence is in the Gate 2 audit
+(`2026-09-29-gates-2-4-audit.md`). A more realistic simulator should
+draw regimes from a persistent Markov chain that runs across months,
+with regime-dependent volatility, and should let the agent infer the
+state rather than read it.
+
+## 9. Theme G — comparing reinforcement-learning methods fairly
+
+This theme answers the report feedback on fair tuning and seed
+statistics, and Dr Nguyen's point that PPO suits larger problems.
+
+**Henderson et al. (2018, AAAI, "Deep Reinforcement Learning that
+Matters").** The same algorithm gave very different results under
+different codebases, hyperparameters and random seeds. Comparisons
+that tune one method and not the other are not evidence about the
+methods. Reward scale was one of the settings that changed rankings.
+
+**Engstrom et al. (2020, ICLR, "Implementation Matters in Deep Policy
+Gradients") and Huang et al. (2022, ICLR Blog Track, "The 37
+Implementation Details of Proximal Policy Optimization").** Much of
+PPO's reported advantage comes from code-level choices outside the core
+algorithm. Reward scaling, value-target normalisation and gradient
+clipping are among them. Huang et al. list reward scaling as a standard
+part of a correct PPO implementation.
+
+**Andrychowicz et al. (2021, ICLR, "What Matters in On-Policy
+Reinforcement Learning?").** They trained over 250,000 agents across 50
+implementation choices. Observation normalisation was crucial almost
+everywhere. Normalising the value targets had a strong effect, helping
+on some tasks and hurting on others, so they recommend checking it per
+task. A learning rate near 3e-4 and a GAE lambda near 0.9 were good
+starting points.
+
+**Agarwal et al. (2021, NeurIPS, "Deep Reinforcement Learning at the
+Edge of the Statistical Precipice").** Point estimates from a handful
+of runs gave conclusions that reversed under proper interval estimates.
+They recommend bootstrap confidence intervals, the interquartile mean
+and performance profiles. Their percentile intervals had good coverage
+from about 10 runs.
+
+The Theme G synthesis: a fair comparison gives each method its own
+tuning budget of equal size, fixes reward scaling and normalisation as
+part of the implementation, and reports interval estimates over at
+least 10 seeds. The dissertation gave PPO none of these. The Gate 3
+probe in the audit document shows the reward scale alone decided
+whether PPO could learn a trivial problem.
+
+## 10. What this means for Gate 2 (data and state design) — provisional
 
 Not decisions yet. These become decisions only after the full-text
 reads confirm the claims.
@@ -234,7 +335,7 @@ reads confirm the claims.
 6. **PPO runs with an entropy sweep, KL guard, and entropy logging.**
    Never again on unexamined defaults.
 
-## 9. Open work in this gate
+## 11. Open work in this gate
 
 - Full-text reads of the five anchors: Welch-Goyal 2008,
   Campbell-Thompson 2008, Gu-Kelly-Xiu 2020, Moreira-Muir 2017,
@@ -244,3 +345,7 @@ reads confirm the claims.
   citations of Gu-Kelly-Xiu, offline-RL data-coverage literature.
 - A short written verdict per sub-question, each one phrased as the
   answer Fiyin would give if an examiner asked it.
+- Themes F and G (added 29 Sep 2026) rest on abstracts and the search
+  pages, plus the normalisation section of Andrychowicz et al. Full
+  reads are still owed for Nystrup et al. 2018, Ang-Timmermann 2012 and
+  Huang et al. 2022 before the simulator and tuning designs are final.

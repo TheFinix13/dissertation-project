@@ -1,0 +1,72 @@
+{
+  "study": "reinforce reward-scale check on the simulated validation split",
+  "algo": "reinforce",
+  "timesteps": 300000,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "eval_split": "sim val (100 per regime)",
+  "baselines_val": {
+    "B0_do_nothing": 0.0,
+    "B1a_slice_bah": 0.9024938582559117,
+    "B1b_true_bah": 5.656079750616676,
+    "B2_random": -11.375519047129231
+  },
+  "cells": {
+    "dollars": {
+      "reward_scale": 1.0,
+      "per_seed": [
+        {
+          "seed": 42,
+          "mean_delta_w": 0.0,
+          "mean_exposure": 0.0,
+          "mean_trades": 0.0,
+          "state_dependent": false,
+          "per_regime": {
+            "up": 0.0,
+            "down": 0.0,
+            "flat": 0.0
+          },
+          "wall_seconds": 38.0
+        },
+        {
+          "seed": 43,
+          "mean_delta_w": 0.0,
+          "mean_exposure": 0.0,
+          "mean_trades": 0.0,
+          "state_dependent": false,
+          "per_regime": {
+            "up": 0.0,
+            "down": 0.0,
+            "flat": 0.0
+          },
+          "wall_seconds": 37.7
+        },
+        {
+          "seed": 44,
+          "mean_delta_w": 0.9024938582559117,
+          "mean_exposure": 0.8339575592915277,
+          "mean_trades": 5.0,
+          "state_dependent": false,
+          "per_regime": {
+            "up": 454.6695641307719,
+            "down": -561.3731221518923,
+            "flat": 109.41103959588823
+          },
+          "wall_seconds": 36.1
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "git_commit": "a78bab62ec73df9761419a934ee16f9e438a6961",
+    "git_dirty": true,
+    "python": "3.14.4",
+    "torch": "2.13.0",
+    "numpy": "2.5.2",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "timestamp": "2026-09-29T00:43:16+0100"
+  }
+}

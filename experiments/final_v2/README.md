@@ -77,6 +77,15 @@ python run_feature_ablation.py    # drop volatility features; DQN only
                                   #   -> results/feature_ablation.json
 python run_other_assets.py        # AAPL/QQQ transfer for the demo page
                                   #   -> results/other_assets.json
+python run_stats.py               # bootstrap CIs and paired tests, no training
+                                  #   -> results/stats.json
+python gate_audit.py              # Gate 2/4 measurements, no training
+                                  #   -> results/gate_audit.json
+python ppo_grad_diag.py           # why dollar-reward PPO does not learn (~1 min)
+                                  #   -> results/ppo_grad_diag.json
+python run_ppo_scale_check.py     # PPO dollars vs scaled, sim validation (~7 min)
+                                  #   -> results/ppo_scale_check.json
+python -m pytest -q test_v2.py test_learners.py   # 26 tests, ~35 s
 ```
 
 The ablation answers a viva question: without the volatility features

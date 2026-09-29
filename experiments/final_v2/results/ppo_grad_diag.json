@@ -1,0 +1,921 @@
+{
+  "study": "PPO gradient diagnostic",
+  "worlds": {
+    "known_answer": {
+      "dollars": {
+        "reward_scale": 1.0,
+        "adam_eps": 1e-05,
+        "chunks": 20,
+        "steps": 40960,
+        "trace": [
+          {
+            "policy_grad_norm": 0.20110270380973816,
+            "value_grad_norm": 120.48729705810547,
+            "clip_factor": 0.004149809246323569,
+            "median_clipped_policy_grad": 6.539831360896642e-07,
+            "value_loss": 148946.25,
+            "actor_weight_change": 0.20099733769893646
+          },
+          {
+            "policy_grad_norm": 0.18767544627189636,
+            "value_grad_norm": 768.3696899414062,
+            "clip_factor": 0.0006507284071456575,
+            "median_clipped_policy_grad": 8.162647446852134e-08,
+            "value_loss": 155152.96875,
+            "actor_weight_change": 0.075611412525177
+          },
+          {
+            "policy_grad_norm": 0.1802753359079361,
+            "value_grad_norm": 836.55224609375,
+            "clip_factor": 0.0005976912860221149,
+            "median_clipped_policy_grad": 8.871639778362805e-08,
+            "value_loss": 200160.28125,
+            "actor_weight_change": 0.03345368057489395
+          },
+          {
+            "policy_grad_norm": 0.28152790665626526,
+            "value_grad_norm": 1326.43408203125,
+            "clip_factor": 0.0003769504984337192,
+            "median_clipped_policy_grad": 6.804301477814079e-08,
+            "value_loss": 151661.515625,
+            "actor_weight_change": 0.03235456719994545
+          },
+          {
+            "policy_grad_norm": 0.19425329566001892,
+            "value_grad_norm": 2365.297119140625,
+            "clip_factor": 0.00021138993239212488,
+            "median_clipped_policy_grad": 5.897488364325909e-08,
+            "value_loss": 185704.53125,
+            "actor_weight_change": 0.03818865120410919
+          },
+          {
+            "policy_grad_norm": 0.14362649619579315,
+            "value_grad_norm": 2533.64990234375,
+            "clip_factor": 0.00019734376029488575,
+            "median_clipped_policy_grad": 3.985994467825549e-08,
+            "value_loss": 219902.890625,
+            "actor_weight_change": 0.046620555222034454
+          },
+          {
+            "policy_grad_norm": 0.19138334691524506,
+            "value_grad_norm": 2474.872802734375,
+            "clip_factor": 0.00020203058425893137,
+            "median_clipped_policy_grad": 5.578354489443882e-08,
+            "value_loss": 153076.53125,
+            "actor_weight_change": 0.026431594043970108
+          },
+          {
+            "policy_grad_norm": 0.10009186714887619,
+            "value_grad_norm": 2820.667236328125,
+            "clip_factor": 0.0001772630224041689,
+            "median_clipped_policy_grad": 1.333108290424434e-08,
+            "value_loss": 237681.515625,
+            "actor_weight_change": 0.021898066624999046
+          },
+          {
+            "policy_grad_norm": 0.15766021609306335,
+            "value_grad_norm": 2375.17041015625,
+            "clip_factor": 0.00021051121071143295,
+            "median_clipped_policy_grad": 5.02376309441388e-08,
+            "value_loss": 238387.78125,
+            "actor_weight_change": 0.02273820899426937
+          },
+          {
+            "policy_grad_norm": 0.07991816848516464,
+            "value_grad_norm": 2192.970458984375,
+            "clip_factor": 0.00022800124707176474,
+            "median_clipped_policy_grad": 1.1312977221678011e-08,
+            "value_loss": 185356.0625,
+            "actor_weight_change": 0.021081404760479927
+          },
+          {
+            "policy_grad_norm": 0.11716385930776596,
+            "value_grad_norm": 2011.310302734375,
+            "clip_factor": 0.00024859416183734435,
+            "median_clipped_policy_grad": 4.959811406024528e-08,
+            "value_loss": 195116.34375,
+            "actor_weight_change": 0.05183999985456467
+          },
+          {
+            "policy_grad_norm": 0.05495913699269295,
+            "value_grad_norm": 2320.21875,
+            "clip_factor": 0.00021549692228124353,
+            "median_clipped_policy_grad": 2.4308093315994483e-08,
+            "value_loss": 212357.1875,
+            "actor_weight_change": 0.019624505192041397
+          },
+          {
+            "policy_grad_norm": 0.12413977086544037,
+            "value_grad_norm": 2215.399169921875,
+            "clip_factor": 0.00022569296124046146,
+            "median_clipped_policy_grad": 3.377763846401649e-08,
+            "value_loss": 205035.9375,
+            "actor_weight_change": 0.019248533993959427
+          },
+          {
+            "policy_grad_norm": 0.2073090672492981,
+            "value_grad_norm": 2222.552490234375,
+            "clip_factor": 0.00022496656425299565,
+            "median_clipped_policy_grad": 6.298834875906323e-08,
+            "value_loss": 208149.109375,
+            "actor_weight_change": 0.03845994174480438
+          },
+          {
+            "policy_grad_norm": 0.08782830089330673,
+            "value_grad_norm": 2115.403564453125,
+            "clip_factor": 0.00023636151878280164,
+            "median_clipped_policy_grad": 3.809801185639117e-08,
+            "value_loss": 208024.21875,
+            "actor_weight_change": 0.05612524598836899
+          },
+          {
+            "policy_grad_norm": 0.20071542263031006,
+            "value_grad_norm": 2420.130126953125,
+            "clip_factor": 0.00020660046024190392,
+            "median_clipped_policy_grad": 6.981726841104319e-08,
+            "value_loss": 247071.8125,
+            "actor_weight_change": 0.035340141505002975
+          },
+          {
+            "policy_grad_norm": 0.183022141456604,
+            "value_grad_norm": 1766.353515625,
+            "clip_factor": 0.00028306904173480474,
+            "median_clipped_policy_grad": 9.817977542070366e-08,
+            "value_loss": 164615.5,
+            "actor_weight_change": 0.0669105052947998
+          },
+          {
+            "policy_grad_norm": 0.049032025039196014,
+            "value_grad_norm": 1994.0535888671875,
+            "clip_factor": 0.00025074551776822903,
+            "median_clipped_policy_grad": 3.8113771694270326e-08,
+            "value_loss": 192470.46875,
+            "actor_weight_change": 0.02438467927277088
+          },
+          {
+            "policy_grad_norm": 0.069730743765831,
+            "value_grad_norm": 2031.802001953125,
+            "clip_factor": 0.0002460869705703679,
+            "median_clipped_policy_grad": 4.527809949195216e-08,
+            "value_loss": 190977.953125,
+            "actor_weight_change": 0.03726624697446823
+          },
+          {
+            "policy_grad_norm": 0.09579557180404663,
+            "value_grad_norm": 2293.751708984375,
+            "clip_factor": 0.00021798348852995698,
+            "median_clipped_policy_grad": 4.368319395098297e-08,
+            "value_loss": 238411.0625,
+            "actor_weight_change": 0.05905690789222717
+          }
+        ],
+        "first_bar_action_probs": {
+          "up": {
+            "hold": 0.3982639014720917,
+            "buy": 0.6017361283302307,
+            "sell": 0.0
+          },
+          "down": {
+            "hold": 0.4059932231903076,
+            "buy": 0.5940070152282715,
+            "sell": 0.0
+          }
+        },
+        "median_over_chunks": {
+          "policy_grad_norm": 0.15064335614442825,
+          "value_grad_norm": 2204.184814453125,
+          "clip_factor": 0.00022684710415611311,
+          "median_clipped_policy_grad": 4.991787250219204e-08,
+          "value_loss": 197638.3125,
+          "actor_weight_change": 0.0363031942397356
+        }
+      },
+      "fraction_of_capital": {
+        "reward_scale": 0.0001,
+        "adam_eps": 1e-05,
+        "chunks": 20,
+        "steps": 40960,
+        "trace": [
+          {
+            "policy_grad_norm": 0.1146719679236412,
+            "value_grad_norm": 0.006948837079107761,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0001239692937815562,
+            "value_loss": 0.0017751408740878105,
+            "actor_weight_change": 0.8553532958030701
+          },
+          {
+            "policy_grad_norm": 0.3027936518192291,
+            "value_grad_norm": 0.006720579694956541,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0002981691504828632,
+            "value_loss": 0.00046908273361623287,
+            "actor_weight_change": 0.9861354231834412
+          },
+          {
+            "policy_grad_norm": 0.08746001869440079,
+            "value_grad_norm": 0.0027974029071629047,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00018240991630591452,
+            "value_loss": 0.00023087194131221622,
+            "actor_weight_change": 1.7375900745391846
+          },
+          {
+            "policy_grad_norm": 0.1886262446641922,
+            "value_grad_norm": 0.013870703987777233,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0002938034012913704,
+            "value_loss": 0.0003326390287838876,
+            "actor_weight_change": 2.118964433670044
+          },
+          {
+            "policy_grad_norm": 0.1857077181339264,
+            "value_grad_norm": 0.014939514920115471,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00032848049886524677,
+            "value_loss": 0.0003509719390422106,
+            "actor_weight_change": 0.9714387655258179
+          },
+          {
+            "policy_grad_norm": 0.34303319454193115,
+            "value_grad_norm": 0.005440618842840195,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0005993142258375883,
+            "value_loss": 0.00030917784897610545,
+            "actor_weight_change": 0.7246460318565369
+          },
+          {
+            "policy_grad_norm": 0.36336106061935425,
+            "value_grad_norm": 0.013741441071033478,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.000654025818221271,
+            "value_loss": 0.00024004672013688833,
+            "actor_weight_change": 0.7156263589859009
+          },
+          {
+            "policy_grad_norm": 0.2656557857990265,
+            "value_grad_norm": 0.0028266888111829758,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0003496961435303092,
+            "value_loss": 0.00011160432040924206,
+            "actor_weight_change": 0.6818429231643677
+          },
+          {
+            "policy_grad_norm": 0.3550211489200592,
+            "value_grad_norm": 0.005270915571600199,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0006062898901291192,
+            "value_loss": 5.077991227153689e-05,
+            "actor_weight_change": 0.6315196752548218
+          },
+          {
+            "policy_grad_norm": 0.34158235788345337,
+            "value_grad_norm": 0.004123309161514044,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00044010349665768445,
+            "value_loss": 3.91487919841893e-05,
+            "actor_weight_change": 1.1611987352371216
+          },
+          {
+            "policy_grad_norm": 0.12762020528316498,
+            "value_grad_norm": 0.003712761914357543,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00016846736252773553,
+            "value_loss": 2.481688352418132e-05,
+            "actor_weight_change": 0.5262038111686707
+          },
+          {
+            "policy_grad_norm": 0.02807522378861904,
+            "value_grad_norm": 0.0009341035620309412,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 5.576519833994098e-05,
+            "value_loss": 1.0489968190086074e-05,
+            "actor_weight_change": 0.47590166330337524
+          },
+          {
+            "policy_grad_norm": 0.07376381754875183,
+            "value_grad_norm": 0.0029690610244870186,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 9.650208812672645e-05,
+            "value_loss": 6.274359748204006e-06,
+            "actor_weight_change": 0.3406842350959778
+          },
+          {
+            "policy_grad_norm": 0.028333716094493866,
+            "value_grad_norm": 0.0008829362923279405,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 4.344026820035651e-05,
+            "value_loss": 4.709029781224672e-06,
+            "actor_weight_change": 0.40611812472343445
+          },
+          {
+            "policy_grad_norm": 0.5497871041297913,
+            "value_grad_norm": 0.0015002174768596888,
+            "clip_factor": 0.9094378993903323,
+            "median_clipped_policy_grad": 0.0005363054224289954,
+            "value_loss": 4.214215550746303e-06,
+            "actor_weight_change": 0.46584928035736084
+          },
+          {
+            "policy_grad_norm": 0.01729915849864483,
+            "value_grad_norm": 0.001197967678308487,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 2.5020302928169258e-05,
+            "value_loss": 1.5362086287495913e-06,
+            "actor_weight_change": 0.42930153012275696
+          },
+          {
+            "policy_grad_norm": 0.012193032540380955,
+            "value_grad_norm": 0.001234165159985423,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 1.7347292669001035e-05,
+            "value_loss": 7.355175171142037e-07,
+            "actor_weight_change": 0.4257822334766388
+          },
+          {
+            "policy_grad_norm": 0.00404356000944972,
+            "value_grad_norm": 0.00044870475539937615,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 4.444113073986955e-06,
+            "value_loss": 1.595617618477263e-06,
+            "actor_weight_change": 0.2735796570777893
+          },
+          {
+            "policy_grad_norm": 0.01820681430399418,
+            "value_grad_norm": 0.001838397467508912,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 1.8892478692578152e-05,
+            "value_loss": 7.536395969509613e-07,
+            "actor_weight_change": 0.24880117177963257
+          },
+          {
+            "policy_grad_norm": 0.012008698657155037,
+            "value_grad_norm": 0.0030457822140306234,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 1.4472634575213306e-05,
+            "value_loss": 1.6560676385779516e-06,
+            "actor_weight_change": 0.23869040608406067
+          }
+        ],
+        "first_bar_action_probs": {
+          "up": {
+            "hold": 0.00620233966037631,
+            "buy": 0.9937973618507385,
+            "sell": 0.0
+          },
+          "down": {
+            "hold": 0.9962337017059326,
+            "buy": 0.00376699841581285,
+            "sell": 0.0
+          }
+        },
+        "median_over_chunks": {
+          "policy_grad_norm": 0.12114608660340309,
+          "value_grad_norm": 0.003007421619258821,
+          "clip_factor": 1.0,
+          "median_clipped_policy_grad": 0.00017543863941682503,
+          "value_loss": 3.198283775418531e-05,
+          "actor_weight_change": 0.5788617432117462
+        }
+      }
+    },
+    "simulated_train": {
+      "dollars": {
+        "reward_scale": 1.0,
+        "adam_eps": 1e-05,
+        "chunks": 30,
+        "steps": 61440,
+        "trace": [
+          {
+            "policy_grad_norm": 0.19346757233142853,
+            "value_grad_norm": 93.6557388305664,
+            "clip_factor": 0.005338689695866323,
+            "median_clipped_policy_grad": 5.978961894470558e-07,
+            "value_loss": 51923.140625,
+            "actor_weight_change": 0.22018542885780334
+          },
+          {
+            "policy_grad_norm": 0.19563733041286469,
+            "value_grad_norm": 32.72565460205078,
+            "clip_factor": 0.015278259720482402,
+            "median_clipped_policy_grad": 2.2487931801151717e-06,
+            "value_loss": 23400.556640625,
+            "actor_weight_change": 0.052398599684238434
+          },
+          {
+            "policy_grad_norm": 0.19282166659832,
+            "value_grad_norm": 269.22344970703125,
+            "clip_factor": 0.001857192865057815,
+            "median_clipped_policy_grad": 5.252239247965917e-07,
+            "value_loss": 38140.4140625,
+            "actor_weight_change": 0.13568995893001556
+          },
+          {
+            "policy_grad_norm": 0.100349560379982,
+            "value_grad_norm": 191.4509735107422,
+            "clip_factor": 0.0026116342974682803,
+            "median_clipped_policy_grad": 5.871788744116202e-07,
+            "value_loss": 26841.74609375,
+            "actor_weight_change": 0.24384036660194397
+          },
+          {
+            "policy_grad_norm": 0.21090345084667206,
+            "value_grad_norm": 279.540283203125,
+            "clip_factor": 0.0017886504591669503,
+            "median_clipped_policy_grad": 7.387085361187928e-07,
+            "value_loss": 52691.65625,
+            "actor_weight_change": 0.1618676632642746
+          },
+          {
+            "policy_grad_norm": 0.3749031722545624,
+            "value_grad_norm": 312.80902099609375,
+            "clip_factor": 0.0015984182224228803,
+            "median_clipped_policy_grad": 9.028667022903392e-07,
+            "value_loss": 39560.33984375,
+            "actor_weight_change": 0.24986714124679565
+          },
+          {
+            "policy_grad_norm": 0.12879452109336853,
+            "value_grad_norm": 208.6475830078125,
+            "clip_factor": 0.0023963848281217384,
+            "median_clipped_policy_grad": 4.3813176375806506e-07,
+            "value_loss": 33385.9921875,
+            "actor_weight_change": 0.08767849206924438
+          },
+          {
+            "policy_grad_norm": 0.2641589939594269,
+            "value_grad_norm": 168.19070434570312,
+            "clip_factor": 0.002972812215059903,
+            "median_clipped_policy_grad": 1.3851706626155647e-06,
+            "value_loss": 17617.546875,
+            "actor_weight_change": 0.0743931382894516
+          },
+          {
+            "policy_grad_norm": 0.3407289385795593,
+            "value_grad_norm": 706.3981323242188,
+            "clip_factor": 0.0007078160576139203,
+            "median_clipped_policy_grad": 3.2110142456076574e-07,
+            "value_loss": 70938.546875,
+            "actor_weight_change": 0.0581061989068985
+          },
+          {
+            "policy_grad_norm": 0.33664992451667786,
+            "value_grad_norm": 176.57635498046875,
+            "clip_factor": 0.0028316310442711547,
+            "median_clipped_policy_grad": 1.1818694929388585e-06,
+            "value_loss": 33645.6171875,
+            "actor_weight_change": 0.07671863585710526
+          },
+          {
+            "policy_grad_norm": 0.2574441432952881,
+            "value_grad_norm": 316.94830322265625,
+            "clip_factor": 0.0015775438088718122,
+            "median_clipped_policy_grad": 9.589605269866297e-07,
+            "value_loss": 46025.5859375,
+            "actor_weight_change": 0.07864683121442795
+          },
+          {
+            "policy_grad_norm": 0.07114259153604507,
+            "value_grad_norm": 543.4293823242188,
+            "clip_factor": 0.0009200827394661945,
+            "median_clipped_policy_grad": 1.8393478740108549e-07,
+            "value_loss": 47394.87890625,
+            "actor_weight_change": 0.18114550411701202
+          },
+          {
+            "policy_grad_norm": 0.1911228597164154,
+            "value_grad_norm": 743.3168334960938,
+            "clip_factor": 0.0006726606478798121,
+            "median_clipped_policy_grad": 2.901381606079667e-07,
+            "value_loss": 32270.943359375,
+            "actor_weight_change": 0.09237883985042572
+          },
+          {
+            "policy_grad_norm": 0.13145069777965546,
+            "value_grad_norm": 460.9111328125,
+            "clip_factor": 0.0010848077709248846,
+            "median_clipped_policy_grad": 3.2918006809268263e-07,
+            "value_loss": 30479.15625,
+            "actor_weight_change": 0.08259900659322739
+          },
+          {
+            "policy_grad_norm": 0.2779274880886078,
+            "value_grad_norm": 318.871826171875,
+            "clip_factor": 0.0015680275504884856,
+            "median_clipped_policy_grad": 8.706218181941949e-07,
+            "value_loss": 10661.13671875,
+            "actor_weight_change": 0.13221776485443115
+          },
+          {
+            "policy_grad_norm": 0.2596738338470459,
+            "value_grad_norm": 212.78225708007812,
+            "clip_factor": 0.0023498182234928697,
+            "median_clipped_policy_grad": 4.3184914488847426e-07,
+            "value_loss": 17124.09765625,
+            "actor_weight_change": 0.09663165360689163
+          },
+          {
+            "policy_grad_norm": 0.1187363937497139,
+            "value_grad_norm": 560.8373413085938,
+            "clip_factor": 0.0008915240678095105,
+            "median_clipped_policy_grad": 2.2857629744521546e-07,
+            "value_loss": 6643.0029296875,
+            "actor_weight_change": 0.11510345339775085
+          },
+          {
+            "policy_grad_norm": 0.21131369471549988,
+            "value_grad_norm": 668.9337768554688,
+            "clip_factor": 0.0007474581066235489,
+            "median_clipped_policy_grad": 1.9140378526572022e-07,
+            "value_loss": 7769.89794921875,
+            "actor_weight_change": 0.10271315276622772
+          },
+          {
+            "policy_grad_norm": 0.06192115694284439,
+            "value_grad_norm": 448.2837829589844,
+            "clip_factor": 0.0011153648941176438,
+            "median_clipped_policy_grad": 1.7509397309822816e-07,
+            "value_loss": 7221.42529296875,
+            "actor_weight_change": 0.11591711640357971
+          },
+          {
+            "policy_grad_norm": 0.3024658262729645,
+            "value_grad_norm": 334.46331787109375,
+            "clip_factor": 0.001494931633261747,
+            "median_clipped_policy_grad": 1.0843722293429892e-06,
+            "value_loss": 5597.5869140625,
+            "actor_weight_change": 0.1096951961517334
+          },
+          {
+            "policy_grad_norm": 0.03350817412137985,
+            "value_grad_norm": 409.0539855957031,
+            "clip_factor": 0.0012223325397305483,
+            "median_clipped_policy_grad": 1.2064046472914924e-07,
+            "value_loss": 5532.1767578125,
+            "actor_weight_change": 0.09336651861667633
+          },
+          {
+            "policy_grad_norm": 0.10871858149766922,
+            "value_grad_norm": 218.2877960205078,
+            "clip_factor": 0.002290553777219135,
+            "median_clipped_policy_grad": 3.357949935889337e-07,
+            "value_loss": 6688.994140625,
+            "actor_weight_change": 0.08548407256603241
+          },
+          {
+            "policy_grad_norm": 0.22566890716552734,
+            "value_grad_norm": 941.0693969726562,
+            "clip_factor": 0.0005313104290725851,
+            "median_clipped_policy_grad": 3.5279586541037133e-07,
+            "value_loss": 30285.1328125,
+            "actor_weight_change": 0.07324956357479095
+          },
+          {
+            "policy_grad_norm": 0.21215590834617615,
+            "value_grad_norm": 504.97564697265625,
+            "clip_factor": 0.0009901466692104177,
+            "median_clipped_policy_grad": 5.376223271014169e-07,
+            "value_loss": 14038.12890625,
+            "actor_weight_change": 0.08866912871599197
+          },
+          {
+            "policy_grad_norm": 0.313103049993515,
+            "value_grad_norm": 746.8411865234375,
+            "clip_factor": 0.0006694863170552091,
+            "median_clipped_policy_grad": 4.30203471069035e-07,
+            "value_loss": 10308.857421875,
+            "actor_weight_change": 0.07813429087400436
+          },
+          {
+            "policy_grad_norm": 0.11583506315946579,
+            "value_grad_norm": 755.3273315429688,
+            "clip_factor": 0.0006619646510566735,
+            "median_clipped_policy_grad": 1.829286730981039e-07,
+            "value_loss": 10795.041015625,
+            "actor_weight_change": 0.042707111686468124
+          },
+          {
+            "policy_grad_norm": 0.13159331679344177,
+            "value_grad_norm": 421.4273986816406,
+            "clip_factor": 0.0011864439189329746,
+            "median_clipped_policy_grad": 2.3081074118636025e-07,
+            "value_loss": 4309.2763671875,
+            "actor_weight_change": 0.11409604549407959
+          },
+          {
+            "policy_grad_norm": 0.18337425589561462,
+            "value_grad_norm": 482.12225341796875,
+            "clip_factor": 0.0010370812781448123,
+            "median_clipped_policy_grad": 3.754600754746207e-07,
+            "value_loss": 9707.095703125,
+            "actor_weight_change": 0.0755387470126152
+          },
+          {
+            "policy_grad_norm": 0.18237388134002686,
+            "value_grad_norm": 559.4322509765625,
+            "clip_factor": 0.0008937632245275886,
+            "median_clipped_policy_grad": 3.877957510667329e-07,
+            "value_loss": 2314.8564453125,
+            "actor_weight_change": 0.10986610502004623
+          },
+          {
+            "policy_grad_norm": 0.49982941150665283,
+            "value_grad_norm": 123.34002685546875,
+            "clip_factor": 0.004053800725963711,
+            "median_clipped_policy_grad": 5.46409410162596e-06,
+            "value_loss": 9314.7333984375,
+            "actor_weight_change": 0.08663349598646164
+          }
+        ],
+        "first_bar_action_probs": {
+          "up": {
+            "hold": 0.8210198283195496,
+            "buy": 0.17898014187812805,
+            "sell": 0.0
+          },
+          "down": {
+            "hold": 0.8265762329101562,
+            "buy": 0.17342381179332733,
+            "sell": 0.0
+          }
+        },
+        "median_over_chunks": {
+          "policy_grad_norm": 0.1945524513721466,
+          "value_grad_norm": 371.75865173339844,
+          "clip_factor": 0.0013586320864961477,
+          "median_clipped_policy_grad": 4.3102630797875463e-07,
+          "value_loss": 17370.822265625,
+          "actor_weight_change": 0.09287267923355103
+        }
+      },
+      "fraction_of_capital": {
+        "reward_scale": 0.0001,
+        "adam_eps": 1e-05,
+        "chunks": 30,
+        "steps": 61440,
+        "trace": [
+          {
+            "policy_grad_norm": 0.08933843672275543,
+            "value_grad_norm": 0.006040922831743956,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 7.969454600242898e-05,
+            "value_loss": 0.002434774301946163,
+            "actor_weight_change": 0.9961150288581848
+          },
+          {
+            "policy_grad_norm": 0.3227277994155884,
+            "value_grad_norm": 0.0046294694766402245,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00016448093811050057,
+            "value_loss": 0.00023240881273522973,
+            "actor_weight_change": 0.7159713506698608
+          },
+          {
+            "policy_grad_norm": 0.34424519538879395,
+            "value_grad_norm": 0.01126039493829012,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0003155060694552958,
+            "value_loss": 0.0001367406512144953,
+            "actor_weight_change": 0.4692293405532837
+          },
+          {
+            "policy_grad_norm": 0.4574814736843109,
+            "value_grad_norm": 0.0035746849607676268,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00015211915888357908,
+            "value_loss": 0.0001525717379990965,
+            "actor_weight_change": 0.9551015496253967
+          },
+          {
+            "policy_grad_norm": 0.31786856055259705,
+            "value_grad_norm": 0.004616233520209789,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0002426398277748376,
+            "value_loss": 4.8142566811293364e-05,
+            "actor_weight_change": 0.27458396553993225
+          },
+          {
+            "policy_grad_norm": 0.2528749704360962,
+            "value_grad_norm": 0.0016206366708502173,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0004331160453148186,
+            "value_loss": 9.557700832374394e-05,
+            "actor_weight_change": 0.5134817361831665
+          },
+          {
+            "policy_grad_norm": 0.3466123938560486,
+            "value_grad_norm": 0.006095946300774813,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0004847659729421139,
+            "value_loss": 8.047375740716234e-05,
+            "actor_weight_change": 0.6247426867485046
+          },
+          {
+            "policy_grad_norm": 0.11553579568862915,
+            "value_grad_norm": 0.008225004188716412,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00020373312872834504,
+            "value_loss": 3.432758239796385e-05,
+            "actor_weight_change": 0.49001216888427734
+          },
+          {
+            "policy_grad_norm": 0.21841074526309967,
+            "value_grad_norm": 0.0012590273981913924,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0002709966793190688,
+            "value_loss": 0.00011007332795998082,
+            "actor_weight_change": 0.36939746141433716
+          },
+          {
+            "policy_grad_norm": 0.448640912771225,
+            "value_grad_norm": 0.0004596289072651416,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.000653338385745883,
+            "value_loss": 4.125312261749059e-05,
+            "actor_weight_change": 0.39815375208854675
+          },
+          {
+            "policy_grad_norm": 0.3469327986240387,
+            "value_grad_norm": 0.008942960761487484,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00025901643675751984,
+            "value_loss": 6.239152571652085e-05,
+            "actor_weight_change": 0.7761164307594299
+          },
+          {
+            "policy_grad_norm": 0.3837968409061432,
+            "value_grad_norm": 0.0024770505260676146,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.000650496338494122,
+            "value_loss": 3.6811390600632876e-05,
+            "actor_weight_change": 0.5279942750930786
+          },
+          {
+            "policy_grad_norm": 0.29125529527664185,
+            "value_grad_norm": 0.00205149850808084,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0009629798005335033,
+            "value_loss": 7.020781049504876e-05,
+            "actor_weight_change": 0.6897366642951965
+          },
+          {
+            "policy_grad_norm": 0.16495423018932343,
+            "value_grad_norm": 0.010337546467781067,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00021326719434000552,
+            "value_loss": 7.224387809401378e-05,
+            "actor_weight_change": 0.3150736689567566
+          },
+          {
+            "policy_grad_norm": 0.30849602818489075,
+            "value_grad_norm": 0.006415477022528648,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00034500850597396493,
+            "value_loss": 1.6227604646701366e-05,
+            "actor_weight_change": 0.3095022439956665
+          },
+          {
+            "policy_grad_norm": 0.18502245843410492,
+            "value_grad_norm": 0.0029672367963939905,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 4.308628194849007e-05,
+            "value_loss": 7.915009337011725e-05,
+            "actor_weight_change": 0.41016310453414917
+          },
+          {
+            "policy_grad_norm": 0.07272504270076752,
+            "value_grad_norm": 0.000979865319095552,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0001154475103248842,
+            "value_loss": 9.460686669626739e-06,
+            "actor_weight_change": 0.30374905467033386
+          },
+          {
+            "policy_grad_norm": 0.14216206967830658,
+            "value_grad_norm": 0.003956535365432501,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00019885902293026447,
+            "value_loss": 1.358000827167416e-05,
+            "actor_weight_change": 0.38252994418144226
+          },
+          {
+            "policy_grad_norm": 0.13492287695407867,
+            "value_grad_norm": 0.005774796940386295,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0002021790132857859,
+            "value_loss": 8.311453711939976e-06,
+            "actor_weight_change": 0.3229222893714905
+          },
+          {
+            "policy_grad_norm": 0.3007364273071289,
+            "value_grad_norm": 0.00455773901194334,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0002669213863555342,
+            "value_loss": 1.0472886060597375e-05,
+            "actor_weight_change": 0.25524675846099854
+          },
+          {
+            "policy_grad_norm": 0.08184801787137985,
+            "value_grad_norm": 0.002399384742602706,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.0001444558147341013,
+            "value_loss": 2.173904977098573e-05,
+            "actor_weight_change": 0.3121924102306366
+          },
+          {
+            "policy_grad_norm": 0.19204460084438324,
+            "value_grad_norm": 0.0006751608452759683,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 9.519097511656582e-05,
+            "value_loss": 1.911750587169081e-05,
+            "actor_weight_change": 0.7412768602371216
+          },
+          {
+            "policy_grad_norm": 0.512536346912384,
+            "value_grad_norm": 0.0022870232351124287,
+            "clip_factor": 0.9755289548371633,
+            "median_clipped_policy_grad": 0.0012198163894936442,
+            "value_loss": 0.00011791400902438909,
+            "actor_weight_change": 0.250213086605072
+          },
+          {
+            "policy_grad_norm": 0.15496009588241577,
+            "value_grad_norm": 0.006996361073106527,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00010828027734532952,
+            "value_loss": 1.9268449250375852e-05,
+            "actor_weight_change": 0.48525020480155945
+          },
+          {
+            "policy_grad_norm": 0.08598802983760834,
+            "value_grad_norm": 0.0008772439905442297,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00011036221258109435,
+            "value_loss": 1.0344882866775151e-05,
+            "actor_weight_change": 0.25961247086524963
+          },
+          {
+            "policy_grad_norm": 0.07334739714860916,
+            "value_grad_norm": 0.001088313409127295,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 8.638083818368614e-05,
+            "value_loss": 4.945867658534553e-06,
+            "actor_weight_change": 0.24949057400226593
+          },
+          {
+            "policy_grad_norm": 0.1610398292541504,
+            "value_grad_norm": 0.0035975370556116104,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00033409541356377304,
+            "value_loss": 1.011412859952543e-05,
+            "actor_weight_change": 0.4064405560493469
+          },
+          {
+            "policy_grad_norm": 0.16437801718711853,
+            "value_grad_norm": 0.002957223914563656,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00022193044424057007,
+            "value_loss": 3.176180598529754e-06,
+            "actor_weight_change": 0.3513806164264679
+          },
+          {
+            "policy_grad_norm": 0.10018785297870636,
+            "value_grad_norm": 0.0040118019096553326,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00025571673177182674,
+            "value_loss": 1.2394953955663368e-05,
+            "actor_weight_change": 0.2498912513256073
+          },
+          {
+            "policy_grad_norm": 0.16732463240623474,
+            "value_grad_norm": 0.0011909948661923409,
+            "clip_factor": 1.0,
+            "median_clipped_policy_grad": 0.00027942436281591654,
+            "value_loss": 9.25361382542178e-06,
+            "actor_weight_change": 0.3772179186344147
+          }
+        ],
+        "first_bar_action_probs": {
+          "up": {
+            "hold": 0.94736647605896,
+            "buy": 0.05263364315032959,
+            "sell": 0.0
+          },
+          "down": {
+            "hold": 0.9684433937072754,
+            "buy": 0.031556636095047,
+            "sell": 0.0
+          }
+        },
+        "median_over_chunks": {
+          "policy_grad_norm": 0.18853352963924408,
+          "value_grad_norm": 0.0035861110081896186,
+          "clip_factor": 1.0,
+          "median_clipped_policy_grad": 0.00023228513600770384,
+          "value_loss": 3.5569486499298364e-05,
+          "actor_weight_change": 0.3903418481349945
+        }
+      }
+    }
+  }
+}

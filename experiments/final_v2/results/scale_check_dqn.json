@@ -1,0 +1,72 @@
+{
+  "study": "dqn reward-scale check on the simulated validation split",
+  "algo": "dqn",
+  "timesteps": 300000,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "eval_split": "sim val (100 per regime)",
+  "baselines_val": {
+    "B0_do_nothing": 0.0,
+    "B1a_slice_bah": 0.9024938582559117,
+    "B1b_true_bah": 5.656079750616676,
+    "B2_random": -11.375519047129231
+  },
+  "cells": {
+    "dollars": {
+      "reward_scale": 1.0,
+      "per_seed": [
+        {
+          "seed": 42,
+          "mean_delta_w": 150.49875051426517,
+          "mean_exposure": 0.5837635318054408,
+          "mean_trades": 7.426666666666667,
+          "state_dependent": true,
+          "per_regime": {
+            "up": 452.70199242123095,
+            "down": -105.96582543484436,
+            "flat": 104.76008455640905
+          },
+          "wall_seconds": 123.3
+        },
+        {
+          "seed": 43,
+          "mean_delta_w": 176.590924203266,
+          "mean_exposure": 0.5632801755047039,
+          "mean_trades": 4.736666666666666,
+          "state_dependent": true,
+          "per_regime": {
+            "up": 447.8089041252657,
+            "down": -17.497622570088314,
+            "flat": 99.46149105462071
+          },
+          "wall_seconds": 111.7
+        },
+        {
+          "seed": 44,
+          "mean_delta_w": 174.85259195256717,
+          "mean_exposure": 0.5718092795778554,
+          "mean_trades": 4.6033333333333335,
+          "state_dependent": true,
+          "per_regime": {
+            "up": 447.03056953914404,
+            "down": -15.379057540178637,
+            "flat": 92.90626385873607
+          },
+          "wall_seconds": 111.8
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "git_commit": "a78bab62ec73df9761419a934ee16f9e438a6961",
+    "git_dirty": true,
+    "python": "3.14.4",
+    "torch": "2.13.0",
+    "numpy": "2.5.2",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "timestamp": "2026-09-29T00:47:11+0100"
+  }
+}

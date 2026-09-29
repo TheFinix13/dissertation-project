@@ -110,8 +110,13 @@ def train_reinforce(
     lr: float = 1e-3,
     hidden=HIDDEN_DEFAULT,
     reward_scale: float = 1.0,
+    ent_coef: float = 0.0,
 ) -> TrainResult:
     """Plain REINFORCE, exactly as derived in Chapter 3.
+
+    `ent_coef` adds the same entropy bonus PPO uses, so the two
+    policy-gradient methods share one exploration control in the post-viva
+    tuning. At 0 the update is the dissertation's.
 
     `reward_scale` divides the reward before the update. It is learner-side
     preprocessing, not a change to the MDP: the environment still emits dollars
@@ -132,6 +137,7 @@ def train_reinforce(
         env = factory(_sample_episode(rng, episodes))
         obs, _ = env.reset()
         log_probs: list[torch.Tensor] = []
+        entropies: list[torch.Tensor] = []
         rewards: list[float] = []
         dws: list[float] = []
 
@@ -140,6 +146,7 @@ def train_reinforce(
             dist = policy.masked_dist(obs, env.action_masks())
             action = dist.sample()
             log_probs.append(dist.log_prob(action))
+            entropies.append(dist.entropy())
             obs, reward, term, trunc, info = env.step(int(action.item()))
             rewards.append(float(reward) * reward_scale)
             dws.append(float(info["dw"]))
@@ -156,6 +163,8 @@ def train_reinforce(
             returns_t = (returns_t - returns_t.mean()) / (returns_t.std() + 1e-8)
 
         loss = -(torch.stack(log_probs) * returns_t).sum()
+        if ent_coef:
+            loss = loss - ent_coef * torch.stack(entropies).sum()
         opt.zero_grad()
         loss.backward()
         opt.step()

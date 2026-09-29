@@ -168,6 +168,28 @@ def run_baselines(cfg: Config, episodes: Sequence[dict]) -> dict[str, dict]:
 
 # ---------------------------------------------------------------- training
 
+class ScaledReward:
+    """Multiply the reward the learner sees by `scale`; everything else passes through.
+
+    SB3 clips the joint gradient of the policy and value networks to norm 0.5.
+    With rewards in dollars the value loss dominates that norm and the policy
+    gradient is clipped to almost nothing, so PPO needs the same learner-side
+    scaling the scratch agents already expose. Reported metrics use `info["dw"]`
+    and stay in dollars.
+    """
+
+    def __init__(self, env, scale: float):
+        self.env = env
+        self.scale = float(scale)
+
+    def __getattr__(self, name):
+        return getattr(self.env, name)
+
+    def step(self, action):
+        obs, reward, term, trunc, info = self.env.step(action)
+        return obs, float(reward) * self.scale, term, trunc, info
+
+
 def train_one(
     algo: str,
     cfg: Config,
@@ -176,16 +198,23 @@ def train_one(
     seed: int,
     total_timesteps: int,
     reward_scale: float = 1.0,
+    algo_kwargs: dict | None = None,
 ) -> tuple[Callable, dict]:
-    """Train one agent. Returns (greedy policy, training trace)."""
+    """Train one agent. Returns (greedy policy, training trace).
+
+    `algo_kwargs` overrides the learner's hyperparameters (the trainer's keyword
+    arguments for the scratch agents, MaskablePPO's for PPO). Leaving it empty
+    reproduces the dissertation runs exactly.
+    """
     factory = cfg.factory()
     obs_dim = len(cfg.feature_names)
+    kwargs = dict(algo_kwargs or {})
     t0 = time.time()
 
     if algo == "reinforce":
         res = agents.train_reinforce(factory, train_episodes, obs_dim=obs_dim,
                                      total_timesteps=total_timesteps, seed=seed,
-                                     reward_scale=reward_scale)
+                                     reward_scale=reward_scale, **kwargs)
         policy = agents.make_reinforce_policy(res.model)
         trace = {"episode_delta_w": res.episode_delta_w,
                  "episode_returns": res.episode_returns,
@@ -193,7 +222,7 @@ def train_one(
     elif algo == "dqn":
         res = agents.train_dqn(factory, train_episodes, obs_dim=obs_dim,
                                total_timesteps=total_timesteps, seed=seed,
-                               reward_scale=reward_scale)
+                               reward_scale=reward_scale, **kwargs)
         policy = agents.make_dqn_policy(res.model)
         trace = {"episode_delta_w": res.episode_delta_w,
                  "episode_returns": res.episode_returns,
@@ -202,9 +231,11 @@ def train_one(
         from sb3_contrib import MaskablePPO
         from month_sampler import MonthSampler
 
-        venv = MonthSampler(factory, train_episodes, seed=seed)
-        model = MaskablePPO("MlpPolicy", venv, seed=seed, verbose=0,
-                            policy_kwargs={"net_arch": list(agents.HIDDEN_DEFAULT)})
+        learner_factory = factory if reward_scale == 1.0 else (
+            lambda ep: ScaledReward(factory(ep), reward_scale))
+        venv = MonthSampler(learner_factory, train_episodes, seed=seed)
+        kwargs.setdefault("policy_kwargs", {"net_arch": list(agents.HIDDEN_DEFAULT)})
+        model = MaskablePPO("MlpPolicy", venv, seed=seed, verbose=0, **kwargs)
         model.learn(total_timesteps=total_timesteps, progress_bar=False)
         policy = agents.make_sb3_policy(model)
         trace = {"note": "SB3 does not expose per-episode wealth change directly"}

@@ -1,0 +1,115 @@
+{
+  "study": "PPO reward-scale check on the simulated validation split",
+  "timesteps": 300000,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "eval_split": "sim val (100 per regime)",
+  "baselines_val": {
+    "B0_do_nothing": 0.0,
+    "B1a_slice_bah": 0.9024938582559117,
+    "B1b_true_bah": 5.656079750616676,
+    "B2_random": -11.375519047129231
+  },
+  "cells": {
+    "dollars": {
+      "reward_scale": 1.0,
+      "per_seed": [
+        {
+          "seed": 42,
+          "mean_delta_w": 0.0,
+          "mean_exposure": 0.0,
+          "mean_trades": 0.0,
+          "state_dependent": false,
+          "per_regime": {
+            "up": 0.0,
+            "down": 0.0,
+            "flat": 0.0
+          },
+          "wall_seconds": 70.7
+        },
+        {
+          "seed": 43,
+          "mean_delta_w": 0.0,
+          "mean_exposure": 0.0,
+          "mean_trades": 0.0,
+          "state_dependent": false,
+          "per_regime": {
+            "up": 0.0,
+            "down": 0.0,
+            "flat": 0.0
+          },
+          "wall_seconds": 75.4
+        },
+        {
+          "seed": 44,
+          "mean_delta_w": 0.0,
+          "mean_exposure": 0.0,
+          "mean_trades": 0.0,
+          "state_dependent": false,
+          "per_regime": {
+            "up": 0.0,
+            "down": 0.0,
+            "flat": 0.0
+          },
+          "wall_seconds": 68.3
+        }
+      ]
+    },
+    "fraction_of_capital": {
+      "reward_scale": 0.0001,
+      "per_seed": [
+        {
+          "seed": 42,
+          "mean_delta_w": 153.20986751588643,
+          "mean_exposure": 0.4451772148634052,
+          "mean_trades": 3.2066666666666666,
+          "state_dependent": true,
+          "per_regime": {
+            "up": 406.0523748699887,
+            "down": -25.168913329749156,
+            "flat": 78.74614100741988
+          },
+          "wall_seconds": 67.8
+        },
+        {
+          "seed": 43,
+          "mean_delta_w": 130.84411588523884,
+          "mean_exposure": 0.4391338880884474,
+          "mean_trades": 3.493333333333333,
+          "state_dependent": true,
+          "per_regime": {
+            "up": 384.8492197329587,
+            "down": -52.54500367695044,
+            "flat": 60.22813159970819
+          },
+          "wall_seconds": 69.1
+        },
+        {
+          "seed": 44,
+          "mean_delta_w": 78.48294739286291,
+          "mean_exposure": 0.3102758792874146,
+          "mean_trades": 3.3766666666666665,
+          "state_dependent": true,
+          "per_regime": {
+            "up": 259.6629371879154,
+            "down": -59.205453710414474,
+            "flat": 34.991358701087826
+          },
+          "wall_seconds": 70.0
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "git_commit": "a78bab62ec73df9761419a934ee16f9e438a6961",
+    "git_dirty": true,
+    "python": "3.14.4",
+    "torch": "2.13.0",
+    "numpy": "2.5.2",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "timestamp": "2026-09-29T00:40:50+0100"
+  }
+}

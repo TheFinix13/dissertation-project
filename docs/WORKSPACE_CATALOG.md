@@ -182,6 +182,21 @@ buy-and-hold (0.224 vs 0.198).
 | `results/other_assets.json` | Other-asset results |
 | `experiments/final_v2/run_stop_loss.py` | Tuned stop-loss baseline (answers Nikitopoulos's "why not a simple rule?") |
 | `results/stop_loss.json` | Stop-loss results |
+| `experiments/final_v2/run_stats.py` | Bootstrap intervals and paired tests on saved results (SPY, AAPL, QQQ); no training |
+| `results/stats.json` | Statistics results |
+| `notes/post-viva/2026-09-28-improvement-plan.md` | Plan after the final feedback: tracks, owners, order |
+| `notes/post-viva/2026-09-28-statistics.md` | What the statistical tests show |
+| `experiments/final_v2/gate_audit.py` | Gate 2 and 4 measurements (capacity, balance, signal content, realism, coverage, seeds against months); no training |
+| `results/gate_audit.json` | Gate audit results |
+| `experiments/final_v2/test_learners.py` | Known-answer tests every learner must pass before tuning |
+| `experiments/final_v2/ppo_grad_diag.py` | Measures why PPO on dollar rewards does not learn (gradient norms, clip factor, Adam epsilon) |
+| `results/ppo_grad_diag.json` | PPO gradient diagnostic results |
+| `experiments/final_v2/run_ppo_scale_check.py` | PPO dollar vs scaled rewards on simulated validation months; `--algo dqn/reinforce` for references |
+| `results/ppo_scale_check.json`, `results/scale_check_dqn.json`, `results/scale_check_reinforce.json` | Scale check results |
+| `notes/post-viva/2026-09-29-gates-2-4-audit.md` | Gates 2 to 4 for Track B steps 3 to 5, including the PPO reward-scale finding |
+| `notes/post-viva/2026-09-29-experiment-designs.md` | Pre-registered designs: fair tuning with 20 seeds, and a hidden-state simulator |
+| `experiments/final_v2/freeze_post_viva_data.py` | Froze the fresh simulated tuning/test sets and the SPY 1993–2005 hold-out (run once) |
+| `experiments/final_v2/data/sim_post_viva.npz`, `spy_holdout_1993_2005.npz`, `spy_holdout_1993_2005_raw.csv`, `post_viva_data_meta.json` | Frozen post-viva evaluation data; the hold-out is sealed until Experiment 1's final policies are fixed |
 | `notebooks/reproduce_main_study.ipynb` | Reproduction notebook for outside researchers (verify → recompute → retrain); Colab-ready |
 | `notes/post-viva/improvement-backlog.md` | Ranked post-viva improvement backlog |
 | `notes/post-viva/lit-review-right-data.md` | Gate-1 literature review: what makes the right data |
