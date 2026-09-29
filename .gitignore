@@ -69,3 +69,9 @@ latex/viva/viva_deck_user_edits_backup.pptx
 *.fdb_latexmk
 latex/**/*.log
 latex/**/*.build.log
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Two-agent review files
+.agent-reviews/
